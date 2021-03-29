@@ -3,6 +3,13 @@
 
 <head>
     <link rel="stylesheet" href="css/login.css">
+    <script src="index.js"></script>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-analytics.js"></script>
 </head>
 
 <body>
@@ -18,8 +25,8 @@
                 <div>
                     <form>
                         <label for="username">Username:</label><input id="username" type="text" /><br />
-                        <label for="password">Password:</label><input id="password" type="password" /><br />
-                        <input type="submit" />
+                        <label for="password">Password:</label><input id="passlabelword" type="password" /><br />
+                        <button type="button" onclick="signin();">Go</button>
                     </form>
                 </div>
             </div>
@@ -30,6 +37,25 @@
             <p>&copy; 2021</p>
         </div>
     </div>
+
+<script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyBlAocRELnWD3fNH6KxNdak9D0CLJc7RHk",
+    authDomain: "autota-bb470.firebaseapp.com",
+    databaseURL: "https://autota-bb470-default-rtdb.firebaseio.com",
+    projectId: "autota-bb470",
+    storageBucket: "autota-bb470.appspot.com",
+    messagingSenderId: "655006883389",
+    appId: "1:655006883389:web:171f556225622b19c19454",
+    measurementId: "G-0Z6NVEVWHX"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+
+</script>
 
 </body>
 
