@@ -44,6 +44,10 @@ body {
     font-weight: bold;
 }
 
+#card-container {
+    border: 1px solid black;
+}
+
 #title {
     margin: 5px 0px 5px 5px;
 }

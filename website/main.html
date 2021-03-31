@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+    <script>
+        hljs.highlightAll();
+
+        hljs.initLineNumbersOnLoad();
+    </script>
+</head>
+
+<body>
+    <div class="grid-container">
+        <div class="header">
+            <h2 id="title">AutoTA</h2>
+        </div>
+
+        <div class="left">
+            <div>
+                <div id="card-container">
+                    <div class="card">
+                        <div class="row first-row">
+                            <div>
+                                <span class="nightly-run">Nightly</span>
+                                <span class="title">Pylint Run</span>
+                            </div>
+                            <div>
+                                <span class="run-date">Today</span>
+                            </div>
+                        </div>
+                        <div class="row second-row">
+                            <div>2 errors<br />
+                            2 warnings</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row first-row">
+                            <div>
+                                <span class="on-demand-run">On-Demand</span>
+                                <span class="title">Pylint Run</span>
+                            </div>
+                            <div>
+                                <span class="run-date">Yesterday</span>
+                            </div>
+                        </div>
+                        <div class="row second-row">
+                            <div>2 errors<br />
+                            2 warnings</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row first-row">
+                            <div>
+                                <span class="on-demand-run">On-Demand</span>
+                                <span class="title">Pylint Run</span>
+                            </div>
+                            <div>
+                                <span class="run-date">Monday</span>
+                            </div>
+                        </div>
+                        <div class="row second-row">
+                            <div>2 errors<br />
+                            2 warnings</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row first-row">
+                            <div>
+                                <span class="on-demand-run">On-Demand</span>
+                                <span class="title">Pylint Run</span>
+                            </div>
+                            <div>
+                                <span class="run-date">Sunday</span>
+                            </div>
+                        </div>
+                        <div class="row second-row">
+                            <div>2 errors<br />
+                            2 warnings</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row first-row">
+                            <div>
+                                <span class="nightly-run">Nightly</span>
+                                <span class="title">Pylint Run</span>
+                            </div>
+                            <div>
+                                <span class="run-date">Saturday</span>
+                            </div>
+                        </div>
+                        <div class="row second-row">
+                            <div>2 errors<br />
+                            2 warnings</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row first-row">
+                            <div>
+                                <span class="nightly-run">Nightly</span>
+                                <span class="title">Pylint Run</span>
+                            </div>
+                            <div>
+                                <span class="run-date">Friday</span>
+                            </div>
+                        </div>
+                        <div class="row second-row">
+                            <div>2 errors<br />
+                            2 warnings</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row first-row">
+                            <div>
+                                <span class="nightly-run">Nightly</span>
+                                <span class="title">Pylint Run</span>
+                            </div>
+                            <div>
+                                <span class="run-date">Thursday</span>
+                            </div>
+                        </div>
+                        <div class="row second-row">
+                            <div>2 errors<br />
+                            2 warnings</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row first-row">
+                            <div>
+                                <span class="on-demand-run">On-Demand</span>
+                                <span class="title">Pylint Run</span>
+                            </div>
+                            <div>
+                                <span class="run-date">3/24/2021</span>
+                            </div>
+                        </div>
+                        <div class="row second-row">
+                            <div>2 errors<br />
+                            2 warnings</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row first-row">
+                            <div>
+                                <span class="nightly-run">Nightly</span>
+                                <span class="title">Pylint Run</span>
+                            </div>
+                            <div>
+                                <span class="run-date">3/23/2021</span>
+                            </div>
+                        </div>
+                        <div class="row second-row">
+                            <div>2 errors<br />
+                            2 warnings</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row first-row">
+                            <div>
+                                <span class="nightly-run">Nightly</span>
+                                <span class="title">Pylint Run</span>
+                            </div>
+                            <div>
+                                <span class="run-date">3/22/2021</span>
+                            </div>
+                        </div>
+                        <div class="row second-row">
+                            <div>2 errors<br />
+                            2 warnings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="middle">
+            <div id="code-container">
+                <pre><code class="python">"""
+Created on Thu Nov 22 10:28:46 2018
+
+@author: jack
+"""
+import math
+class Complex():
+    def arg(self):
+        if self.re >0:
+            return math.atan(self.im/self.re)
+        if self.re&lt;0 and self.im >=0:
+            return math.atan((self.im/self.re)+math.pi)
+        if self.re&lt;0 and self.im&lt;0:
+            return ((math.atan(self.im/self.re)-math.pi)
+        if self.re ==0 and self.im >0:
+            return(math.pi/2)
+        if self.re ==0 and self.im&lt;0:
+            return((math.pi/2)*-1)
+        if self.re==0 and self.im==0:
+            raise ValueError
+if __name__=="__main__":
+    a=Complex(0,0)
+    print(a.arg())</code></pre>
+            </div>
+        </div>
+        <div class="right"></div>
+
+        <div class="footer">
+            <p>&copy; 2021 Marquette University Department of Computer Science</p>
+        </div>
+    </div>
+
+</body>
+
+</html>
