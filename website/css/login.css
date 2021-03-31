@@ -8,7 +8,44 @@ body {
 }
 
 #login {
-    
+    padding: 5%;
+    border: 1px black solid;
+    border-radius: 10px;
+    box-shadow: 5px 5px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+}
+
+#login-container {
+    display: flex;
+    justify-content: center;
+    margin: 100px;
+}
+
+#login-buttons-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#image-container {
+    display: flex;
+    justify-content: center;
+}
+
+#mu-cs-img {
+    width: 100px;
+}
+
+.login-button {
+    width: 300px;
+    padding: 10px;
+    margin-top: 5px;
+    background-color: #4B7CF5;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+}
+
+#title {
+    margin: 5px 0px 5px 5px;
 }
 
 /* Style the header */
@@ -16,7 +53,7 @@ body {
 .header {
     grid-area: header;
     background-color: #f1f1f1;
-    text-align: center;
+    text-align: left;
 }
 
 /* The grid container */
@@ -24,7 +61,6 @@ body {
 .grid-container {
     display: grid;
     grid-template-areas: 'header header header header header header' 'left middle middle middle middle right' 'footer footer footer footer footer footer';
-    /* grid-column-gap: 10px; - if you want gap between the columns */
 }
 
 .left, .middle, .right {
@@ -53,7 +89,6 @@ body {
 
 .footer {
     grid-area: footer;
-    background-color: #f1f1f1;
     padding: 10px;
     text-align: center;
 }

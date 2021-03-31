@@ -15,26 +15,31 @@
 <body>
     <div class="grid-container">
         <div class="header">
-            <h2>Header</h2>
+            <h2 id="title">AutoTA</h2>
         </div>
 
-        <div class="left" style="background-color:#aaa;"></div>
-        <div class="middle" style="background-color:#bbb;">
-            <div id="login">
-                <h1>Login</h1>
-                <div>
-                    <form>
-                        <label for="username">Username:</label><input id="username" type="text" /><br />
-                        <label for="password">Password:</label><input id="passlabelword" type="password" /><br />
-                        <button type="button" onclick="signin();">Go</button>
-                    </form>
+        <div class="left"></div>
+        <div class="middle">
+            <div>
+                <div id="login-container">
+                    <div id="login">
+                        <h1>Login</h1>
+                        <div id="login-buttons-container">
+                            <button class="login-button" type="button">Login with Google</button>
+                            <button class="login-button" type="button">Login with Github</button>
+                            <button class="login-button" type="button">Login with Microsoft</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="image-container">
+                    <img id="mu-cs-img" src="img/MUCS-tag.png" />
                 </div>
             </div>
         </div>
-        <div class="right" style="background-color:#ccc;"></div>
+        <div class="right"></div>
 
         <div class="footer">
-            <p>&copy; 2021</p>
+            <p>&copy; 2021 Marquette University Department of Computer Science</p>
         </div>
     </div>
 
