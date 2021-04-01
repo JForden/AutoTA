@@ -34,16 +34,6 @@ body {
     width: 100px;
 }
 
-.login-button {
-    width: 300px;
-    padding: 10px;
-    margin-top: 5px;
-    background-color: #4B7CF5;
-    border-radius: 10px;
-    color: white;
-    font-weight: bold;
-}
-
 #card-container {
     border: 1px solid black;
 }
