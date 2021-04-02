@@ -1,0 +1,90 @@
+[
+    {
+        "type": "convention",
+        "module": "realmidterm",
+        "obj": "",
+        "line": 7,
+        "column": 16,
+        "path": "realmidterm.py",
+        "symbol": "trailing-whitespace",
+        "message": "Trailing whitespace",
+        "message-id": "C0303"
+    },
+    {
+        "type": "convention",
+        "module": "realmidterm",
+        "obj": "",
+        "line": 8,
+        "column": 21,
+        "path": "realmidterm.py",
+        "symbol": "trailing-whitespace",
+        "message": "Trailing whitespace",
+        "message-id": "C0303"
+    },
+    {
+        "type": "convention",
+        "module": "realmidterm",
+        "obj": "",
+        "line": 13,
+        "column": 0,
+        "path": "realmidterm.py",
+        "symbol": "trailing-whitespace",
+        "message": "Trailing whitespace",
+        "message-id": "C0303"
+    },
+    {
+        "type": "convention",
+        "module": "realmidterm",
+        "obj": "",
+        "line": 26,
+        "column": 8,
+        "path": "realmidterm.py",
+        "symbol": "bad-whitespace",
+        "message": "Exactly one space required around assignment\n    accu=1\r\n        ^",
+        "message-id": "C0326"
+    },
+    {
+        "type": "convention",
+        "module": "realmidterm",
+        "obj": "",
+        "line": 28,
+        "column": 13,
+        "path": "realmidterm.py",
+        "symbol": "bad-whitespace",
+        "message": "Exactly one space required after assignment\n        accu *=2-(i*i/i+1)\r\n             ^^",
+        "message-id": "C0326"
+    },
+    {
+        "type": "convention",
+        "module": "realmidterm",
+        "obj": "",
+        "line": 30,
+        "column": 0,
+        "path": "realmidterm.py",
+        "symbol": "trailing-whitespace",
+        "message": "Trailing whitespace",
+        "message-id": "C0303"
+    },
+    {
+        "type": "convention",
+        "module": "realmidterm",
+        "obj": "",
+        "line": 32,
+        "column": 0,
+        "path": "realmidterm.py",
+        "symbol": "trailing-whitespace",
+        "message": "Trailing whitespace",
+        "message-id": "C0303"
+    },
+    {
+        "type": "convention",
+        "module": "realmidterm",
+        "obj": "product",
+        "line": 25,
+        "column": 0,
+        "path": "realmidterm.py",
+        "symbol": "missing-function-docstring",
+        "message": "Missing function or method docstring",
+        "message-id": "C0116"
+    }
+]
