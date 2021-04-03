@@ -51,6 +51,36 @@ table.hljs-ln {
     flex-direction: column;
 }
 
+#pylint-container {
+    height: 80vh;
+    width: 100%;
+    overflow: auto;
+    border: 1px solid black;
+    border-left: none;
+}
+
+#upload-icon {
+    margin: 5px 5px 5px 0px;
+}
+
+.split {
+    display: flex;
+    flex-direction: row;
+}
+
+.gutter {
+    background-color: #eee;
+    background-repeat: no-repeat;
+    background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+    cursor: col-resize;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
 .card {
     display: flex;
     border: 1px solid black;
@@ -65,6 +95,7 @@ table.hljs-ln {
 }
 #code-container {
     border: 1px solid black;
+    border-right: none;
 }
 .card .first-row {
     display: flex;

@@ -7,6 +7,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/default.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.0/split.min.js"></script>
     <script src="fileread.js"></script>
     <script>
         hljs.highlightAll();
@@ -210,7 +211,7 @@
                 </div>
             </div>
         </div>
-        <div class="middle">
+        <div class="middle split">
             <div id="code-container">
                 <pre><code class="python">"""
 Created on Thu Nov 22 10:28:46 2018
@@ -236,8 +237,17 @@ if __name__=="__main__":
     a=Complex(0,0)
     print(a.arg())</code></pre>
             </div>
-            <div style="background-color: aqua; height: 80vh; width: 100%;" id="pylint-container">
+            <div id="pylint-container">
+                <pre>
+************* Module task2
+task2.py:21:0: C0303: Trailing whitespace (trailing-whitespace)
+task2.py:22:0: C0303: Trailing whitespace (trailing-whitespace)
+task2.py:23:0: C0305: Trailing newlines (trailing-newlines)
+task2.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+task2.py:3:0: C0116: Missing function or method docstring (missing-function-docstring)
 
+-----------------------------------
+Your code has been rated at 7.06/10</pre>
             </div>
         </div>
         <div class="right"></div>
@@ -247,6 +257,10 @@ if __name__=="__main__":
         </div>
     </div>
     <button onclick="test()">Test Button</button>
+
+    <script>
+        Split(['#code-container', '#pylint-container']);
+    </script>
 
 </body>
 
