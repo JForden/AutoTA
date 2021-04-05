@@ -7,9 +7,8 @@ do
     echo "Processing $f " >> LOG
     basename=${f%.py}
     #echo "Filename is $t"
-    echo "START OF GRADING SCRIPT" > $basename
     pylint $f >> $basename
-    echo "END OF GRADING SCRIPT" >> $basename
     mv $basename output
-
 done
+
+/usr/bin/python3 /home/jforden/Coding/AutoGrader/LinkFinder.py
