@@ -38,13 +38,14 @@
     <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/default.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.0/split.min.js"></script>
     <script src="fileread.js"></script>
     <script>
-        hljs.highlightAll();
+    hljs.highlightAll();
 
-        hljs.initLineNumbersOnLoad();
+    hljs.initLineNumbersOnLoad();
     </script>
 </head>
 <!-- The core Firebase JS SDK is always required and must be listed first -->
@@ -96,209 +97,84 @@
         <div class="left">
             <div>
                 <div id="card-container">
-                    <div class="card">
-                        <div class="row first-row">
-                            <div>
-                                <span class="nightly-run">Nightly</span>
-                                <span class="title">Pylint Run</span>
-                            </div>
-                            <div>
-                                <span class="run-date">Today</span>
-                            </div>
-                        </div>
-                        <div class="row second-row">
-                            <div>2 errors<br />
-                            2 warnings</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="row first-row">
-                            <div>
-                                <span class="on-demand-run">On-Demand</span>
-                                <span class="title">Pylint Run</span>
-                            </div>
-                            <div>
-                                <span class="run-date">Yesterday</span>
-                            </div>
-                        </div>
-                        <div class="row second-row">
-                            <div>2 errors<br />
-                            2 warnings</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="row first-row">
-                            <div>
-                                <span class="on-demand-run">On-Demand</span>
-                                <span class="title">Pylint Run</span>
-                            </div>
-                            <div>
-                                <span class="run-date">Monday</span>
-                            </div>
-                        </div>
-                        <div class="row second-row">
-                            <div>2 errors<br />
-                            2 warnings</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="row first-row">
-                            <div>
-                                <span class="on-demand-run">On-Demand</span>
-                                <span class="title">Pylint Run</span>
-                            </div>
-                            <div>
-                                <span class="run-date">Sunday</span>
-                            </div>
-                        </div>
-                        <div class="row second-row">
-                            <div>2 errors<br />
-                            2 warnings</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="row first-row">
-                            <div>
-                                <span class="nightly-run">Nightly</span>
-                                <span class="title">Pylint Run</span>
-                            </div>
-                            <div>
-                                <span class="run-date">Saturday</span>
-                            </div>
-                        </div>
-                        <div class="row second-row">
-                            <div>2 errors<br />
-                            2 warnings</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="row first-row">
-                            <div>
-                                <span class="nightly-run">Nightly</span>
-                                <span class="title">Pylint Run</span>
-                            </div>
-                            <div>
-                                <span class="run-date">Friday</span>
-                            </div>
-                        </div>
-                        <div class="row second-row">
-                            <div>2 errors<br />
-                            2 warnings</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="row first-row">
-                            <div>
-                                <span class="nightly-run">Nightly</span>
-                                <span class="title">Pylint Run</span>
-                            </div>
-                            <div>
-                                <span class="run-date">Thursday</span>
-                            </div>
-                        </div>
-                        <div class="row second-row">
-                            <div>2 errors<br />
-                            2 warnings</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="row first-row">
-                            <div>
-                                <span class="on-demand-run">On-Demand</span>
-                                <span class="title">Pylint Run</span>
-                            </div>
-                            <div>
-                                <span class="run-date">3/24/2021</span>
-                            </div>
-                        </div>
-                        <div class="row second-row">
-                            <div>2 errors<br />
-                            2 warnings</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="row first-row">
-                            <div>
-                                <span class="nightly-run">Nightly</span>
-                                <span class="title">Pylint Run</span>
-                            </div>
-                            <div>
-                                <span class="run-date">3/23/2021</span>
-                            </div>
-                        </div>
-                        <div class="row second-row">
-                            <div>2 errors<br />
-                            2 warnings</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="row first-row">
-                            <div>
-                                <span class="nightly-run">Nightly</span>
-                                <span class="title">Pylint Run</span>
-                            </div>
-                            <div>
-                                <span class="run-date">3/22/2021</span>
-                            </div>
-                        </div>
-                        <div class="row second-row">
-                            <div>2 errors<br />
-                            2 warnings</div>
-                        </div>
-                    </div>
+                <?php
+                    // TODO: Get all the runs for a user from the database 
+                    $runs = array (
+                        array(1,"Nightly","4/21/21", 2, 2),
+                        array(2,"On-Demand","4/19/21", 0, 1),
+                        array(3,"On-Demand","4/18/21", 2, 0),
+                        array(4,"Nightly","4/15/21", 0, 0)
+                    );
+                    
+                    // END TODO
+
+                    foreach ($runs as $run){
+                        echo "<a href='main.php?submission=$run[0]'>";
+                        if (isset($_GET['submission']) and $_GET['submission'] == $run[0]){
+                            echo "<div id='selected-card' class='card'>";
+                        } else {
+                            echo "<div class='card'>";
+                        }
+                        echo "<div class='row first-row'>";
+                        echo "<div>";
+                        if($run[1] == "Nightly"){
+                            echo "<span class='nightly-run'>Nightly</span>";
+                        } else if ($run[1] == "On-Demand"){
+                            echo "<span class='on-demand-run'>On-Demand</span>";
+                        }
+                        echo "<span class='title'>Pylint Run</span>";
+                        echo "</div>";
+                        echo "<div>";
+                        echo "<span class='run-date'>$run[2]</span>";
+                        echo "</div>";
+                        echo "</div>";
+                        echo "<div class='row second-row'>";
+                        echo "<div>$run[3] errors<br />";
+                        echo "$run[4] warnings</div>";
+                        echo "</div>";
+                        echo "</div>";
+                        echo "</a>";
+                    }
+                ?>
                 </div>
             </div>
         </div>
-        <div class="middle split">
-            <div id="code-container">
-                <pre><code class="python">"""
-Created on Thu Nov 22 10:28:46 2018
+        <?php
+        if(!isset($_GET['submission'])) {
+            echo "<div class='middle'>";
+            echo "<h1>Please select a submission</h1>";
+            echo "</div>";
+        } else {
+            // TODO: Get submission from database.  The submission ID should be in $_GET['submission'].  Load the code and output in
+            $code = "\nCreated on Thu Nov 22 10:28:46 2018\n@author: jack\n\nimport math\nclass Complex():\ndef arg(self):\nif self.re >0:\nreturn math.atan(self.im/self.re)\nif self.re&lt;0 and self.im >=0:\nreturn math.atan((self.im/self.re)+math.pi)\nif self.re&lt;0 and self.im&lt;0:\nreturn ((math.atan(self.im/self.re)-math.pi)\nif self.re ==0 and self.im >0:\nreturn(math.pi/2)\nif self.re ==0 and self.im&lt;0:\nreturn((math.pi/2)*-1)\nif self.re==0 and self.im==0:\nraise ValueError\nif __name__=='__main__':\na=Complex(0,0)\nprint(a.arg())";
+            $output = "************* Module task2\ntask2.py:21:0: C0303: Trailing whitespace (trailing-whitespace)\ntask2.py:22:0: C0303: Trailing whitespace (trailing-whitespace)\ntask2.py:23:0: C0305: Trailing newlines (trailing-newlines)\ntask2.py:1:0: C0114: Missing module docstring (missing-module-docstring)\ntask2.py:3:0: C0116: Missing function or method docstring (missing-function-docstring)\n-----------------------------------\nYour code has been rated at 7.06/10";
+            
+            // END TODO
+            
+            echo "<div class='middle split'>";
+            echo "<div id='code-container'>";
+            echo "<pre><code class='python'>";
+            echo $code;
+            echo "</code></pre></div>";
+            echo "<div id='pylint-container'>";
+            echo "<pre>";
+            echo $output;
+            echo "</pre></div></div>";
 
-@author: jack
-"""
-import math
-class Complex():
-    def arg(self):
-        if self.re >0:
-            return math.atan(self.im/self.re)
-        if self.re&lt;0 and self.im >=0:
-            return math.atan((self.im/self.re)+math.pi)
-        if self.re&lt;0 and self.im&lt;0:
-            return ((math.atan(self.im/self.re)-math.pi)
-        if self.re ==0 and self.im >0:
-            return(math.pi/2)
-        if self.re ==0 and self.im&lt;0:
-            return((math.pi/2)*-1)
-        if self.re==0 and self.im==0:
-            raise ValueError
-if __name__=="__main__":
-    a=Complex(0,0)
-    print(a.arg())</code></pre>
-            </div>
-            <div id="pylint-container">
-                <pre>
-************* Module task2
-task2.py:21:0: C0303: Trailing whitespace (trailing-whitespace)
-task2.py:22:0: C0303: Trailing whitespace (trailing-whitespace)
-task2.py:23:0: C0305: Trailing newlines (trailing-newlines)
-task2.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-task2.py:3:0: C0116: Missing function or method docstring (missing-function-docstring)
+            echo "<script>$(document).ready(function() {
+                    Split(['#code-container', '#pylint-container']);
+                    // HACK. See https://github.com/wcoder/highlightjs-line-numbers.js/issues/71
+                    setTimeout(function(){ test(); }, 100);
+                });</script>";
+        }
 
------------------------------------
-Your code has been rated at 7.06/10</pre>
-            </div>
-        </div>
+        ?>
         <div class="right"></div>
 
         <div class="footer">
             <p>&copy; 2021 Marquette University Department of Computer Science</p>
         </div>
     </div>
-    <button onclick="test()">Test Button</button>
-
-    <script>
-        Split(['#code-container', '#pylint-container']);
-    </script>
 
 </body>
 

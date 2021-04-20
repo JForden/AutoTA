@@ -125,6 +125,13 @@ table.hljs-ln {
     padding-right: 5px;
 }
 
+#card-container a {
+    text-decoration: none;
+}
+
+#selected-card {
+    background-color: #c8e4fc;
+}
 
 /* Style the header */
 
