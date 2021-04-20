@@ -18,9 +18,16 @@
       }
       if(empty($errors)==true) {
          $bool=false;
-         $bool=move_uploaded_file($file_tmp,"/opt/lampp/htdocs/stuff/images/".$file_name);
+         $file = "/opt/lampp/htdocs/website/uploads/".$file_name;
+         $bool=move_uploaded_file($file_tmp, $file);
          if($bool == true){
              echo "Success";
+             // TODO: Run Pylint and store output in database
+             $command = escapeshellcmd('pylint');
+             $output = shell_exec($command . ' ' . escapeshellarg($file));
+
+             $json_output = shell_exec($command . ' ' . escapeshellarg($file) . ' -f json');
+             echo $json_output;
          }
          else{
              echo "False";
