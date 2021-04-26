@@ -82,9 +82,9 @@
 </script>
 
 <body>
-    <form action ='' method ="POST" enctype ="multipart/form-data">
+    <form action ="upload.php" method ="POST" enctype ="multipart/form-data">
         <input type ="File" name = "image" />
-        <input type ="submit"/>
+        <input type ="submit" name = "upload" />
     
     </form>
 
