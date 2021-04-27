@@ -14,8 +14,7 @@ if ($conn->connect_error) {
 $sql = "CREATE TABLE files (
 id INT(4) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 name VARCHAR(255) NOT NULL,
-size NOT NULL,
-reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+size INT NOT NULL
 )";
 
 if ($conn->query($sql) === TRUE) {

@@ -16,8 +16,8 @@
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
 
         // the physical file on a temporary uploads directory on the server
-        $file = $_FILES['image']['tmp_size'];
-        $size = $_FILES['image']['size'];
+        @$file = $_FILES['image']['tmp_name'];
+        @$size = $_FILES['image']['size'];
 
         // Check to see if file is python file
         if(!in_array($ext, ['py'])){
@@ -29,10 +29,12 @@
 
                 if(mysqli_query($conn, $sql)){
                     echo "File uploaded successfully";
-                }
+                } else{
+                    echo"Failed to upload file.";
+                    }
             } else{
-                "Failed to upload file."
-            }
+                echo"Failed to upload file.";
+                }
         }
 
     }
