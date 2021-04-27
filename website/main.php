@@ -44,7 +44,7 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/default.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflarehttps://github.com/JRFASTER/AutoTA.git.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.0/split.min.js"></script>
@@ -81,9 +81,28 @@
   firebase.analytics();
 </script>
 
+<script>
+    function UserFindr(){
+    var user = firebase.auth().currentUser;
+    if (user != null) {
+        user.providerData.forEach(function (profile) {
+            var Uname = profile.displayName;
+        });
+    }
+    return Uname;
+}
+</script>
+
+
 <body>
+    <var>
     <form action ="upload.php" method ="POST" enctype ="multipart/form-data">
         <input type ="File" name = "image" />
+        <input type ="hidden" name=Uname/>
+        <script>
+            var elm = document.getElementById("Uname");
+            elm.value = UserFindr();
+        </script>
         <input type ="submit" name = "upload" />
     
     </form>
