@@ -18,7 +18,7 @@
       }
       if(empty($errors)==true) {
          $bool=false;
-         $file = "/opt/lampp/htdocs/website/uploads/".$file_name;
+         $file = "/home/bitnami/htdocs/input".$file_name;
          $bool=move_uploaded_file($file_tmp, $file);
          if($bool == true){
              echo "Success";
