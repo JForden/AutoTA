@@ -1,9 +1,9 @@
 <?php
-$servername = "localhost";
-$username = "root";
-
+$servername = "autota-server";
+$username = "dbmasteruser";
+$password ="bFG%,$zB$mlZSH6ElirW7;z<.R|-96ab";
 // Create connection
-$conn = new mysqli($servername, $username, '');
+$conn = new mysqli($servername, $username, $password);
 // Check connection
 if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);

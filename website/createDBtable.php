@@ -1,10 +1,11 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$dbname = "myDB";
+$servername = "autota-server";
+$username = "dbmasteruser";
+$dbname = "AutoTAData";
+$password ="bFG%,$zB$mlZSH6ElirW7;z<.R|-96ab";
 
 // Create connection
-$conn = new mysqli($servername, $username, '', $dbname);
+$conn = new mysqli($servername, $username, $password, $dbname);
 // Check connection
 if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
