@@ -1,7 +1,8 @@
 <?php 
 
     // connect to the database
-    $conn = mysqli_connect('localhost', 'root', '', 'myDB');
+    $conn = mysqli_connect('ls-372939ade94c9ae5a641fcdc7d3e6e2c727a03af.ch4bcjnxytnt.us-east-2.rds.amazonaws.com', 'dbmasteruser', 'bFG%,$zB$mlZSH6ElirW7;z<.R|-96ab', 'autota');
+
 
     // Upload files
     if(isset($_POST['upload'])){ // if submit buttom on form is clicked
