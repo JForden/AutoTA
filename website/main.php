@@ -135,7 +135,7 @@
                         array(3,"On-Demand","4/18/21", 2, 0),
                         array(4,"Nightly","4/15/21", 0, 0)
                     );
-                    
+                    Screenshot from 2021-04-30 17-21-34
                     // END TODO
 
                     foreach ($runs as $run){
@@ -171,6 +171,13 @@
             echo "<h1>Please select a submission</h1>";
             echo "</div>";
         } else {
+
+            $conn = mysqli_connect('ls-372939ade94c9ae5a641fcdc7d3e6e2c727a03af.ch4bcjnxytnt.us-east-2.rds.amazonaws.com', 'dbmasteruser', 'bFG%,$zB$mlZSH6ElirW7;z<.R|-96ab', 'autota');
+
+            $sub = $_GET['submission'];
+            $sql = "SELECT code, textoutput, jsonoutput FROM uploads WHERE id=$sub";
+            $row = $result->fetch_assoc();
+
             // TODO: Get submission from database.  The submission ID should be in $_GET['submission'].  Load the code and output in
             
             
