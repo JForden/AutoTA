@@ -58,6 +58,9 @@
 <!-- The core Firebase JS SDK is always required and must be listed first -->
 <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
 
+  <!-- Add Firebase products that you want to use -->
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+
 <!-- TODO: Add SDKs for Firebase products that you want to use
      https://firebase.google.com/docs/web/setup#available-libraries -->
 <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-analytics.js"></script>
@@ -82,15 +85,16 @@
 </script>
 
 <script>
-    function UserFindr(){
-    var user = firebase.auth().currentUser;
-    if (user != null) {
-        user.providerData.forEach(function (profile) {
-            var Uname = profile.displayName;
-        });
-    }
-    return Uname;
-}
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            uname = user.displayName;
+            var elm = document.getElementById("Uname");
+            // Call get submissions
+            elm.value = uname;
+        } else {
+            // No user is signed in.
+        }
+    });
 </script>
 
 
@@ -98,13 +102,8 @@
     <var>
     <form action ="upload.php" method ="POST" enctype ="multipart/form-data">
         <input type ="File" name = "image" />
-        <input type ="hidden" name=Uname/>
-        <script>
-            var elm = document.getElementById("Uname");
-            elm.value = UserFindr();
-        </script>
+        <input type ="hidden" name = "user" id = "Uname" />
         <input type ="submit" name = "upload" />
-    
     </form>
 
     <div class="grid-container">
@@ -125,6 +124,11 @@
                 <div id="card-container">
                 <?php
                     // TODO: Get all the runs for a user from the database 
+
+                    $conn = mysqli_connect('ls-372939ade94c9ae5a641fcdc7d3e6e2c727a03af.ch4bcjnxytnt.us-east-2.rds.amazonaws.com', 'dbmasteruser', 'bFG%,$zB$mlZSH6ElirW7;z<.R|-96ab', 'autota');
+                    $sql = "SELECT uname, date, name FROM files WHERE uname = '' ";
+                    $result = mysqli_query($conn, $sql);
+
                     $runs = array (
                         array(1,"Nightly","4/21/21", 2, 2),
                         array(2,"On-Demand","4/19/21", 0, 1),
@@ -143,11 +147,7 @@
                         }
                         echo "<div class='row first-row'>";
                         echo "<div>";
-                        if($run[1] == "Nightly"){
-                            echo "<span class='nightly-run'>Nightly</span>";
-                        } else if ($run[1] == "On-Demand"){
-                            echo "<span class='on-demand-run'>On-Demand</span>";
-                        }
+                        echo "<span class='on-demand-run'>On-Demand</span>";
                         echo "<span class='title'>Pylint Run</span>";
                         echo "</div>";
                         echo "<div>";
@@ -172,6 +172,8 @@
             echo "</div>";
         } else {
             // TODO: Get submission from database.  The submission ID should be in $_GET['submission'].  Load the code and output in
+            
+            
             $code = "\nCreated on Thu Nov 22 10:28:46 2018\n@author: jack\n\nimport math\nclass Complex():\ndef arg(self):\nif self.re >0:\nreturn math.atan(self.im/self.re)\nif self.re&lt;0 and self.im >=0:\nreturn math.atan((self.im/self.re)+math.pi)\nif self.re&lt;0 and self.im&lt;0:\nreturn ((math.atan(self.im/self.re)-math.pi)\nif self.re ==0 and self.im >0:\nreturn(math.pi/2)\nif self.re ==0 and self.im&lt;0:\nreturn((math.pi/2)*-1)\nif self.re==0 and self.im==0:\nraise ValueError\nif __name__=='__main__':\na=Complex(0,0)\nprint(a.arg())";
             $output = "************* Module task2\ntask2.py:21:0: C0303: Trailing whitespace (trailing-whitespace)\ntask2.py:22:0: C0303: Trailing whitespace (trailing-whitespace)\ntask2.py:23:0: C0305: Trailing newlines (trailing-newlines)\ntask2.py:1:0: C0114: Missing module docstring (missing-module-docstring)\ntask2.py:3:0: C0116: Missing function or method docstring (missing-function-docstring)\n-----------------------------------\nYour code has been rated at 7.06/10";
             
