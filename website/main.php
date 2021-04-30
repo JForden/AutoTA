@@ -97,8 +97,8 @@
 <body>
     <var>
     <form action ="upload.php" method ="POST" enctype ="multipart/form-data">
-        <input type ="File" name = "image" />
-        <input type ="hidden" name=Uname/>
+        <input type ="File" name="image" />
+        <input type ="hidden" name="Uname"/>
         <script>
             var elm = document.getElementById("Uname");
             elm.value = UserFindr();
@@ -125,6 +125,45 @@
                 <div id="card-container">
                 <?php
                     // TODO: Get all the runs for a user from the database 
+                    $conn = mysqli_connect('ls-372939ade94c9ae5a641fcdc7d3e6e2c727a03af.ch4bcjnxytnt.us-east-2.rds.amazonaws.com', 'dbmasteruser', 'bFG%,$zB$mlZSH6ElirW7;z<.R|-96ab', 'autota');
+
+                    $sql = "SELECT id, username, filename, size, date, type FROM uploads";
+                    $result = $conn->query($sql);
+
+                    if ($result->num_rows > 0) {
+                    // output data of each row
+                        while($row = $result->fetch_assoc()) {
+                            $id = $row["id"];
+                            $date = $row["date"];
+                            $type = $row["type"];
+                            echo "<a href='main.php?submission=$id'>";
+                            if (isset($_GET['submission']) and $_GET['submission'] == $id){
+                                echo "<div id='selected-card' class='card'>";
+                            } else {
+                                echo "<div class='card'>";
+                            }
+                            echo "<div class='row first-row'>";
+                            echo "<div>";
+                            if($type == 1){
+                                echo "<span class='nightly-run'>Nightly</span>";
+                            } else if ($type == 2){
+                                echo "<span class='on-demand-run'>On-Demand</span>";
+                            }
+                            echo "<span class='title'>Pylint Run</span>";
+                            echo "</div>";
+                            echo "<div>";
+                            echo "<span class='run-date'>$date</span>";
+                            echo "</div>";
+                            echo "</div>";
+                            echo "<div class='row second-row'>";
+                            echo "<div>0 errors<br />";
+                            echo "0 warnings</div>";
+                            echo "</div>";
+                            echo "</div>";
+                            echo "</a>";
+                        }
+                    }
+
                     $runs = array (
                         array(1,"Nightly","4/21/21", 2, 2),
                         array(2,"On-Demand","4/19/21", 0, 1),
@@ -133,34 +172,6 @@
                     );
                     
                     // END TODO
-
-                    foreach ($runs as $run){
-                        echo "<a href='main.php?submission=$run[0]'>";
-                        if (isset($_GET['submission']) and $_GET['submission'] == $run[0]){
-                            echo "<div id='selected-card' class='card'>";
-                        } else {
-                            echo "<div class='card'>";
-                        }
-                        echo "<div class='row first-row'>";
-                        echo "<div>";
-                        if($run[1] == "Nightly"){
-                            echo "<span class='nightly-run'>Nightly</span>";
-                        } else if ($run[1] == "On-Demand"){
-                            echo "<span class='on-demand-run'>On-Demand</span>";
-                        }
-                        echo "<span class='title'>Pylint Run</span>";
-                        echo "</div>";
-                        echo "<div>";
-                        echo "<span class='run-date'>$run[2]</span>";
-                        echo "</div>";
-                        echo "</div>";
-                        echo "<div class='row second-row'>";
-                        echo "<div>$run[3] errors<br />";
-                        echo "$run[4] warnings</div>";
-                        echo "</div>";
-                        echo "</div>";
-                        echo "</a>";
-                    }
                 ?>
                 </div>
             </div>
@@ -171,9 +182,16 @@
             echo "<h1>Please select a submission</h1>";
             echo "</div>";
         } else {
+
+            $conn = mysqli_connect('ls-372939ade94c9ae5a641fcdc7d3e6e2c727a03af.ch4bcjnxytnt.us-east-2.rds.amazonaws.com', 'dbmasteruser', 'bFG%,$zB$mlZSH6ElirW7;z<.R|-96ab', 'autota');
+
+            $sub = $_GET['submission'];
+            $sql = "SELECT code, textoutput, jsonoutput FROM uploads WHERE id=$sub";
+            $row = $result->fetch_assoc();
+
             // TODO: Get submission from database.  The submission ID should be in $_GET['submission'].  Load the code and output in
-            $code = "\nCreated on Thu Nov 22 10:28:46 2018\n@author: jack\n\nimport math\nclass Complex():\ndef arg(self):\nif self.re >0:\nreturn math.atan(self.im/self.re)\nif self.re&lt;0 and self.im >=0:\nreturn math.atan((self.im/self.re)+math.pi)\nif self.re&lt;0 and self.im&lt;0:\nreturn ((math.atan(self.im/self.re)-math.pi)\nif self.re ==0 and self.im >0:\nreturn(math.pi/2)\nif self.re ==0 and self.im&lt;0:\nreturn((math.pi/2)*-1)\nif self.re==0 and self.im==0:\nraise ValueError\nif __name__=='__main__':\na=Complex(0,0)\nprint(a.arg())";
-            $output = "************* Module task2\ntask2.py:21:0: C0303: Trailing whitespace (trailing-whitespace)\ntask2.py:22:0: C0303: Trailing whitespace (trailing-whitespace)\ntask2.py:23:0: C0305: Trailing newlines (trailing-newlines)\ntask2.py:1:0: C0114: Missing module docstring (missing-module-docstring)\ntask2.py:3:0: C0116: Missing function or method docstring (missing-function-docstring)\n-----------------------------------\nYour code has been rated at 7.06/10";
+            $code = $row["code"];
+            $output = $row["textoutput"];
             
             // END TODO
             
