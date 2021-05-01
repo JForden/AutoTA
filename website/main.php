@@ -44,7 +44,7 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/default.min.css">
-    <script src="https://cdnjs.cloudflarehttps://github.com/JRFASTER/AutoTA.git.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.0/split.min.js"></script>
@@ -172,7 +172,7 @@
             $conn = mysqli_connect('ls-372939ade94c9ae5a641fcdc7d3e6e2c727a03af.ch4bcjnxytnt.us-east-2.rds.amazonaws.com', 'dbmasteruser', 'bFG%,$zB$mlZSH6ElirW7;z<.R|-96ab', 'autota');
 
             $sub = $_GET['submission'];
-            $sql = "SELECT name, pylint FROM files WHERE id=$sub";
+            $sql = "SELECT name, pylint,json FROM files WHERE id=$sub";
             $result = $conn->query($sql);
 
             // TODO: Get submission from database.  The submission ID should be in $_GET['submission'].  Load the code and output in
@@ -180,11 +180,13 @@
                 $row = $result->fetch_assoc();
                 $code = $row['name'];
                 $text = $row['pylint'];
+                $json = $row['json'];
                 $rawcodepath = "/home/bitnami/htdocs/input/" . $code;
                 $rawcodefile = fopen($rawcodepath, "r");
                 $rawcode = fread($rawcodefile, filesize($rawcodepath));
                 $outputfile = fopen($text, "r");
                 $output=fread($outputfile, filesize($text));
+
                 echo "<div class='middle split'>";
                 echo "<div id='code-container'>";
                 echo "<pre><code class='python'>";
@@ -197,9 +199,15 @@
 
                 echo "<script>$(document).ready(function() {
                     Split(['#code-container', '#pylint-container']);
-                    // HACK. See https://github.com/wcoder/highlightjs-line-numbers.js/issues/71
-                    setTimeout(function(){ test(); }, 100);
                 });</script>";
+                $jsonfile = fopen($json, "r");
+                $jsonoutput = fread($jsonfile, filesize($json));
+                echo "<script>$(document).ready(function() {
+                    // HACK. See https://github.com/wcoder/highlightjs-line-numbers.js/issues/71
+                    setTimeout(function(){ test($jsonoutput); }, 100);
+                });</script>";
+
+
             } else {
                 echo 'Submission not found!';
             }

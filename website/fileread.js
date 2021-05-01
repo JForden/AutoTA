@@ -1,42 +1,7 @@
-function test() {
+function test(file) {
     const linearray=[];
-    var filedata = [
-        {
-            "type": "convention",
-            "module": "realmidterm",
-            "obj": "",
-            "line": 7,
-            "column": 16,
-            "path": "realmidterm.py",
-            "symbol": "trailing-whitespace",
-            "message": "Trailing whitespace",
-            "message-id": "C0303"
-        },
-        {
-            "type": "convention",
-            "module": "realmidterm",
-            "obj": "",
-            "line": 8,
-            "column": 21,
-            "path": "realmidterm.py",
-            "symbol": "trailing-whitespace",
-            "message": "Trailing whitespace",
-            "message-id": "C0303"
-        },
-        {
-            "type": "convention",
-            "module": "realmidterm",
-            "obj": "product",
-            "line": 21,
-            "column": 0,
-            "path": "realmidterm.py",
-            "symbol": "missing-function-docstring",
-            "message": "Missing function or method docstring",
-            "message-id": "C0116"
-        }
-    ];
 
-    for(const [key,value] of Object.entries(filedata)){
+    for(const [key,value] of Object.entries(file)){
             linearray.push(value.line);
     };
     document.querySelectorAll('[data-line-number="value"]');
@@ -44,11 +9,7 @@ function test() {
     var dynmiclines = document.getElementsByClassName("hljs-ln-n");
     
     for(var i =0; i < linearray.length; i++){
-        dynmiclines[linearray[i]].style.background ="yellow";
+        dynmiclines[linearray[i]-1].style.background ="yellow";
     }
-    
-
-
 }
-
 
