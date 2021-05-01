@@ -1,0 +1,42 @@
+#C1010 {
+    position:absolute;
+    text-align: center;
+    top:45%;
+    left:35%;
+    width:100px;
+    height:100px;
+}
+#C1020 {
+    position:absolute;
+    text-align: center;
+    top:45%;
+    left:45%;
+    width:100px;
+    height:100px;
+}
+#C3250 {
+    position:absolute;
+    text-align: center;
+    top:45%;
+    left:55%;
+    width:100px;
+    height:100px;
+}
+#title {
+    position:absolute;
+    text-align: center;
+    top:30%;
+    left:41%;
+}
+.footer {
+    position:absolute;
+    top:80%;
+    left:36%;
+    padding: 10px;
+    text-align: center;
+}
+#image-container{
+    position:absolute;
+    top:2%;
+    left:87%;
+}

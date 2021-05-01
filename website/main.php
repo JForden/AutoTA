@@ -84,19 +84,6 @@
   firebase.analytics();
 </script>
 
-<script>
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            uname = user.displayName;
-            var elm = document.getElementById("Uname");
-            // Call get submissions
-            elm.value = uname;
-        } else {
-            // No user is signed in.
-        }
-    });
-</script>
-
 
 <body>
     <var>
