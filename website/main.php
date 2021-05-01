@@ -84,9 +84,21 @@
   firebase.analytics();
 </script>
 
+<script>
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            uname = user.displayName;
+            var elm = document.getElementById("Uname");
+            // Call get submissions
+            elm.value = uname;
+        } else {
+            // No user is signed in.
+        }
+    });
+</script>
+
 
 <body>
-    <var>
     <form action ="upload.php" method ="POST" enctype ="multipart/form-data">
         <input type ="File" name = "image" />
         <input type ="hidden" name = "user" id = "Uname" />
@@ -110,44 +122,42 @@
             <div>
                 <div id="card-container">
                 <?php
-                    // TODO: Get all the runs for a user from the database 
-
                     $conn = mysqli_connect('ls-372939ade94c9ae5a641fcdc7d3e6e2c727a03af.ch4bcjnxytnt.us-east-2.rds.amazonaws.com', 'dbmasteruser', 'bFG%,$zB$mlZSH6ElirW7;z<.R|-96ab', 'autota');
-                    $sql = "SELECT uname, date, name FROM files WHERE uname = '' ";
-                    $result = mysqli_query($conn, $sql);
+                    $user = $_GET["user"];
+                    $sql = "SELECT id, uname, date, name FROM files WHERE uname='$user'";
+                    $result = $conn->query($sql);
 
-                    $runs = array (
-                        array(1,"Nightly","4/21/21", 2, 2),
-                        array(2,"On-Demand","4/19/21", 0, 1),
-                        array(3,"On-Demand","4/18/21", 2, 0),
-                        array(4,"Nightly","4/15/21", 0, 0)
-                    );
-                    Screenshot from 2021-04-30 17-21-34
-                    // END TODO
-
-                    foreach ($runs as $run){
-                        echo "<a href='main.php?submission=$run[0]'>";
-                        if (isset($_GET['submission']) and $_GET['submission'] == $run[0]){
-                            echo "<div id='selected-card' class='card'>";
-                        } else {
-                            echo "<div class='card'>";
+                    if ($result->num_rows > 0) {
+                        // output data of each row
+                        while($row = $result->fetch_assoc()) {
+                            $id = $row['id'];
+                            $date = $row['date'];
+                            $name = $row['name'];
+                            echo "<a href='main.php?user=$user&submission=$id'>";
+                            if (isset($_GET['submission']) and $_GET['submission'] == $id){
+                                echo "<div id='selected-card' class='card'>";
+                            } else {
+                                echo "<div class='card'>";
+                            }
+                            echo "<div class='row first-row'>";
+                            echo "<div>";
+                            echo "<span class='on-demand-run'>On-Demand</span>";
+                            echo "<span class='title'>Pylint Run [$name]</span>";
+                            echo "</div>";
+                            echo "<div>";
+                            echo "<span class='run-date'>$date</span>";
+                            echo "</div>";
+                            echo "</div>";
+                            echo "<div class='row second-row'>";
+                            echo "</div>";
+                            echo "</div>";
+                            echo "</a>";
+                            
                         }
-                        echo "<div class='row first-row'>";
-                        echo "<div>";
-                        echo "<span class='on-demand-run'>On-Demand</span>";
-                        echo "<span class='title'>Pylint Run</span>";
-                        echo "</div>";
-                        echo "<div>";
-                        echo "<span class='run-date'>$run[2]</span>";
-                        echo "</div>";
-                        echo "</div>";
-                        echo "<div class='row second-row'>";
-                        echo "<div>$run[3] errors<br />";
-                        echo "$run[4] warnings</div>";
-                        echo "</div>";
-                        echo "</div>";
-                        echo "</a>";
+                    } else {
+                        echo "0 results";
                     }
+                    $conn->close();
                 ?>
                 </div>
             </div>
@@ -162,32 +172,39 @@
             $conn = mysqli_connect('ls-372939ade94c9ae5a641fcdc7d3e6e2c727a03af.ch4bcjnxytnt.us-east-2.rds.amazonaws.com', 'dbmasteruser', 'bFG%,$zB$mlZSH6ElirW7;z<.R|-96ab', 'autota');
 
             $sub = $_GET['submission'];
-            $sql = "SELECT code, textoutput, jsonoutput FROM uploads WHERE id=$sub";
-            $row = $result->fetch_assoc();
+            $sql = "SELECT name, pylint FROM files WHERE id=$sub";
+            $result = $conn->query($sql);
 
             // TODO: Get submission from database.  The submission ID should be in $_GET['submission'].  Load the code and output in
-            
-            
-            $code = "\nCreated on Thu Nov 22 10:28:46 2018\n@author: jack\n\nimport math\nclass Complex():\ndef arg(self):\nif self.re >0:\nreturn math.atan(self.im/self.re)\nif self.re&lt;0 and self.im >=0:\nreturn math.atan((self.im/self.re)+math.pi)\nif self.re&lt;0 and self.im&lt;0:\nreturn ((math.atan(self.im/self.re)-math.pi)\nif self.re ==0 and self.im >0:\nreturn(math.pi/2)\nif self.re ==0 and self.im&lt;0:\nreturn((math.pi/2)*-1)\nif self.re==0 and self.im==0:\nraise ValueError\nif __name__=='__main__':\na=Complex(0,0)\nprint(a.arg())";
-            $output = "************* Module task2\ntask2.py:21:0: C0303: Trailing whitespace (trailing-whitespace)\ntask2.py:22:0: C0303: Trailing whitespace (trailing-whitespace)\ntask2.py:23:0: C0305: Trailing newlines (trailing-newlines)\ntask2.py:1:0: C0114: Missing module docstring (missing-module-docstring)\ntask2.py:3:0: C0116: Missing function or method docstring (missing-function-docstring)\n-----------------------------------\nYour code has been rated at 7.06/10";
-            
-            // END TODO
-            
-            echo "<div class='middle split'>";
-            echo "<div id='code-container'>";
-            echo "<pre><code class='python'>";
-            echo $code;
-            echo "</code></pre></div>";
-            echo "<div id='pylint-container'>";
-            echo "<pre>";
-            echo $output;
-            echo "</pre></div></div>";
+            if ($result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                $code = $row['name'];
+                $text = $row['pylint'];
+                $rawcodepath = "/home/bitnami/htdocs/input/" . $code;
+                $rawcodefile = fopen($rawcodepath, "r");
+                $rawcode = fread($rawcodefile, filesize($rawcodepath));
+                $outputfile = fopen($text, "r");
+                $output=fread($outputfile, filesize($text));
+                echo "<div class='middle split'>";
+                echo "<div id='code-container'>";
+                echo "<pre><code class='python'>";
+                echo $rawcode;
+                echo "</code></pre></div>";
+                echo "<div id='pylint-container'>";
+                echo "<pre>";
+                echo $output;
+                echo "</pre></div></div>";
 
-            echo "<script>$(document).ready(function() {
+                echo "<script>$(document).ready(function() {
                     Split(['#code-container', '#pylint-container']);
                     // HACK. See https://github.com/wcoder/highlightjs-line-numbers.js/issues/71
                     setTimeout(function(){ test(); }, 100);
                 });</script>";
+            } else {
+                echo 'Submission not found!';
+            }
+
+            // END TODO
         }
 
         ?>

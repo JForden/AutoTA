@@ -41,6 +41,7 @@
                 $sql = "INSERT INTO files (uname, date, name, pylint, json) VALUES ('$name','$upload_date','$filename', '$pylint_save', '$json_save')";
                 if(mysqli_query($conn, $sql)){
                     echo "uploaded to database successfully";
+                    header("Location: main.php?user=" . $name);
                 }
                 else{
                     echo "Failed to upload to database successfully";

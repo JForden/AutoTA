@@ -50,6 +50,14 @@ table.hljs-ln {
     flex-direction: column;
 }
 
+#code-container {
+    height: 80vh;
+    width: 100%;
+    overflow: auto;
+    border: 1px solid black;
+    border-left: none;
+}
+
 #pylint-container {
     height: 80vh;
     width: 100%;
