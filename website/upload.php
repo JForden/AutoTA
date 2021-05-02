@@ -11,9 +11,9 @@
         $upload_date = date("Y/m/d");
 
         // destination of the file on the server
-        $dest = '/home/bitnami/htdocs/input/' . $filename;
-        $jdest = '/home/bitnami/htdocs/json_output/';
-        $pdest = '/home/bitnami/htdocs/pylint_output/';
+        $dest = '/home/bitnami/input/' . $filename;
+        $jdest = '/home/bitnami/json_output/';
+        $pdest = '/home/bitnami/pylint_output/';
 
         // get the file extension
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
@@ -21,8 +21,7 @@
         // the physical file on a temporary uploads directory on the server
         $file = $_FILES['image']['tmp_name'];
         $size = $_FILES['image']['size'];
-        $name = $_POST['user'];
-        echo $name;
+        $name = $_COOKIE['AUTOTA_AUTH'];
         // Check to see if file is python file
         if(!in_array($ext, ['py'])){
             echo "File extension must be .py";
@@ -31,7 +30,7 @@
             if(move_uploaded_file($file, $dest)){
                 echo "File uploaded successfully";
                 $command = escapeshellcmd('pylint');
-                $jcommand =escapeshellcmd('pylint --output-format=json');
+                $jcommand = escapeshellcmd('pylint --output-format=json');
                 $pylint_save = $pdest . $filename . '.txt';
                 $json_save = $jdest . $filename . '.json';
 
@@ -41,7 +40,7 @@
                 $sql = "INSERT INTO files (uname, date, name, pylint, json) VALUES ('$name','$upload_date','$filename', '$pylint_save', '$json_save')";
                 if(mysqli_query($conn, $sql)){
                     echo "uploaded to database successfully";
-                    header("Location: main.php?user=" . $name);
+                    header("Location: main.php");
                 }
                 else{
                     echo "Failed to upload to database successfully";

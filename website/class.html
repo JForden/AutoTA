@@ -5,7 +5,8 @@
 
     <script src="https://www.gstatic.com/firebasejs/4.8.2/firebase.js"></script>
     <script src="https://www.gstatic.com/firebasejs/4.8.2/firebase-auth.js"></script>
-    <script src="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.js"></script>  
+    <script src="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
 </head>
 <script>
     // Your web app's Firebase configuration
@@ -28,13 +29,10 @@
 <script>
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-            window.uname = user.displayName;
-        } else {
-            // No user is signed in.
+            Cookies.set('AUTOTA_AUTH', user.email, { expires: 7, secure: true });
         }
     });
 </script>
-
 
 <body>
     <h1 id="title">Please select a class:</h1>
@@ -45,17 +43,12 @@
         <p>COSC 1020</p>       
     </button>
     <button id="C3250" type="button" onclick="urlchange()">
-        <p>COSC 3250</p>       
+        <p>COSC 3250</p>
     </button>
 </body>
 <script>
     function urlchange(){
-        if(window.uname){
-            window.uname
-            var main = "main.php?user=";
-            var url = main.concat(window.uname);
-            window.location.href=url;
-        }
+        window.location.href="main.php";
     }
 </script>
 <div id="image-container">

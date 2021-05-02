@@ -18,7 +18,7 @@
       }
       if(empty($errors)==true) {
          $bool=false;
-         $file = "/home/bitnami/htdocs/input".$file_name;
+         $file = "/home/bitnami/input/".$file_name;
          $bool=move_uploaded_file($file_tmp, $file);
          if($bool == true){
              echo "Success";
@@ -84,24 +84,9 @@
   firebase.analytics();
 </script>
 
-<script>
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            uname = user.displayName;
-            var elm = document.getElementById("Uname");
-            // Call get submissions
-            elm.value = uname;
-        } else {
-            // No user is signed in.
-        }
-    });
-</script>
-
-
 <body>
     <form action ="upload.php" method ="POST" enctype ="multipart/form-data">
         <input type ="File" name = "image" />
-        <input type ="hidden" name = "user" id = "Uname" />
         <input type ="submit" name = "upload" />
     </form>
 
@@ -123,7 +108,7 @@
                 <div id="card-container">
                 <?php
                     $conn = mysqli_connect('ls-372939ade94c9ae5a641fcdc7d3e6e2c727a03af.ch4bcjnxytnt.us-east-2.rds.amazonaws.com', 'dbmasteruser', 'bFG%,$zB$mlZSH6ElirW7;z<.R|-96ab', 'autota');
-                    $user = $_GET["user"];
+                    $user = $_COOKIE["AUTOTA_AUTH"];
                     $sql = "SELECT id, uname, date, name FROM files WHERE uname='$user'";
                     $result = $conn->query($sql);
 
@@ -154,8 +139,6 @@
                             echo "</a>";
                             
                         }
-                    } else {
-                        echo "0 results";
                     }
                     $conn->close();
                 ?>
@@ -181,7 +164,7 @@
                 $code = $row['name'];
                 $text = $row['pylint'];
                 $json = $row['json'];
-                $rawcodepath = "/home/bitnami/htdocs/input/" . $code;
+                $rawcodepath = "/home/bitnami/input/" . $code;
                 $rawcodefile = fopen($rawcodepath, "r");
                 $rawcode = fread($rawcodefile, filesize($rawcodepath));
                 $outputfile = fopen($text, "r");
