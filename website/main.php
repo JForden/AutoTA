@@ -118,7 +118,7 @@
                             $id = $row['id'];
                             $date = $row['date'];
                             $name = $row['name'];
-                            echo "<a href='main.php?user=$user&submission=$id'>";
+                            echo "<a href='main.php?submission=$id'>";
                             if (isset($_GET['submission']) and $_GET['submission'] == $id){
                                 echo "<div id='selected-card' class='card'>";
                             } else {
