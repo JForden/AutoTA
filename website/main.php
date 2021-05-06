@@ -22,7 +22,6 @@
          $bool=move_uploaded_file($file_tmp, $file);
          if($bool == true){
              echo "Success";
-             // TODO: Run Pylint and store output in database
              $command = escapeshellcmd('pylint');
              $output = shell_exec($command . ' ' . escapeshellarg($file));
 
@@ -158,7 +157,6 @@
             $sql = "SELECT name, pylint,json FROM files WHERE id=$sub";
             $result = $conn->query($sql);
 
-            // TODO: Get submission from database.  The submission ID should be in $_GET['submission'].  Load the code and output in
             if ($result->num_rows > 0) {
                 $row = $result->fetch_assoc();
                 $code = $row['name'];
@@ -194,8 +192,6 @@
             } else {
                 echo 'Submission not found!';
             }
-
-            // END TODO
         }
 
         ?>
