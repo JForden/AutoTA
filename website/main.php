@@ -1,42 +1,4 @@
 <!DOCTYPE html>
-<?php
-    ////code from https://www.tutorialspoint.com/php/php_file_uploading.htm
-   if(isset($_FILES['image'])){
-      $errors= array();
-      $file_name = $_FILES['image']['name'];
-      $file_size = $_FILES['image']['size'];
-      $file_tmp = $_FILES['image']['tmp_name'];
-      $file_type = $_FILES['image']['type'];
-      $file_ext=strtolower(end(explode('.',$_FILES['image']['name'])));
-      $extensions= array("py");
-      if(in_array($file_ext,$extensions)=== false){
-         $errors[]="extension not allowed, please choose a .py file.";
-      }
-      
-      if($file_size > 5000000) {
-         $errors[]='Max File Size reached (5mb)';
-      }
-      if(empty($errors)==true) {
-         $bool=false;
-         $file = "/home/bitnami/input/".$file_name;
-         $bool=move_uploaded_file($file_tmp, $file);
-         if($bool == true){
-             echo "Success";
-             $command = escapeshellcmd('pylint');
-             $output = shell_exec($command . ' ' . escapeshellarg($file));
-
-             $json_output = shell_exec($command . ' ' . escapeshellarg($file) . ' -f json');
-             echo $json_output;
-         }
-         else{
-             echo "False";
-         }
-      }else{
-         print_r($errors);
-      }
-   }
-?>
-
 <html>
 
 <head>
