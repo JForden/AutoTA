@@ -41,6 +41,7 @@ table.hljs-ln {
     border-spacing: 5px 0px;
 }
     
+
 #card-container {
     overflow-y: scroll;
     min-height: 80vh;
@@ -48,14 +49,6 @@ table.hljs-ln {
     border: 2px solid black;
     display: flex;
     flex-direction: column;
-}
-
-#code-container {
-    height: 80vh;
-    width: 100%;
-    overflow: auto;
-    border: 1px solid black;
-    border-left: none;
 }
 
 #pylint-container {
@@ -133,13 +126,6 @@ table.hljs-ln {
     padding-right: 5px;
 }
 
-#card-container a {
-    text-decoration: none;
-}
-
-#selected-card {
-    background-color: #c8e4fc;
-}
 
 /* Style the header */
 

@@ -12,3 +12,5 @@ do
 done
 
 /usr/bin/python3 /home/jforden/Coding/AutoGrader/LinkFinder.py
+
+exit 0
