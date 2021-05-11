@@ -5,7 +5,8 @@ from http import HTTPStatus
 
 auth_api = Blueprint('auth_api', __name__)
 
-@auth_api.route('/login', methods = ['POST'])
+
+@auth_api.route('/login', methods=['POST'])
 def auth():
     input_json = request.get_json()
     if input_json['username'] == 'test' and input_json['password'] == 'test':

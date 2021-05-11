@@ -3,6 +3,7 @@ from flask_cors import CORS
 from src.auth import auth_api
 from src.upload import upload_api
 
+
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -14,6 +15,7 @@ def create_app():
     app.register_blueprint(upload_api, url_prefix='/upload')  
 
     return app
+
 
 if __name__ == "__main__":
     app = create_app()

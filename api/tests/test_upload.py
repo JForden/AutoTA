@@ -1,6 +1,6 @@
 from src import upload
-from tests import conftest
 from http import HTTPStatus
+
 
 def test_allowed_file_python_allowed(testcontext):
     # Act
@@ -11,6 +11,7 @@ def test_allowed_file_python_allowed(testcontext):
     # Assert
     assert rv == True
 
+
 def test_allowed_file_not_in_list(testcontext):
     # Act
     with testcontext.app.app_context():
@@ -19,6 +20,7 @@ def test_allowed_file_not_in_list(testcontext):
 
     # Assert
     assert rv == False
+
 
 def test_allowed_file_in_string_but_not_extension(testcontext):
     # Act
@@ -29,6 +31,7 @@ def test_allowed_file_in_string_but_not_extension(testcontext):
     # Assert
     assert rv == False
 
+
 def test_allowed_file_only_string(testcontext):
     # Act
     with testcontext.app.app_context():
@@ -38,10 +41,10 @@ def test_allowed_file_only_string(testcontext):
     # Assert
     assert rv == False
 
+
 def test_upload_no_file_selected(testcontext):
     # Act
-    data = {}
-    data['files'] = ''
+    data = {'files': ''}
     rv = testcontext.client.post('/upload', data=data, content_type='multipart/form-data', follow_redirects=True)
 
     # Assert

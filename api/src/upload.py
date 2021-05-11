@@ -9,10 +9,12 @@ import subprocess
 
 upload_api = Blueprint('upload_api', __name__)
 
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
-        
+
+
 @upload_api.route('/', methods = ['POST'])
 def file_upload():
     # check if the post request has the file part
@@ -37,13 +39,13 @@ def file_upload():
         file.save(path)
 
         boole = subprocess.run([current_app.config['GRADE_ONDEMAND_SCRIPT_PATH'], path], shell=True)
-        if(boole.returncode == 0):  
+        if boole.returncode == 0:
             message = {
                 'message': 'Success'
             }
             return make_response(message, HTTPStatus.OK) 
         else:
-                message = {
+            message = {
                 'message': 'Error'
             }  
         return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
