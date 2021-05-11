@@ -11,7 +11,7 @@ upload_api = Blueprint('upload_api', __name__)
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
         
 @upload_api.route('/', methods = ['POST'])
 def file_upload():
@@ -27,7 +27,7 @@ def file_upload():
     # submit an empty part without filename
     if file.filename == '':
         message = {
-            'message': 'No selected file'
+            'message': 'No sedlected file'
         }
         return make_response(message, HTTPStatus.BAD_REQUEST)
 

@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
-from tes.auth import auth_api
-from tes.upload import upload_api
+from src.auth import auth_api
+from src.upload import upload_api
 
 def create_app():
     app = Flask(__name__)

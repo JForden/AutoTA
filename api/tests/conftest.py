@@ -1,10 +1,16 @@
 import pytest
-from tes import app
+from src import app
+
+class TestContext:
+    def __init__(self, app, client):
+        self.app = app
+        self.client = client
 
 @pytest.fixture
-def client():
+def testcontext():
     testapp = app.create_app()
     testapp.config['TESTING'] = True
 
     with testapp.test_client() as client:
-        yield client
+        tc = TestContext(testapp, client)
+        yield tc
