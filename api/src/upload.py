@@ -29,7 +29,7 @@ def file_upload():
     # submit an empty part without filename
     if file.filename == '':
         message = {
-            'message': 'No sedlected file'
+            'message': 'No selected file'
         }
         return make_response(message, HTTPStatus.BAD_REQUEST)
 
@@ -43,11 +43,11 @@ def file_upload():
             message = {
                 'message': 'Success'
             }
-            return make_response(message, HTTPStatus.OK) 
-        else:
-            message = {
-                'message': 'Error'
-            }  
+            return make_response(message, HTTPStatus.OK)
+
+        message = {
+            'message': 'Error'
+        }
         return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
 
     message = {
