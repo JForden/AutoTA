@@ -26,4 +26,4 @@ steps:
 - script: |
     pipenv install pytest pytest-azurepipelines
     pytest
-  displayName: 'pytest'
+  displayName: 'Run tests'
