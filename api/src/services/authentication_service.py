@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 class AuthenticationService(ABC):
 
     @abstractmethod
-    def login(self, username, password):
+    def login(self, username: str, password: str) -> bool:
         pass
 
 

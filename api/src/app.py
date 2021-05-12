@@ -1,7 +1,9 @@
 from flask import Flask
+from flask_injector import FlaskInjector
 from flask_cors import CORS
 from src.auth import auth_api
 from src.upload import upload_api
+from src.dependencies import configure
 
 
 def create_app():
@@ -12,7 +14,9 @@ def create_app():
     app.config['GRADE_ONDEMAND_SCRIPT_PATH'] = '/home/alex/Documents/Repositories/AutoTA/GradeOnD.sh'
 
     app.register_blueprint(auth_api, url_prefix='/auth')  
-    app.register_blueprint(upload_api, url_prefix='/upload')  
+    app.register_blueprint(upload_api, url_prefix='/upload')
+
+    FlaskInjector(app=app, modules=[configure])
 
     return app
 
