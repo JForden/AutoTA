@@ -6,6 +6,7 @@ import HomePage from './pages/Home';
 import LandingPage from './pages/Landing';
 import UploadPage from './pages/UploadPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import CodePage from './pages/CodePage';
 
 class App extends Component {
 
@@ -17,6 +18,7 @@ class App extends Component {
               <ProtectedRoute path="/home" component={HomePage} />
               <Route exact path="/" component={LandingPage} />
               <Route exact path="/up" component={UploadPage} />
+              <Route exact path="/code" component={CodePage} />
         </Switch>
       </BrowserRouter>
     );

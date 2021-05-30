@@ -57,7 +57,8 @@ class UploadPage extends Component<{}, UploadPageState> {
         <Grid.Column style={{ maxWidth: 400 }}>
         <Form size='large' onSubmit={this.handleSubmit}>
             <Segment stacked>
-            <Form.Input type="file" fluid required placeholder='Username' onChange={this.handleFileChange} />
+            <h1>Upload Assignment Here</h1>
+            <Form.Input type="file" fluid required onChange={this.handleFileChange} />
             <Button type="submit" color='blue' fluid size='large'>
                 Upload
             </Button>
