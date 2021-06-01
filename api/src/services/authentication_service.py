@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import pam
 
 
 class AuthenticationService(ABC):
@@ -10,5 +11,9 @@ class AuthenticationService(ABC):
 
 class PAMAuthenticationService(AuthenticationService):
     def login(self, username, password):
-        # TODO: Do PAM stuff here
-        return True
+        p=pam.pam()
+        p.authenticate(username, password)
+        if(p):
+            return True
+        else:
+            return False
