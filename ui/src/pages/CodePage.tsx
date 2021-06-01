@@ -6,13 +6,15 @@ import {
     Container,
     Image,
     Menu,
+    Grid
   } from 'semantic-ui-react'
 import CodeComponent from '../components/CodeComponent';
+import Split from 'react-split'
 
 class CodePage extends Component {
   render() {
     return (
-        <div>
+        <div id="code-page">
             <Menu fixed='top' inverted>
                 <Container>
                     <Menu.Item as='a' header>
@@ -22,20 +24,29 @@ class CodePage extends Component {
                     <Menu.Item as='a'>Home</Menu.Item>
                 </Container>
             </Menu>
-            <div>
-                <div className="topp">
-                    <SplitPane split="vertical" defaultSize={957}>
-                        <div><CodeComponent></CodeComponent></div>
-                        <div>Lint Stuff</div>
-                    </SplitPane>
-                </div>
-                <div className="bottom">
-                    <SplitPane split="vertical" defaultSize={957}>
-                        <div>Test Cases</div>
-                        <div>Possible Output</div>
-                    </SplitPane>
-                </div>
-            </div>
+            <Grid>
+                <Grid.Row>
+                    <Grid.Column width={16}>
+                        <div className="topp">
+                            <Split className="split">
+                                <div id="code-container"><CodeComponent></CodeComponent></div>
+                                <div>Lint Stuff</div>
+                            </Split>
+                        </div>
+                    </Grid.Column>
+                </Grid.Row>
+
+                <Grid.Row>
+                    <Grid.Column width={16}>
+                        <div className="bottom">
+                            <Split className="split">
+                                <div id="code-container">Test Cases</div>
+                                <div>Lint Stuff</div>
+                            </Split>
+                        </div>
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
         </div>
     );
   }
