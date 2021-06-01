@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_injector import FlaskInjector
 from flask_cors import CORS
-from src.auth import auth_api
-from src.upload import upload_api
-from src.dependencies import configure
+from auth import auth_api
+from upload import upload_api
+from dependencies import configure
 
 
 def create_app():
