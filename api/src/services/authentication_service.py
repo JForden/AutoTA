@@ -12,8 +12,7 @@ class AuthenticationService(ABC):
 class PAMAuthenticationService(AuthenticationService):
     def login(self, username, password):
         p=pam.pam()
-        p.authenticate(username, password)
-        if(p):
+        if(p.authenticate(username, password)):
             return True
         else:
             return False

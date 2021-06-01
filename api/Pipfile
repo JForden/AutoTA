@@ -4,10 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "*"
 flask-cors = "*"
 pam = "*"
 flask-injector = "*"
+flask = "==1.1.2"
+werkzeug = "==1.0.1"
 
 [dev-packages]
 pytest = "*"
