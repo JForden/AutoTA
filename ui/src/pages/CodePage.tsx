@@ -1,7 +1,6 @@
 import { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import '../css/CodePage.scss';
-import SplitPane from 'react-split-pane';
 import {
     Container,
     Image,
@@ -10,6 +9,8 @@ import {
   } from 'semantic-ui-react'
 import CodeComponent from '../components/CodeComponent';
 import Split from 'react-split'
+import TestResultsComponent from '../components/TestResultsComponent';
+import DescriptionComponent from '../components/DescriptionComponent';
 
 class CodePage extends Component {
   render() {
@@ -25,27 +26,25 @@ class CodePage extends Component {
                 </Container>
             </Menu>
             <Grid>
-                <Grid.Row>
-                    <Grid.Column width={16}>
-                        <div className="topp">
+                <Grid.Column>
+                    <Grid.Row width={16} className="top-row full-height">
+                        <div className="full-height">
                             <Split className="split">
                                 <div id="code-container"><CodeComponent></CodeComponent></div>
                                 <div>Lint Stuff</div>
                             </Split>
                         </div>
-                    </Grid.Column>
-                </Grid.Row>
+                    </Grid.Row>
 
-                <Grid.Row>
-                    <Grid.Column width={16}>
+                    <Grid.Row width={16}>
                         <div className="bottom">
                             <Split className="split">
-                                <div id="code-container">Test Cases</div>
-                                <div>Lint Stuff</div>
+                                <div id="code-container"><TestResultsComponent></TestResultsComponent></div>
+                                <div><DescriptionComponent></DescriptionComponent></div>
                             </Split>
                         </div>
-                    </Grid.Column>
-                </Grid.Row>
+                    </Grid.Row>
+                </Grid.Column>
             </Grid>
         </div>
     );

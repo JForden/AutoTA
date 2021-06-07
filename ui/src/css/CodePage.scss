@@ -6,8 +6,17 @@
     height: 100%;
 }
 
-.topp {
+.full-height {
     height: 100%;
+}
+
+.top-row {
+    max-height: 75vh;
+}
+
+.bottom {
+    height: 20vh;
+    border-top: 1px solid;
 }
 
 .split {

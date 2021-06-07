@@ -1,0 +1,20 @@
+.testcase {
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.passed {
+    color: mediumseagreen;
+}
+
+.failed {
+    color: red;
+}
+
+#testresults-container {
+    margin-top: 5px;
+    margin-left: 5px;
+    display: flex;
+    justify-content: space-around;
+}

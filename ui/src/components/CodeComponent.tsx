@@ -1,10 +1,12 @@
 import { Component } from 'react';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { lightfair } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import 'semantic-ui-css/semantic.min.css'
 
 class CodeComponent extends Component {
   render() {
     return (
-        <pre><code className="python">
+        <SyntaxHighlighter language="python" style={lightfair} showLineNumbers={true}>
             {`import collections
 class Cells:
     def __init__(self):
@@ -43,9 +45,20 @@ if __name__ == "__main__":
     print(cell)
     for _ in range(10):
         cell.update()
+        print(cell)
+        print(cell)
+        print(cell)
+        print(cell)
+        print(cell)
+        print(cell)
+        print(cell)
+        print(cell)
+        print(cell)
+        print(cell)
+        print(cell)
+        print(cell)
         print(cell)`}
-        </code>
-        </pre>
+        </SyntaxHighlighter>
     );
   }
 }
