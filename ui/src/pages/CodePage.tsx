@@ -11,6 +11,7 @@ import CodeComponent from '../components/CodeComponent';
 import Split from 'react-split'
 import TestResultsComponent from '../components/TestResultsComponent';
 import DescriptionComponent from '../components/DescriptionComponent';
+import { StyledIcon } from '../styled-components/StyledIcon';
 
 class CodePage extends Component {
   render() {
@@ -19,10 +20,11 @@ class CodePage extends Component {
             <Menu fixed='top' inverted>
                 <Container>
                     <Menu.Item as='a' header>
-                        <Image size='mini' src='/logo.png' style={{ marginRight: '1.5em' }} />
+                        <Image size='mini' src='/AutoTaPH.png' style={{ marginRight: '1.5em' }} />
                         AutoTA
                     </Menu.Item>
                     <Menu.Item as='a'>Home</Menu.Item>
+                    <Menu.Item as='a'><StyledIcon name='upload'/>23</Menu.Item>
                 </Container>
             </Menu>
             <Grid>
