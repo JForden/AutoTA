@@ -1,8 +1,8 @@
 import { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css'
-import { Button, Form, Grid, Segment } from 'semantic-ui-react'
+import { Menu, Image, Container, Button, Form, Grid, Segment } from 'semantic-ui-react'
 import axios from 'axios';
-
+import { StyledIcon } from '../styled-components/StyledIcon';
 interface UploadPageState {
     file?: File
   }
@@ -53,19 +53,30 @@ class UploadPage extends Component<{}, UploadPageState> {
 
     render() {
         return (
-        <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
-        <Grid.Column style={{ maxWidth: 400 }}>
-        <Form size='large' onSubmit={this.handleSubmit}>
-            <Segment stacked>
-            <h1>Upload Assignment Here</h1>
-            <Form.Input type="file" fluid required onChange={this.handleFileChange} />
-            <Button type="submit" color='blue' fluid size='large'>
-                Upload
-            </Button>
-            </Segment>
-        </Form>
-        </Grid.Column>
-    </Grid>
+        <div>
+            <Menu fixed='top' inverted>
+            <Container>
+                <Menu.Item as='a' header>
+                    <Image size='mini' src='/AutoTaPH.png' style={{ marginRight: '1.5em' }} />
+                    AutoTA
+                </Menu.Item>
+                <Menu.Item><a href="/upload">Upload</a></Menu.Item>
+            </Container>
+            </Menu>
+            <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
+            <Grid.Column style={{ maxWidth: 400 }}>
+            <Form size='large' onSubmit={this.handleSubmit}>
+                <Segment stacked>
+                <h1>Upload Assignment Here</h1>
+                <Form.Input type="file" fluid required onChange={this.handleFileChange} />
+                <Button type="submit" color='blue' fluid size='large'>
+                    Upload
+                </Button>
+                </Segment>
+            </Form>
+            </Grid.Column>
+            </Grid>
+        </div>
         );
   }
 }

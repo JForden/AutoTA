@@ -23,8 +23,7 @@ class CodePage extends Component {
                         <Image size='mini' src='/AutoTaPH.png' style={{ marginRight: '1.5em' }} />
                         AutoTA
                     </Menu.Item>
-                    <Menu.Item as='a'>Home</Menu.Item>
-                    <Menu.Item as='a'><StyledIcon name='upload'/>23</Menu.Item>
+                    <Menu.Item><a href="/upload" >Upload</a></Menu.Item>
                 </Container>
             </Menu>
             <Grid>
