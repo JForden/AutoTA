@@ -3,7 +3,7 @@ from flask import request
 from flask import make_response
 from http import HTTPStatus
 from injector import inject
-from src.services.authentication_service import AuthenticationService
+from services.authentication_service import AuthenticationService
 
 
 auth_api = Blueprint('auth_api', __name__)

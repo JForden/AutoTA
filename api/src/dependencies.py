@@ -1,5 +1,5 @@
 from injector import singleton
-from src.services.authentication_service import AuthenticationService, PAMAuthenticationService
+from services.authentication_service import AuthenticationService, PAMAuthenticationService
 
 
 def configure(binder):
