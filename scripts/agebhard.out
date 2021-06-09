@@ -1,0 +1,33 @@
+{
+"result": [
+{
+"Suite": "01-simple",
+"Points" : "5 points",
+"Tests": [
+{
+"Testcase": "00-empty.test",
+"Status": "FAILED",
+"Diff": "1c1\n< 1 1 1 1 1 1 1 1 1 1\n---\n> 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0"
+},
+{
+"Testcase": "01-single.test",
+"Status": "FAILED",
+"Diff": "1c1\n< 0 0 0 0 0 0 0 0 0 1\n---\n> 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0"
+}
+]},
+{
+"Suite": "02-simple",
+"Points" : "10 points",
+"Tests": [
+{
+"Testcase": "00-test1.test",
+"Status": "FAILED",
+"Diff": "1c1\n< 30 38 43 50 66 68 86 87 103 105\n---\n> 29.0 37.0 42.0 49.0 65.0 68.0 86.0 86.0 102.0 104.0"
+},
+{
+"Testcase": "01-test2.test",
+"Status": "FAILED",
+"Diff": "1c1\n< 4 8 15 16 24 36 49 69 102 103\n---\n> 4.0 8.0 14.0 15.0 23.0 35.0 48.0 69.0 101.0 103.0"
+}
+]}
+]}
