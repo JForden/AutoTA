@@ -8,10 +8,8 @@ import {
     Grid
   } from 'semantic-ui-react'
 import CodeComponent from '../components/CodeComponent';
-import Split from 'react-split'
+import Split from 'react-split';
 import TestResultsComponent from '../components/TestResultsComponent';
-import DescriptionComponent from '../components/DescriptionComponent';
-import { StyledIcon } from '../styled-components/StyledIcon';
 
 class CodePage extends Component {
   render() {
@@ -38,12 +36,7 @@ class CodePage extends Component {
                     </Grid.Row>
 
                     <Grid.Row width={16}>
-                        <div className="bottom">
-                            <Split className="split">
-                                <div id="code-container"><TestResultsComponent></TestResultsComponent></div>
-                                <div><DescriptionComponent></DescriptionComponent></div>
-                            </Split>
-                        </div>
+                        <TestResultsComponent></TestResultsComponent>
                     </Grid.Row>
                 </Grid.Column>
             </Grid>

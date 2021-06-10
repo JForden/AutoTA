@@ -122,11 +122,16 @@ for problem in $TESTS
             if [ $? -eq 0 ]; then
                 echo "PASSED"
                 echo "\"Status\": \"PASSED\"," >> ${OUTFILE}
+                desc=$( cat ${tcase}.desc )
+		        echo "\"description\": \"${desc}\"," >> ${OUTFILE}
+                echo "\"Diff\": \"\"" >> ${OUTFILE}
             else
                 echo ""
                 echo "\"Status\": \"FAILED\"," >> ${OUTFILE}
                 sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' diffout.txt > diffout1.txt
                 holder=$( cat diffout1.txt )
+                desc=$( cat ${tcase}.desc )
+		        echo "\"description\": \"${desc}\"," >> ${OUTFILE}
                 echo "\"Diff\": \"${holder}\"" >> ${OUTFILE}
                 rm diffout1.txt
             fi
