@@ -162,6 +162,11 @@ for problem in $TESTS
 
 done
 echo "]}" >> ${OUTFILE}
+arcfile=${OUTFILE}-`date +%F-%T.%N`.archive
+cat ${OUTFILE} >> ${arcfile}
+mv ${arcfile} ../archivefolder/
+
+
 
 # End of grading stuff.
 cd $myroot
