@@ -42,7 +42,7 @@ class Login extends Component<{}, LoginPageState> {
     axios.post(process.env.REACT_APP_BASE_API_URL + `/auth/login`, { password: this.state.password, username: this.state.username })
     .then(res => {
       this.setState({ isErrorMessageHidden: true });
-      localStorage.setItem("AUTOTA_AUTH_TOKEN", "1");
+      localStorage.setItem("AUTOTA_AUTH_TOKEN", res.data.access_token);
       this.setState({ isLoggedIn: true })
     })
     .catch(err => {
@@ -52,7 +52,7 @@ class Login extends Component<{}, LoginPageState> {
 
   render() {
     if (this.state.isLoggedIn){
-      return ( <Redirect to={{pathname: '/home'}}/> );
+      return ( <Redirect to={{pathname: '/upload'}}/> );
     }
 
     return (
