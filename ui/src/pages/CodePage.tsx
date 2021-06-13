@@ -8,7 +8,6 @@ import {
     Grid
   } from 'semantic-ui-react'
 import CodeComponent from '../components/CodeComponent';
-import Split from 'react-split';
 import TestResultsComponent from '../components/TestResultsComponent';
 
 class CodePage extends Component {
@@ -27,12 +26,7 @@ class CodePage extends Component {
             <Grid>
                 <Grid.Column>
                     <Grid.Row width={16} className="top-row full-height">
-                        <div className="full-height">
-                            <Split className="split">
-                                <div id="code-container"><CodeComponent></CodeComponent></div>
-                                <div>Lint Stuff</div>
-                            </Split>
-                        </div>
+                        <CodeComponent></CodeComponent>
                     </Grid.Row>
 
                     <Grid.Row width={16}>

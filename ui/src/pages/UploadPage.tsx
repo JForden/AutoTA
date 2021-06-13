@@ -1,8 +1,8 @@
 import { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css'
-import { Menu, Image, Container, Button, Form, Grid, Segment } from 'semantic-ui-react'
+import { Button, Form, Grid, Segment } from 'semantic-ui-react'
 import axios from 'axios';
-import { StyledIcon } from '../styled-components/StyledIcon';
+import MenuComponent from '../components/MenuComponent';
 interface UploadPageState {
     file?: File
   }
@@ -54,15 +54,7 @@ class UploadPage extends Component<{}, UploadPageState> {
     render() {
         return (
         <div>
-            <Menu fixed='top' inverted>
-            <Container>
-                <Menu.Item as='a' header>
-                    <Image size='mini' src='/AutoTaPH.png' style={{ marginRight: '1.5em' }} />
-                    AutoTA
-                </Menu.Item>
-                <Menu.Item><a href="/upload">Upload</a></Menu.Item>
-            </Container>
-            </Menu>
+            <MenuComponent showUpload={true}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
             <Grid.Column style={{ maxWidth: 400 }}>
             <Form size='large' onSubmit={this.handleSubmit}>

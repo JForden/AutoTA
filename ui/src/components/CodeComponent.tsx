@@ -1,64 +1,141 @@
 import { Component } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { lightfair } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import 'semantic-ui-css/semantic.min.css'
+import 'semantic-ui-css/semantic.min.css';
+import Split from 'react-split';
 
 class CodeComponent extends Component {
   render() {
-    return (
-        <SyntaxHighlighter language="python" style={lightfair} showLineNumbers={true}>
-            {`import collections
-class Cells:
-    def __init__(self):
-        self.live_cells = set([])
-    def update(self):
-        ctr = collections.Counter()
-        for element in self.live_cells:
-            x, y = element
-            ctr[(x-1,y)]+=1
-            ctr[(x-1,y-1)]+=1
-            ctr[(x-1,y+1)]+=1
-            ctr[(x,y-1)]+=1
-            ctr[(x,y+1)]+=1
-            ctr[(x+1,y-1)]+=1
-            ctr[(x+1,y)]+=1
-            ctr[(x+1,y+1)]+=1
-        new_list = []
-        for pts in ctr:
-            if pts in self.live_cells and ctr[pts] in [2,3]:
-                new_list.append(pts)
-            if pts not in self.live_cells and ctr[pts]==3:
-                new_list.append(pts)
-        self.live_cells=set(new_list)
-    def __str__(self):
-        return str(self.live_cells)
-    def set(self, list):
-        self.live_cells = set(list)
-    def initialize_blinker(self,a,b):
-        self.set([(a,b), (a+1,b), (a,b+1), (a+2,b+2), (a+3,b+2), (a+2,b+3)])
-    def initialize_glider(self, a,b):
-        self.set([(a,b), (a+1,b+1), (a-1,b+2), (a,b+2), (a+1,b+2)])
 
-if __name__ == "__main__":
-    cell = Cells()
-    cell.set([(5,10), (5,11), (6,10), (6,11), (7,12), (7,13), (8,12), (8,13)])
-    print(cell)
-    for _ in range(10):
-        cell.update()
-        print(cell)
-        print(cell)
-        print(cell)
-        print(cell)
-        print(cell)
-        print(cell)
-        print(cell)
-        print(cell)
-        print(cell)
-        print(cell)
-        print(cell)
-        print(cell)
-        print(cell)`}
-        </SyntaxHighlighter>
+    var pylint = [
+    {
+        "type": "convention",
+        "module": "agebhard",
+        "obj": "",
+        "line": 2,
+        "column": 0,
+        "path": "agebhard.py",
+        "symbol": "line-too-long",
+        "message": "Line too long (148/100)",
+        "message-id": "C0301"
+    },
+    {
+        "type": "convention",
+        "module": "agebhard",
+        "obj": "",
+        "line": 8,
+        "column": 0,
+        "path": "agebhard.py",
+        "symbol": "line-too-long",
+        "message": "Line too long (120/100)",
+        "message-id": "C0301"
+    },
+    {
+        "type": "convention",
+        "module": "agebhard",
+        "obj": "",
+        "line": 23,
+        "column": 0,
+        "path": "agebhard.py",
+        "symbol": "line-too-long",
+        "message": "Line too long (112/100)",
+        "message-id": "C0301"
+    },
+    {
+        "type": "convention",
+        "module": "agebhard",
+        "obj": "distanceFinder",
+        "line": 13,
+        "column": 0,
+        "path": "agebhard.py",
+        "symbol": "invalid-name",
+        "message": "Function name \"distanceFinder\" doesn't conform to snake_case naming style",
+        "message-id": "C0103"
+    },
+    {
+        "type": "convention",
+        "module": "agebhard",
+        "obj": "distanceFinder",
+        "line": 17,
+        "column": 8,
+        "path": "agebhard.py",
+        "symbol": "invalid-name",
+        "message": "Variable name \"y\" doesn't conform to snake_case naming style",
+        "message-id": "C0103"
+    },
+    {
+        "type": "convention",
+        "module": "agebhard",
+        "obj": "main",
+        "line": 24,
+        "column": 0,
+        "path": "agebhard.py",
+        "symbol": "missing-function-docstring",
+        "message": "Missing function or method docstring",
+        "message-id": "C0116"
+    },
+    {
+        "type": "convention",
+        "module": "agebhard",
+        "obj": "main",
+        "line": 35,
+        "column": 8,
+        "path": "agebhard.py",
+        "symbol": "invalid-name",
+        "message": "Variable name \"returnedVals\" doesn't conform to snake_case naming style",
+        "message-id": "C0103"
+    }
+];
+    return (
+        <div className="full-height">
+            <Split className="split">
+                <div id="code-container">
+                    <SyntaxHighlighter language="python" style={lightfair} showLineNumbers={true}>
+                        {`"""
+TODO: Calculate and sort (smallest value first) the time (in minutes) it will take Captain Zap to get to each planet given the following parameters:
+
+Parameters:
+distances --> (integer array) the distance (in km) needed to reach each planet
+
+Returns:
+a sorted array of integers (from least to greatest) representing the number of minutes it will take to reach each planet
+
+NOTE:  The speed of light is 300000 km/s
+NOTE:  Round the nearest minute
+"""
+def distanceFinder(distances):
+    lista = list()
+    for ele in distances:
+        y = ele / 300000
+        y = y / 60
+        lista.append(round(y))
+    lista.sort()
+    return lista
+
+# It is unnecessary to edit the "main" function of each problem's provided code skeleton.
+# The main function is written for you in order to help you conform to input and output formatting requirements.
+def main():
+
+    for _ in range(int(input())):
+        # User Input #
+        inp = input().split(" ")
+        distances = []
+
+        for i in inp:
+            distances.append(int(i))
+
+        # Function Call
+        returnedVals = distanceFinder(distances)
+
+        # Terminal Output #
+        print(*returnedVals, sep=' ')
+
+main()`}
+                    </SyntaxHighlighter>
+                </div>
+                <div>Lint Stuff</div>
+            </Split>
+        </div>
     );
   }
 }
