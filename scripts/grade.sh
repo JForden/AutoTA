@@ -95,16 +95,16 @@ for problem in $TESTS
 
   TESTOUT=${problem}.testoutput
   echo    "     $problem"
-  echo "{" >> ${OUTFILE}
-  echo "\"Suite\": \"$problem\"," >> ${OUTFILE} 
-  echo "\"Points\" : \"`cat comment`\"," >> ${OUTFILE}
-  echo "\"Tests\": [" >> ${OUTFILE}
+  echo -e "\t{" >> ${OUTFILE}
+  echo -e "\t\"Suite\": \"$problem\"," >> ${OUTFILE} 
+  echo -e "\t\"Points\" : \"`cat comment`\"," >> ${OUTFILE}
+  echo -e "\t\"Tests\": [" >> ${OUTFILE}
   counter=`ls *.test | sort | wc -l`
   for tcase in `ls *.test | sort`
     do
-        echo "{" >> ${OUTFILE} 
+        echo -e "\t\t{" >> ${OUTFILE} 
         printf "    + %-30s \t" ${tcase}
-        echo "\"Testcase\": \"${tcase}\"," >> ${OUTFILE}
+        echo -e "\t\t\t\"Testcase\": \"${tcase}\"," >> ${OUTFILE}
         TESTOUT=${problem}.${tcase}.testoutput
 
         trap "echo Trapped CTRL-C; echo 'Error': 'Infinite Loop Detected' >> ${OUTFILE}; break" SIGINT SIGKILL SIGXCPU
@@ -121,18 +121,19 @@ for problem in $TESTS
             diff ${DIFFO} ${tcase}.sol ${TESTOUT} > diffout.txt
             if [ $? -eq 0 ]; then
                 echo "PASSED"
-                echo "\"Status\": \"PASSED\"," >> ${OUTFILE}
+                echo -e "\t\t\t\"Status\": \"PASSED\"," >> ${OUTFILE}
                 desc=$( cat ${tcase}.desc )
-		        echo "\"description\": \"${desc}\"," >> ${OUTFILE}
-                echo "\"Diff\": \"\"" >> ${OUTFILE}
+		        echo -e "\t\t\t\"Description\": \"${desc}\"," >> ${OUTFILE}
+                echo -e "\t\t\t\"Diff\": \"\"" >> ${OUTFILE}
             else
                 echo ""
-                echo "\"Status\": \"FAILED\"," >> ${OUTFILE}
+                echo -e "\t\t\t\"Status\": \"FAILED\"," >> ${OUTFILE}
                 sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' diffout.txt > diffout1.txt
                 holder=$( cat diffout1.txt )
                 desc=$( cat ${tcase}.desc )
-		        echo "\"description\": \"${desc}\"," >> ${OUTFILE}
-                echo "\"Diff\": \"${holder}\"" >> ${OUTFILE}
+		        echo -e "\t\t\t\"Description\": \"${desc}\"," >> ${OUTFILE}
+                echo -n -e "\t\t\t" >> ${OUTFILE}
+		echo "\"Diff\": \"${holder}\"" >> ${OUTFILE}
                 rm diffout1.txt
             fi
         else
@@ -140,20 +141,20 @@ for problem in $TESTS
             echo "\"Error\": \"No output"\" >> ${OUTFILE}
         fi
         if [ $counter -ne 1 ]; then
-            echo "}," >> ${OUTFILE}
+            echo -e "\t\t}," >> ${OUTFILE}
             counter=$((counter-1))
         else
-            echo "}" >> ${OUTFILE}
+            echo -e "\t\t}" >> ${OUTFILE}
         fi
     done
 
   
   
   if [ $tcounter -ne 1 ]; then
-    echo "]}," >> ${OUTFILE}
+    echo -e "\t]}," >> ${OUTFILE}
     tcounter=$((tcounter-1))
   else
-    echo "]}" >> ${OUTFILE}
+    echo -e "\t]}" >> ${OUTFILE}
   fi  
 
 
@@ -162,6 +163,15 @@ for problem in $TESTS
 
 done
 echo "]}" >> ${OUTFILE}
+lint=${OUTFILE}.pylint
+pylint ${EXE} --output-format=json >> ${lint}
+
+arcfile=${OUTFILE}-`date +%F-%T.%N`.archive
+cat ${OUTFILE} >> ${arcfile}
+mv ${arcfile} ../archivefolder/
+arcpylint=${OUTFILE}-`date +%F-%T.%N`.pyarchive
+pylint ${EXE} --output-format=json >> ${arcpylint}
+mv ${arcpylint} ../archivefolder/
 
 # End of grading stuff.
 cd $myroot

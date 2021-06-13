@@ -62,8 +62,10 @@ fi
 
 echo "Building ${STAGEDIR} for assignment \"${PROJECT}\"" >> ${LOGFILE}
 
-
+archive=archivefolder
 mkdir ${STAGEDIR}
+mkdir ${archive}
+mv ${archive} ${STAGEDIR}
 chmod -R 2770 ${STAGEDIR} &> /dev/null
 cd ${MYROOT}/${STAGEDIR}
 for i in ${NEEDED}
