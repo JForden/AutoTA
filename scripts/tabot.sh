@@ -55,6 +55,15 @@ echo "=======================" >> ${LOGFILE}
 date >> ${LOGFILE}
 STAGEDIR=grading-tabot-${PROJECT}-`date +%F-%T.%N`
 
+#=== Archive ===
+
+ARCHDIR=grading-tabot-${PROJECT}-archive
+if [ ! -d "$ARCHDIR" ]; then
+    mkdir $ARCHDIR
+fi
+
+#=== End Archive ===
+
 
 echo "Building ${STAGEDIR} for assignment \"${PROJECT}\"" >> ${LOGFILE}
 
