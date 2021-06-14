@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css'
-import { Menu, Container, Image } from 'semantic-ui-react'
+import { Menu, Container } from 'semantic-ui-react'
 
 interface MenuComponentProps {
     showUpload: boolean

@@ -1,12 +1,7 @@
 import { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import '../css/CodePage.scss';
-import {
-    Container,
-    Image,
-    Menu,
-    Grid
-  } from 'semantic-ui-react'
+import { Grid } from 'semantic-ui-react'
 import CodeComponent from '../components/CodeComponent';
 import TestResultsComponent from '../components/TestResultsComponent';
 import MenuComponent from '../components/MenuComponent';
