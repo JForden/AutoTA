@@ -13,7 +13,8 @@ interface PylintObject {
     path: string,
     symbol: string,
     message: string,
-    messageid: string
+    messageid: string,
+    link: string
 }
 
 interface CodeComponentState {
@@ -52,7 +53,8 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                     path: "agebhard.py",
                     symbol: "line-too-long",
                     message: "Line too long (148/100)",
-                    messageid: "C0301"
+                    messageid: "C0301", 
+                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
                 },
                 {
                     type: "convention",
@@ -63,7 +65,8 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                     path: "agebhard.py",
                     symbol: "line-too-long",
                     message: "Line too long (120/100)",
-                    messageid: "C0301"
+                    messageid: "C0301",
+                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
                 },
                 {
                     type: "convention",
@@ -74,7 +77,8 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                     path: "agebhard.py",
                     symbol: "line-too-long",
                     message: "Line too long (112/100)",
-                    messageid: "C0301"
+                    messageid: "C0301",
+                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
                 },
                 {
                     type: "convention",
@@ -85,7 +89,8 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                     path: "agebhard.py",
                     symbol: "invalid-name",
                     message: "Function name \"distanceFinder\" doesn't conform to snake_case naming style",
-                    messageid: "C0103"
+                    messageid: "C0103",
+                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
                 },
                 {
                     type: "convention",
@@ -96,7 +101,8 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                     path: "agebhard.py",
                     symbol: "invalid-name",
                     message: "Variable name \"y\" doesn't conform to snake_case naming style",
-                    messageid: "C0103"
+                    messageid: "C0103",
+                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
                 },
                 {
                     type: "convention",
@@ -107,7 +113,8 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                     path: "agebhard.py",
                     symbol: "missing-function-docstring",
                     message: "Missing function or method docstring",
-                    messageid: "C0116"
+                    messageid: "C0116",
+                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0116"
                 },
                 {
                     type: "convention",
@@ -118,7 +125,8 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                     path: "agebhard.py",
                     symbol: "invalid-name",
                     message: "Variable name \"returnedVals\" doesn't conform to snake_case naming style",
-                    messageid: "C0103"
+                    messageid: "C0103",
+                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
                 }
             ]
         });
@@ -175,11 +183,13 @@ main()`}
                 </div>
                 <div id="lint-output">
                 {(() => {
+                    //let fruits: Array<ReactNode>;
+                    const holder = [];
                     for (let index = 0; index < this.state.pylint.length; index++) {
                         const error = this.state.pylint[index];
-                        return {error.message,error.line}
+                        holder[index] =(<div> {error.line} :  {error.message} <br></br> Link: <a href={error.link} target="_blank" rel="noreferrer">{error.link}</a> </div>);
                     }
-                   
+                    return holder;
                 })()}
                 </div>
             </Split>
