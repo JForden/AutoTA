@@ -173,7 +173,15 @@ def main():
 main()`}
                     </SyntaxHighlighter>
                 </div>
-                <div id="lint-output">Lint Stuff</div>
+                <div id="lint-output">
+                {(() => {
+                    for (let index = 0; index < this.state.pylint.length; index++) {
+                        const error = this.state.pylint[index];
+                        return {error.message,error.line}
+                    }
+                   
+                })()}
+                </div>
             </Split>
         </div>
     );
