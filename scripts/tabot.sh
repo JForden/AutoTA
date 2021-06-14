@@ -53,19 +53,13 @@ echo "=======================" >> ${LOGFILE}
 echo "= Starting TA-bot run =" >> ${LOGFILE}
 echo "=======================" >> ${LOGFILE}
 date >> ${LOGFILE}
-
-STAGEDIR=grading-tabot-${PROJECT}
-if [ -d "$STAGEDIR" ]; then
-    rm -rf $STAGEDIR
-fi
+STAGEDIR=grading-tabot-${PROJECT}-`date +%F-%T.%N`
 
 
 echo "Building ${STAGEDIR} for assignment \"${PROJECT}\"" >> ${LOGFILE}
 
-archive=archivefolder
+
 mkdir ${STAGEDIR}
-mkdir ${archive}
-mv ${archive} ${STAGEDIR}
 chmod -R 2770 ${STAGEDIR} &> /dev/null
 cd ${MYROOT}/${STAGEDIR}
 for i in ${NEEDED}
@@ -151,4 +145,3 @@ else
        	echo "     ${MYROOT}/${STAGEDIR}/output/"
 	echo "When manual point assignment is completed, run ./mailbot.sh --final"
 fi
-
