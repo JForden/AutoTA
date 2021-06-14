@@ -104,7 +104,7 @@ class TestResultsComponent extends Component<{}, TestState> {
         <div className="bottom">
             <Split className="split">
                 <div id="code-container"><Tab menu={{ secondary: true, pointing: true }} panes={panes} /></div>
-                <div>
+                <div id="test-info">
                 {(() => {
                     if(!this.state.showComponent) {
                         return (<></>);

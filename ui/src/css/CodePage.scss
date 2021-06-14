@@ -15,19 +15,28 @@
 }
 
 .bottom {
-    height: 20vh;
+    height: 22vh;
     border-top: 1px solid;
 }
 
 .split {
     display: flex;
     flex-direction: row;
-    overflow-y: scroll;
+    overflow-y: auto;
     height: 100%;
 }
 
 #code-container {
     overflow-x: hidden;
+}
+
+#lint-output {
+    padding: 0.5em;
+    margin: 0.5em;
+}
+
+#test-info {
+    margin: 0.5em;
 }
 
 .gutter {

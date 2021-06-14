@@ -173,7 +173,7 @@ def main():
 main()`}
                     </SyntaxHighlighter>
                 </div>
-                <div>Lint Stuff</div>
+                <div id="lint-output">Lint Stuff</div>
             </Split>
         </div>
     );
