@@ -187,7 +187,7 @@ main()`}
                     const holder = [];
                     for (let index = 0; index < this.state.pylint.length; index++) {
                         const error = this.state.pylint[index];
-                        holder[index] =(<div> {error.line} :  {error.message} <br></br> Link: <a href={error.link} target="_blank" rel="noreferrer">{error.link}</a> </div>);
+                        holder[index] =(<div> <strong>{error.line} :</strong>  {error.message} <a href={error.link} target="_blank" rel="noreferrer"><strong>(see more)</strong></a> </div>);
                     }
                     return holder;
                 })()}
