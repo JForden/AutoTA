@@ -36,10 +36,10 @@ class CodeComponent extends Component<{}, CodeComponentState> {
         for (let index = 0; index < this.state.pylint.length; index++) {
             const error = this.state.pylint[index];
             if(error.line === linenumber) {
-                return {'background-color': 'yellow'};
+                return {'background-color': 'yellow', 'color': 'black'};
             }
         }
-        return "";
+        return {'color': 'black'};
     }
 
     componentDidMount(){
