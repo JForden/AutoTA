@@ -30,7 +30,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                     </div>
                     <Menu.Menu position='right'>
                         <Menu.Item>
-                             <Popup wide="very" size="tiny"
+                             <Popup wide="very" size="tiny" mouseLeaveDelay={1000}
                              content={
                                 <>
                                  <StyledIcon color="orange" name='minus circle' />
@@ -43,7 +43,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                   : This icon represents: Fatal Code Error<br />
                                   <StyledIcon color="yellow" name='exclamation triangle' />
                                   : This icon represents: Check syntax<br />
-                                  <strong>Understanding test case output:</strong><br />
+                                  <strong>Understanding test case output:<a href="https://unix.stackexchange.com/questions/81998/understanding-of-diff-output" target="_blank">(see more)</a></strong><br />
                                   <strong>a: </strong> This stands for adding<br />
                                   <strong>c: </strong> This stands for changing<br />
                                   <strong>d: </strong> This stands for deletion<br />
