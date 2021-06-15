@@ -111,9 +111,9 @@ class TestResultsComponent extends Component<{}, TestState> {
                     } else {
                         return (
                             <div>
-                                <b>[{this.state.suite}] {this.state.test}</b><br/>
-                                Result: <span className={this.state.result === "PASSED" ? "passed" : "failed"}>{this.state.result}</span><br/>
-                                {this.state.description}<br/>
+                                <div><b>[{this.state.suite}] {this.state.test}</b></div>
+                                <strong>Result: </strong> <span className={this.state.result === "PASSED" ? "passed" : "failed"}>{this.state.result}</span><br/>
+                                <strong>Test Description: </strong>{this.state.description}<br/>
                                 <pre style={{backgroundColor: 'lightgrey'}}>{this.state.diff}</pre>
                             </div>
                         );
