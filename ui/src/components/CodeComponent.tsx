@@ -1,8 +1,9 @@
 import { Component } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { lightfair } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { vs } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import 'semantic-ui-css/semantic.min.css';
 import Split from 'react-split';
+import { Icon } from  'semantic-ui-react';
 
 interface PylintObject {
     type: string,
@@ -69,7 +70,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                     link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
                 },
                 {
-                    type: "convention",
+                    type: "fatal",
                     module: "agebhard",
                     obj: "",
                     line: 23,
@@ -81,7 +82,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                     link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
                 },
                 {
-                    type: "convention",
+                    type: "error",
                     module: "agebhard",
                     obj: "distanceFinder",
                     line: 13,
@@ -93,7 +94,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                     link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
                 },
                 {
-                    type: "convention",
+                    type: "warning",
                     module: "agebhard",
                     obj: "distanceFinder",
                     line: 17,
@@ -117,7 +118,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                     link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0116"
                 },
                 {
-                    type: "convention",
+                    type: "refactor",
                     module: "agebhard",
                     obj: "main",
                     line: 35,
@@ -138,7 +139,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
         <div className="full-height">
             <Split className="split">
                 <div id="code-container">
-                    <SyntaxHighlighter language="python" style={lightfair} showLineNumbers={true} lineNumberStyle={this.stylelinenumbers} >
+                    <SyntaxHighlighter language="python" style={vs} showLineNumbers={true} lineNumberStyle={this.stylelinenumbers} >
                         {`"""
 TODO: Calculate and sort (smallest value first) the time (in minutes) it will take Captain Zap to get to each planet given the following parameters:
 
@@ -177,17 +178,59 @@ def main():
 
         # Terminal Output #
         print(*returnedVals, sep=' ')
+        
 
 main()`}
                     </SyntaxHighlighter>
                 </div>
                 <div id="lint-output">
                 {(() => {
-                    //let fruits: Array<ReactNode>;
                     const holder = [];
                     for (let index = 0; index < this.state.pylint.length; index++) {
                         const error = this.state.pylint[index];
-                        holder[index] =(<div> <strong>{error.line} :</strong>  {error.message} <a href={error.link} target="_blank" rel="noreferrer"><strong>(see more)</strong></a> </div>);
+                        if(error.type === "convention"){
+                            holder[index] =( 
+                                <div>
+                                    <Icon color="black" name='pencil' />
+                                    <strong>{error.line} : </strong>  
+                                    {error.message}
+                                    <a href={error.link} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                </div>);
+                        } else if(error.type === "refactor") {
+                            holder[index] =( 
+                                <div>
+                                    <Icon color="blue" name='cogs' />
+                                    <strong>{error.line} : </strong>  
+                                    {error.message}
+                                    <a href={error.link} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                </div>);
+                        } else if(error.type === "error") {
+                            holder[index] =( 
+                                <div>
+                                    <Icon color="orange" name='minus circle' />
+                                    <strong>{error.line} : </strong>  
+                                    {error.message}
+                                    <a href={error.link} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                </div>);
+                        }
+                        else if(error.type === "fatal") {
+                            holder[index] =( 
+                                <div>
+                                    <Icon color="red" name='stop' />
+                                    <strong>{error.line} : </strong>  
+                                    {error.message}
+                                    <a href={error.link} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                </div>);
+                        }
+                        else if(error.type === "warning") {
+                            holder[index] =( 
+                                <div>
+                                    <Icon color="yellow" name='exclamation triangle' />
+                                    <strong>{error.line} : </strong>  
+                                    {error.message}
+                                    <a href={error.link} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                </div>);
+                        }
                     }
                     return holder;
                 })()}
