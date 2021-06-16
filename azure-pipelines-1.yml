@@ -9,8 +9,8 @@ trigger:
 pool: Default
 steps:
 - script: |
-    echo j@ckForden2000 | sudo -S su jforden
+    echo D8-1%bY? | sudo -S su agebhard
     cd /home/agebhard/AutoTA
-    git pull
+    git pull https://a1g3@https://github.com/JRFASTER/AutoTA.git master
   displayName: 'Updating api folder'
 
