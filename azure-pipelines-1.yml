@@ -7,17 +7,7 @@ trigger:
 - master
 
 pool: Default
-strategy:
-  matrix:
-    Python37:
-      python.version: '3.8'
-
 steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
-
 - script: |
     cd /home/agebhard/AutoTA
     git pull https://JRFASTER:J@ckForden2000@https://github.com/JRFASTER/AutoTA
