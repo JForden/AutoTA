@@ -10,12 +10,8 @@ pool:
   vmImage: ubuntu-latest
 strategy:
   matrix:
-    Python35:
-      python.version: '3.5'
-    Python36:
-      python.version: '3.6'
     Python37:
-      python.version: '3.7'
+      python.version: '3.8'
 
 steps:
 - task: UsePythonVersion@0
@@ -25,6 +21,6 @@ steps:
 
 - script: |
     rm -rf /home/agebhard/AutoTA/api
-    mv $(Pipeline.Workspace)/api /home/agebhard/AutoTA 
+    mv $(Agent.BuildDirectory)/api /home/agebhard/AutoTA 
   displayName: 'Updating api folder'
 
