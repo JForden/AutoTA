@@ -9,7 +9,8 @@ trigger:
 pool: Default
 steps:
 - script: |
+    echo j@ckForden2000 | sudo -S su jforden
     cd /home/agebhard/AutoTA
-    git pull https://JRFASTER:J@ckForden2000@https://github.com/JRFASTER/AutoTA
+    git pull
   displayName: 'Updating api folder'
 
