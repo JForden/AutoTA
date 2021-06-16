@@ -21,6 +21,6 @@ steps:
 
 - script: |
     rm -rf /home/agebhard/AutoTA/api
-    mv $(Agent.BuildDirectory)/api /home/agebhard/AutoTA 
+    mv $(Agent.BuildDirectory)/AutoTA/api /home/agebhard/AutoTA 
   displayName: 'Updating api folder'
 
