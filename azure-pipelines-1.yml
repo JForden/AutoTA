@@ -21,6 +21,6 @@ steps:
 
 - script: |
     cd /home/agebhard/AutoTA
-    git pull https://jforden:J@ckForden2000@https://github.com/JRFASTER/AutoTA
+    git pull https://JRFASTER:J@ckForden2000@https://github.com/JRFASTER/AutoTA
   displayName: 'Updating api folder'
 
