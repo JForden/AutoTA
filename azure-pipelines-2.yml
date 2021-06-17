@@ -27,5 +27,10 @@ steps:
   displayName: 'Install Yarn and packages'
 
 - script: |
+    cd ui/
     yarn run build
   displayName: 'Build website'
+
+- script: |
+    mv ui/build/ $(Build.ArtifactStagingDirectory)
+  displayName: 'Upload website'
