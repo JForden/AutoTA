@@ -10,12 +10,13 @@ pool: Default
 steps:
 - script: |
     echo $(SUDO_PASSWORD) | sudo -S sudo service gunicorn stop
-  displayName: 'Stopping web server'
+  displayName: 'Stop web server'
 - script: |
-    echo $(SUDO_PASSWORD) | sudo -S rm -rf /home/agebhard/AutoTA/api/
-    sudo mv $(Build.Repository.LocalPath)/api /home/agebhard/AutoTA/
-  displayName: 'Updating api folder'
+    echo $(SUDO_PASSWORD) | sudo -S rm -rf /var/www/api/
+    sudo mv $(Build.Repository.LocalPath)/api /var/www/
+    sudo chown -R www-data:www-data /var/www/api
+  displayName: 'Update api folder'
 - script: |
     echo $(SUDO_PASSWORD) | sudo -S service gunicorn restart
-  displayName: 'Starting web server'
+  displayName: 'Start web server'
 
