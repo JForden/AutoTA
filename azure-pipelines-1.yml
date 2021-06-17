@@ -12,10 +12,10 @@ steps:
     echo $(SUDO_PASSWORD) | sudo -S sudo service gunicorn stop
   displayName: 'Stopping web server'
 - script: |
-    echo $(SUDO_PASSWORD) | sudo rm -rf /home/agebhard/AutoTA/api/
+    echo $(SUDO_PASSWORD) | sudo -S rm -rf /home/agebhard/AutoTA/api/
     sudo mv $(Build.Repository.LocalPath)/api /home/agebhard/AutoTA/
   displayName: 'Updating api folder'
 - script: |
-    echo $(SUDO_PASSWORD) | sudo service gunicorn restart
+    echo $(SUDO_PASSWORD) | sudo -S service gunicorn restart
   displayName: 'Starting web server'
 
