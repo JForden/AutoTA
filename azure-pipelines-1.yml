@@ -9,9 +9,13 @@ trigger:
 pool: Default
 steps:
 - script: |
-    echo D8-1%bY? | sudo -S su agebhard
-    cd /home/agebhard/AutoTA
-    git pull https://a1g3:703787d015f492eb92a98cdf27d963f0d052f387@github.com/JRFASTER/AutoTA.git master
-    sudo service gunicorn restart
+    echo $(SUDO_PASSWORD) | sudo -S sudo service gunicorn stop
+  displayName: 'Stopping web server'
+- script: |
+    sudo rm -rf /home/agebhard/AutoTA/api/
+    sudo mv $(Build.Repository.LocalPath)/api /home/agebhard/AutoTA/
   displayName: 'Updating api folder'
+- script: |
+    sudo service gunicorn restart
+  displayName: 'Starting web server'
 
