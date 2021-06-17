@@ -19,11 +19,10 @@ steps:
     cd api/
     python -m pip install --upgrade pip
     pip install pipenv
-    pipenv shell
     pipenv install
   displayName: 'Install dependencies'
 
 - script: |
     pipenv install pytest pytest-azurepipelines
-    pytest
+    pipenv run pytest
   displayName: 'Run tests'
