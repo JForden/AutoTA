@@ -34,3 +34,5 @@ steps:
 - script: |
     mv ui/build/ $(Build.ArtifactStagingDirectory)
   displayName: 'Upload website'
+
+- task: PublishBuildArtifacts@1
