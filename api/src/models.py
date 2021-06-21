@@ -14,10 +14,12 @@ class Users(Base):
     __tablename__ = "users"
     idUsers = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String)
+    submissions=relationship('Submissions')
 
 class Submissions(Base):
     __tablename__ = "Submissions"
     idSubmissions = Column(Integer, primary_key=True, autoincrement=True)
     FilePath = Column(String)
     Time = Column(Date)
+    User = Column(Integer, ForeignKey('users.idUsers'))
     project= Column(Integer, ForeignKey('Projects.idProjects'))
