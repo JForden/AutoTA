@@ -19,7 +19,8 @@ class Users(Base):
 class Submissions(Base):
     __tablename__ = "Submissions"
     idSubmissions = Column(Integer, primary_key=True, autoincrement=True)
-    FilePath = Column(String)
+    OutputFilepath = Column(String)
+    PylintFilepath = Column(String)
     Time = Column(Date)
     User = Column(Integer, ForeignKey('users.idUsers'))
-    project= Column(Integer, ForeignKey('Projects.idProjects'))
+    project = Column(Integer, ForeignKey('Projects.idProjects'))

@@ -47,7 +47,7 @@ class UploadPage extends Component<{}, UploadPageState> {
             
             // Request made to the backend api
             // Send formData object
-            axios.post(process.env.REACT_APP_BASE_API_URL + `/upload`, formData)
+            axios.post(process.env.REACT_APP_BASE_API_URL + `/upload/`, formData)
             .then(res => {
                 //redirect to code page where they would see 
               })

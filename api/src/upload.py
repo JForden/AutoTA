@@ -1,11 +1,17 @@
+from models import Submissions
 from flask import Blueprint
 from flask import request
 from flask import make_response
 from flask import current_app
 from http import HTTPStatus
+from database import Session
+from flask.globals import session
 from werkzeug.utils import secure_filename # this is to prevent malicious file names from flask upload
 import os
 import subprocess
+import tarfile
+import os.path
+from datetime import datetime
 
 upload_api = Blueprint('upload_api', __name__)
 
@@ -35,11 +41,33 @@ def file_upload():
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+
+        # Step 1: Run TA-Bot to generate grading folder
+
+        result = subprocess.run([current_app.config['TABOT_PATH'], "outofwater", "--final","--system" ], stdout=subprocess.PIPE)
+        outputpath = result.stdout.decode('utf-8')
+
+        path = os.path.join(outputpath + "input/", filename)
         file.save(path)
 
-        boole = subprocess.run([current_app.config['GRADE_ONDEMAND_SCRIPT_PATH'], path], shell=True)
-        if boole.returncode == 0:
+        # Step 2: Save files into grading folder's input directory.  Tar the files
+        with tarfile.open(outputpath + "input/agebhard.tgz", "w:gz") as tar:
+                tar.add(outputpath + "input/" + filename, arcname=os.path.basename(outputpath+"input/"+ filename))
+        os.remove(path)
+
+        # Step 3: Run grade.sh
+        result = subprocess.run([outputpath +  "grade.sh","agebhard"], cwd=outputpath)
+
+        # Step 4: Save submission in submission table
+        session = Session()
+        now = datetime.now()
+        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        c1 = Submissions(OutputFilepath=outputpath+"output/"+"agebhard"+".out", PylintFilepath=outputpath+"output/"+"agebhard"+".out.pylint", Time=dt_string, User=3, project=1)
+        session.add(c1)
+        session.commit() 
+
+        #boole = subprocess.run([current_app.config['TABOT_PATH'], path], shell=True)
+        if True:
             message = {
                 'message': 'Success'
             }
