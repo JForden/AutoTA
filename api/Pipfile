@@ -11,6 +11,9 @@ flask = "==1.1.2"
 werkzeug = "==1.0.1"
 flask-jwt-extended = "*"
 gunicorn = "*"
+sqlalchemy = "*"
+flask-sqlalchemy = "*"
+pymysql = "*"
 
 [dev-packages]
 pytest = "*"
