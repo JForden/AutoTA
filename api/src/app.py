@@ -4,12 +4,10 @@ from flask_cors import CORS
 from auth import auth_api
 from upload import upload_api
 from dependencies import configure
-from flask_jwt_extended import JWTManager
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, Text, MetaData, Table, String
 from sqlalchemy.types import Date
-
-
+from jwtF import jwt
 
 def create_app():
     app = Flask(__name__)
@@ -23,7 +21,7 @@ def create_app():
     app.register_blueprint(auth_api, url_prefix='/auth')  
     app.register_blueprint(upload_api, url_prefix='/upload')
     FlaskInjector(app=app, modules=[configure])
-    jwt = JWTManager(app)
+    jwt.init_app(app)
 
     return app
 

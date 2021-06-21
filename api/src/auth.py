@@ -7,9 +7,34 @@ from flask_jwt_extended import create_access_token
 from services.authentication_service import AuthenticationService
 from database import Session
 from models import Users
-
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import current_user
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
+from flask import Flask
+from flask import jsonify
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import safe_str_cmp
+from jwtF import jwt
 
 auth_api = Blueprint('auth_api', __name__)
+
+# Register a callback function that takes whatever object is passed in as the
+# identity when creating JWTs and converts it to a JSON serializable format.
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user.idUsers
+
+
+# Register a callback function that loades a user from your database whenever
+# a protected route is accessed. This should return any python object on a
+# successful lookup, or None if the lookup failed for any reason (for example
+# if the user has been deleted from the database).
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    session = Session()
+    identity = jwt_data["sub"]
+    return session.query(Users).filter_by(idUsers=identity).one_or_none()
 
 
 @auth_api.route('/login', methods=['POST'])
@@ -33,7 +58,14 @@ def auth(auth_service: AuthenticationService):
             session.add(c1)
             session.commit()    
 
-        access_token = create_access_token(identity=username)
+        user = session.query(Users).filter(Users.username==username).one_or_none()
+        if not user:
+            message = {
+                'message': 'Invalid username and/or password!  Please try again!'
+            }
+            return make_response(message, HTTPStatus.FORBIDDEN)
+
+        access_token = create_access_token(identity=user)
         message = {
             'message': 'Success',
             'access_token': access_token
