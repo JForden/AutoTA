@@ -9,6 +9,7 @@ from repositories.database import Session
 from repositories.models import Users
 from flask_jwt_extended import create_access_token
 from jwtF import jwt
+from repositories.user_repository import AUserRepository
 
 auth_api = Blueprint('auth_api', __name__)
 
@@ -32,26 +33,23 @@ def user_lookup_callback(_jwt_header, jwt_data):
 
 @auth_api.route('/login', methods=['POST'])
 @inject
-def auth(auth_service: AuthenticationService):
+def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
     input_json = request.get_json()
     username = input_json['username']
     password = input_json['password']
     if auth_service.login(username, password):
         
-        session = Session()
-        q=session.query(Users).filter(Users.username==username)   
-        exist = session.query(q.exists())
-        result = session.execute(exist).scalar_one()
-        print(result)
+        result = user_repository.doesUserExist(username)
 
         if not result:
+            session = Session()
             c1 = Users(username=username)
             #TODO
             #make a call to a popup to collect more user information
             session.add(c1)
             session.commit()    
 
-        user = session.query(Users).filter(Users.username==username).one_or_none()
+        user = user_repository.getUserByName(username)
         if not user:
             message = {
                 'message': 'Invalid username and/or password!  Please try again!'
