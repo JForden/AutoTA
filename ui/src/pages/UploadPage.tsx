@@ -53,13 +53,11 @@ class UploadPage extends Component<{}, UploadPageState> {
                 }
               })
             .then(res => {
-                //redirect to code page where they would see 
-              })
-              .catch(err => {
-                //alert("File upload unsuccessful")
-              })
-
-            
+                window.location.href = "/code";
+            })
+            .catch(err => {
+                alert("Error in file submission");
+            })
         }
     }
 
