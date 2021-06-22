@@ -1,12 +1,9 @@
 from api.src.repositories.submission_repository import ASubmissionRepository
-from repositories.models import Submissions
 from flask import Blueprint
 from flask import request
 from flask import make_response
 from flask import current_app
 from http import HTTPStatus
-from repositories.database import Session
-from flask.globals import session
 from werkzeug.utils import secure_filename # this is to prevent malicious file names from flask upload
 import os
 import subprocess
@@ -48,29 +45,27 @@ def file_upload(submission_repository: ASubmissionRepository):
         filename = secure_filename(file.filename)
 
         # Step 1: Run TA-Bot to generate grading folder
-
         result = subprocess.run([current_app.config['TABOT_PATH'], "outofwater", "--final","--system" ], stdout=subprocess.PIPE)
+        if result.returncode != 0:
+            message = {
+                'message': 'Error in creating output directory!'
+            }
+            return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
         outputpath = result.stdout.decode('utf-8')
 
+        # TODO: Do we want to always the username as the filename?
         path = os.path.join(outputpath + "input/", current_user.username + ".py")
         file.save(path)
 
-        # Step 2: Save files into grading folder's input directory.  Tar the files
-       
-        # file transition from whatever format the file is currently in to TAR format
-        #with tarfile.open(outputpath + "input/" + current_user.username+".tgz", "w:gz") as tar:
-        #        tar.add(outputpath + "input/" + filename, arcname=os.path.basename(outputpath+"input/"+ filename))
-        #os.remove(path)
-
-        # Step 3: Run grade.sh
+        # Step 2: Run grade.sh
         result = subprocess.run([outputpath +  "grade.sh", current_user.username], cwd=outputpath) 
         if result.returncode != 0:
             message = {
-                'message': 'Error'
+                'message': 'Error in running grading script!'
             }
             return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
 
-        # Step 4: Save submission in submission table
+        # Step 3: Save submission in submission table
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         submission_repository.create_submission(current_user.idUsers, outputpath+"output/"+current_user.username+".out", path, outputpath+"output/"+current_user.username+".out.pylint", dt_string)
