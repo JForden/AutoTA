@@ -32,7 +32,7 @@ class SubmissionRepository(ASubmissionRepository):
     def getSubmissionByUserId(self, user_id: int) -> Submissions:
         session = Session()
         submission = session.query(Submissions).filter(Submissions.User == user_id).order_by(desc("Time")).first()
-
+        session.close()
         return submission
 
     def getPylintPathByUserId(self, user_id: int) -> str:

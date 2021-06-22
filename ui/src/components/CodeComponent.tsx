@@ -4,6 +4,7 @@ import { vs } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import 'semantic-ui-css/semantic.min.css';
 import Split from 'react-split';
 import { Icon } from  'semantic-ui-react';
+import axios from 'axios';
 
 
 interface PylintObject {
@@ -20,6 +21,7 @@ interface PylintObject {
 }
 
 interface CodeComponentState {
+    code: string,
     pylint: Array<PylintObject>
 }
 
@@ -28,6 +30,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
     constructor(props: {}) {
         super(props);
         this.state = {
+            code: "",
             pylint: []
         }
         this.stylelinenumbers = this.stylelinenumbers.bind(this);
@@ -43,94 +46,30 @@ class CodeComponent extends Component<{}, CodeComponentState> {
         return {'color': 'black'};
     }
 
-    componentDidMount(){
-        this.setState({
-            pylint: [
-                {
-                    type: "convention",
-                    module: "agebhard",
-                    obj: "",
-                    line: 2,
-                    column: 0,
-                    path: "agebhard.py",
-                    symbol: "line-too-long",
-                    message: "Line too long (148/100)",
-                    messageid: "C0301", 
-                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
-                },
-                {
-                    type: "convention",
-                    module: "agebhard",
-                    obj: "",
-                    line: 8,
-                    column: 0,
-                    path: "agebhard.py",
-                    symbol: "line-too-long",
-                    message: "Line too long (120/100)",
-                    messageid: "C0301",
-                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
-                },
-                {
-                    type: "fatal",
-                    module: "agebhard",
-                    obj: "",
-                    line: 23,
-                    column: 0,
-                    path: "agebhard.py",
-                    symbol: "line-too-long",
-                    message: "Line too long (112/100)",
-                    messageid: "C0301",
-                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
-                },
-                {
-                    type: "error",
-                    module: "agebhard",
-                    obj: "distanceFinder",
-                    line: 13,
-                    column: 0,
-                    path: "agebhard.py",
-                    symbol: "invalid-name",
-                    message: "Function name \"distanceFinder\" doesn't conform to snake_case naming style",
-                    messageid: "C0103",
-                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
-                },
-                {
-                    type: "warning",
-                    module: "agebhard",
-                    obj: "distanceFinder",
-                    line: 17,
-                    column: 8,
-                    path: "agebhard.py",
-                    symbol: "invalid-name",
-                    message: "Variable name \"y\" doesn't conform to snake_case naming style",
-                    messageid: "C0103",
-                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
-                },
-                {
-                    type: "convention",
-                    module: "agebhard",
-                    obj: "main",
-                    line: 24,
-                    column: 0,
-                    path: "agebhard.py",
-                    symbol: "missing-function-docstring",
-                    message: "Missing function or method docstring",
-                    messageid: "C0116",
-                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0116"
-                },
-                {
-                    type: "refactor",
-                    module: "agebhard",
-                    obj: "main",
-                    line: 35,
-                    column: 8,
-                    path: "agebhard.py",
-                    symbol: "invalid-name",
-                    message: "Variable name \"returnedVals\" doesn't conform to snake_case naming style",
-                    messageid: "C0103",
-                    link: "https://vald-phoenix.github.io/pylint-errors/plerr/errors/format/C0301"
-                }
-            ]
+    componentDidMount() {
+
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/codefinder`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+        })
+        .then(res => {    
+            this.setState({code: res.data })    
+        })
+        .catch(err => {
+            console.log(err);
+        });
+
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/pylintoutput`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+        })
+        .then(res => {    
+            this.setState({pylint: res.data as Array<PylintObject>  })    
+        })
+        .catch(err => {
+            console.log(err);
         });
     }
 
@@ -141,47 +80,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
             <Split className="split">
                 <div id="code-container">
                     <SyntaxHighlighter language="python" style={vs} showLineNumbers={true} lineNumberStyle={this.stylelinenumbers} >
-                        {`"""
-TODO: Calculate and sort (smallest value first) the time (in minutes) it will take Captain Zap to get to each planet given the following parameters:
-
-Parameters:
-distances --> (integer array) the distance (in km) needed to reach each planet
-
-Returns:
-a sorted array of integers (from least to greatest) representing the number of minutes it will take to reach each planet
-
-NOTE:  The speed of light is 300000 km/s
-NOTE:  Round the nearest minute
-"""
-def distanceFinder(distances):
-    lista = list()
-    for ele in distances:
-        y = ele / 300000
-        y = y / 60
-        lista.append(round(y))
-    lista.sort()
-    return lista
-
-# It is unnecessary to edit the "main" function of each problem's provided code skeleton.
-# The main function is written for you in order to help you conform to input and output formatting requirements.
-def main():
-
-    for _ in range(int(input())):
-        # User Input #
-        inp = input().split(" ")
-        distances = []
-
-        for i in inp:
-            distances.append(int(i))
-
-        # Function Call
-        returnedVals = distanceFinder(distances)
-
-        # Terminal Output #
-        print(*returnedVals, sep=' ')
-        
-
-main()`}
+                        {this.state.code}
                     </SyntaxHighlighter>
                 </div>
                 <div id="lint-output">
