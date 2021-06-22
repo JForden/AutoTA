@@ -41,8 +41,8 @@ class TestResultsComponent extends Component<{}, TestState> {
     } 
 
     render() {
-    
-        var obj = "";
+        var obj="";
+        var output="";
         axios.post(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors/`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
@@ -50,7 +50,14 @@ class TestResultsComponent extends Component<{}, TestState> {
         })
         .then(res => {
             //obj = JSON.parse(res.data);
-            let obj = JSON.stringify(res.data);
+            obj=res.data;
+            console.log(obj);
+            fetch(obj)
+            .then(response => response.text())
+            .then(data => {
+                output=JSON.parse(data);
+                console.log(data);
+            });
         })
         .catch(err => {
             //alert("File upload unsuccessful")

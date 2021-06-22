@@ -17,7 +17,6 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
 
     with open(output_path, 'r') as file:
         output = file.read()
-    print(output)
     return make_response(output, HTTPStatus.OK)
 
 
@@ -29,7 +28,6 @@ def pylintoutput(submission_repository: ASubmissionRepository):
 
     with open(pylint_output, 'r') as file:
         output = file.read()
-    print(output)
     return make_response(output, HTTPStatus.OK)
 
 
@@ -41,5 +39,4 @@ def codefinder(submission_repository: ASubmissionRepository):
 
     with open(code_output, 'r') as file:
         output = file.read()
-    print(output)
     return make_response(output, HTTPStatus.OK)
