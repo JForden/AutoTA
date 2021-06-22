@@ -9,7 +9,6 @@ from flask.globals import session
 from werkzeug.utils import secure_filename # this is to prevent malicious file names from flask upload
 import os
 import subprocess
-import tarfile
 import os.path
 from datetime import datetime
 from flask_jwt_extended import jwt_required
@@ -51,22 +50,24 @@ def file_upload():
         result = subprocess.run([current_app.config['TABOT_PATH'], "outofwater", "--final","--system" ], stdout=subprocess.PIPE)
         outputpath = result.stdout.decode('utf-8')
 
-        path = os.path.join(outputpath + "input/", filename)
+        path = os.path.join(outputpath + "input/", current_user.username + ".py")
         file.save(path)
 
         # Step 2: Save files into grading folder's input directory.  Tar the files
-        with tarfile.open(outputpath + "input/" + current_user.username+".tgz", "w:gz") as tar:
-                tar.add(outputpath + "input/" + filename, arcname=os.path.basename(outputpath+"input/"+ filename))
-        os.remove(path)
+       
+        # file transition from whatever format the file is currently in to TAR format
+        #with tarfile.open(outputpath + "input/" + current_user.username+".tgz", "w:gz") as tar:
+        #        tar.add(outputpath + "input/" + filename, arcname=os.path.basename(outputpath+"input/"+ filename))
+        #os.remove(path)
 
         # Step 3: Run grade.sh
-        result = subprocess.run([outputpath +  "grade.sh",current_user.username], cwd=outputpath)
+        result = subprocess.run([outputpath +  "grade.sh", current_user.username], cwd=outputpath)
 
         # Step 4: Save submission in submission table
         session = Session()
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        c1 = Submissions(OutputFilepath=outputpath+"output/"+current_user.username+".out", PylintFilepath=outputpath+"output/"+current_user.username+".out.pylint", Time=dt_string, User=current_user.idUsers, project=1)
+        c1 = Submissions(OutputFilepath=outputpath+"output/"+current_user.username+".out", CodeFilepath=path, PylintFilepath=outputpath+"output/"+current_user.username+".out.pylint", Time=dt_string, User=current_user.idUsers, project=1)
         session.add(c1)
         session.commit() 
 

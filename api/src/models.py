@@ -21,6 +21,7 @@ class Submissions(Base):
     idSubmissions = Column(Integer, primary_key=True, autoincrement=True)
     OutputFilepath = Column(String)
     PylintFilepath = Column(String)
+    CodeFilepath   = Column(String)
     Time = Column(Date)
     User = Column(Integer, ForeignKey('users.idUsers'))
     project = Column(Integer, ForeignKey('Projects.idProjects'))

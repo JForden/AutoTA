@@ -4,6 +4,7 @@ import { Tab } from 'semantic-ui-react'
 import '../css/TestResultComponent.scss';
 import { StyledIcon } from '../styled-components/StyledIcon';
 import Split from 'react-split';
+import axios from 'axios';
 
 interface TestState {
     showComponent: boolean;
@@ -40,65 +41,42 @@ class TestResultsComponent extends Component<{}, TestState> {
     } 
 
     render() {
-        var json = {
-            "result": [
-            {
-            "Suite": "01-simple",
-            "Points" : "5 points",
-            "Tests": [
-            {
-            "Testcase": "00-empty.test",
-            "Status": "PASSED",
-            "description": "This test looks to see what the program does when the string is empty.",
-            "Diff": ""
-            },
-            {
-            "Testcase": "01-single.test",
-            "Status": "PASSED",
-            "description": "This test examines what happends when a single character is entered.",
-            "Diff": ""
+    
+        var obj = "";
+        axios.post(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors/`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
-            ]},
-            {
-            "Suite": "02-simple",
-            "Points" : "10 points",
-            "Tests": [
-            {
-            "Testcase": "00-test1.test",
-            "Status": "PASSED",
-            "description": "This test uses random numbers to test.",
-            "Diff": ""
-            },
-            {
-            "Testcase": "01-test2.test",
-            "Status": "FAILED",
-            "description": "This test uses MORE random numbers to test.",
-            "Diff": "1c1\n< 4 8 15 16 24 36 49 69 102 1031\n---\n> 4 8 15 16 24 36 49 69 102 103"
-            }
-            ]}
-            ]};     
+        })
+        .then(res => {
+            //obj = JSON.parse(res.data);
+            let obj = JSON.stringify(res.data);
+        })
+        .catch(err => {
+            //alert("File upload unsuccessful")
+        });
 
-    const panes = json.result.map(d => ({
-        menuItem: d.Suite,
-        render: () =>
-        <Tab.Pane attached={false}>
-            <div id="testresults-container">
-                {d.Tests.map(test => {
-                    if(test.Status==="PASSED"){  
-                        return (
-                        <span className="testcase" onClick={() => this.handleClick(d.Suite, test.Testcase, test.Status, test.description,test.Diff)}>
-                            <StyledIcon name='check' className="passed" />
-                        </span>)
-                    } else {
-                        return (
-                        <span className="testcase" onClick={() => this.handleClick(d.Suite, test.Testcase, test.Status, test.description,test.Diff)}>
-                            <StyledIcon name='close' className="failed" />
-                        </span>)
-                    }
-                })}
-            </div>
-        </Tab.Pane>
-      }));
+        const panes = obj.result.map(d => ({
+            menuItem: d.Suite,
+            render: () =>
+            <Tab.Pane attached={false}>
+                <div id="testresults-container">
+                    {d.Tests.map(test => {
+                        if(test.Status==="PASSED"){  
+                            return (
+                            <span className="testcase" onClick={() => this.handleClick(d.Suite, test.Testcase, test.Status, test.description,test.Diff)}>
+                                <StyledIcon name='check' className="passed" />
+                            </span>)
+                        } else {
+                            return (
+                            <span className="testcase" onClick={() => this.handleClick(d.Suite, test.Testcase, test.Status, test.description,test.Diff)}>
+                                <StyledIcon name='close' className="failed" />
+                            </span>)
+                        }
+                    })}
+                </div>
+            </Tab.Pane>
+        }));
 
     return (
         <div className="bottom">
