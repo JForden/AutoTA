@@ -63,25 +63,24 @@ def file_upload(submission_repository: ASubmissionRepository):
         #os.remove(path)
 
         # Step 3: Run grade.sh
-        result = subprocess.run([outputpath +  "grade.sh", current_user.username], cwd=outputpath)
+        result = subprocess.run([outputpath +  "grade.sh", current_user.username], cwd=outputpath) 
+        if result.returncode != 0:
+            message = {
+                'message': 'Error'
+            }
+            return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
 
         # Step 4: Save submission in submission table
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         submission_repository.create_submission(current_user.idUsers, outputpath+"output/"+current_user.username+".out", path, outputpath+"output/"+current_user.username+".out.pylint", dt_string)
 
-        if True:
-            message = {
-                'message': 'Success'
-            }
-            return make_response(message, HTTPStatus.OK)
-
         message = {
-            'message': 'Error'
+            'message': 'Success'
         }
-        return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
+        return make_response(message, HTTPStatus.OK)
 
     message = {
-                'message': 'Unsupported file type'
-            }
+        'message': 'Unsupported file type'
+    }
     return make_response(message, HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
