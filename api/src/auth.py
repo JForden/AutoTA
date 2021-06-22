@@ -37,33 +37,27 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
     input_json = request.get_json()
     username = input_json['username']
     password = input_json['password']
-    if auth_service.login(username, password):
-        
-        result = user_repository.doesUserExist(username)
-
-        if not result:
-            session = Session()
-            c1 = Users(username=username)
-            #TODO
-            #make a call to a popup to collect more user information
-            session.add(c1)
-            session.commit()    
-
-        user = user_repository.getUserByName(username)
-        if not user:
-            message = {
-                'message': 'Invalid username and/or password!  Please try again!'
-            }
-            return make_response(message, HTTPStatus.FORBIDDEN)
-
-        access_token = create_access_token(identity=user)
-        message = {
-            'message': 'Success',
-            'access_token': access_token
-        }
-        return make_response(message, HTTPStatus.OK)
-    else:
+    if not auth_service.login(username, password):
         message = {
             'message': 'Invalid username and/or password!  Please try again!'
         }
         return make_response(message, HTTPStatus.FORBIDDEN)
+
+    result = user_repository.doesUserExist(username)
+
+    if not result:
+        user_repository.create_user(username)   
+
+    user = user_repository.getUserByName(username)
+    if not user:
+        message = {
+            'message': 'Invalid username and/or password!  Please try again!'
+        }
+        return make_response(message, HTTPStatus.FORBIDDEN)
+
+    access_token = create_access_token(identity=user)
+    message = {
+        'message': 'Success',
+        'access_token': access_token
+    }
+    return make_response(message, HTTPStatus.OK)        

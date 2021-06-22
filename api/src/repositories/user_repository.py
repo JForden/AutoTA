@@ -13,6 +13,10 @@ class AUserRepository(ABC):
     def doesUserExist(self, username: str) -> bool:
         pass
 
+    @abstractmethod
+    def create_user(self, username: str):
+        pass
+
 
 class UserRepository(AUserRepository):
     def getUserByName(self, username: str) -> Users:
@@ -26,3 +30,9 @@ class UserRepository(AUserRepository):
         result = session.execute(exist).scalar_one()
         
         return result
+
+    def create_user(self, username: str):
+        session = Session()
+        c1 = Users(username=username)
+        session.add(c1)
+        session.commit() 
