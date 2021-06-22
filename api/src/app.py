@@ -5,10 +5,8 @@ from auth import auth_api
 from upload import upload_api
 from submission import submission_api
 from dependencies import configure
-from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, Text, MetaData, Table, String
-from sqlalchemy.types import Date
 from jwtF import jwt
+
 
 def create_app():
     app = Flask(__name__)
@@ -22,7 +20,6 @@ def create_app():
     app.register_blueprint(auth_api, url_prefix='/auth')  
     app.register_blueprint(upload_api, url_prefix='/upload')
     app.register_blueprint(submission_api, url_prefix='/submissions')
-    
     
     FlaskInjector(app=app, modules=[configure])
     jwt.init_app(app)

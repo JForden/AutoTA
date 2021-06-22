@@ -1,45 +1,41 @@
-from models import Submissions
 from flask import Blueprint
 from flask import make_response
 from http import HTTPStatus
-from database import Session
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
-from sqlalchemy import desc
+from repositories.submission_repository import ASubmissionRepository
 
 submission_api = Blueprint('submission_api', __name__)
 
+
 @submission_api.route('/testcaseerrors', methods=['GET'])
 @jwt_required()
-def testcaseerrors():
-    session = Session()
-    submission = session.query(Submissions).filter(Submissions.User==current_user.idUsers).order_by(desc("Time")).first()
+def testcaseerrors(submission_repository: ASubmissionRepository):
+    output_path = submission_repository.getJsonPathByUserId(current_user.idUsers)
 
-    with open(submission.OutputFilepath,'r') as file:
-        output=file.read()
+    with open(output_path, 'r') as file:
+        output = file.read()
     print(output)
     return make_response(output, HTTPStatus.OK)
 
 
 @submission_api.route('/pylintoutput', methods=['GET'])
 @jwt_required()
-def pylintoutput():
-    session = Session()
-    submission = session.query(Submissions).filter(Submissions.User==current_user.idUsers).order_by(desc("Time")).first()
+def pylintoutput(submission_repository: ASubmissionRepository):
+    pylint_output = submission_repository.getPylintPathByUserId(current_user.idUsers)
 
-    with open(submission.PylintFilepath,'r') as file:
-        output=file.read()
+    with open(pylint_output, 'r') as file:
+        output = file.read()
     print(output)
     return make_response(output, HTTPStatus.OK)
 
 
 @submission_api.route('/codefinder', methods=['GET'])
 @jwt_required()
-def codefinder():
-    session = Session()
-    submission = session.query(Submissions).filter(Submissions.User==current_user.idUsers).order_by(desc("Time")).first()
+def codefinder(submission_repository: ASubmissionRepository):
+    code_output = submission_repository.getCodePathByUserId(current_user.idUsers)
 
-    with open(submission.CodeFilepath,'r') as file:
-        output=file.read()
+    with open(code_output, 'r') as file:
+        output = file.read()
     print(output)
     return make_response(output, HTTPStatus.OK)

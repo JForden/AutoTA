@@ -1,10 +1,10 @@
-from models import Submissions
+from repositories.models import Submissions
 from flask import Blueprint
 from flask import request
 from flask import make_response
 from flask import current_app
 from http import HTTPStatus
-from database import Session
+from repositories.database import Session
 from flask.globals import session
 from werkzeug.utils import secure_filename # this is to prevent malicious file names from flask upload
 import os

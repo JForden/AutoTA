@@ -5,16 +5,9 @@ from http import HTTPStatus
 from injector import inject
 from flask_jwt_extended import create_access_token
 from services.authentication_service import AuthenticationService
-from database import Session
-from models import Users
+from repositories.database import Session
+from repositories.models import Users
 from flask_jwt_extended import create_access_token
-from flask_jwt_extended import current_user
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import JWTManager
-from flask import Flask
-from flask import jsonify
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import safe_str_cmp
 from jwtF import jwt
 
 auth_api = Blueprint('auth_api', __name__)
