@@ -44,3 +44,12 @@ def codefinder(submission_repository: ASubmissionRepository):
     with open(code_output, 'r') as file:
         output = file.read()
     return make_response(output, HTTPStatus.OK)
+
+
+@submission_api.route('/submissioncounter', methods=['GET'])
+@jwt_required()
+@cross_origin()
+@inject
+def submissionNumberFinder(submission_repository: ASubmissionRepository):
+    number = submission_repository.getSubmissionsRemaining(current_user.idUsers,1)
+    return make_response(str(number), HTTPStatus.OK)

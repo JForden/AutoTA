@@ -12,6 +12,7 @@ from injector import inject
 from datetime import datetime
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
+MAXSUBMISSIONS=15
 
 upload_api = Blueprint('upload_api', __name__)
 
@@ -25,6 +26,13 @@ def allowed_file(filename):
 @jwt_required()
 @inject
 def file_upload(submission_repository: ASubmissionRepository):
+    totalsubmissions= submission_repository.getSubmissionsRemaining(current_user.idUsers,1)
+    if(totalsubmissions>MAXSUBMISSIONS):
+        message = {
+                'message': 'Too many submissions!'
+            }
+        return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
+    
 
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -70,12 +78,11 @@ def file_upload(submission_repository: ASubmissionRepository):
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         submission_repository.create_submission(current_user.idUsers, outputpath+"output/"+current_user.username+".out", path, outputpath+"output/"+current_user.username+".out.pylint", dt_string)
-
         message = {
-            'message': 'Success'
+            'message': 'Success',
+            'remainder': (MAXSUBMISSIONS-totalsubmissions+1)
         }
         return make_response(message, HTTPStatus.OK)
-
     message = {
         'message': 'Unsupported file type'
     }

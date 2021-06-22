@@ -3,17 +3,40 @@ import 'semantic-ui-css/semantic.min.css'
 import { Button, Form, Grid, Segment } from 'semantic-ui-react'
 import axios from 'axios';
 import MenuComponent from '../components/MenuComponent';
+import React from 'react'
+import { Progress } from 'semantic-ui-react'
+
 interface UploadPageState {
-    file?: File
-  }
+    file?: File,
+    int: number
+}
+
 
 class UploadPage extends Component<{}, UploadPageState> {
 
     constructor(props: any){
         super(props);
+
+        this.state = {
+            int: 0
+        };
     
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleFileChange = this.handleFileChange.bind(this);
+    }
+    componentDidMount() {
+
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/submissioncounter`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+        })
+        .then(res => {    
+            this.setState({int: res.data })
+        })
+        .catch(err => {
+            console.log(err);
+        });
     }
 
     // On file select (from the pop up)
@@ -63,6 +86,8 @@ class UploadPage extends Component<{}, UploadPageState> {
 
     render() {
         return (
+        
+
         <div>
             <MenuComponent showUpload={true}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
@@ -76,6 +101,7 @@ class UploadPage extends Component<{}, UploadPageState> {
                 </Button>
                 </Segment>
             </Form>
+            <Progress progress='value' value={this.state.int} total={15} percent={75} warning />
             </Grid.Column>
             </Grid>
         </div>
