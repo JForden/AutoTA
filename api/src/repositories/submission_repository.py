@@ -7,7 +7,7 @@ from sqlalchemy import desc
 class ASubmissionRepository(ABC):
 
     @abstractmethod
-    def create_submission(self, ):
+    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str):
         pass
 
     @abstractmethod
