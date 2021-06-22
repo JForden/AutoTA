@@ -7,6 +7,10 @@ from sqlalchemy import desc
 class ASubmissionRepository(ABC):
 
     @abstractmethod
+    def create_submission(self, ):
+        pass
+
+    @abstractmethod
     def getSubmissionByUserId(self, user_id: int) -> Submissions:
         pass
 
@@ -42,3 +46,10 @@ class SubmissionRepository(ASubmissionRepository):
     def getCodePathByUserId(self, user_id: int) -> str:
         submission = self.getSubmissionByUserId(user_id)
         return submission.CodeFilepath
+    
+    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str):
+        session = Session()
+        # TODO: Get current project from table
+        c1 = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, project=1)
+        session.add(c1)
+        session.commit()

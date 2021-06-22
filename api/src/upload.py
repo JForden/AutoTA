@@ -1,3 +1,4 @@
+from api.src.repositories.submission_repository import ASubmissionRepository
 from repositories.models import Submissions
 from flask import Blueprint
 from flask import request
@@ -24,7 +25,8 @@ def allowed_file(filename):
 
 @upload_api.route('/', methods = ['POST'])
 @jwt_required()
-def file_upload():
+@inject
+def file_upload(submission_repository: ASubmissionRepository):
 
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -64,14 +66,10 @@ def file_upload():
         result = subprocess.run([outputpath +  "grade.sh", current_user.username], cwd=outputpath)
 
         # Step 4: Save submission in submission table
-        session = Session()
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        c1 = Submissions(OutputFilepath=outputpath+"output/"+current_user.username+".out", CodeFilepath=path, PylintFilepath=outputpath+"output/"+current_user.username+".out.pylint", Time=dt_string, User=current_user.idUsers, project=1)
-        session.add(c1)
-        session.commit() 
+        submission_repository.create_submission(current_user.idUsers, outputpath+"output/"+current_user.username+".out", path, outputpath+"output/"+current_user.username+".out.pylint", dt_string)
 
-        #boole = subprocess.run([current_app.config['TABOT_PATH'], path], shell=True)
         if True:
             message = {
                 'message': 'Success'
