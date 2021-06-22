@@ -1,4 +1,4 @@
-from api.src.repositories.submission_repository import ASubmissionRepository
+from repositories.submission_repository import ASubmissionRepository
 from flask import Blueprint
 from flask import request
 from flask import make_response
@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename # this is to prevent malicious file n
 import os
 import subprocess
 import os.path
+from injector import inject
 from datetime import datetime
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user

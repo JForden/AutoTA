@@ -129,6 +129,7 @@ for problem in $TESTS
                 echo ""
                 echo -e "\t\t\t\"Status\": \"FAILED\"," >> ${OUTFILE}
                 sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' diffout.txt > diffout1.txt
+                sed -i s/\"//g diffout1.txt
                 holder=$( cat diffout1.txt )
                 desc=$( cat ${tcase}.desc )
 		        echo -e "\t\t\t\"Description\": \"${desc}\"," >> ${OUTFILE}

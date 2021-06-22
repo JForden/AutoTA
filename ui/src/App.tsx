@@ -15,8 +15,8 @@ class App extends Component {
         <Switch>
               <Route path="/login" component={LoginPage} />
               <Route exact path="/" component={LandingPage} />
-              <Route exact path="/upload" component={UploadPage} />
-              <Route exact path="/code" component={CodePage} />
+              <ProtectedRoute exact path="/upload" component={UploadPage} />
+              <ProtectedRoute exact path="/code" component={CodePage} />
         </Switch>
       </BrowserRouter>
     );

@@ -7,6 +7,7 @@ import Split from 'react-split';
 import axios from 'axios';
 
 interface TestState {
+    json: JsonResponse;
     showComponent: boolean;
     suite:string;
     test:string;
@@ -15,10 +16,28 @@ interface TestState {
     diff:string;
 }
 
+interface JsonTestResponseBody {
+    Status: string,
+    Testcase: string,
+    Description: string,
+    Diff: string
+}
+
+interface JsonResponseBody {
+    Suite: string,
+    Points: string,
+    Tests: Array<JsonTestResponseBody>
+}
+
+interface JsonResponse {
+    result: Array<JsonResponseBody>
+}
+
 class TestResultsComponent extends Component<{}, TestState> {
     constructor(props: {}){
         super(props);
         this.state = {
+            json: { result: [] },
             showComponent: false,
             suite: "",
             test: "",
@@ -38,45 +57,37 @@ class TestResultsComponent extends Component<{}, TestState> {
             description:description,
             diff:diff,
         });
-    } 
+    }
 
-    render() {
-        var obj="";
-        var output="";
-        axios.post(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors/`, {
+    componentDidMount() {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
         })
-        .then(res => {
-            //obj = JSON.parse(res.data);
-            obj=res.data;
-            console.log(obj);
-            fetch(obj)
-            .then(response => response.text())
-            .then(data => {
-                output=JSON.parse(data);
-                console.log(data);
-            });
+        .then(res => {    
+            this.setState({json: res.data as JsonResponse})
         })
         .catch(err => {
-            //alert("File upload unsuccessful")
+            console.log(err);
         });
+    }
 
-        const panes = obj.result.map(d => ({
+    render() {
+        const panes = this.state.json.result.map(d => ({
             menuItem: d.Suite,
             render: () =>
             <Tab.Pane attached={false}>
                 <div id="testresults-container">
                     {d.Tests.map(test => {
-                        if(test.Status==="PASSED"){  
+                        if(test.Status === "PASSED"){  
                             return (
-                            <span className="testcase" onClick={() => this.handleClick(d.Suite, test.Testcase, test.Status, test.description,test.Diff)}>
+                            <span className="testcase" onClick={() => this.handleClick(d.Suite, test.Testcase, test.Status, test.Description,test.Diff)}>
                                 <StyledIcon name='check' className="passed" />
                             </span>)
                         } else {
                             return (
-                            <span className="testcase" onClick={() => this.handleClick(d.Suite, test.Testcase, test.Status, test.description,test.Diff)}>
+                            <span className="testcase" onClick={() => this.handleClick(d.Suite, test.Testcase, test.Status, test.Description,test.Diff)}>
                                 <StyledIcon name='close' className="failed" />
                             </span>)
                         }
@@ -84,7 +95,6 @@ class TestResultsComponent extends Component<{}, TestState> {
                 </div>
             </Tab.Pane>
         }));
-
     return (
         <div className="bottom">
             <Split className="split">
