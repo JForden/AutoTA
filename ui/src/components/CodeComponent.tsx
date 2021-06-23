@@ -17,7 +17,7 @@ interface PylintObject {
     symbol: string,
     message: string,
     messageid: string,
-    link: string
+    reflink: string
 }
 
 interface CodeComponentState {
@@ -96,7 +96,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                                     <Icon color="black" name='pencil' />
                                     <strong>{error.line} : </strong>  
                                     {error.message}
-                                    <a href={error.link} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                    <a href={error.reflink} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
                                 </div>);
                         } else if(error.type === "refactor") {
                             holder[index] =( 
@@ -104,7 +104,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                                     <Icon color="blue" name='cogs' />
                                     <strong>{error.line} : </strong>  
                                     {error.message}
-                                    <a href={error.link} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                    <a href={error.reflink} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
                                 </div>);
                         } else if(error.type === "error") {
                             holder[index] =( 
@@ -112,7 +112,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                                     <Icon color="orange" name='minus circle' />
                                     <strong>{error.line} : </strong>  
                                     {error.message}
-                                    <a href={error.link} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                    <a href={error.reflink} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
                                 </div>);
                         }
                         else if(error.type === "fatal") {
@@ -121,7 +121,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                                     <Icon color="red" name='stop' />
                                     <strong>{error.line} : </strong>  
                                     {error.message}
-                                    <a href={error.link} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                    <a href={error.reflink} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
                                 </div>);
                         }
                         else if(error.type === "warning") {
@@ -130,7 +130,7 @@ class CodeComponent extends Component<{}, CodeComponentState> {
                                     <Icon color="yellow" name='exclamation triangle' />
                                     <strong>{error.line} : </strong>  
                                     {error.message}
-                                    <a href={error.link} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                    <a href={error.reflink} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
                                 </div>);
                         }
                     }
