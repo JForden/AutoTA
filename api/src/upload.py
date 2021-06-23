@@ -26,7 +26,7 @@ def allowed_file(filename):
 @jwt_required()
 @inject
 def file_upload(submission_repository: ASubmissionRepository):
-    totalsubmissions= submission_repository.getSubmissionsRemaining(current_user.idUsers,1)
+    totalsubmissions= submission_repository.getSubmissionsRemaining(current_user.Id,1)
     if(totalsubmissions>MAXSUBMISSIONS):
         message = {
                 'message': 'Too many submissions!'
@@ -77,7 +77,7 @@ def file_upload(submission_repository: ASubmissionRepository):
         # Step 3: Save submission in submission table
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        submission_repository.create_submission(current_user.idUsers, outputpath+"output/"+current_user.username+".out", path, outputpath+"output/"+current_user.username+".out.pylint", dt_string)
+        submission_repository.create_submission(current_user.Id, outputpath+"output/"+current_user.username+".out", path, outputpath+"output/"+current_user.username+".out.pylint", dt_string)
         message = {
             'message': 'Success',
             'remainder': (MAXSUBMISSIONS-totalsubmissions+1)

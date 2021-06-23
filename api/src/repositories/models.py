@@ -6,22 +6,22 @@ from .database import Base
 
 class Projects(Base):
     __tablename__ = "Projects"
-    idProjects = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String)
-    submissions=relationship('Submissions') 
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Name = Column(String)
+    Submissions=relationship('Submissions') 
 
 class Users(Base):
-    __tablename__ = "users"
-    idUsers = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String)
-    submissions=relationship('Submissions')
+    __tablename__ = "Users"
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Username = Column(String)
+    Submissions=relationship('Submissions')
 
 class Submissions(Base):
     __tablename__ = "Submissions"
-    idSubmissions = Column(Integer, primary_key=True, autoincrement=True)
+    Id = Column(Integer, primary_key=True, autoincrement=True)
     OutputFilepath = Column(String)
     PylintFilepath = Column(String)
     CodeFilepath   = Column(String)
     Time = Column(Date)
-    User = Column(Integer, ForeignKey('users.idUsers'))
-    project = Column(Integer, ForeignKey('Projects.idProjects'))
+    User = Column(Integer, ForeignKey('users.Id'))
+    Project = Column(Integer, ForeignKey('Projects.Id'))

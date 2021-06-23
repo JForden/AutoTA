@@ -17,7 +17,7 @@ auth_api = Blueprint('auth_api', __name__)
 # identity when creating JWTs and converts it to a JSON serializable format.
 @jwt.user_identity_loader
 def user_identity_lookup(user):
-    return user.idUsers
+    return user.Id
 
 
 # Register a callback function that loades a user from your database whenever
@@ -28,7 +28,7 @@ def user_identity_lookup(user):
 def user_lookup_callback(_jwt_header, jwt_data):
     session = Session()
     identity = jwt_data["sub"]
-    return session.query(Users).filter_by(idUsers=identity).one_or_none()
+    return session.query(Users).filter_by(Id=identity).one_or_none()
 
 
 @auth_api.route('/login', methods=['POST'])

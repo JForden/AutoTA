@@ -15,7 +15,7 @@ submission_api = Blueprint('submission_api', __name__)
 @cross_origin()
 @inject
 def testcaseerrors(submission_repository: ASubmissionRepository):
-    output_path = submission_repository.getJsonPathByUserId(current_user.idUsers)
+    output_path = submission_repository.getJsonPathByUserId(current_user.Id)
 
     with open(output_path, 'r') as file:
         output = file.read()
@@ -27,7 +27,7 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
 @cross_origin()
 @inject
 def pylintoutput(submission_repository: ASubmissionRepository):
-    pylint_output = submission_repository.getPylintPathByUserId(current_user.idUsers)
+    pylint_output = submission_repository.getPylintPathByUserId(current_user.Id)
 
     with open(pylint_output, 'r') as file:
         output = file.read()
@@ -39,7 +39,7 @@ def pylintoutput(submission_repository: ASubmissionRepository):
 @cross_origin()
 @inject
 def codefinder(submission_repository: ASubmissionRepository):
-    code_output = submission_repository.getCodePathByUserId(current_user.idUsers)
+    code_output = submission_repository.getCodePathByUserId(current_user.Id)
 
     with open(code_output, 'r') as file:
         output = file.read()
@@ -51,5 +51,5 @@ def codefinder(submission_repository: ASubmissionRepository):
 @cross_origin()
 @inject
 def submissionNumberFinder(submission_repository: ASubmissionRepository):
-    number = submission_repository.getSubmissionsRemaining(current_user.idUsers,1)
+    number = submission_repository.getSubmissionsRemaining(current_user.Id,1)
     return make_response(str(number), HTTPStatus.OK)
