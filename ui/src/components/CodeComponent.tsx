@@ -66,7 +66,9 @@ class CodeComponent extends Component<{}, CodeComponentState> {
             }
         })
         .then(res => {    
-            this.setState({pylint: res.data as Array<PylintObject>  })    
+            var x = res.data as Array<PylintObject>;
+            x = x.sort((a, b) => (a.line < b.line ? -1 : 1));
+            this.setState({pylint:  x})    
         })
         .catch(err => {
             console.log(err);
