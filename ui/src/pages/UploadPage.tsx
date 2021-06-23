@@ -4,13 +4,14 @@ import { Button, Form, Grid, Segment } from 'semantic-ui-react'
 import axios from 'axios';
 import MenuComponent from '../components/MenuComponent';
 import React from 'react'
-import { Progress } from 'semantic-ui-react'
+import { Progress, SemanticCOLORS } from 'semantic-ui-react'
 
 interface UploadPageState {
     file?: File,
-    int: number
+    int: number,
+    color: SemanticCOLORS
 }
-
+ 
 
 class UploadPage extends Component<{}, UploadPageState> {
 
@@ -18,7 +19,8 @@ class UploadPage extends Component<{}, UploadPageState> {
         super(props);
 
         this.state = {
-            int: 0
+            int: 0,
+            color: 'grey'
         };
     
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -32,7 +34,13 @@ class UploadPage extends Component<{}, UploadPageState> {
             }
         })
         .then(res => {    
-            this.setState({int: res.data })
+            this.setState({int: res.data });
+            if(this.state.int>10 && this.state.int <13){
+                this.setState({color: 'orange'});
+            }
+            if(this.state.int>13){
+                this.setState({color: 'red'});
+            }   
         })
         .catch(err => {
             console.log(err);
@@ -55,6 +63,15 @@ class UploadPage extends Component<{}, UploadPageState> {
         }
       
     };
+    handleColorChange(){  
+        if(this.state.int>10 && this.state.int <13){
+            this.setState({color: 'orange'});
+        }
+        if(this.state.int>13){
+            this.setState({color: 'red'});
+        }   
+        return this.state.color;
+    }
 
     handleSubmit() {
         if (this.state.file !== undefined) {
@@ -83,6 +100,7 @@ class UploadPage extends Component<{}, UploadPageState> {
             })
         }
     }
+    
 
     render() {
         return (
@@ -101,7 +119,7 @@ class UploadPage extends Component<{}, UploadPageState> {
                 </Button>
                 </Segment>
             </Form>
-            <Progress progress='value' value={this.state.int} total={15} percent={75} warning />
+            <Progress progress='value' value={this.state.int} total={15} percent={75} color={this.state.color} />
             </Grid.Column>
             </Grid>
         </div>
