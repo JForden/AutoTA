@@ -40,7 +40,7 @@ def pylintoutput(submission_repository: ASubmissionRepository):
 def linkfinder(pyoutput):
     link = {
         "C0102":"https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0102",
-        "C0103":"https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0103",
+        "C0103":"https://youtu.be/dQw4w9WgXcQ",
         "C0112":"https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0112",
         "C0114":"https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0114",
         "C0115":"https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0115",
