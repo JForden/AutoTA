@@ -23,5 +23,5 @@ class Submissions(Base):
     PylintFilepath = Column(String)
     CodeFilepath   = Column(String)
     Time = Column(Date)
-    User = Column(Integer, ForeignKey('users.Id'))
+    User = Column(Integer, ForeignKey('Users.Id'))
     Project = Column(Integer, ForeignKey('Projects.Id'))

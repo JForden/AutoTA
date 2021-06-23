@@ -56,13 +56,13 @@ class SubmissionRepository(ASubmissionRepository):
     def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str):
         session = Session()
         # TODO: Get current project from table
-        c1 = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, project=1)
+        c1 = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=1)
         session.add(c1)
         session.commit()
 
     def getSubmissionsRemaining(self, user_id: int, project_id: int) -> int:
         session = Session()
-        count = session.query(Submissions).filter(and_(Submissions.User == user_id, Submissions.project == project_id)).count()
+        count = session.query(Submissions).filter(and_(Submissions.User == user_id, Submissions.Project == project_id)).count()
         session.close()
         return count
 
