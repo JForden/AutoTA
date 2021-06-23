@@ -9,7 +9,8 @@ import { Progress, SemanticCOLORS } from 'semantic-ui-react'
 interface UploadPageState {
     file?: File,
     int: number,
-    color: SemanticCOLORS
+    color: SemanticCOLORS,
+    isLoading:boolean
 }
  
 
@@ -20,7 +21,8 @@ class UploadPage extends Component<{}, UploadPageState> {
 
         this.state = {
             int: 0,
-            color: 'grey'
+            color: 'grey',
+            isLoading: false
         };
     
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -35,7 +37,7 @@ class UploadPage extends Component<{}, UploadPageState> {
         })
         .then(res => {    
             this.setState({int: res.data });
-            if(this.state.int>10 && this.state.int <13){
+            if(this.state.int>10 && this.state.int <=13){
                 this.setState({color: 'orange'});
             }
             if(this.state.int>13){
@@ -75,6 +77,7 @@ class UploadPage extends Component<{}, UploadPageState> {
 
     handleSubmit() {
         if (this.state.file !== undefined) {
+            this.setState({isLoading: true});
             // Create an object of formData
             const formData = new FormData();
         
@@ -104,13 +107,11 @@ class UploadPage extends Component<{}, UploadPageState> {
 
     render() {
         return (
-        
-
         <div>
             <MenuComponent showUpload={true}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
             <Grid.Column style={{ maxWidth: 400 }}>
-            <Form size='large' onSubmit={this.handleSubmit}>
+            <Form loading={this.state.isLoading} size='large' onSubmit={this.handleSubmit}>
                 <Segment stacked>
                 <h1>Upload Assignment Here</h1>
                 <Form.Input type="file" fluid required onChange={this.handleFileChange} />
@@ -119,7 +120,7 @@ class UploadPage extends Component<{}, UploadPageState> {
                 </Button>
                 </Segment>
             </Form>
-            <Progress progress='value' value={this.state.int} total={15} percent={75} color={this.state.color} />
+            <Progress progress='value' value={this.state.int} total={15} color={this.state.color} /><h5>Total submissions for this assignment: 15</h5>
             </Grid.Column>
             </Grid>
         </div>

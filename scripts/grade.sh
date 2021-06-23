@@ -167,13 +167,6 @@ echo "]}" >> ${OUTFILE}
 lint=${OUTFILE}.pylint
 pylint ${EXE} --output-format=json >> ${lint}
 
-arcfile=${OUTFILE}-`date +%F-%T.%N`.archive
-cat ${OUTFILE} >> ${arcfile}
-mv ${arcfile} ../archivefolder/
-arcpylint=${OUTFILE}-`date +%F-%T.%N`.pyarchive
-pylint ${EXE} --output-format=json >> ${arcpylint}
-mv ${arcpylint} ../archivefolder/
-
 # End of grading stuff.
 cd $myroot
 chmod -R 0700 ${TEMP}

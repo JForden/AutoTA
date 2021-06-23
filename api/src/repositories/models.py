@@ -8,6 +8,8 @@ class Projects(Base):
     __tablename__ = "Projects"
     Id = Column(Integer, primary_key=True, autoincrement=True)
     Name = Column(String)
+    Start = Column(Date)
+    End = Column(Date)
     Submissions=relationship('Submissions') 
 
 class Users(Base):
@@ -21,7 +23,7 @@ class Submissions(Base):
     Id = Column(Integer, primary_key=True, autoincrement=True)
     OutputFilepath = Column(String)
     PylintFilepath = Column(String)
-    CodeFilepath   = Column(String)
+    CodeFilepath = Column(String)
     Time = Column(Date)
     User = Column(Integer, ForeignKey('Users.Id'))
     Project = Column(Integer, ForeignKey('Projects.Id'))

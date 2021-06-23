@@ -1,4 +1,5 @@
 from repositories.submission_repository import ASubmissionRepository
+from repositories.project_repository import AProjectRepository
 from flask import Blueprint
 from flask import request
 from flask import make_response
@@ -25,14 +26,15 @@ def allowed_file(filename):
 @upload_api.route('/', methods = ['POST'])
 @jwt_required()
 @inject
-def file_upload(submission_repository: ASubmissionRepository):
+def file_upload(submission_repository: ASubmissionRepository, ProjectRepository: AProjectRepository):
     totalsubmissions= submission_repository.getSubmissionsRemaining(current_user.Id,1)
-    if(totalsubmissions>MAXSUBMISSIONS):
+    project=ProjectRepository.get_current_project()
+    if(totalsubmissions+1>MAXSUBMISSIONS):
         message = {
                 'message': 'Too many submissions!'
             }
         return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
-    
+
 
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -54,7 +56,7 @@ def file_upload(submission_repository: ASubmissionRepository):
         filename = secure_filename(file.filename)
 
         # Step 1: Run TA-Bot to generate grading folder
-        result = subprocess.run([current_app.config['TABOT_PATH'], "outofwater", "--final","--system" ], stdout=subprocess.PIPE)
+        result = subprocess.run([current_app.config['TABOT_PATH'], project.Name, "--final","--system" ], stdout=subprocess.PIPE)
         if result.returncode != 0:
             message = {
                 'message': 'Error in creating output directory!'
@@ -63,11 +65,11 @@ def file_upload(submission_repository: ASubmissionRepository):
         outputpath = result.stdout.decode('utf-8')
 
         # TODO: Do we want to always the username as the filename?
-        path = os.path.join(outputpath + "input/", current_user.username + ".py")
+        path = os.path.join(outputpath + "input/", current_user.Username + ".py")
         file.save(path)
 
         # Step 2: Run grade.sh
-        result = subprocess.run([outputpath +  "grade.sh", current_user.username], cwd=outputpath) 
+        result = subprocess.run([outputpath +  "grade.sh", current_user.Username], cwd=outputpath) 
         if result.returncode != 0:
             message = {
                 'message': 'Error in running grading script!'
@@ -77,7 +79,7 @@ def file_upload(submission_repository: ASubmissionRepository):
         # Step 3: Save submission in submission table
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        submission_repository.create_submission(current_user.Id, outputpath+"output/"+current_user.username+".out", path, outputpath+"output/"+current_user.username+".out.pylint", dt_string)
+        submission_repository.create_submission(current_user.Id, outputpath+"output/"+current_user.Username+".out", path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id)
         message = {
             'message': 'Success',
             'remainder': (MAXSUBMISSIONS-totalsubmissions+1)
