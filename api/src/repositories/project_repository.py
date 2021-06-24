@@ -10,15 +10,24 @@ class AProjectRepository(ABC):
     @abstractmethod
     def get_current_project(self) -> Projects:
         pass
+    @abstractmethod
+    def get_all_projects(self) -> Projects:
+        pass
 
 
 class ProjectRepository(AProjectRepository):
 
     def get_current_project(self) -> Projects:
         now = datetime.now()
-        #dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         session = Session()
         project = session.query(Projects).filter(Projects.End >= now, Projects.Start < now).first()
-        print(project)
         session.close()
         return project
+        
+    def get_all_projects(self) -> Projects:
+        session = Session()
+        project = session.query(Projects).order_by(desc(Projects.Id)).all()
+        session.close()
+        return project
+
+

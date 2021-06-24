@@ -4,6 +4,7 @@ from flask_cors import CORS
 from auth import auth_api
 from upload import upload_api
 from submission import submission_api
+from projects import projects_api
 from dependencies import configure
 from jwtF import jwt
 from datetime import timedelta
@@ -22,6 +23,7 @@ def create_app():
     app.register_blueprint(auth_api, url_prefix='/auth')  
     app.register_blueprint(upload_api, url_prefix='/upload')
     app.register_blueprint(submission_api, url_prefix='/submissions')
+    app.register_blueprint(projects_api,url_prefix='/projects')
     
     FlaskInjector(app=app, modules=[configure])
     jwt.init_app(app)

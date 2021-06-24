@@ -10,7 +10,7 @@ class CodePage extends Component {
   render() {
     return (
         <div id="code-page">
-            <MenuComponent showUpload={true}></MenuComponent>
+            <MenuComponent showUpload={true} showHelp={true} showCreate={false}></MenuComponent>
             <Grid>
                 <Grid.Column>
                     <Grid.Row width={16} className="top-row full-height">

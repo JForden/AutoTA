@@ -10,7 +10,8 @@ interface LoginPageState {
   isLoggedIn: boolean,
   isErrorMessageHidden: boolean,
   username: string,
-  password: string
+  password: string,
+  role: number
 }
 
 class Login extends Component<{}, LoginPageState> {
@@ -22,7 +23,8 @@ class Login extends Component<{}, LoginPageState> {
       isLoggedIn: localStorage.getItem("AUTOTA_AUTH_TOKEN") != null,
       isErrorMessageHidden: true,
       username: '',
-      password: ''
+      password: '',
+      role: -1
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -44,6 +46,7 @@ class Login extends Component<{}, LoginPageState> {
       this.setState({ isErrorMessageHidden: true });
       localStorage.setItem("AUTOTA_AUTH_TOKEN", res.data.access_token);
       this.setState({ isLoggedIn: true })
+      this.setState({ role: res.data.role })
     })
     .catch(err => {
       this.setState({ isErrorMessageHidden: false });
@@ -51,10 +54,12 @@ class Login extends Component<{}, LoginPageState> {
   }
 
   render() {
-    if (this.state.isLoggedIn){
+    if (this.state.isLoggedIn && this.state.role === 0 ){
       return ( <Redirect to={{pathname: '/upload'}}/> );
     }
-
+    if (this.state.isLoggedIn && this.state.role === 1 ){
+      return ( <Redirect to={{pathname: '/adminpage'}}/> );
+    }
     return (
     <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
     <Grid.Column style={{ maxWidth: 400 }}>

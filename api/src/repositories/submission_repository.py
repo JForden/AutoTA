@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from .models import Submissions
+from .models import Submissions, Projects
 from .database import Session
 from sqlalchemy import desc, and_
+from typing import Dict, List
 
 
 class ASubmissionRepository(ABC):
@@ -28,6 +29,10 @@ class ASubmissionRepository(ABC):
 
     @abstractmethod
     def getSubmissionsRemaining(self, user_id: int) -> int:
+        pass
+
+    @abstractmethod
+    def getTotalSubmissionsForAllProjects(self) -> Dict[int, int]:
         pass
     
    
@@ -65,5 +70,15 @@ class SubmissionRepository(ASubmissionRepository):
         count = session.query(Submissions).filter(and_(Submissions.User == user_id, Submissions.Project == project_id)).count()
         session.close()
         return count
+
+    def getTotalSubmissionsForAllProjects(self) -> Dict[int, int]:
+        session = Session()
+        thisdic={}
+        project_ids = session.query(Projects.Id).all()
+        for proj in project_ids:
+            count = session.query(Submissions.User).filter(Submissions.Project == proj[0]).distinct().count()
+            thisdic[proj[0]]=count
+        session.close()
+        return thisdic
 
 

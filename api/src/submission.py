@@ -355,3 +355,6 @@ def codefinder(submission_repository: ASubmissionRepository):
 def submissionNumberFinder(submission_repository: ASubmissionRepository):
     number = submission_repository.getSubmissionsRemaining(current_user.Id,1)
     return make_response(str(number), HTTPStatus.OK)
+
+
+

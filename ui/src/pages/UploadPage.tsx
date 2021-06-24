@@ -108,7 +108,7 @@ class UploadPage extends Component<{}, UploadPageState> {
     render() {
         return (
         <div>
-            <MenuComponent showUpload={true}></MenuComponent>
+            <MenuComponent showUpload={true} showHelp={false} showCreate={false}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
             <Grid.Column style={{ maxWidth: 400 }}>
             <Form loading={this.state.isLoading} size='large' onSubmit={this.handleSubmit}>

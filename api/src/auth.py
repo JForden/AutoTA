@@ -49,6 +49,7 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
         user_repository.create_user(username)   
 
     user = user_repository.getUserByName(username)
+    Role = user.Role
     if not user:
         message = {
             'message': 'Invalid username and/or password!  Please try again!'
@@ -58,6 +59,7 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
     access_token = create_access_token(identity=user)
     message = {
         'message': 'Success',
-        'access_token': access_token
+        'access_token': access_token,
+        'role': Role
     }
     return make_response(message, HTTPStatus.OK)        
