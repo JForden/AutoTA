@@ -9,7 +9,8 @@ class FirstLogin extends Component {
     return (
         <div>
             <MenuComponent showUpload={false} showHelp={false} showCreate={false}></MenuComponent>
-            <Grid>
+            <Grid textAlign="center" verticalAlign="middle">
+                <Grid.Row>
                 <Grid.Column textAlign="center">
                 <Header as='h2' icon textAlign='center'>
                     <Icon name='users' circular />
@@ -22,27 +23,34 @@ class FirstLogin extends Component {
                     </Form.Group>
                 </Form>
                 </Grid.Column>
-                <Step.Group ordered>
-                <Step completed>
-                <Step.Content>
-                    <Step.Title>Shipping</Step.Title>
-                    <Step.Description>Choose your shipping options</Step.Description>
-                </Step.Content>
-                </Step>
+                </Grid.Row>
 
-                <Step completed>
-                <Step.Content>
-                    <Step.Title>Billing</Step.Title>
-                    <Step.Description>Enter billing information</Step.Description>
-                </Step.Content>
-                </Step>
+                <Grid.Row>
+                <Step.Group>
+                    <Step active>
+                    <Icon name='pencil' />
+                    <Step.Content>
+                        <Step.Title>Class Selection</Step.Title>
+                        <Step.Description>Choose your class</Step.Description>
+                    </Step.Content>
+                    </Step>
 
-                <Step active>
-                <Step.Content>
-                    <Step.Title>Confirm Order</Step.Title>
-                </Step.Content>
-                </Step>
-            </Step.Group>
+                    <Step>
+                    <Icon name='user' />
+                    <Step.Content>
+                        <Step.Title>User Information</Step.Title>
+                        <Step.Description>Enter user information</Step.Description>
+                    </Step.Content>
+                    </Step>
+
+                    <Step>
+                    <Icon name='check' />
+                    <Step.Content>
+                        <Step.Title>Get Started!</Step.Title>
+                    </Step.Content>
+                    </Step>
+                </Step.Group>
+            </Grid.Row>
             </Grid>
         </div>
     );
