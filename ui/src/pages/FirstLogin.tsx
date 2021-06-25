@@ -26,8 +26,8 @@ class FirstLogin extends Component {
                         <Form.Input fluid label='Last name' placeholder='Last name' />
                     </Form.Group>
                     <Form.Group widths='equal'>
-                        <Form.Input fluid label='School ID' placeholder='00123456' />
-                        <Form.Input fluid label='School Email' placeholder='golden.eagle@marquette.edu' />
+                        <Form.Input fluid label='School ID' placeholder='001234567' />
+                        <Form.Input fluid label='School Email' placeholder='first.last@marquette.edu' />
                     </Form.Group>
                     <Form.Button type="submit">Submit</Form.Button>
                 </Form>
