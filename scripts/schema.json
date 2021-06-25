@@ -1,0 +1,58 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://cs.mu.edu/tabot.schema.json",
+    "title": "tabot JSON Schema",
+    "type": "object",
+    "properties": {
+      "result": {
+        "type": "array",
+        "items": [
+          {
+            "type": "object",
+            "properties": {
+              "Suite": {
+                "type": "string"
+              },
+              "Points": {
+                "type": "string"
+              },
+              "Tests": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "Testcase": {
+                        "type": "string"
+                      },
+                      "Status": {
+                        "type": "string",
+                        "enum": ["PASSED", "FAILED", "NONDETERMINISTIC"]
+                      },
+                      "Outcome": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "Testcase",
+                      "Status"
+                    ]
+                  }
+                ],
+                "minItems": 1
+              }
+            },
+            "required": [
+              "Suite",
+              "Points",
+              "Tests"
+            ]
+          }
+        ],
+        "minItems": 1
+      }
+    },
+    "required": [
+      "result"
+    ]
+  }
