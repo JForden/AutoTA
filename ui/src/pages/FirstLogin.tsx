@@ -13,22 +13,27 @@ class FirstLogin extends Component {
                 <Grid.Column textAlign="center" width="4">
                 <Grid.Row>
                 <Header as='h2' icon textAlign='center'>
-                    <Icon name='users' circular />
-                    <Header.Content>Please enter your class code</Header.Content>
+                    <Icon name='user' circular />
+                    <Header.Content>Please enter your user information</Header.Content>
                 </Header>
 
-                <Form widths="equal">
-                    <Form.Group>
-                        <Form.Input fluid id='form-subcomponent-shorthand-input-first-name' placeholder='Class Code' />
-                        <Button color="blue">Next</Button>
+                <Form>
+                    <Form.Group widths='equal'>
+                        <Form.Input fluid label='First name' placeholder='First name' />
+                        <Form.Input fluid label='Last name' placeholder='Last name' />
                     </Form.Group>
+                    <Form.Group widths='equal'>
+                        <Form.Input fluid label='School ID' placeholder='00123456' />
+                        <Form.Input fluid label='School Email' placeholder='golden.eagle@marquette.edu' />
+                    </Form.Group>
+                    <Form.Button type="submit">Submit</Form.Button>
                 </Form>
                 </Grid.Row>
                 </Grid.Column>
 
                 <Grid.Row>
                 <Step.Group>
-                    <Step active>
+                    <Step>
                     <Icon name='pencil' />
                     <Step.Content>
                         <Step.Title>Class Selection</Step.Title>
@@ -36,7 +41,7 @@ class FirstLogin extends Component {
                     </Step.Content>
                     </Step>
 
-                    <Step>
+                    <Step active>
                     <Icon name='user' />
                     <Step.Content>
                         <Step.Title>User Information</Step.Title>
