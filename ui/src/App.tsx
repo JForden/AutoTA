@@ -18,7 +18,7 @@ class App extends Component {
               <Route exact path="/" component={LandingPage} />
               <ProtectedRoute exact path="/upload" component={UploadPage} />
               <ProtectedRoute exact path="/code" component={CodePage} />
-              <ProtectedRoute exact path="/adminpage" component={AdminLanding} />
+              <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />
         </Switch>
       </BrowserRouter>
     );

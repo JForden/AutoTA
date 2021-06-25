@@ -58,7 +58,7 @@ class Login extends Component<{}, LoginPageState> {
       return ( <Redirect to={{pathname: '/upload'}}/> );
     }
     if (this.state.isLoggedIn && this.state.role === 1 ){
-      return ( <Redirect to={{pathname: '/adminpage'}}/> );
+      return ( <Redirect to={{pathname: '/admin/projects'}}/> );
     }
     return (
     <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>

@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
-import { Table, Menu, Icon, Label } from 'semantic-ui-react'
+import { Table, Label } from 'semantic-ui-react'
 
 interface ProjectObject {
     Id: number,
