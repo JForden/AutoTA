@@ -19,6 +19,9 @@ class FirstLogin extends Component {
 
                 <Form>
                     <Form.Group widths='equal'>
+                        <p style={{textAlign: 'center', width: '100%'}}><b>Class: </b>COSC 1010-101: Introduction to Software Development</p>
+                    </Form.Group>
+                    <Form.Group widths='equal'>
                         <Form.Input fluid label='First name' placeholder='First name' />
                         <Form.Input fluid label='Last name' placeholder='Last name' />
                     </Form.Group>
