@@ -29,13 +29,14 @@
                         "type": "string",
                         "enum": ["PASSED", "FAILED", "NONDETERMINISTIC"]
                       },
-                      "Outcome": {
+                      "Output": {
                         "type": "string"
                       }
                     },
                     "required": [
                       "Testcase",
-                      "Status"
+                      "Status",
+                      "Output"
                     ]
                   }
                 ],
