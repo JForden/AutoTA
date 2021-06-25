@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import '../css/CodePage.scss';
-import { Grid, Header, Icon, Form, Step } from 'semantic-ui-react'
+import { Grid, Header, Icon, Form, Step, Button } from 'semantic-ui-react'
 import MenuComponent from '../components/MenuComponent';
 
 class FirstLogin extends Component {
@@ -10,20 +10,21 @@ class FirstLogin extends Component {
         <div>
             <MenuComponent showUpload={false} showHelp={false} showCreate={false}></MenuComponent>
             <Grid textAlign="center" verticalAlign="middle">
+                <Grid.Column textAlign="center" width="4">
                 <Grid.Row>
-                <Grid.Column textAlign="center">
                 <Header as='h2' icon textAlign='center'>
                     <Icon name='users' circular />
                     <Header.Content>Please enter your class code</Header.Content>
                 </Header>
 
-                <Form>
-                    <Form.Group widths='4'>
+                <Form widths="equal">
+                    <Form.Group>
                         <Form.Input fluid id='form-subcomponent-shorthand-input-first-name' placeholder='Class Code' />
+                        <Button color="blue">Next</Button>
                     </Form.Group>
                 </Form>
-                </Grid.Column>
                 </Grid.Row>
+                </Grid.Column>
 
                 <Grid.Row>
                 <Step.Group>
