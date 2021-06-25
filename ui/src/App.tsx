@@ -7,6 +7,7 @@ import UploadPage from './pages/UploadPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import CodePage from './pages/CodePage';
 import AdminLanding from './AdminPages/AdminLanding';
+import FirstLogin from './pages/FirstLogin';
 
 class App extends Component {
 
@@ -19,6 +20,7 @@ class App extends Component {
               <ProtectedRoute exact path="/upload" component={UploadPage} />
               <ProtectedRoute exact path="/code" component={CodePage} />
               <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />
+              <Route exact path="/new-user" component={FirstLogin}></Route>
         </Switch>
       </BrowserRouter>
     );
