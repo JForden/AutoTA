@@ -58,10 +58,10 @@ class SubmissionRepository(ASubmissionRepository):
         submission = self.getSubmissionByUserId(user_id)
         return submission.CodeFilepath
     
-    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int):
+    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool,errorcount: int ):
         session = Session()
         # TODO: Get current project from table
-        c1 = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id)
+        c1 = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount)
         session.add(c1)
         session.commit()
 

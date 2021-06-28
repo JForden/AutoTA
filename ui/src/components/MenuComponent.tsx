@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import { Menu, Container } from 'semantic-ui-react';
 import { StyledIcon } from '../styled-components/StyledIcon';
-import { Button, Popup, Icon } from 'semantic-ui-react'
+import { Button, Popup, Icon } from 'semantic-ui-react';
+import axios from 'axios';
 
 interface MenuComponentProps {
     showUpload: boolean,
@@ -10,18 +11,36 @@ interface MenuComponentProps {
     showCreate: boolean
 }
 
+
 class MenuComponent extends Component<MenuComponentProps, {}> {
 
     handleLogout(){
         localStorage.removeItem("AUTOTA_AUTH_TOKEN");
-        window.location.href = "/login";
+        window.location.replace("/login");
+    }
+    
+    handleHome(){
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/auth/get-role`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+        })
+        .then(res => {    
+            var role=parseInt(res.data);
+            if (role === 0 ){
+                window.location.replace("/upload");
+            } 
+            if (role === 1){
+                window.location.replace("/admin/projects");
+            }   
+        })
     }
 
     render() {
         return (
             <Menu fixed='top' inverted>
                 <Container>
-                    <Menu.Item as='a' header>
+                    <Menu.Item as='a' header onClick={this.handleHome}>
                         AutoTA
                     </Menu.Item>
                     <div>

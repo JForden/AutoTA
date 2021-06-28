@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from .models import Users
 from .database import Session
+from flask_jwt_extended import current_user
 
 
 class AUserRepository(ABC):
@@ -15,6 +16,9 @@ class AUserRepository(ABC):
 
     @abstractmethod
     def create_user(self, username: str):
+        pass
+    @abstractmethod
+    def get_user_status():
         pass
 
 
@@ -38,4 +42,7 @@ class UserRepository(AUserRepository):
         session = Session()
         c1 = Users(Username=username)
         session.add(c1)
-        session.commit() 
+        session.commit()
+        
+    def get_user_status(self):
+        return str(current_user.Role)

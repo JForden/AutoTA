@@ -1,22 +1,12 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
+import 'semantic-ui-css/semantic.min.css'
+import '../css/TestResultComponent.scss';
 import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
 import { Table, Label } from 'semantic-ui-react'
 
-interface ProjectObject {
-    Id: number,
-    Name: string,
-    Start:string,
-    End:string,
-    TotalSubmissions:number
-}
 
-interface ProjectsState {
-    projects: Array<ProjectObject>
-}
-
-
-class AdminComponent extends Component<{}, ProjectsState> {
+class StudentList extends Component<{}, {}> {
 
     constructor(props: {}) {
         super(props);
@@ -31,7 +21,6 @@ class AdminComponent extends Component<{}, ProjectsState> {
             }
         })
         .then(res => {
-            let arr: Array<ProjectObject> = [];
             res.data.forEach((str: any) => {
                 arr.push(JSON.parse(str) as ProjectObject);
             });
@@ -81,4 +70,4 @@ class AdminComponent extends Component<{}, ProjectsState> {
     }
 }
 
-export default AdminComponent;
+export default StudentList;

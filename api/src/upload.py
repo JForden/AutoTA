@@ -13,6 +13,7 @@ from injector import inject
 from datetime import datetime
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
+import json
 MAXSUBMISSIONS=15
 
 upload_api = Blueprint('upload_api', __name__)
@@ -22,7 +23,29 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
+def PyErrorCount(filepath):
+    f = open(filepath+".out.pylint", "r")
+    y = json.load(f)
+    ErrorCount=0
+    for item in y:
+        ErrorCount=ErrorCount+1
+    return ErrorCount
 
+def OutputPassOrFail(filepath):
+    f = open(filepath+".out", "r")
+    data = json.load(f)
+    suites = data["result"]
+    for suite in suites:
+        tests = suite["Tests"]
+        for test in tests:
+            if test["Status"]=="FAILED":
+                return False
+    return True
+
+
+
+
+    
 @upload_api.route('/', methods = ['POST'])
 @jwt_required()
 @inject
@@ -79,7 +102,9 @@ def file_upload(submission_repository: ASubmissionRepository, ProjectRepository:
         # Step 3: Save submission in submission table
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        submission_repository.create_submission(current_user.Id, outputpath+"output/"+current_user.Username+".out", path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id)
+        status=OutputPassOrFail(outputpath+"output/"+current_user.Username)
+        ErrorCount=PyErrorCount(outputpath+"output/"+current_user.Username)
+        submission_repository.create_submission(current_user.Id, outputpath+"output/"+current_user.Username+".out", path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status,ErrorCount)
         message = {
             'message': 'Success',
             'remainder': (MAXSUBMISSIONS-totalsubmissions+1)

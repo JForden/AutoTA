@@ -10,6 +10,7 @@ from repositories.models import Users
 from flask_jwt_extended import create_access_token
 from jwtF import jwt
 from repositories.user_repository import AUserRepository
+from flask_jwt_extended import jwt_required
 
 auth_api = Blueprint('auth_api', __name__)
 
@@ -18,6 +19,12 @@ auth_api = Blueprint('auth_api', __name__)
 @jwt.user_identity_loader
 def user_identity_lookup(user):
     return user.Id
+
+@auth_api.route('/get-role', methods=['GET'])
+@jwt_required()
+@inject
+def get_user_role(UserRepository: AUserRepository):
+    return UserRepository.get_user_status()
 
 
 # Register a callback function that loades a user from your database whenever
@@ -62,4 +69,4 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
         'access_token': access_token,
         'role': Role
     }
-    return make_response(message, HTTPStatus.OK)        
+    return make_response(message, HTTPStatus.OK)

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.types import Date
@@ -25,6 +25,9 @@ class Submissions(Base):
     OutputFilepath = Column(String)
     PylintFilepath = Column(String)
     CodeFilepath = Column(String)
+    IsPassing = Column(Boolean)
+    NumberOfPylintErrors = Column(String)
     Time = Column(Date)
     User = Column(Integer, ForeignKey('Users.Id'))
     Project = Column(Integer, ForeignKey('Projects.Id'))
+    
