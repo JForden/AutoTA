@@ -128,13 +128,13 @@ for problem in $TESTS
             else
                 echo ""
                 echo -e "\t\t\t\"Status\": \"FAILED\"," >> ${OUTFILE}
-                sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' diffout.txt > diffout1.txt
-                sed -i s/\"//g diffout1.txt
+                jq -R -s '.' < diffout.txt >> diffout1.txt
+
                 holder=$( cat diffout1.txt )
                 desc=$( cat ${tcase}.desc )
 		        echo -e "\t\t\t\"Description\": \"${desc}\"," >> ${OUTFILE}
                 echo -n -e "\t\t\t" >> ${OUTFILE}
-		echo "\"Diff\": \"${holder}\"" >> ${OUTFILE}
+		echo "\"Diff\": ${holder}" >> ${OUTFILE}
                 rm diffout1.txt
             fi
         else

@@ -13,6 +13,7 @@ from injector import inject
 from datetime import datetime
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
+from flask_cors import CORS, cross_origin
 import json
 MAXSUBMISSIONS=15
 
@@ -33,6 +34,7 @@ def PyErrorCount(filepath):
 
 def OutputPassOrFail(filepath):
     f = open(filepath+".out", "r")
+    print(filepath+".out")
     data = json.load(f)
     suites = data["result"]
     for suite in suites:
@@ -48,6 +50,7 @@ def OutputPassOrFail(filepath):
     
 @upload_api.route('/', methods = ['POST'])
 @jwt_required()
+@cross_origin()
 @inject
 def file_upload(submission_repository: ASubmissionRepository, ProjectRepository: AProjectRepository):
     totalsubmissions= submission_repository.getSubmissionsRemaining(current_user.Id,1)
