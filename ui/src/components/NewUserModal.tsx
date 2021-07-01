@@ -18,7 +18,7 @@ interface NewUserModalState{
     StudentNumber: string,
     Email: string,
     ClassName:string,
-    LabNumber:string,
+    ClassNumber:string,
     isOpen: boolean
 }
 
@@ -45,7 +45,7 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
         this.handleEmailChange = this.handleEmailChange.bind(this);
         this.handleStudentNumberChange = this.handleStudentNumberChange.bind(this);
         this.handleClassNameChange = this.handleClassNameChange.bind(this);
-        this.handleLabNumberChange = this.handleLabNumberChange.bind(this);
+        this.handleClassNumberChange = this.handleClassNumberChange.bind(this);
         this.handleClick = this.handleClick.bind(this);
       }
 
@@ -64,12 +64,12 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
     handleClassNameChange(ev: string){
         this.setState({ ClassName: ev});
     }
-    handleLabNumberChange(ev: string){
-        this.setState({ LabNumber: ev});
+    handleClassNumberChange(ev: string){
+        this.setState({ ClassNumber: ev});
     }
     
     handleClick(){
-        axios.post(process.env.REACT_APP_BASE_API_URL + `/auth/create`, { password: this.props.password, username: this.props.username, fname: this.state.FirstName, lname: this.state.LastName, id: this.state.StudentNumber, email: this.state.Email, class_name: this.state.ClassName, lab_number: this.state.LabNumber })
+        axios.post(process.env.REACT_APP_BASE_API_URL + `/auth/create`, { password: this.props.password, username: this.props.username, fname: this.state.FirstName, lname: this.state.LastName, id: this.state.StudentNumber, email: this.state.Email, class_name: this.state.ClassName, lab_number: this.state.ClassNumber })
         .then(res => {    
             localStorage.setItem("AUTOTA_AUTH_TOKEN", res.data.access_token);
             window.location.href = "/upload";   
@@ -95,7 +95,7 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
                     </Form.Group>
                     <Form.Group widths='equal'>
                         <Form.Select fluid label='Class Name' options={Coptions} placeholder='Class' onChange={e => this.handleClassNameChange(e.currentTarget.nodeValue || "")} />
-                        <Form.Select fluid label='Lab Number' options={Loptions} placeholder='Class' onChange={e => this.handleLabNumberChange(e.currentTarget.nodeValue || "")}  />
+                        <Form.Select fluid label='Lab Number' options={Loptions} placeholder='Class' onChange={e => this.handleClassNumberChange(e.currentTarget.nodeValue || "")}  />
                     </Form.Group>
 
                     <Form.Button type="submit" onClick={this.handleClick}>Submit</Form.Button>

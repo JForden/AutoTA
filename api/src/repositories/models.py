@@ -21,7 +21,7 @@ class Users(Base):
     Email = Column(String)
     StudentNumber = Column(String)
     ClassName = Column(String)
-    LabNumber = Column(String)
+    ClassNumber = Column(String)
     Role = Column(Integer)
     Submissions=relationship('Submissions')
 
