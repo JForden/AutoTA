@@ -69,7 +69,7 @@ class Login extends Component<{}, LoginPageState> {
       return ( <Redirect to={{pathname: '/admin/projects'}}/> );
     }
     return (
-        <div>    <NewUserModal username="alex" password="alex" isOpen={this.state.isNewUser}></NewUserModal>
+        <div>    <NewUserModal username={this.state.username} password={this.state.password} isOpen={this.state.isNewUser}></NewUserModal>
         <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
             <Grid.Column style={{ maxWidth: 400 }}>
             <Header as='h2' color='blue' textAlign='center'>
