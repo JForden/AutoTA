@@ -1,9 +1,8 @@
-import { Component } from 'react';
+import { Component, ChangeEvent } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import '../css/CodePage.scss';
 import { Form, Modal } from 'semantic-ui-react'
 import axios from 'axios';
-import * as React from "react";
 
 
 interface NewUserModalProps {
@@ -34,7 +33,6 @@ const Loptions = [
     { key: 4, text: '404', value: 404 },
     { key: 5, text: '405', value: 405 },
 ]
-
 class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
 
     constructor(props: any){
@@ -61,11 +59,11 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
     handleStudentNumberChange(ev: React.ChangeEvent<HTMLInputElement>){
         this.setState({ StudentNumber: ev.target.value});
     }
-    handleClassNameChange(ev: string){
-        this.setState({ ClassName: ev});
+    handleClassNameChange(ev: ChangeEvent<HTMLSelectElement>){
+        this.setState({ ClassName: ev.target.textContent || ""});
     }
-    handleClassNumberChange(ev: string){
-        this.setState({ ClassNumber: ev});
+    handleClassNumberChange(ev: ChangeEvent<HTMLSelectElement>){
+        this.setState({ ClassNumber: ev.target.textContent || ""});
     }
     
     handleClick(){
@@ -94,8 +92,8 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
                         <Form.Input fluid label='School Email' placeholder='first.last@marquette.edu' onChange={this.handleEmailChange} />
                     </Form.Group>
                     <Form.Group widths='equal'>
-                        <Form.Select fluid label='Class Name' options={Coptions} placeholder='Class' onChange={e => this.handleClassNameChange(e.currentTarget.nodeValue || "")} />
-                        <Form.Select fluid label='Lab Number' options={Loptions} placeholder='Class' onChange={e => this.handleClassNumberChange(e.currentTarget.nodeValue || "")}  />
+                        <Form.Select fluid label='Class Name' options={Coptions} placeholder='Class' onChange={e => this.handleClassNameChange(e as ChangeEvent<HTMLSelectElement>)} />
+                        <Form.Select fluid label='Lab Number' options={Loptions} placeholder='Class' onChange={e => this.handleClassNumberChange(e as ChangeEvent<HTMLSelectElement>)}  />
                     </Form.Group>
 
                     <Form.Button type="submit" onClick={this.handleClick}>Submit</Form.Button>
