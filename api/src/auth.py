@@ -35,7 +35,9 @@ def get_user_role(UserRepository: AUserRepository):
 def user_lookup_callback(_jwt_header, jwt_data):
     session = Session()
     identity = jwt_data["sub"]
-    return session.query(Users).filter_by(Id=identity).one_or_none()
+    user = session.query(Users).filter_by(Id=identity).one_or_none()
+    session.close()
+    return user
 
 
 @auth_api.route('/login', methods=['POST'])
@@ -49,11 +51,12 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
             'message': 'Invalid username and/or password!  Please try again!'
         }
         return make_response(message, HTTPStatus.FORBIDDEN)
-
     result = user_repository.doesUserExist(username)
-
     if not result:
-        user_repository.create_user(username)   
+        message = {
+            'message': 'New User'
+        }
+        return make_response(message, HTTPStatus.OK)
 
     user = user_repository.getUserByName(username)
     Role = user.Role
@@ -70,3 +73,38 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
         'role': Role
     }
     return make_response(message, HTTPStatus.OK)
+
+@auth_api.route('/create', methods=['POST'])
+@inject
+def create_user(auth_service: AuthenticationService, user_repository: AUserRepository):
+    input_json = request.get_json()
+    username = input_json['username']
+    password = input_json['password']
+
+    if not auth_service.login(username, password):
+        message = {
+            'message': 'Invalid username and/or password!  Please try again!'
+        }
+        return make_response(message, HTTPStatus.FORBIDDEN)
+    
+    first_name = input_json['fname']
+    last_name = input_json['lname']
+    StudentNumber = input_json['id']
+    email = input_json['email']
+    CName = input_json['class_name']
+    CNumber= input_json['lab_number']
+    user_repository.create_user(username,first_name,last_name,email,StudentNumber,CName,CNumber)
+
+    user = user_repository.getUserByName(username)
+    access_token = create_access_token(identity=user)
+
+    message = {
+        'message': 'Success',
+        'access_token': access_token,
+        'role': 0
+    }
+    return make_response(message, HTTPStatus.OK)
+
+
+
+

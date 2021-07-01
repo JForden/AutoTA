@@ -15,20 +15,6 @@ class StudentList extends Component<{}, {}> {
         }
     }
     componentDidMount() {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/all_projects`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            }
-        })
-        .then(res => {
-            res.data.forEach((str: any) => {
-                arr.push(JSON.parse(str) as ProjectObject);
-            });
-            this.setState({projects: arr });
-        })
-        .catch(err => {
-            console.log(err);
-        });
     }
     handleClassClick(){
         window.location.replace("/upload");
@@ -39,32 +25,34 @@ class StudentList extends Component<{}, {}> {
             <Table celled>
                 <Table.Header>
                 <Table.Row>
-                    <Table.HeaderCell>Project Name</Table.HeaderCell>
-                    <Table.HeaderCell>Project Start Date</Table.HeaderCell>
-                    <Table.HeaderCell>Project End Date</Table.HeaderCell>
-                    <Table.HeaderCell>Total Submissions</Table.HeaderCell>.
+                    <Table.HeaderCell>Student Name</Table.HeaderCell>
+                    <Table.HeaderCell>Number of Total Submissions</Table.HeaderCell>
+                    <Table.HeaderCell>Date of most recent submission</Table.HeaderCell>
+                    <Table.HeaderCell>Number of pylint errors on most recent submission</Table.HeaderCell>
+                    <Table.HeaderCell>State of Last Submission</Table.HeaderCell>
+                    <Table.HeaderCell button>Link</Table.HeaderCell>
+                    
                 </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                {(() => {
-                    const holder = [];
-                    for (let index = this.state.projects.length-1; index >= 0; index--) {
-                        holder[index] = ( 
-                                <Table.Row>
-                                    <Table.Cell onClick={this.handleClassClick}><Label button>{this.state.projects[index].Name}</Label> </Table.Cell>
-                                    <Table.Cell>{this.state.projects[index].Start}</Table.Cell>
-                                    <Table.Cell>{this.state.projects[index].End}</Table.Cell>
-                                    <Table.Cell>{this.state.projects[index].TotalSubmissions}</Table.Cell>
-                                </Table.Row>
-                                );
-                    }
-
-                    return holder;
-                })()}
+                    <Table.Row>
+                        <Table.Cell>Alexander Gebhard</Table.Cell>
+                        <Table.Cell>14</Table.Cell>
+                        <Table.Cell>1/14/2021 1:50 PM</Table.Cell>
+                        <Table.Cell>23</Table.Cell>
+                        <Table.Cell>PASSED</Table.Cell>
+                        <Table.Cell>Link</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
+                        <Table.Cell>Jack Forden</Table.Cell>
+                        <Table.Cell>14</Table.Cell>
+                        <Table.Cell>1/14/2021 1:50 PM</Table.Cell>
+                        <Table.Cell>23</Table.Cell>
+                        <Table.Cell>PASSED</Table.Cell>
+                        <Table.Cell>Link</Table.Cell>
+                    </Table.Row>
                 
                 </Table.Body>
-
-                
             </Table>
         );
     }

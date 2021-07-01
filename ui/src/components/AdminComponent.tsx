@@ -42,7 +42,7 @@ class AdminComponent extends Component<{}, ProjectsState> {
         });
     }
     handleClassClick(){
-        window.location.replace("/upload");
+        window.location.replace("/admin/project-view");
     }
 
     render(){

@@ -16,7 +16,13 @@ class Users(Base):
     __tablename__ = "Users"
     Id = Column(Integer, primary_key=True, autoincrement=True)
     Username = Column(String)
-    Role =Column(Integer)
+    Firstname = Column(String)
+    Lastname = Column(String)
+    Email = Column(String)
+    StudentNumber = Column(String)
+    ClassName = Column(String)
+    ClassNumber = Column(String)
+    Role = Column(Integer)
     Submissions=relationship('Submissions')
 
 class Submissions(Base):
