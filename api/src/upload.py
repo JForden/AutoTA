@@ -1,5 +1,5 @@
-from src.repositories.submission_repository import ASubmissionRepository
-from src.repositories.project_repository import AProjectRepository
+from repositories.submission_repository import ASubmissionRepository
+from repositories.project_repository import AProjectRepository
 from flask import Blueprint
 from flask import request
 from flask import make_response

@@ -4,12 +4,12 @@ from flask import make_response
 from http import HTTPStatus
 from injector import inject
 from flask_jwt_extended import create_access_token
-from src.services.authentication_service import AuthenticationService
-from src.repositories.database import Session
-from src.repositories.models import Users
+from services.authentication_service import AuthenticationService
+from repositories.database import Session
+from repositories.models import Users
 from flask_jwt_extended import create_access_token
-from src.jwtF import jwt
-from src.repositories.user_repository import AUserRepository
+from jwtF import jwt
+from repositories.user_repository import AUserRepository
 from flask_jwt_extended import jwt_required
 
 auth_api = Blueprint('auth_api', __name__)

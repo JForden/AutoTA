@@ -1,13 +1,13 @@
-from src.repositories.submission_repository import ASubmissionRepository
+from repositories.submission_repository import ASubmissionRepository
 from flask import Blueprint
 from flask import make_response
 from http import HTTPStatus
 from injector import inject
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
-from src.repositories.project_repository import AProjectRepository
+from repositories.project_repository import AProjectRepository
 from flask_cors import CORS, cross_origin
-from src.models.ProjectJson import ProjectJson
+from models.ProjectJson import ProjectJson
 import json
 from datetime import datetime
 
@@ -29,6 +29,8 @@ def all_projects(project_repository: AProjectRepository, submission_repository: 
     thisdic = submission_repository.getTotalSubmissionsForAllProjects()
     for proj in data:
         new_projects.append(ProjectJson(proj.Id, proj.Name, proj.Start.strftime("%m/%d/%Y"), proj.End.strftime("%m/%d/%Y"), thisdic[proj.Id]).toJson())
+    #print(new_projects)
     projects = json.dumps(new_projects)
+    #print(projects)
     return make_response(projects, HTTPStatus.OK)
     
