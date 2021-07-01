@@ -4,7 +4,7 @@ from http import HTTPStatus
 from injector import inject
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
-from repositories.submission_repository import ASubmissionRepository
+from src.repositories.submission_repository import ASubmissionRepository
 from flask_cors import CORS, cross_origin
 import json
 

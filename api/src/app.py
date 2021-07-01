@@ -1,12 +1,12 @@
 from flask import Flask
 from flask_injector import FlaskInjector
 from flask_cors import CORS
-from auth import auth_api
-from upload import upload_api
-from submission import submission_api
-from projects import projects_api
-from dependencies import configure
-from jwtF import jwt
+from src.auth import auth_api
+from src.upload import upload_api
+from src.submission import submission_api
+from src.projects import projects_api
+from src.dependencies import configure
+from src.jwtF import jwt
 from datetime import timedelta
 
 
