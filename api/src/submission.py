@@ -5,6 +5,7 @@ from injector import inject
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
 from repositories.submission_repository import ASubmissionRepository
+from repositories.project_repository import AProjectRepository
 from flask_cors import CORS, cross_origin
 import json
 
@@ -352,9 +353,6 @@ def codefinder(submission_repository: ASubmissionRepository):
 @jwt_required()
 @cross_origin()
 @inject
-def submissionNumberFinder(submission_repository: ASubmissionRepository):
-    number = submission_repository.getSubmissionsRemaining(current_user.Id,1)
+def submissionNumberFinder(submission_repository: ASubmissionRepository,project_repository: AProjectRepository):
+    number = submission_repository.getSubmissionsRemaining(current_user.Id, project_repository.get_current_project().Id)
     return make_response(str(number), HTTPStatus.OK)
-
-
-
