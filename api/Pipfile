@@ -15,6 +15,7 @@ sqlalchemy = "*"
 flask-sqlalchemy = "*"
 pymysql = "*"
 sentry-sdk = "*"
+pytest-mock = "*"
 
 [dev-packages]
 pytest = "*"

@@ -11,6 +11,7 @@ from flask_jwt_extended import create_access_token
 from src.jwtF import jwt
 from src.repositories.user_repository import AUserRepository
 from flask_jwt_extended import jwt_required
+from src.api_utils import get_value_or_empty
 
 auth_api = Blueprint('auth_api', __name__)
 
@@ -44,8 +45,8 @@ def user_lookup_callback(_jwt_header, jwt_data):
 @inject
 def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
     input_json = request.get_json()
-    username = input_json['username']
-    password = input_json['password']
+    username = get_value_or_empty(input_json, 'username')
+    password = get_value_or_empty(input_json, 'password')
     if not auth_service.login(username, password):
         message = {
             'message': 'Invalid username and/or password!  Please try again!'
@@ -59,18 +60,13 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
         return make_response(message, HTTPStatus.OK)
 
     user = user_repository.getUserByName(username)
-    Role = user.Role
-    if not user:
-        message = {
-            'message': 'Invalid username and/or password!  Please try again!'
-        }
-        return make_response(message, HTTPStatus.FORBIDDEN)
+    role = user.Role
 
     access_token = create_access_token(identity=user)
     message = {
         'message': 'Success',
         'access_token': access_token,
-        'role': Role
+        'role': role
     }
     return make_response(message, HTTPStatus.OK)
 
@@ -78,22 +74,35 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
 @inject
 def create_user(auth_service: AuthenticationService, user_repository: AUserRepository):
     input_json = request.get_json()
-    username = input_json['username']
-    password = input_json['password']
+    username = get_value_or_empty(input_json, 'username')
+    password = get_value_or_empty(input_json, 'password')
 
     if not auth_service.login(username, password):
         message = {
             'message': 'Invalid username and/or password!  Please try again!'
         }
         return make_response(message, HTTPStatus.FORBIDDEN)
-    
-    first_name = input_json['fname']
-    last_name = input_json['lname']
-    StudentNumber = input_json['id']
-    email = input_json['email']
-    CName = input_json['class_name']
-    CNumber= input_json['lab_number']
-    user_repository.create_user(username,first_name,last_name,email,StudentNumber,CName,CNumber)
+
+    if user_repository.doesUserExist(username):
+        message = {
+            'message': 'User already exists'
+        }
+        return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
+
+    first_name = get_value_or_empty(input_json, 'fname')
+    last_name = get_value_or_empty(input_json, 'lname')
+    student_number = get_value_or_empty(input_json, 'id')
+    email = get_value_or_empty(input_json, 'email')
+    class_name = get_value_or_empty(input_json, 'class_name')
+    lab_number= get_value_or_empty(input_json, 'lab_number')
+
+    if not (first_name and last_name and student_number and email and class_name and lab_number):
+        message = {
+            'message': 'Missing required data'
+        }
+        return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
+
+    user_repository.create_user(username,first_name,last_name,email,student_number,class_name,lab_number)
 
     user = user_repository.getUserByName(username)
     access_token = create_access_token(identity=user)

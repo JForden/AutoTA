@@ -1,12 +1,10 @@
 import pytest
-from src import app
-
+import app
 
 class TestContext:
     def __init__(self, app, client):
         self.app = app
         self.client = client
-
 
 @pytest.fixture
 def testcontext():

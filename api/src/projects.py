@@ -29,8 +29,6 @@ def all_projects(project_repository: AProjectRepository, submission_repository: 
     thisdic = submission_repository.getTotalSubmissionsForAllProjects()
     for proj in data:
         new_projects.append(ProjectJson(proj.Id, proj.Name, proj.Start.strftime("%m/%d/%Y"), proj.End.strftime("%m/%d/%Y"), thisdic[proj.Id]).toJson())
-    #print(new_projects)
     projects = json.dumps(new_projects)
-    #print(projects)
     return make_response(projects, HTTPStatus.OK)
     
