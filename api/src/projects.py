@@ -1,13 +1,13 @@
-from repositories.submission_repository import ASubmissionRepository
+from src.repositories.submission_repository import ASubmissionRepository
 from flask import Blueprint
 from flask import make_response
 from http import HTTPStatus
 from injector import inject
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
-from repositories.project_repository import AProjectRepository
+from src.repositories.project_repository import AProjectRepository
 from flask_cors import CORS, cross_origin
-from models.ProjectJson import ProjectJson
+from src.models.ProjectJson import ProjectJson
 import json
 from datetime import datetime
 
