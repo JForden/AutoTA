@@ -3,7 +3,6 @@ from flask import request
 from flask import make_response
 from http import HTTPStatus
 from injector import inject
-from flask_jwt_extended import create_access_token
 from src.services.authentication_service import AuthenticationService
 from src.repositories.database import Session
 from src.repositories.models import Users
