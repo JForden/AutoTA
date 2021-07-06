@@ -48,7 +48,7 @@ class Login extends Component<{}, LoginPageState> {
     .then(res => {
       this.setState({ isErrorMessageHidden: true });
       localStorage.setItem("AUTOTA_AUTH_TOKEN", res.data.access_token);
-      if(res.data.message == "New User"){
+      if(res.data.message === "New User"){
         this.setState({isNewUser: true})
       } else {
           this.setState({ isLoggedIn: true })

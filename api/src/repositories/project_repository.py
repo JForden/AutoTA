@@ -13,6 +13,9 @@ class AProjectRepository(ABC):
     @abstractmethod
     def get_all_projects(self) -> Projects:
         pass
+    @abstractmethod
+    def get_selected_project(self) -> Projects:
+        pass
 
 
 class ProjectRepository(AProjectRepository):
@@ -27,6 +30,12 @@ class ProjectRepository(AProjectRepository):
     def get_all_projects(self) -> Projects:
         session = Session()
         project = session.query(Projects).order_by(desc(Projects.Id)).all()
+        session.close()
+        return project
+        
+    def get_selected_project(self,project_id: int) -> Projects:
+        session = Session()
+        project= session.query(Projects).filter(Projects.Id == project_id).first()
         session.close()
         return project
 

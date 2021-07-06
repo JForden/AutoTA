@@ -41,8 +41,9 @@ class AdminComponent extends Component<{}, ProjectsState> {
             console.log(err);
         });
     }
-    handleClassClick(){
-        window.location.replace("/admin/project-view");
+    handleClassClick(id: number){
+        var url=`project-view/${id}`
+        window.location.replace(url);
     }
 
     render(){
@@ -62,7 +63,7 @@ class AdminComponent extends Component<{}, ProjectsState> {
                     for (let index = this.state.projects.length-1; index >= 0; index--) {
                         holder[index] = ( 
                                 <Table.Row>
-                                    <Table.Cell onClick={this.handleClassClick}><Label button>{this.state.projects[index].Name}</Label> </Table.Cell>
+                                    <Table.Cell onClick={() => {this.handleClassClick(this.state.projects[index].Id)}}><Label button>{this.state.projects[index].Name}</Label> </Table.Cell>
                                     <Table.Cell>{this.state.projects[index].Start}</Table.Cell>
                                     <Table.Cell>{this.state.projects[index].End}</Table.Cell>
                                     <Table.Cell>{this.state.projects[index].TotalSubmissions}</Table.Cell>
@@ -74,8 +75,6 @@ class AdminComponent extends Component<{}, ProjectsState> {
                 })()}
                 
                 </Table.Body>
-
-                
             </Table>
         );
     }

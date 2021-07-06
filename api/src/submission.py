@@ -1,5 +1,7 @@
+from src.repositories.user_repository import AUserRepository
 from flask import Blueprint
 from flask import make_response
+from flask import request
 from http import HTTPStatus
 from injector import inject
 from flask_jwt_extended import jwt_required
@@ -356,3 +358,30 @@ def codefinder(submission_repository: ASubmissionRepository):
 def submissionNumberFinder(submission_repository: ASubmissionRepository,project_repository: AProjectRepository):
     number = submission_repository.getSubmissionsRemaining(current_user.Id, project_repository.get_current_project().Id)
     return make_response(str(number), HTTPStatus.OK)
+
+
+
+
+
+@submission_api.route('/recentsubproject', methods=['POST'])
+@jwt_required()
+@cross_origin()
+@inject
+def recentsubproject(submission_repository: ASubmissionRepository, user_repository: AUserRepository):
+    input_json = request.get_json()
+    projectid = input_json['project_id']
+    users = user_repository.get_all_users()
+    studentattempts={}
+    userids=[]
+
+    for user in users:
+        userids.append(user.Id)
+    bucket = submission_repository.get_most_recent_submission_by_project(projectid, userids)
+    
+    for user in users:
+        holder = user.Firstname + " " + user.Lastname
+        number = submission_repository.getSubmissionsRemaining(user.Id, projectid)
+        studentattempts[user.Id]=[holder,number,bucket[user.Id].Time.strftime("%m/%d/%Y"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]
+
+    
+    return make_response(json.dumps(studentattempts), HTTPStatus.OK)

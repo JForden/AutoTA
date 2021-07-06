@@ -4,7 +4,6 @@ import { vs } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import 'semantic-ui-css/semantic.min.css';
 import Split from 'react-split';
 import { Icon } from  'semantic-ui-react';
-import axios from 'axios';
 
 
 interface PylintObject {
@@ -20,25 +19,21 @@ interface PylintObject {
     reflink: string
 }
 
-interface CodeComponentState {
-    code: string,
-    pylint: Array<PylintObject>
+interface CodeComponentProps {
+    pylintData: Array<PylintObject>,
+    codedata: string
 }
 
-class CodeComponent extends Component<{}, CodeComponentState> {
+class CodeComponent extends Component<CodeComponentProps, {}> {
 
-    constructor(props: {}) {
+    constructor(props: CodeComponentProps) {
         super(props);
-        this.state = {
-            code: "",
-            pylint: []
-        }
         this.stylelinenumbers = this.stylelinenumbers.bind(this);
     }
 
     stylelinenumbers(linenumber: number) {
-        for (let index = 0; index < this.state.pylint.length; index++) {
-            const error = this.state.pylint[index];
+        for (let index = 0; index < this.props.pylintData.length; index++) {
+            const error = this.props.pylintData[index];
             if(error.line === linenumber) {
                 return {'background-color': 'yellow', 'color': 'black'};
             }
@@ -46,50 +41,20 @@ class CodeComponent extends Component<{}, CodeComponentState> {
         return {'color': 'black'};
     }
 
-    componentDidMount() {
-
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/codefinder`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            }
-        })
-        .then(res => {    
-            this.setState({code: res.data })    
-        })
-        .catch(err => {
-            console.log(err);
-        });
-
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/pylintoutput`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            }
-        })
-        .then(res => {    
-            var x = res.data as Array<PylintObject>;
-            x = x.sort((a, b) => (a.line < b.line ? -1 : 1));
-            this.setState({pylint:  x})    
-        })
-        .catch(err => {
-            console.log(err);
-        });
-    }
-
   render() {
-
     return (
         <div className="full-height">
             <Split className="split">
                 <div id="code-container">
                     <SyntaxHighlighter language="python" style={vs} showLineNumbers={true} lineNumberStyle={this.stylelinenumbers} >
-                        {this.state.code}
+                        {this.props.codedata}
                     </SyntaxHighlighter>
                 </div>
                 <div id="lint-output">
                 {(() => {
                     const holder = [];
-                    for (let index = 0; index < this.state.pylint.length; index++) {
-                        const error = this.state.pylint[index];
+                    for (let index = 0; index < this.props.pylintData.length; index++) {
+                        const error = this.props.pylintData[index];
                         if(error.type === "convention"){
                             holder[index] =( 
                                 <div>

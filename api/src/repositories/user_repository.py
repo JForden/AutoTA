@@ -21,6 +21,9 @@ class AUserRepository(ABC):
     @abstractmethod
     def get_user_status():
         pass
+    @abstractmethod
+    def get_all_users():
+        pass
 
 
 class UserRepository(AUserRepository):
@@ -47,3 +50,11 @@ class UserRepository(AUserRepository):
         
     def get_user_status(self):
         return str(current_user.Role)
+
+    def get_all_users(self):
+        session = Session()
+        c1 = session.query(Users).all()
+        #filter(Users.Role == 0)
+        session.close()
+        return c1
+        

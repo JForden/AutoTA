@@ -1,22 +1,26 @@
-import { Component } from 'react';
+import { useParams } from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css'
 import { Grid } from 'semantic-ui-react'
 import MenuComponent from '../components/MenuComponent';
 import StudentList from '../components/StudentList';
 import '../css/AdminComponent.scss'
 
-class ProjectBreakdown extends Component<{}, {}> {
+interface ProjectBreakdownProps {
+    id: string  
+}
 
-    render() {
-        return (
+const ProjectBreakdown = () => {
+    let { id } = useParams<ProjectBreakdownProps>();
+    var project_id = parseInt(id);
+
+    return (
         <div>
-            <MenuComponent showUpload={false} showHelp={false} showCreate={true}></MenuComponent>
+            <MenuComponent showUpload={false} showHelp={false} showCreate={false}></MenuComponent>
             <Grid className="main-grid">
-                <StudentList></StudentList>
+                <StudentList project_id={project_id}></StudentList>
             </Grid>
         </div>
-        );
-  }
+    )
 }
 
 export default ProjectBreakdown;

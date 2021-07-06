@@ -4,10 +4,12 @@ import { Tab } from 'semantic-ui-react'
 import '../css/TestResultComponent.scss';
 import { StyledIcon } from '../styled-components/StyledIcon';
 import Split from 'react-split';
-import axios from 'axios';
+
+interface TestResultComponentProps {
+    testcase: JsonResponse
+}
 
 interface TestState {
-    json: JsonResponse;
     showComponent: boolean;
     suite:string;
     test:string;
@@ -33,11 +35,10 @@ interface JsonResponse {
     result: Array<JsonResponseBody>
 }
 
-class TestResultsComponent extends Component<{}, TestState> {
-    constructor(props: {}){
+class TestResultsComponent extends Component<TestResultComponentProps, TestState> {
+    constructor(props: TestResultComponentProps){
         super(props);
         this.state = {
-            json: { result: [] },
             showComponent: false,
             suite: "",
             test: "",
@@ -59,22 +60,8 @@ class TestResultsComponent extends Component<{}, TestState> {
         });
     }
 
-    componentDidMount() {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            }
-        })
-        .then(res => {    
-            this.setState({json: res.data as JsonResponse})
-        })
-        .catch(err => {
-            console.log(err);
-        });
-    }
-
     render() {
-        const panes = this.state.json.result.map(d => ({
+        const panes = this.props.testcase.result.map(d => ({
             menuItem: d.Suite,
             render: () =>
             <Tab.Pane attached={false}>

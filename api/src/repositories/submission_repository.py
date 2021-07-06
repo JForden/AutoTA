@@ -35,8 +35,11 @@ class ASubmissionRepository(ABC):
     def getTotalSubmissionsForAllProjects(self) -> Dict[int, int]:
         pass
     
-   
 
+    @abstractmethod
+    def get_most_recent_submission_by_project(self, project_id: int, user_ids: List[int]) -> Dict[int, Submissions]:
+        pass
+   
 
 class SubmissionRepository(ASubmissionRepository):
 
@@ -81,4 +84,22 @@ class SubmissionRepository(ASubmissionRepository):
         session.close()
         return thisdic
 
-
+    def get_most_recent_submission_by_project(self, project_id: int, user_ids: List[int]) -> Dict[int, Submissions]:
+        session = Session()
+        holder = session.query(Submissions).filter(and_(Submissions.Project == project_id, Submissions.User.in_(user_ids))).order_by(desc(Submissions.Time)).all()
+        #filter(and_(Submissions.Project == project_id, Submissions.User.in_(user_ids))).order_by(desc('updated')).first()
+        #filter(and_(Submissions.Project == project_id, Submissions.User.in_(user_ids))).group_by(Submissions.User).all()
+        session.close()
+        print(holder)
+        bucket={}
+        for obj in holder:
+            if obj.User in bucket:
+                if(bucket[obj.User].Time < obj.Time):
+                    bucket[obj.User] = obj
+                else:
+                    pass
+            else:
+                bucket[obj.User] = obj
+            #for obj2 in obj:
+        return bucket
+   

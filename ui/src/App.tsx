@@ -20,7 +20,7 @@ class App extends Component {
               <ProtectedRoute exact path="/upload" component={UploadPage} />
               <ProtectedRoute exact path="/code" component={CodePage} />
               <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />
-              <ProtectedRoute exact path="/admin/project-view" component={ProjectBreakdown} />
+              <ProtectedRoute exact path="/admin/project-view/:id" component={ProjectBreakdown} />
         </Switch>
       </BrowserRouter>
     );
