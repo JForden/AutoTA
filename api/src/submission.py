@@ -10,7 +10,8 @@ from src.repositories.submission_repository import ASubmissionRepository
 from src.repositories.project_repository import AProjectRepository
 from flask_cors import CORS, cross_origin
 import json
-
+ADMIN=1
+EMPTY=-1
 submission_api = Blueprint('submission_api', __name__)
 
 
@@ -22,7 +23,7 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
     submissionid = int(request.args.get("id"))
     output_path = ""
 
-    if submissionid != -1 and current_user.Role == 1:
+    if submissionid != EMPTY and current_user.Role == ADMIN:
         output_path = submission_repository.getJsonPathBySubmissionId(submissionid)
     else:
         output_path = submission_repository.getJsonPathByUserId(current_user.Id)
@@ -39,7 +40,7 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
 def pylintoutput(submission_repository: ASubmissionRepository):
     submissionid = int(request.args.get("id"))
     pylint_output = ""
-    if submissionid != -1 and current_user.Role == 1:
+    if submissionid != EMPTY and current_user.Role == ADMIN:
         pylint_output = submission_repository.getPylintPathBySubmissionId(submissionid)
     else:
         pylint_output = submission_repository.getPylintPathByUserId(current_user.Id)
@@ -54,7 +55,7 @@ def pylintoutput(submission_repository: ASubmissionRepository):
 def linkfinder(pyoutput):
     link = {
         "C0102":"https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0102",
-        "C0103":"https://youtu.be/dQw4w9WgXcQ",
+        "C0103":"https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0103",
         "C0112":"https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0112",
         "C0114":"https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0114",
         "C0115":"https://vald-phoenix.github.io/pylint-errors/plerr/errors/basic/C0115",
@@ -351,7 +352,7 @@ def codefinder(submission_repository: ASubmissionRepository):
     submissionid = int(request.args.get("id"))
     code_output = ""
     
-    if submissionid != -1 and current_user.Role == 1:
+    if submissionid != EMPTY and current_user.Role == ADMIN:
         code_output = submission_repository.getCodePathBySubmissionId(submissionid)
     else:
         code_output = submission_repository.getCodePathByUserId(current_user.Id)
