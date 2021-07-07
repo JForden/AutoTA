@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component, useEffect, useState } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import '../css/CodePage.scss';
 import { Grid } from 'semantic-ui-react'
@@ -6,12 +6,11 @@ import CodeComponent from '../components/CodeComponent';
 import TestResultsComponent from '../components/TestResultsComponent';
 import MenuComponent from '../components/MenuComponent';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
+const defaultpagenumber=-1;
 
-interface TestState {
-    json: JsonResponse;
-    pylint: Array<PylintObject>
-    code: string;
-    submissionNumber: number;
+interface CodePageProps {
+    id?: string
 }
 
 interface JsonTestResponseBody {
@@ -44,35 +43,29 @@ interface PylintObject {
     reflink: string
 }
 
-class CodePage extends Component<{}, TestState> {
-
-    constructor(props: {}){
-        super(props);
-        this.state = {
-            json: {
-              result: []
-            },
-            pylint:[],
-            code:"",
-            submissionNumber:-1
-        };
-    }
+const CodePage = () => {
+    let { id } = useParams<CodePageProps>();
+    var submissionId = id ? parseInt(id) : defaultpagenumber; 
     
+    const [json, setJson] = useState<JsonResponse>({ result: [] });
+    const [pylint, setPylint] = useState<Array<PylintObject>>([]);
+    const [code, setCode] = useState<string>("");
 
-    componentDidMount() {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors`, {
+
+    useEffect(() => {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors?id=${submissionId}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
         })
         .then(res => {    
-            this.setState({json: res.data as JsonResponse})
+            setJson(res.data as JsonResponse)
         })
         .catch(err => {
             console.log(err);
         });
  
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/pylintoutput`, {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/pylintoutput?id=${submissionId}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
@@ -80,43 +73,41 @@ class CodePage extends Component<{}, TestState> {
         .then(res => {    
             var x = res.data as Array<PylintObject>;
             x = x.sort((a, b) => (a.line < b.line ? -1 : 1));
-            this.setState({pylint:  x})    
+            setPylint(x);    
         })
         .catch(err => {
             console.log(err);
         });
 
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/codefinder`, {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/codefinder?id=${submissionId}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
         })
         .then(res => {    
-            this.setState({code: res.data })    
+            setCode(res.data as string)    
         })
         .catch(err => {
             console.log(err);
         });
-    }
+    }, []);
 
-    render() {
-        return (
-            <div id="code-page">
-                <MenuComponent showUpload={true} showHelp={true} showCreate={false}></MenuComponent>
-                <Grid>
-                    <Grid.Column>
-                        <Grid.Row width={16} className="top-row full-height">
-                            <CodeComponent pylintData={this.state.pylint} codedata={this.state.code}></CodeComponent>
-                        </Grid.Row>
+    return (
+        <div id="code-page">
+            <MenuComponent showUpload={true} showHelp={true} showCreate={false}></MenuComponent>
+            <Grid>
+                <Grid.Column>
+                    <Grid.Row width={16} className="top-row full-height">
+                        <CodeComponent pylintData={pylint} codedata={code}></CodeComponent>
+                    </Grid.Row>
 
-                        <Grid.Row width={16}>
-                            <TestResultsComponent testcase={this.state.json}></TestResultsComponent>
-                        </Grid.Row>
-                    </Grid.Column>
-                </Grid>
-            </div>
-        );
-    }
+                    <Grid.Row width={16}>
+                        <TestResultsComponent testcase={json}></TestResultsComponent>
+                    </Grid.Row>
+                </Grid.Column>
+            </Grid>
+        </div>
+    );
 }
 
 export default CodePage;

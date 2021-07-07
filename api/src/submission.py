@@ -19,8 +19,15 @@ submission_api = Blueprint('submission_api', __name__)
 @cross_origin()
 @inject
 def testcaseerrors(submission_repository: ASubmissionRepository):
-    output_path = submission_repository.getJsonPathByUserId(current_user.Id)
+    submissionid = request.args.get("id")
+    submissionid=int(submissionid)
+    output_path = ""
 
+    if submissionid == -1:
+        output_path = submission_repository.getJsonPathByUserId(current_user.Id)
+    else:
+        # TODO: Permissions check
+        output_path = submission_repository.getJsonPathBySubmissionId(submissionid)
     with open(output_path, 'r') as file:
         output = file.read()
     return make_response(output, HTTPStatus.OK)
@@ -31,7 +38,13 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
 @cross_origin()
 @inject
 def pylintoutput(submission_repository: ASubmissionRepository):
-    pylint_output = submission_repository.getPylintPathByUserId(current_user.Id)
+    submissionid = request.args.get("id")
+    pylint_output = ""
+    submissionid=int(submissionid)
+    if submissionid == -1:
+        pylint_output = submission_repository.getPylintPathByUserId(current_user.Id)
+    else:
+        pylint_output = submission_repository.getPylintPathBySubmissionId(submissionid)
 
     with open(pylint_output, 'r') as file:
         output = file.read()
@@ -327,16 +340,9 @@ def linkfinder(pyoutput):
     }
     
     json_i = json.loads(pyoutput)
-    print(json_i)
-    #value=json_i["message-id"]
-    #print("VALUE:  "+ value)
     for error in json_i:
-        #print(error)
         error["reflink"] = link[error['message-id']]
-        print(error)
     return json.dumps(json_i)
-
-
 
 
 @submission_api.route('/codefinder', methods=['GET'])
@@ -344,7 +350,14 @@ def linkfinder(pyoutput):
 @cross_origin()
 @inject
 def codefinder(submission_repository: ASubmissionRepository):
-    code_output = submission_repository.getCodePathByUserId(current_user.Id)
+    submissionid = request.args.get("id")
+    code_output = ""
+    submissionid=int(submissionid)
+    
+    if submissionid == -1:
+        code_output = submission_repository.getCodePathByUserId(current_user.Id)
+    else:
+        code_output = submission_repository.getCodePathBySubmissionId(submissionid)
 
     with open(code_output, 'r') as file:
         output = file.read()
@@ -358,9 +371,6 @@ def codefinder(submission_repository: ASubmissionRepository):
 def submissionNumberFinder(submission_repository: ASubmissionRepository,project_repository: AProjectRepository):
     number = submission_repository.getSubmissionsRemaining(current_user.Id, project_repository.get_current_project().Id)
     return make_response(str(number), HTTPStatus.OK)
-
-
-
 
 
 @submission_api.route('/recentsubproject', methods=['POST'])

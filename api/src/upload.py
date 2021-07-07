@@ -34,7 +34,6 @@ def PyErrorCount(filepath):
 
 def OutputPassOrFail(filepath):
     f = open(filepath+".out", "r")
-    print(filepath+".out")
     data = json.load(f)
     suites = data["result"]
     for suite in suites:

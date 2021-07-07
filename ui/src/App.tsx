@@ -18,9 +18,9 @@ class App extends Component {
               <Route path="/login" component={LoginPage} />
               <Route exact path="/" component={LandingPage} />
               <ProtectedRoute exact path="/upload" component={UploadPage} />
-              <ProtectedRoute exact path="/code" component={CodePage} />
+              <ProtectedRoute exact path="/code/:id?" component={CodePage} />
               <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />
-              <ProtectedRoute exact path="/admin/project-view/:id" component={ProjectBreakdown} />
+              <ProtectedRoute exact path="/admin/project/:id" component={ProjectBreakdown} />
         </Switch>
       </BrowserRouter>
     );

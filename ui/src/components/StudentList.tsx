@@ -47,7 +47,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
 
     handleClick(id: number){
         var url=`/code/${id}`
-        window.location.replace(url);
+        window.location.href = url;
     }
 
 
@@ -90,7 +90,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                     <Table.HeaderCell>Date of most recent submission</Table.HeaderCell>
                     <Table.HeaderCell>Number of pylint errors on most recent submission</Table.HeaderCell>
                     <Table.HeaderCell>State of Last Submission</Table.HeaderCell>
-                    <Table.HeaderCell>Link</Table.HeaderCell>
+                    <Table.HeaderCell></Table.HeaderCell>
                     
                 </Table.Row>
                 </Table.Header>
@@ -103,7 +103,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                 <Table.Cell>{row.date}</Table.Cell>
                                 <Table.Cell>{row.numberOfPylintErrors}</Table.Cell>
                                 <Table.Cell>{row.isPassing ? "PASSED" : "FAILED"}</Table.Cell>
-                                <Table.Cell onClick={() => {this.handleClick(row.subid)}}>{row.subid}</Table.Cell>
+                                <Table.Cell onClick={() => {this.handleClick(row.subid)}}>View</Table.Cell>
                             </Table.Row>
                         )
                     })}

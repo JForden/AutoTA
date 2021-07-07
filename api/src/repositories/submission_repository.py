@@ -14,6 +14,10 @@ class ASubmissionRepository(ABC):
     @abstractmethod
     def getSubmissionByUserId(self, user_id: int) -> Submissions:
         pass
+    
+    @abstractmethod
+    def getSubmissionBySubmissionId(self, submission_id: int) -> Submissions:
+        pass
 
     @abstractmethod
     def getPylintPathByUserId(self, user_id: int) -> str:
@@ -21,6 +25,18 @@ class ASubmissionRepository(ABC):
 
     @abstractmethod
     def getJsonPathByUserId(self, user_id: int) -> str:
+        pass
+
+    @abstractmethod
+    def getJsonPathBySubmissionId(self, submission_id: int) -> str:
+        pass
+
+    @abstractmethod
+    def getPylintPathBySubmissionId(self, submission_id: int) -> str:
+       pass
+
+    @abstractmethod
+    def getCodePathBySubmissionId(self, submission_id: int) -> str:
         pass
 
     @abstractmethod
@@ -35,11 +51,10 @@ class ASubmissionRepository(ABC):
     def getTotalSubmissionsForAllProjects(self) -> Dict[int, int]:
         pass
     
-
     @abstractmethod
     def get_most_recent_submission_by_project(self, project_id: int, user_ids: List[int]) -> Dict[int, Submissions]:
         pass
-   
+    
 
 class SubmissionRepository(ASubmissionRepository):
 
@@ -48,6 +63,24 @@ class SubmissionRepository(ASubmissionRepository):
         submission = session.query(Submissions).filter(Submissions.User == user_id).order_by(desc("Time")).first()
         session.close()
         return submission
+
+    def getSubmissionBySubmissionId(self, submission_id: int) -> Submissions:
+        session = Session()
+        submission = session.query(Submissions).filter(Submissions.Id == submission_id).order_by(desc("Time")).first()
+        session.close()
+        return submission
+
+    def getJsonPathBySubmissionId(self, submission_id: int) -> str:
+        submission = self.getSubmissionBySubmissionId(submission_id)
+        return submission.OutputFilepath
+
+    def getPylintPathBySubmissionId(self, submission_id: int) -> str:
+        submission = self.getSubmissionBySubmissionId(submission_id)
+        return submission.PylintFilepath    
+
+    def getCodePathBySubmissionId(self, submission_id: int) -> str:
+        submission = self.getSubmissionBySubmissionId(submission_id)
+        return submission.CodeFilepath
 
     def getPylintPathByUserId(self, user_id: int) -> str:
         submission = self.getSubmissionByUserId(user_id)
@@ -103,3 +136,4 @@ class SubmissionRepository(ASubmissionRepository):
             #for obj2 in obj:
         return bucket
    
+ 

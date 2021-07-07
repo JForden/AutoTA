@@ -42,7 +42,7 @@ class AdminComponent extends Component<{}, ProjectsState> {
         });
     }
     handleClassClick(id: number){
-        var url=`project-view/${id}`
+        var url=`project/${id}`
         window.location.replace(url);
     }
 
