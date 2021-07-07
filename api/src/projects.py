@@ -24,6 +24,7 @@ def all_projects(project_repository: AProjectRepository, submission_repository: 
             'message': 'UNAUTHORIZED.  REPORTED TO MUPD'
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
+        
     data = project_repository.get_all_projects()
     new_projects = []
     thisdic = submission_repository.getTotalSubmissionsForAllProjects()

@@ -103,7 +103,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                 <Table.Cell>{row.date}</Table.Cell>
                                 <Table.Cell>{row.numberOfPylintErrors}</Table.Cell>
                                 <Table.Cell>{row.isPassing ? "PASSED" : "FAILED"}</Table.Cell>
-                                <Table.Cell onClick={() => {this.handleClick(row.subid)}}>View</Table.Cell>
+                                <Table.Cell button onClick={() => {this.handleClick(row.subid)}}><Label button >View</Label></Table.Cell>
                             </Table.Row>
                         )
                     })}
