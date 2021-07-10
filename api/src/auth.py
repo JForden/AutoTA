@@ -1,13 +1,13 @@
+from http import HTTPStatus
 from flask import Blueprint
 from flask import request
 from flask import make_response
-from http import HTTPStatus
 from injector import inject
 from src.services.authentication_service import AuthenticationService
 from src.repositories.database import Session
 from src.repositories.models import Users
 from flask_jwt_extended import create_access_token
-from src.jwtF import jwt
+from src.jwt_manager import jwt
 from src.repositories.user_repository import AUserRepository
 from flask_jwt_extended import jwt_required
 from src.api_utils import get_value_or_empty
@@ -23,8 +23,8 @@ def user_identity_lookup(user):
 @auth_api.route('/get-role', methods=['GET'])
 @jwt_required()
 @inject
-def get_user_role(UserRepository: AUserRepository):
-    return UserRepository.get_user_status()
+def get_user_role(user_repository: AUserRepository):
+    return user_repository.get_user_status()
 
 
 # Register a callback function that loades a user from your database whenever
@@ -112,7 +112,3 @@ def create_user(auth_service: AuthenticationService, user_repository: AUserRepos
         'role': 0
     }
     return make_response(message, HTTPStatus.OK)
-
-
-
-

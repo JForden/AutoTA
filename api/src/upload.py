@@ -1,59 +1,88 @@
-from src.repositories.submission_repository import ASubmissionRepository
-from src.repositories.project_repository import AProjectRepository
+import json
+import os
+import subprocess
+import os.path
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import current_user
 from flask import Blueprint
 from flask import request
 from flask import make_response
 from flask import current_app
 from http import HTTPStatus
-from werkzeug.utils import secure_filename # this is to prevent malicious file names from flask upload
-import os
-import subprocess
-import os.path
 from injector import inject
 from datetime import datetime
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import current_user
-from flask_cors import CORS, cross_origin
-import json
+from flask_cors import cross_origin
+from src.repositories.submission_repository import ASubmissionRepository
+from src.repositories.project_repository import AProjectRepository
+
 MAXSUBMISSIONS=15
 
 upload_api = Blueprint('upload_api', __name__)
 
 
 def allowed_file(filename):
+    """[function for checking to see if the file is an allowed file type]
+
+    Args:
+        filename ([string]): [a string version of the filename]
+
+    Returns:
+        [Boolean]: [returns a bool if the file is allowed or not]
+    """
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
-def PyErrorCount(filepath):
-    f = open(filepath+".out.pylint", "r")
-    y = json.load(f)
-    ErrorCount=0
-    for item in y:
-        ErrorCount=ErrorCount+1
-    return ErrorCount
+def python_error_count(filepath):
+    """[A function that finds the ammount of errors from the pylint.out file that was generated]
 
-def OutputPassOrFail(filepath):
-    f = open(filepath+".out", "r")
-    data = json.load(f)
-    suites = data["result"]
-    for suite in suites:
-        tests = suite["Tests"]
-        for test in tests:
-            if test["Status"]=="FAILED":
-                return False
-    return True
+    Args:
+        filepath ([string]): [path to the .out file]
 
+    Returns:
+        [int]: [The number of errors that the student had in their pylint output]
+    """
+    with open(filepath+".out.pylint", "r") as file:
+        parsed_json = json.load(file)
+        error_count = 0
+        for _ in parsed_json:
+            error_count = error_count + 1
+        return error_count
 
+def output_pass_or_fail(filepath):
+    """[a function that looks at all results from a students test run]
 
+    Args:
+        filepath ([string]): [path to students submission]
 
+    Returns:
+        [Bool]: [If there is even an instance of a student failing a single test case the return type is false ]
+    """
+    with open(filepath+".out", "r") as file:
+        data = json.load(file)
+        suites = data["result"]
+        for suite in suites:
+            tests = suite["Tests"]
+            for test in tests:
+                if test["Status"]=="FAILED":
+                    return False
+        return True
     
 @upload_api.route('/', methods = ['POST'])
 @jwt_required()
 @cross_origin()
 @inject
-def file_upload(submission_repository: ASubmissionRepository, ProjectRepository: AProjectRepository):
-    totalsubmissions= submission_repository.getSubmissionsRemaining(current_user.Id,1)
-    project=ProjectRepository.get_current_project()
+def file_upload(submission_repository: ASubmissionRepository, project_repository: AProjectRepository):
+    """[summary]
+
+    Args:
+        submission_repository (ASubmissionRepository): [the existing submissions directory and all the functions in it]
+        project_repository (AProjectRepository): [the existing projects directory and all the functions in it]
+
+    Returns:
+        [HTTP]: [a pass or fail HTTP message]
+    """
+    project = project_repository.get_current_project()
+    totalsubmissions = submission_repository.get_submissions_remaining(current_user.Id, project.Id)
     if(totalsubmissions+1>MAXSUBMISSIONS):
         message = {
                 'message': 'Too many submissions!'
@@ -78,9 +107,8 @@ def file_upload(submission_repository: ASubmissionRepository, ProjectRepository:
         return make_response(message, HTTPStatus.BAD_REQUEST)
 
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-
         # Step 1: Run TA-Bot to generate grading folder
+        #TODO: Do we always want to run final?
         result = subprocess.run([current_app.config['TABOT_PATH'], project.Name, "--final","--system" ], stdout=subprocess.PIPE)
         if result.returncode != 0:
             message = {
@@ -89,7 +117,6 @@ def file_upload(submission_repository: ASubmissionRepository, ProjectRepository:
             return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
         outputpath = result.stdout.decode('utf-8')
 
-        # TODO: Do we want to always the username as the filename?
         path = os.path.join(outputpath + "input/", current_user.Username + ".py")
         file.save(path)
 
@@ -104,9 +131,9 @@ def file_upload(submission_repository: ASubmissionRepository, ProjectRepository:
         # Step 3: Save submission in submission table
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        status=OutputPassOrFail(outputpath+"output/"+current_user.Username)
-        ErrorCount=PyErrorCount(outputpath+"output/"+current_user.Username)
-        submission_repository.create_submission(current_user.Id, outputpath+"output/"+current_user.Username+".out", path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status,ErrorCount)
+        status=output_pass_or_fail(outputpath+"output/"+current_user.Username)
+        error_count=python_error_count(outputpath+"output/"+current_user.Username)
+        submission_repository.create_submission(current_user.Id, outputpath+"output/"+current_user.Username+".out", path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status,error_count)
         message = {
             'message': 'Success',
             'remainder': (MAXSUBMISSIONS-totalsubmissions+1)

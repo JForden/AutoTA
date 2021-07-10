@@ -15,14 +15,14 @@ class AUserRepository(ABC):
         pass
 
     @abstractmethod
-    def create_user(self, username: str, FirstName: str, LastName: str, email: str, StudentNumber: str, ClassName: str, LabNumber: str):
+    def create_user(self, username: str, first_name: str, last_name: str, email: str, student_number: str, class_number: str, lab_number: str):
         pass
 
     @abstractmethod
-    def get_user_status():
+    def get_user_status(self):
         pass
     @abstractmethod
-    def get_all_users():
+    def get_all_users(self):
         pass
 
 
@@ -35,17 +35,17 @@ class UserRepository(AUserRepository):
 
     def doesUserExist(self, username: str) -> bool:
         session = Session()
-        q=session.query(Users).filter(Users.Username==username)   
-        exist = session.query(q.exists())
+        query = session.query(Users).filter(Users.Username==username)   
+        exist = session.query(query.exists())
         result = session.execute(exist).scalar_one()
         session.close()
         
         return result
 
-    def create_user(self, username: str, FirstName: str, LastName: str, email: str, StudentNumber: str, ClassName: str, LabNumber: str):
+    def create_user(self, username: str, first_name: str, last_name: str, email: str, student_number: str, class_number: str, lab_number: str):
         session = Session()
-        c1 = Users(Username=username,Firstname=FirstName,Lastname=LastName,Email=email,StudentNumber=StudentNumber,ClassName=ClassName,LabNumber=LabNumber,Role = 0)
-        session.add(c1)
+        user = Users(Username=username,Firstname=first_name,Lastname=last_name,Email=email,StudentNumber=student_number,ClassName=class_number,LabNumber=lab_number,Role = 0)
+        session.add(user)
         session.commit()
         
     def get_user_status(self):
@@ -53,8 +53,7 @@ class UserRepository(AUserRepository):
 
     def get_all_users(self):
         session = Session()
-        c1 = session.query(Users).all()
-        #filter(Users.Role == 0)
+        user = session.query(Users).all()
         session.close()
-        return c1
+        return user
         
