@@ -8,6 +8,7 @@ from flask_jwt_extended import current_user
 from src.repositories.project_repository import AProjectRepository
 from flask_cors import cross_origin
 from src.models.ProjectJson import ProjectJson
+from src.constants import ADMIN_ROLE
 import json
 
 projects_api = Blueprint('projects_api', __name__)
@@ -18,7 +19,7 @@ projects_api = Blueprint('projects_api', __name__)
 @cross_origin()
 @inject
 def all_projects(project_repository: AProjectRepository, submission_repository: ASubmissionRepository):
-    if current_user.Role != 1:
+    if current_user.Role != ADMIN_ROLE:
         message = {
             'message': 'UNAUTHORIZED.  REPORTED TO MUPD'
         }

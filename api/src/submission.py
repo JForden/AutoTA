@@ -9,10 +9,9 @@ from flask_jwt_extended import current_user
 from src.repositories.submission_repository import ASubmissionRepository
 from src.repositories.project_repository import AProjectRepository
 from flask_cors import cross_origin
+from src.constants import EMPTY, BASE_URL, ADMIN_ROLE
 import json
-ADMIN=1
-EMPTY=-1
-BASE_URL = "https://vald-phoenix.github.io/pylint-errors/plerr/errors/"
+
 submission_api = Blueprint('submission_api', __name__)
 
 @submission_api.route('/testcaseerrors', methods=['GET'])
@@ -23,7 +22,7 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
     submissionid = int(request.args.get("id"))
     output_path = ""
 
-    if submissionid != EMPTY and current_user.Role == ADMIN:
+    if submissionid != EMPTY and current_user.Role == ADMIN_ROLE:
         output_path = submission_repository.get_json_path_by_submission_id(submissionid)
     else:
         output_path = submission_repository.get_json_path_by_user_id(current_user.Id)
@@ -39,7 +38,7 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
 def pylintoutput(submission_repository: ASubmissionRepository):
     submissionid = int(request.args.get("id"))
     pylint_output = ""
-    if submissionid != EMPTY and current_user.Role == ADMIN:
+    if submissionid != EMPTY and current_user.Role == ADMIN_ROLE:
         pylint_output = submission_repository.get_pylint_path_by_submission_id(submissionid)
     else:
         pylint_output = submission_repository.get_pylint_path_by_user_id(current_user.Id)
@@ -346,7 +345,7 @@ def linkfinder(pyoutput):
 def codefinder(submission_repository: ASubmissionRepository):
     submissionid = int(request.args.get("id"))
     code_output = ""
-    if submissionid != EMPTY and current_user.Role == ADMIN:
+    if submissionid != EMPTY and current_user.Role == ADMIN_ROLE:
         code_output = submission_repository.get_code_path_by_submission_id(submissionid)
     else:
         code_output = submission_repository.get_code_path_by_user_id(current_user.Id)
@@ -378,5 +377,8 @@ def recentsubproject(submission_repository: ASubmissionRepository, user_reposito
     for user in users:
         holder = user.Firstname + " " + user.Lastname
         number = submission_repository.get_submissions_remaining(user.Id, projectid)
-        studentattempts[user.Id]=[holder,number,bucket[user.Id].Time.strftime("%m/%d/%Y"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
+        if user.Id in bucket:
+            studentattempts[user.Id]=[holder,number,bucket[user.Id].Time.strftime("%m/%d/%Y"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
+        else:
+            studentattempts[user.Id]=[holder, "N/A", "N/A", "N/A",  "N/A", -1]    
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)

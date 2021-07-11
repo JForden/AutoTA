@@ -96,6 +96,18 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                 </Table.Header>
                 <Table.Body>
                     {this.state.rows.map(row => {
+                        if(row.subid === -1){
+                            return (
+                                <Table.Row>
+                                    <Table.Cell>{row.name}</Table.Cell>
+                                    <Table.Cell>N/A</Table.Cell>
+                                    <Table.Cell>N/A</Table.Cell>
+                                    <Table.Cell>N/A</Table.Cell>
+                                    <Table.Cell>N/A</Table.Cell>
+                                    <Table.Cell></Table.Cell>
+                                </Table.Row>
+                            )
+                        }
                         return (
                             <Table.Row>
                                 <Table.Cell>{row.name}</Table.Cell>
