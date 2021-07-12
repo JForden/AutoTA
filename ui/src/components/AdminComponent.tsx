@@ -1,7 +1,8 @@
 import { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
-import { Table, Label } from 'semantic-ui-react'
+import { Table, Label } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 
 interface ProjectObject {
     Id: number,
@@ -43,7 +44,7 @@ class AdminComponent extends Component<{}, ProjectsState> {
     }
     handleClassClick(id: number){
         var url=`project/${id}`
-        window.location.replace(url);
+        window.location.href = url;
     }
 
     render(){
@@ -63,7 +64,7 @@ class AdminComponent extends Component<{}, ProjectsState> {
                     for (let index = this.state.projects.length-1; index >= 0; index--) {
                         holder[index] = ( 
                                 <Table.Row>
-                                    <Table.Cell onClick={() => {this.handleClassClick(this.state.projects[index].Id)}}><Label button>{this.state.projects[index].Name}</Label> </Table.Cell>
+                                    <Table.Cell><Link to={ "project/" + this.state.projects[index].Id }><Label button>{this.state.projects[index].Name}</Label></Link></Table.Cell>
                                     <Table.Cell>{this.state.projects[index].Start}</Table.Cell>
                                     <Table.Cell>{this.state.projects[index].End}</Table.Cell>
                                     <Table.Cell>{this.state.projects[index].TotalSubmissions}</Table.Cell>

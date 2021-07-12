@@ -5,6 +5,7 @@ import axios from 'axios';
 import MenuComponent from '../components/MenuComponent';
 import React from 'react'
 import { Progress, SemanticCOLORS } from 'semantic-ui-react'
+import { Link } from 'react-router-dom';
 
 interface UploadPageState {
     file?: File,
@@ -120,7 +121,15 @@ class UploadPage extends Component<{}, UploadPageState> {
                 </Button>
                 </Segment>
             </Form>
-            <Progress progress='value' value={this.state.int} total={15} color={this.state.color} /><h5>Total submissions for this assignment: 15</h5>
+            <Progress progress='value' value={this.state.int} total={15} color={this.state.color} />
+            {(() => {
+                if(this.state.int > 0) {
+                    return <Link to="/code">Go to last submission results</Link>
+                }
+
+                return <></>
+            })()}
+            <h5>Total submissions for this assignment: 15</h5>
             </Grid.Column>
             </Grid>
         </div>

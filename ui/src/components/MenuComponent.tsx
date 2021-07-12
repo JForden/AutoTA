@@ -57,7 +57,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                     <Menu.Menu position='right'>
                         <div>
                         {(() => {
-                            if(!this.props.showUpload) {
+                            if(!this.props.showHelp) {
                                 return (<></>);
                             } else {
                                 return (

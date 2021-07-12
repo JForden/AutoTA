@@ -3,6 +3,7 @@ from src.services.authentication_service import AuthenticationService, PAMAuthen
 from src.repositories.submission_repository import ASubmissionRepository, SubmissionRepository
 from src.repositories.user_repository import AUserRepository, UserRepository
 from src.repositories.project_repository import AProjectRepository, ProjectRepository
+from src.services.link_service import LinkService, PylintLinkService
 
 
 def configure(binder):
@@ -11,3 +12,5 @@ def configure(binder):
     binder.bind(AUserRepository, to=UserRepository, scope=singleton)
     binder.bind(AUserRepository, to=UserRepository, scope=singleton)
     binder.bind(AProjectRepository, to=ProjectRepository, scope=singleton)
+    binder.bind(LinkService, to=PylintLinkService, scope=singleton)
+
