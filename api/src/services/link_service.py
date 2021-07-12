@@ -4,11 +4,11 @@ from src.constants import BASE_URL
 
 class LinkService(ABC):
     @abstractmethod
-    def addLintInfoLinks(self, output: str) -> str:
+    def add_link_info_links(self, output: str) -> str:
         pass
 
 class PylintLinkService(LinkService):
-    def addLintInfoLinks(self, output: str) -> str:
+    def add_link_info_links(self, output: str) -> str:
         link = {
             "C0102": BASE_URL + "basic/C0102",
             "C0103": BASE_URL + "basic/C0103",

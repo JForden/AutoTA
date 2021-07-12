@@ -8,6 +8,7 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
 from src.repositories.submission_repository import ASubmissionRepository
 from src.repositories.project_repository import AProjectRepository
+from src.services.link_service import LinkService
 from flask_cors import cross_origin
 from src.constants import EMPTY, BASE_URL, ADMIN_ROLE
 import json
@@ -35,7 +36,7 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
 @jwt_required()
 @cross_origin()
 @inject
-def pylintoutput(submission_repository: ASubmissionRepository):
+def pylintoutput(submission_repository: ASubmissionRepository, link_service: LinkService):
     submissionid = int(request.args.get("id"))
     pylint_output = ""
     if submissionid != EMPTY and current_user.Role == ADMIN_ROLE:
@@ -44,7 +45,7 @@ def pylintoutput(submission_repository: ASubmissionRepository):
         pylint_output = submission_repository.get_pylint_path_by_user_id(current_user.Id)
     with open(pylint_output, 'r') as file:
         output = file.read()
-        output=linkfinder(output)
+        output = link_service.add_link_info_links(output)
     return make_response(output, HTTPStatus.OK)
 
 
