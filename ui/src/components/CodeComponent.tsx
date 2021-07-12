@@ -86,13 +86,20 @@ class CodeComponent extends Component<CodeComponentProps, {}> {
                                     <Icon color="red" name='stop' />
                                     <strong>{error.line} : </strong>  
                                     {error.message}
-                                    <a href={error.reflink} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                        <a href={error.reflink} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
                                 </div>);
                         }
                         else if(error.type === "warning") {
                             holder[index] =( 
                                 <div>
                                     <Icon color="yellow" name='exclamation triangle' />
+                                    <strong>{error.line} : </strong>  
+                                    {error.message}
+                                    <a href={error.reflink} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
+                                </div>);
+                        } else {
+                            holder[index] =( 
+                                <div>
                                     <strong>{error.line} : </strong>  
                                     {error.message}
                                     <a href={error.reflink} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
