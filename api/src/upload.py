@@ -58,14 +58,10 @@ def output_pass_or_fail(filepath):
         [Bool]: [If there is even an instance of a student failing a single test case the return type is false ]
     """
     with open(filepath+".out", "r") as file:
-        data = json.load(file)
-        suites = data["result"]
-        for suite in suites:
-            tests = suite["Tests"]
-            for test in tests:
-                if test["Status"]=="FAILED":
-                    return False
-        return True
+        for line in file:
+            if "not ok" in line:
+                return False
+    return True
     
 @upload_api.route('/', methods = ['POST'])
 @jwt_required()
@@ -127,7 +123,7 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
                 'message': 'Error in running grading script!'
             }
             return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
-
+        
         # Step 3: Save submission in submission table
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")

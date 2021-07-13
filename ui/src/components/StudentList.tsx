@@ -3,7 +3,8 @@ import 'semantic-ui-css/semantic.min.css'
 import '../css/TestResultComponent.scss';
 import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
-import { Table, Label } from 'semantic-ui-react'
+import { Table, Label } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 
 interface StudentListProps {
     project_id: number
@@ -43,13 +44,6 @@ class StudentList extends Component<StudentListProps, StudentListState> {
             rows: []
         }
     }
-
-
-    handleClick(id: number){
-        var url=`/code/${id}`
-        window.location.href = url;
-    }
-
 
     componentDidMount() {
         axios.post(process.env.REACT_APP_BASE_API_URL + `/submissions/recentsubproject`, { project_id: this.props.project_id }, {
@@ -115,7 +109,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                 <Table.Cell>{row.date}</Table.Cell>
                                 <Table.Cell>{row.numberOfPylintErrors}</Table.Cell>
                                 <Table.Cell>{row.isPassing ? "PASSED" : "FAILED"}</Table.Cell>
-                                <Table.Cell button onClick={() => {this.handleClick(row.subid)}}><Label button >View</Label></Table.Cell>
+                                <Table.Cell button><Link to={ "/code/" + row.id }><Label button >View</Label></Link></Table.Cell>
                             </Table.Row>
                         )
                     })}

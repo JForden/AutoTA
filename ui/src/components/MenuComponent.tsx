@@ -14,6 +14,10 @@ interface MenuComponentProps {
 
 class MenuComponent extends Component<MenuComponentProps, {}> {
 
+    style = {
+        height: 'auto'
+    }
+
     handleLogout(){
         localStorage.removeItem("AUTOTA_AUTH_TOKEN");
         window.location.replace("/login");
@@ -62,9 +66,8 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                             } else {
                                 return (
                                     <Menu.Item>
-                                    <Popup wide="very" size="tiny" mouseLeaveDelay={1000}
-                                    content={
-                                       <>
+                                    <Popup wide="very" size="tiny" mouseLeaveDelay={1000}  trigger={<Button color="black" icon='question circle outline icon' />} style={this.style} >
+                                       <div>
                                         <StyledIcon color="orange" name='minus circle' />
                                          : This icon represents: Likely code bugs<br />
                                          <StyledIcon color="black" name='pencil' />
@@ -81,9 +84,8 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                          <strong>d: </strong> This stands for deletion<br />
                                          <strong>&lt;</strong> This is the expected output <br />
                                          <strong>&gt;</strong>This is the submitted code output<br />
-                                       </>
-                                     } 
-                                    trigger={<Button color="black" icon='question circle outline icon' />} />
+                                       </div>
+                                    </Popup>
                                     </Menu.Item>
                                 );
                             }

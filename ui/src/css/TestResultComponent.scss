@@ -5,12 +5,16 @@
     cursor: pointer;
 }
 
-.passed {
+.PASSED {
     color: mediumseagreen;
 }
 
-.failed {
+.FAILED {
     color: red;
+}
+
+.SKIPPED {
+    color: goldenrod;
 }
 
 #blank-testcase-message {

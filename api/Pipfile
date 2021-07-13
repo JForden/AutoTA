@@ -16,6 +16,7 @@ flask-sqlalchemy = "*"
 pymysql = "*"
 sentry-sdk = "*"
 pytest-mock = "*"
+"tap.py" = {extras = ["yaml"], version = "*"}
 
 [dev-packages]
 pytest = "*"

@@ -12,8 +12,29 @@ from src.services.link_service import LinkService
 from flask_cors import cross_origin
 from src.constants import EMPTY, BASE_URL, ADMIN_ROLE
 import json
+from tap.parser import Parser
 
 submission_api = Blueprint('submission_api', __name__)
+
+def convert_tap_to_json(file_path):
+    parser = Parser()
+    test=[]
+    final={}
+    counter=0
+    for line in parser.parse_file(file_path):
+        print(line.category)
+        if line.category == "test":
+
+            test.append({
+                'skipped': line.skip,
+                'passed': line.ok,
+                'test': line.yaml_block
+            })
+            counter=counter+1
+
+    final["results"]=test
+    return json.dumps(final, sort_keys=True, indent=4)
+
 
 @submission_api.route('/testcaseerrors', methods=['GET'])
 @jwt_required()
@@ -22,14 +43,16 @@ submission_api = Blueprint('submission_api', __name__)
 def testcaseerrors(submission_repository: ASubmissionRepository):
     submissionid = int(request.args.get("id"))
     output_path = ""
+    # print("here")
 
     if submissionid != EMPTY and current_user.Role == ADMIN_ROLE:
         output_path = submission_repository.get_json_path_by_submission_id(submissionid)
+
     else:
         output_path = submission_repository.get_json_path_by_user_id(current_user.Id)
-
-    with open(output_path, 'r') as file:
-        output = file.read()
+        #output_path = convert_tap_to_json("/home/alex/Documents/Repositories/ta-bot/grading-tabot-outofwater-2021-07-12-11:20:31.547340200/output/alex.out").
+    output = convert_tap_to_json(output_path)
+    print(output)
     return make_response(output, HTTPStatus.OK)
 
 @submission_api.route('/pylintoutput', methods=['GET'])
@@ -62,6 +85,7 @@ def codefinder(submission_repository: ASubmissionRepository):
         code_output = submission_repository.get_code_path_by_user_id(current_user.Id)
     with open(code_output, 'r') as file:
         output = file.read()
+        
     return make_response(output, HTTPStatus.OK)
 
 @submission_api.route('/submissioncounter', methods=['GET'])

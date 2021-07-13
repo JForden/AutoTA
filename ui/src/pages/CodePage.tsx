@@ -14,20 +14,20 @@ interface CodePageProps {
 }
 
 interface JsonTestResponseBody {
-    Status: string,
-    Testcase: string,
-    Description: string,
-    Diff: string
+    output: Array<string>,
+    type: number,
+    description: string,
+    name: string,
+    suite: string
 }
-
 interface JsonResponseBody {
-    Suite: string,
-    Points: string,
-    Tests: Array<JsonTestResponseBody>
+    skipped: boolean,
+    passed: boolean,
+    test: JsonTestResponseBody
 }
 
 interface JsonResponse {
-    result: Array<JsonResponseBody>
+    results: Array<JsonResponseBody>
 }
 
 interface PylintObject {
@@ -47,7 +47,7 @@ const CodePage = () => {
     let { id } = useParams<CodePageProps>();
     var submissionId = id ? parseInt(id) : defaultpagenumber; 
     
-    const [json, setJson] = useState<JsonResponse>({ result: [] });
+    const [json, setJson] = useState<JsonResponse>({ results: [ { skipped: false, passed: false, test: { description: "", output: [""], type: 0, name: "", suite: "" }} ] });
     const [pylint, setPylint] = useState<Array<PylintObject>>([]);
     const [code, setCode] = useState<string>("");
 
@@ -58,8 +58,14 @@ const CodePage = () => {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
         })
-        .then(res => {    
-            setJson(res.data as JsonResponse)
+        .then(res => { 
+            console.log(res.data);
+            
+            
+
+
+            setJson(res.data as JsonResponse);
+            console.log(json);
         })
         .catch(err => {
             console.log(err);

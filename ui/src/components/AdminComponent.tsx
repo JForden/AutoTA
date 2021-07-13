@@ -42,10 +42,6 @@ class AdminComponent extends Component<{}, ProjectsState> {
             console.log(err);
         });
     }
-    handleClassClick(id: number){
-        var url=`project/${id}`
-        window.location.href = url;
-    }
 
     render(){
         return (

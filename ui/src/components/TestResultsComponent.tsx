@@ -13,26 +13,27 @@ interface TestState {
     showComponent: boolean;
     suite:string;
     test:string;
-    result:string;
+    skipped:boolean;
+    result:boolean;
     description:string;
-    diff:string;
+    output:string;
 }
 
 interface JsonTestResponseBody {
-    Status: string,
-    Testcase: string,
-    Description: string,
-    Diff: string
+    output: Array<string>,
+    type: number,
+    description: string,
+    name: string,
+    suite: string
 }
-
 interface JsonResponseBody {
-    Suite: string,
-    Points: string,
-    Tests: Array<JsonTestResponseBody>
+    skipped: boolean,
+    passed: boolean,
+    test: JsonTestResponseBody
 }
 
 interface JsonResponse {
-    result: Array<JsonResponseBody>
+    results: Array<JsonResponseBody>
 }
 
 class TestResultsComponent extends Component<TestResultComponentProps, TestState> {
@@ -42,45 +43,66 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             showComponent: false,
             suite: "",
             test: "",
-            result: "",
+            skipped: false,
+            result: false,
             description: "",
-            diff: ""
+            output: ""
         };
         this.handleClick = this.handleClick.bind(this);
     }
-    
-    handleClick(suite: string, test: string, result: string, description: string,diff:string) {        
+
+    getResult(){
+        if(this.state.skipped){ 
+            return "SKIPPED";
+        }
+        return this.state.result ? "PASSED" : "FAILED"
+    }
+
+    handleClick(suite: string, test: string, skipped: boolean, result: boolean, description: string, output: Array<string>) {   
         this.setState({
-            showComponent: true,
             suite:suite,
             test:test,
+            skipped: skipped,
             result:result,
             description:description,
-            diff:diff,
+            output: output.join("\n"),
+            showComponent: true,
         });
     }
 
     render() {
-        const panes = this.props.testcase.result.map(d => ({
-            menuItem: d.Suite,
-            render: () =>
-            <Tab.Pane attached={false}>
+        var suites = [...new Set<string>(this.props.testcase.results.map(item => item.test.suite))];
+        const panes = suites.map(s => ({
+            menuItem: s,
+            render: () => {
+            return (<Tab.Pane attached={false}>
                 <div id="testresults-container">
-                    {d.Tests.map(test => {
-                        if(test.Status === "PASSED"){  
+                {this.props.testcase.results.map(x => {
+                     if(x.test.suite === s){
+                        if(x.passed){  
                             return (
-                            <span className="testcase" onClick={() => this.handleClick(d.Suite, test.Testcase, test.Status, test.Description,test.Diff)}>
-                                <StyledIcon name='check' className="passed" />
-                            </span>)
+                            <span className="testcase" onClick={() => this.handleClick(x.test.suite, x.test.name, x.skipped, x.passed, x.test.description, x.test.output)}>
+                                <StyledIcon name='check' className="PASSED" />
+                            </span>);
                         } else {
+                            if(x.skipped){
+                                var holder=["(╯°□°）╯︵ ┻━┻ ", "This test was skipped due to a configuration error!!!", "Please contact a human TA or professor"];
+                                x.test.output=holder;
+                                return (
+                                    <span className="testcase" onClick={() => this.handleClick(x.test.suite, x.test.name, x.skipped, x.passed, x.test.description, x.test.output)}>
+                                        <StyledIcon name='step forward' className="SKIPPED" />
+                                    </span>);
+                            }
                             return (
-                            <span className="testcase" onClick={() => this.handleClick(d.Suite, test.Testcase, test.Status, test.Description,test.Diff)}>
-                                <StyledIcon name='close' className="failed" />
-                            </span>)
+                            <span className="testcase" onClick={() => this.handleClick(x.test.suite, x.test.name, x.skipped, x.passed, x.test.description, x.test.output)}>
+                                <StyledIcon name='close' className="FAILED" />
+                            </span>);
                         }
-                    })}
+                     }
+                })}
                 </div>
             </Tab.Pane>
+            )}
         }));
     return (
         <div className="bottom">
@@ -89,14 +111,14 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                 <div id="test-info">
                 {(() => {
                     if(!this.state.showComponent) {
-                        return (<h1 id="blank-testcase-message">Please click on <StyledIcon name='check' className="passed" /> or <StyledIcon name='close' className="failed" /> to see more details</h1>);
+                        return (<h1 id="blank-testcase-message">Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see more details</h1>);
                     } else {
                         return (
                             <div>
                                 <div><b>[{this.state.suite}] {this.state.test}</b></div>
-                                <strong>Result: </strong> <span className={this.state.result === "PASSED" ? "passed" : "failed"}>{this.state.result}</span><br/>
+                                <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
                                 <strong>Test Description: </strong>{this.state.description}<br/>
-                                <pre style={{backgroundColor: 'lightgrey'}}>{this.state.diff}</pre>
+                                <pre style={{backgroundColor: 'lightgrey'}}>{this.state.output}</pre>
                             </div>
                         );
                     }
