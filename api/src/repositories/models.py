@@ -23,6 +23,7 @@ class Users(Base):
     ClassName = Column(String)
     LabNumber = Column(String)
     Role = Column(Integer)
+    IsLocked = Column(Boolean)
     Submissions=relationship('Submissions')
 
 class Submissions(Base):
@@ -36,4 +37,11 @@ class Submissions(Base):
     Time = Column(Date)
     User = Column(Integer, ForeignKey('Users.Id'))
     Project = Column(Integer, ForeignKey('Projects.Id'))
+
+class LoginAttempts(Base):
+    __tablename__ = "LoginAttempts"
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Time = Column(Date)
+    IPAddress = Column(String)
+    Username = Column(String, ForeignKey('Users.Username'))
     

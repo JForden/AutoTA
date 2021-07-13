@@ -22,6 +22,8 @@ def create_app():
     app.config['TABOT_PATH'] = '/home/alex/Documents/Repositories/ta-bot/tabot.sh'
     app.config['ALLOWED_EXTENSIONS'] = ['py', 'tgz']
     app.config["JWT_SECRET_KEY"] = "ob1L04WeQ1U0H5Kiybk9rMoQigVhoGJCKBxC6KxF85G89vAK3L903I073JXQ"
+    app.config["MAX_FAILED_LOGINS"] = 5
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     app.register_blueprint(auth_api, url_prefix='/auth')
     app.register_blueprint(upload_api, url_prefix='/upload')

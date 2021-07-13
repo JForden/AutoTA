@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from .models import Users
+from .models import Users, LoginAttempts
 from .database import Session
 from flask_jwt_extended import current_user
 
@@ -25,6 +25,19 @@ class AUserRepository(ABC):
     def get_all_users(self):
         pass
 
+    @abstractmethod
+    def send_attempt_data(self, username: str, ipadr: str, time: str):
+        pass
+
+    @abstractmethod
+    def can_user_login(self, username: str):
+        pass
+    @abstractmethod
+    def clear_failed_attempts(self,username: str):
+        pass
+    @abstractmethod
+    def lock_user_account(self,username: str):
+        pass
 
 class UserRepository(AUserRepository):
     def getUserByName(self, username: str) -> Users:
@@ -56,4 +69,28 @@ class UserRepository(AUserRepository):
         user = session.query(Users).all()
         session.close()
         return user
+
+    def send_attempt_data(self, username: str, ipadr: str, time: str):
+        session = Session()
+        login_attempt = LoginAttempts(IPAddress=ipadr, Username=username, Time=time)
+        session.add(login_attempt)
+        session.commit()
+        return True
+
+    def can_user_login(self, username: str):
+        session = Session()
+        number = session.query(LoginAttempts).filter(LoginAttempts.Username == username).count()
+        return number
         
+    def clear_failed_attempts(self, username: str):
+        session= Session()
+        session.query(LoginAttempts).filter(LoginAttempts.Username == username).delete()
+        session.commit()
+        return True
+
+    def lock_user_account(self,username: str):
+        session= Session()
+        query = session.query(Users).filter(Users.Username==username).first()
+        query.IsLocked=True
+        session.commit()
+        return True

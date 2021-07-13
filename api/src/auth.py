@@ -10,7 +10,9 @@ from flask_jwt_extended import create_access_token
 from src.jwt_manager import jwt
 from src.repositories.user_repository import AUserRepository
 from flask_jwt_extended import jwt_required
+from flask import current_app
 from src.api_utils import get_value_or_empty
+from datetime import datetime
 
 auth_api = Blueprint('auth_api', __name__)
 
@@ -46,11 +48,24 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
     input_json = request.get_json()
     username = get_value_or_empty(input_json, 'username')
     password = get_value_or_empty(input_json, 'password')
+
+    if(user_repository.can_user_login(username) >= current_app.config['MAX_FAILED_LOGINS']):
+        user_repository.lock_user_account(username)
+        message = {
+            'message': 'Your account has been locked! Please contact an administrator!'
+        }
+        return make_response(message, HTTPStatus.FORBIDDEN)
+
     if not auth_service.login(username, password):
+        ipadr = request.remote_addr
+        now = datetime.now()
+        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        user_repository.send_attempt_data(username, ipadr, dt_string)
         message = {
             'message': 'Invalid username and/or password!  Please try again!'
         }
         return make_response(message, HTTPStatus.FORBIDDEN)
+
     result = user_repository.doesUserExist(username)
     if not result:
         message = {
@@ -61,6 +76,7 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
     user = user_repository.getUserByName(username)
     role = user.Role
 
+    user_repository.clear_failed_attempts(username)
     access_token = create_access_token(identity=user)
     message = {
         'message': 'Success',

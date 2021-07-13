@@ -19,7 +19,6 @@ MAXSUBMISSIONS=15
 
 upload_api = Blueprint('upload_api', __name__)
 
-
 def allowed_file(filename):
     """[function for checking to see if the file is an allowed file type]
 

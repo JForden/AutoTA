@@ -13,7 +13,8 @@ interface LoginPageState {
   isNewUser: boolean,
   username: string,
   password: string,
-  role: number
+  role: number,
+  error_message:string
 }
 
 class Login extends Component<{}, LoginPageState> {
@@ -27,7 +28,8 @@ class Login extends Component<{}, LoginPageState> {
       username: '',
       password: '',
       role: -1,
-      isNewUser: false
+      isNewUser: false,
+      error_message:''
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -57,7 +59,8 @@ class Login extends Component<{}, LoginPageState> {
 
     })
     .catch(err => {
-      this.setState({ isErrorMessageHidden: false });
+        this.setState({ error_message: err.response.data.message})
+        this.setState({ isErrorMessageHidden: false });
     })
   }
 
@@ -85,7 +88,7 @@ class Login extends Component<{}, LoginPageState> {
                 </Button>
                 </Segment>
             </Form>
-            <ErrorMessage message="Invalid username or password!  Please try again!" isHidden={this.state.isErrorMessageHidden} ></ErrorMessage>
+            <ErrorMessage message={this.state.error_message} isHidden={this.state.isErrorMessageHidden} ></ErrorMessage>
             <Message>
                 Forgot your MSCSNet login? Click <a href='resources/MSCSNET-Login.pdf' target="_blank">here</a>.
             </Message>
