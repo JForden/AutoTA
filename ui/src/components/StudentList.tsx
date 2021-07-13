@@ -33,7 +33,6 @@ class Row {
 interface StudentListState {
     rows: Array<Row>
 }
-//element[ yourKey ] = yourValue;
 
 class StudentList extends Component<StudentListProps, StudentListState> {
 
