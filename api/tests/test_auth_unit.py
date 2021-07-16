@@ -9,6 +9,7 @@ import json
 def test_auth_invalid_login(testcontext, mocker: MockerFixture):
     # Act
     with testcontext.app.app_context():
+        testcontext.app.config["MAX_FAILED_LOGINS"] = 10
         m = mocker.MagicMock()
         m.get_json.return_value = { "username": "alex", "password": "alex" }
         mocker.patch("src.auth.request", m)
@@ -16,6 +17,7 @@ def test_auth_invalid_login(testcontext, mocker: MockerFixture):
         user_repository = Mock()
 
         auth_service_mock.login.return_value = False
+        user_repository.can_user_login.return_value = 1
 
         rv = auth(auth_service_mock, user_repository)
 
@@ -28,6 +30,7 @@ def test_auth_invalid_login(testcontext, mocker: MockerFixture):
 def test_auth_valid_login_new_user(testcontext, mocker: MockerFixture):
     # Act
     with testcontext.app.app_context():
+        testcontext.app.config["MAX_FAILED_LOGINS"] = 10
         m = mocker.MagicMock()
         m.get_json.return_value = { "username": "alex", "password": "alex" }
         mocker.patch("src.auth.request", m)
@@ -35,6 +38,7 @@ def test_auth_valid_login_new_user(testcontext, mocker: MockerFixture):
         user_repository = Mock()
 
         auth_service_mock.login.return_value = True
+        user_repository.can_user_login.return_value = 0
         user_repository.doesUserExist.return_value = False
 
         rv = auth(auth_service_mock, user_repository)
@@ -48,6 +52,7 @@ def test_auth_valid_login_new_user(testcontext, mocker: MockerFixture):
 def test_auth_valid_login_new_user(testcontext, mocker: MockerFixture):
     # Act
     with testcontext.app.app_context():
+        testcontext.app.config["MAX_FAILED_LOGINS"] = 10
         m = mocker.MagicMock()
         m.get_json.return_value = { "username": "alex", "password": "alex" }
         mocker.patch("src.auth.request", m)
@@ -55,6 +60,7 @@ def test_auth_valid_login_new_user(testcontext, mocker: MockerFixture):
         user_repository = Mock()
 
         auth_service_mock.login.return_value = True
+        user_repository.can_user_login.return_value = 0
         user_repository.doesUserExist.return_value = False
 
         rv = auth(auth_service_mock, user_repository)
@@ -68,6 +74,7 @@ def test_auth_valid_login_new_user(testcontext, mocker: MockerFixture):
 def test_auth_valid_login_old_user(testcontext, mocker: MockerFixture):
     # Act
     with testcontext.app.app_context():
+        testcontext.app.config["MAX_FAILED_LOGINS"] = 10
         m = mocker.MagicMock()
         m.get_json.return_value = {"username": "alex", "password": "alex"}
         mocker.patch("src.auth.request", m)
@@ -76,6 +83,7 @@ def test_auth_valid_login_old_user(testcontext, mocker: MockerFixture):
         user_repository = Mock()
 
         auth_service_mock.login.return_value = True
+        user_repository.can_user_login.return_value = 0
         user_repository.doesUserExist.return_value = True
         user_repository.getUserByName.return_value = Users(Role = 34)
 
@@ -93,11 +101,14 @@ def test_auth_valid_login_old_user(testcontext, mocker: MockerFixture):
 def test_auth_no_username_or_password(testcontext, mocker: MockerFixture):
     # Act
     with testcontext.app.app_context():
+        testcontext.app.config["MAX_FAILED_LOGINS"] = 10
         m = mocker.MagicMock()
         m.get_json.return_value = {}
         mocker.patch("src.auth.request", m)
+
         auth_service_mock = Mock()
         user_repository = Mock()
+        user_repository.can_user_login.return_value = 0
         auth_service_mock.login.return_value = False
         rv = auth(auth_service_mock, user_repository)
         # Assert

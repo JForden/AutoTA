@@ -9,7 +9,6 @@ from flask_jwt_extended import current_user
 from src.repositories.submission_repository import ASubmissionRepository
 from src.repositories.project_repository import AProjectRepository
 from src.services.link_service import LinkService
-from flask_cors import cross_origin
 from src.constants import EMPTY, BASE_URL, ADMIN_ROLE
 import json
 from tap.parser import Parser
@@ -38,26 +37,20 @@ def convert_tap_to_json(file_path):
 
 @submission_api.route('/testcaseerrors', methods=['GET'])
 @jwt_required()
-@cross_origin()
 @inject
 def testcaseerrors(submission_repository: ASubmissionRepository):
     submissionid = int(request.args.get("id"))
     output_path = ""
-    # print("here")
 
     if submissionid != EMPTY and current_user.Role == ADMIN_ROLE:
         output_path = submission_repository.get_json_path_by_submission_id(submissionid)
-
     else:
         output_path = submission_repository.get_json_path_by_user_id(current_user.Id)
-        #output_path = convert_tap_to_json("/home/alex/Documents/Repositories/ta-bot/grading-tabot-outofwater-2021-07-12-11:20:31.547340200/output/alex.out").
     output = convert_tap_to_json(output_path)
-    print(output)
     return make_response(output, HTTPStatus.OK)
 
 @submission_api.route('/pylintoutput', methods=['GET'])
 @jwt_required()
-@cross_origin()
 @inject
 def pylintoutput(submission_repository: ASubmissionRepository, link_service: LinkService):
     submissionid = int(request.args.get("id"))
@@ -74,7 +67,6 @@ def pylintoutput(submission_repository: ASubmissionRepository, link_service: Lin
 
 @submission_api.route('/codefinder', methods=['GET'])
 @jwt_required()
-@cross_origin()
 @inject
 def codefinder(submission_repository: ASubmissionRepository):
     submissionid = int(request.args.get("id"))
@@ -90,15 +82,14 @@ def codefinder(submission_repository: ASubmissionRepository):
 
 @submission_api.route('/submissioncounter', methods=['GET'])
 @jwt_required()
-@cross_origin()
 @inject
 def submission_number_finder(submission_repository: ASubmissionRepository,project_repository: AProjectRepository):
-    number = submission_repository.get_submissions_remaining(current_user.Id, project_repository.get_current_project().Id)
+    current_project = project_repository.get_current_project().Id
+    number = submission_repository.get_submissions_remaining(current_user.Id, current_project)
     return make_response(str(number), HTTPStatus.OK)
 
 @submission_api.route('/recentsubproject', methods=['POST'])
 @jwt_required()
-@cross_origin()
 @inject
 def recentsubproject(submission_repository: ASubmissionRepository, user_repository: AUserRepository):
     input_json = request.get_json()
