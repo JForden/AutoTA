@@ -10,6 +10,7 @@ class Projects(Base):
     Name = Column(String)
     Start = Column(Date)
     End = Column(Date)
+    Language = Column(String)
     Submissions=relationship('Submissions') 
 
 class Users(Base):

@@ -19,7 +19,9 @@ MAXSUBMISSIONS=15
 
 upload_api = Blueprint('upload_api', __name__)
 
-def allowed_file(filename):
+ext={"python": [".py","py"],"java": [".java","java"]}
+
+def allowed_file(filename, extensions):
     """[function for checking to see if the file is an allowed file type]
 
     Args:
@@ -28,8 +30,10 @@ def allowed_file(filename):
     Returns:
         [Boolean]: [returns a bool if the file is allowed or not]
     """
+    print(extensions)
+    print(filename.rsplit('.', 1)[1].lower())
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
+           filename.rsplit('.', 1)[1].lower() in extensions
 
 def python_error_count(filepath):
     """[A function that finds the ammount of errors from the pylint.out file that was generated]
@@ -101,7 +105,7 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
         }
         return make_response(message, HTTPStatus.BAD_REQUEST)
 
-    if file and allowed_file(file.filename):
+    if file and allowed_file(file.filename, ext[project.Language]):
         # Step 1: Run TA-Bot to generate grading folder
         #TODO: Do we always want to run final?
         result = subprocess.run([current_app.config['TABOT_PATH'], project.Name, "--final","--system" ], stdout=subprocess.PIPE)
@@ -112,11 +116,11 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
             return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
         outputpath = result.stdout.decode('utf-8')
 
-        path = os.path.join(outputpath + "input/", current_user.Username + ".py")
+        path = os.path.join(outputpath, "input", f"{current_user.Username}{ext[project.Language][0]}")
         file.save(path)
 
         # Step 2: Run grade.sh
-        result = subprocess.run([outputpath +  "grade.sh", current_user.Username], cwd=outputpath) 
+        result = subprocess.run([outputpath +  "execute.py", current_user.Username, project.Language], cwd=outputpath) 
         if result.returncode != 0:
             message = {
                 'message': 'Error in running grading script!'
