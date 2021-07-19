@@ -14,7 +14,8 @@ interface LoginPageState {
   username: string,
   password: string,
   role: number,
-  error_message:string
+  error_message:string,
+  isLoading: boolean
 }
 
 class Login extends Component<{}, LoginPageState> {
@@ -29,7 +30,8 @@ class Login extends Component<{}, LoginPageState> {
       password: '',
       role: -1,
       isNewUser: false,
-      error_message:''
+      error_message: '',
+      isLoading: false
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -46,9 +48,9 @@ class Login extends Component<{}, LoginPageState> {
   }
 
   handleSubmit() {
+    this.setState({ isErrorMessageHidden: true, isLoading: true });
     axios.post(process.env.REACT_APP_BASE_API_URL + `/auth/login`, { password: this.state.password, username: this.state.username })
     .then(res => {
-      this.setState({ isErrorMessageHidden: true });
       localStorage.setItem("AUTOTA_AUTH_TOKEN", res.data.access_token);
       if(res.data.message === "New User"){
         this.setState({isNewUser: true})
@@ -56,11 +58,10 @@ class Login extends Component<{}, LoginPageState> {
           this.setState({ isLoggedIn: true })
           this.setState({ role: res.data.role })
       }
-
     })
     .catch(err => {
         this.setState({ error_message: err.response.data.message})
-        this.setState({ isErrorMessageHidden: false });
+        this.setState({ isErrorMessageHidden: false, isLoading: false });
     })
   }
 
@@ -78,7 +79,7 @@ class Login extends Component<{}, LoginPageState> {
             <Header as='h2' color='blue' textAlign='center'>
                 Login to your MSCSNet account
             </Header>
-            <Form size='large' onSubmit={this.handleSubmit}>
+            <Form loading={this.state.isLoading} size='large' onSubmit={this.handleSubmit}>
                 <Segment stacked>
                 <Form.Input fluid icon='user' iconPosition='left' required placeholder='Username' onChange={this.handleUsernameChange} />
                 <Form.Input fluid icon='lock' iconPosition='left' required placeholder='Password' type='password' onChange={this.handlePasswordChange} />

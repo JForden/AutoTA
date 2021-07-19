@@ -56,18 +56,20 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
         }
         return make_response(message, HTTPStatus.FORBIDDEN)
 
+    exist = user_repository.doesUserExist(username)
+
     if not auth_service.login(username, password):
         ipadr = request.remote_addr
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        user_repository.send_attempt_data(username, ipadr, dt_string)
+        if(exist):
+            user_repository.send_attempt_data(username, ipadr, dt_string)
         message = {
             'message': 'Invalid username and/or password!  Please try again!'
         }
         return make_response(message, HTTPStatus.FORBIDDEN)
 
-    result = user_repository.doesUserExist(username)
-    if not result:
+    if not exist:
         message = {
             'message': 'New User'
         }
