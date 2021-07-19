@@ -90,7 +90,7 @@ class Login extends Component<{}, LoginPageState> {
             </Form>
             <ErrorMessage message={this.state.error_message} isHidden={this.state.isErrorMessageHidden} ></ErrorMessage>
             <Message>
-                Forgot your MSCSNet login? Click <a href='resources/MSCSNET-Login.pdf' target="_blank">here</a>.
+                Forgot your MSCSNet login? Click <a href='https://drive.google.com/file/d/1ajBMt9WF104gSbsNOPKJDI1OAGTfDEi8/view?usp=sharing' target="_blank">here</a>.
             </Message>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
                 <Image style={{ width: '100px' }} src={mscsimg} /> 
