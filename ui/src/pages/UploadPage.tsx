@@ -6,15 +6,17 @@ import MenuComponent from '../components/MenuComponent';
 import React from 'react'
 import { Progress, SemanticCOLORS } from 'semantic-ui-react'
 import { Link } from 'react-router-dom';
+import ErrorMessage from '../components/ErrorMessage';
 
 interface UploadPageState {
     file?: File,
     int: number,
     color: SemanticCOLORS,
     isLoading:boolean
+    error_message: string,
+    isErrorMessageHidden: boolean
 }
  
-
 class UploadPage extends Component<{}, UploadPageState> {
 
     constructor(props: any){
@@ -23,7 +25,9 @@ class UploadPage extends Component<{}, UploadPageState> {
         this.state = {
             int: 0,
             color: 'grey',
-            isLoading: false
+            isLoading: false,
+            error_message: '',
+            isErrorMessageHidden: true
         };
     
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -46,7 +50,8 @@ class UploadPage extends Component<{}, UploadPageState> {
             }   
         })
         .catch(err => {
-            console.log(err);
+            this.setState({ error_message: err.response.data.message});
+            this.setState({ isErrorMessageHidden: false, isLoading: false });
         });
     }
 
@@ -78,6 +83,7 @@ class UploadPage extends Component<{}, UploadPageState> {
 
     handleSubmit() {
         if (this.state.file !== undefined) {
+            this.setState({ isErrorMessageHidden: true });
             this.setState({isLoading: true});
             // Create an object of formData
             const formData = new FormData();
@@ -100,7 +106,8 @@ class UploadPage extends Component<{}, UploadPageState> {
                 window.location.href = "/code";
             })
             .catch(err => {
-                alert("Error in file submission");
+                this.setState({ error_message: err.response.data.message});
+                this.setState({ isErrorMessageHidden: false, isLoading: false });
             })
         }
     }
@@ -121,12 +128,12 @@ class UploadPage extends Component<{}, UploadPageState> {
                 </Button>
                 </Segment>
             </Form>
+            <ErrorMessage message={this.state.error_message} isHidden={this.state.isErrorMessageHidden} ></ErrorMessage>
             <Progress progress='value' value={this.state.int} total={15} color={this.state.color} />
             {(() => {
                 if(this.state.int > 0) {
                     return <Link to="/code">Go to last submission results</Link>
                 }
-
                 return <></>
             })()}
             <h5>Total submissions for this assignment: 15</h5>
