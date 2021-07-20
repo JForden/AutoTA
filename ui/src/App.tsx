@@ -8,10 +8,23 @@ import ProtectedRoute from './components/ProtectedRoute';
 import CodePage from './pages/CodePage';
 import AdminLanding from './AdminPages/AdminLanding';
 import ProjectBreakdown from './AdminPages/ProjectBreakdown';
+import axios from 'axios';
 
 class App extends Component {
 
   render() {
+    axios.interceptors.response.use(
+        function(successRes) {
+            return successRes;
+        }, 
+        function(error) {
+            if(error.response.status == 422 || error.response.status == 419) {
+                localStorage.removeItem("AUTOTA_AUTH_TOKEN");
+                window.location.href = "/login";
+            }
+            return Promise.reject(error);
+    });
+
     return (
       <BrowserRouter>
         <Switch>
