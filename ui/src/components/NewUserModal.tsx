@@ -1,4 +1,4 @@
-import { Component, ChangeEvent } from 'react';
+import { Component, FormEvent } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import '../css/CodePage.scss';
 import { Form, Modal } from 'semantic-ui-react'
@@ -59,11 +59,11 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
     handleStudentNumberChange(ev: React.ChangeEvent<HTMLInputElement>){
         this.setState({ StudentNumber: ev.target.value});
     }
-    handleClassNameChange(ev: ChangeEvent<HTMLSelectElement>){
-        this.setState({ ClassName: ev.target.textContent || ""});
+    handleClassNameChange(ev: FormEvent<HTMLSelectElement>, value: string){
+        this.setState({ ClassName: value});
     }
-    handleLabNumberChange(ev: ChangeEvent<HTMLSelectElement>){
-        this.setState({ LabNumber: ev.target.textContent || ""});
+    handleLabNumberChange(ev: FormEvent<HTMLSelectElement>, value: string){
+        this.setState({ LabNumber: value});
     }
     
     handleClick(){
@@ -92,8 +92,8 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
                         <Form.Input fluid label='School Email' placeholder='first.last@marquette.edu' onChange={this.handleEmailChange} />
                     </Form.Group>
                     <Form.Group widths='equal'>
-                        <Form.Select fluid label='Class Name' options={Coptions} placeholder='Class' onChange={e => this.handleClassNameChange(e as ChangeEvent<HTMLSelectElement>)} />
-                        <Form.Select fluid label='Lab Number' options={Loptions} placeholder='Class' onChange={e => this.handleLabNumberChange(e as ChangeEvent<HTMLSelectElement>)}  />
+                        <Form.Select fluid label='Class Name' options={Coptions} placeholder='Class' onChange={(e:any, {value}) => this.handleClassNameChange(e, value ? value.toString() : "")}/>
+                        <Form.Select fluid label='Lab Number' options={Loptions} placeholder='Class' onChange={(e:any, {value}) => this.handleLabNumberChange(e, value ? value.toString() : "")}  />
                     </Form.Group>
 
                     <Form.Button type="submit" onClick={this.handleClick}>Submit</Form.Button>
