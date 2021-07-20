@@ -18,7 +18,7 @@ class App extends Component {
             return successRes;
         }, 
         function(error) {
-            if(error.response.status === 422 || error.response.status === 419) {
+            if(error.response.status === 401 || error.response.status === 422 || error.response.status === 419) {
                 localStorage.removeItem("AUTOTA_AUTH_TOKEN");
                 window.location.href = "/login";
             }
