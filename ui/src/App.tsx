@@ -22,7 +22,7 @@ class App extends Component {
                 localStorage.removeItem("AUTOTA_AUTH_TOKEN");
                 window.location.href = "/login";
             }
-            return error;
+            return Promise.reject(error);
     });
 
     return (
