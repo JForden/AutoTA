@@ -30,8 +30,6 @@ def allowed_file(filename, extensions):
     Returns:
         [Boolean]: [returns a bool if the file is allowed or not]
     """
-    print(extensions)
-    print(filename.rsplit('.', 1)[1].lower())
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in extensions
 

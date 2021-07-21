@@ -108,7 +108,6 @@ class SubmissionRepository(ASubmissionRepository):
         session = Session()
         holder = session.query(Submissions).filter(and_(Submissions.Project == project_id, Submissions.User.in_(user_ids))).order_by(desc(Submissions.Time)).all()
         session.close()
-        print(holder)
         bucket={}
         for obj in holder:
             if obj.User in bucket:

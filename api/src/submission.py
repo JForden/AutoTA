@@ -22,8 +22,6 @@ def convert_tap_to_json(file_path,role):
     final={}
     for line in parser.parse_file(file_path):
         if line.category == "test":
-            print(line.yaml_block["hidden"])
-            print(bool(line.yaml_block["hidden"]))
             if role == ADMIN_ROLE:
                 test.append({
                     'skipped': line.skip,

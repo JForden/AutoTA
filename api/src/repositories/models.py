@@ -22,11 +22,10 @@ class Users(Base):
     Lastname = Column(String)
     Email = Column(String)
     StudentNumber = Column(String)
-    ClassName = Column(String)
-    LabNumber = Column(String)
     Role = Column(Integer)
     IsLocked = Column(Boolean)
     Submissions=relationship('Submissions')
+    ClassAssignments=relationship('ClassAssignments')
 
 class Submissions(Base):
     __tablename__ = "Submissions"
@@ -46,4 +45,24 @@ class LoginAttempts(Base):
     Time = Column(Date)
     IPAddress = Column(String)
     Username = Column(String, ForeignKey('Users.Username'))
-    
+
+class Classes(Base):
+    __tablename__ = "Classes"
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Name = Column(String)
+    Labs=relationship('Labs')
+    ClassAssignments=relationship('ClassAssignments')
+
+class Labs(Base):
+    __tablename__ = "Labs"
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Name = Column(String)
+    Class = Column(Integer, ForeignKey('Classes.Id'))
+    ClassAssignments=relationship('ClassAssignments')
+
+class ClassAssignments(Base):
+    __tablename__ = "ClassAssignments"
+    UserId = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
+    ClassId = Column(Integer, ForeignKey('Classes.Id'), primary_key=True)
+    LabId = Column(Integer, ForeignKey('Labs.Id'))
+

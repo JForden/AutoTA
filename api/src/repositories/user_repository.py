@@ -15,7 +15,7 @@ class AUserRepository(ABC):
         pass
 
     @abstractmethod
-    def create_user(self, username: str, first_name: str, last_name: str, email: str, student_number: str, class_number: str, lab_number: str):
+    def create_user(self, username: str, first_name: str, last_name: str, email: str, student_number: str):
         pass
 
     @abstractmethod
@@ -55,9 +55,9 @@ class UserRepository(AUserRepository):
         
         return result
 
-    def create_user(self, username: str, first_name: str, last_name: str, email: str, student_number: str, class_number: str, lab_number: str):
+    def create_user(self, username: str, first_name: str, last_name: str, email: str, student_number: str):
         session = Session()
-        user = Users(Username=username,Firstname=first_name,Lastname=last_name,Email=email,StudentNumber=student_number,ClassName=class_number,LabNumber=lab_number,Role = 0, IsLocked=False)
+        user = Users(Username=username,Firstname=first_name,Lastname=last_name,Email=email,StudentNumber=student_number,Role = 0, IsLocked=False)
         session.add(user)
         session.commit()
         

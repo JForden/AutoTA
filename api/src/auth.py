@@ -1,3 +1,4 @@
+from src.repositories.Classes_repository import AClassRepository
 from http import HTTPStatus
 from flask import Blueprint
 from flask import request
@@ -89,7 +90,7 @@ def auth(auth_service: AuthenticationService, user_repository: AUserRepository):
 
 @auth_api.route('/create', methods=['POST'])
 @inject
-def create_user(auth_service: AuthenticationService, user_repository: AUserRepository):
+def create_user(auth_service: AuthenticationService, user_repository: AUserRepository, class_repository: AClassRepository):
     input_json = request.get_json()
     username = get_value_or_empty(input_json, 'username')
     password = get_value_or_empty(input_json, 'password')
@@ -110,18 +111,22 @@ def create_user(auth_service: AuthenticationService, user_repository: AUserRepos
     last_name = get_value_or_empty(input_json, 'lname')
     student_number = get_value_or_empty(input_json, 'id')
     email = get_value_or_empty(input_json, 'email')
-    class_name = get_value_or_empty(input_json, 'class_name')
-    lab_number= get_value_or_empty(input_json, 'lab_number')
+    class_id = get_value_or_empty(input_json, 'class_id')
+    lab_id= get_value_or_empty(input_json, 'lab_id')
 
-    if not (first_name and last_name and student_number and email and class_name and lab_number):
+    if not (first_name and last_name and student_number and email and class_id and lab_id):
         message = {
             'message': 'Missing required data'
         }
         return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
 
-    user_repository.create_user(username,first_name,last_name,email,student_number,class_name,lab_number)
+    user_repository.create_user(username,first_name,last_name,email,student_number)
 
     user = user_repository.getUserByName(username)
+    
+    #Create ClassAssignment
+    class_repository.create_assignments(int(class_id), int(lab_id), int(user.Id))
+
     access_token = create_access_token(identity=user)
 
     message = {

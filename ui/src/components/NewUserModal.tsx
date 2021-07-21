@@ -4,11 +4,21 @@ import '../css/CodePage.scss';
 import { Form, Modal } from 'semantic-ui-react'
 import axios from 'axios';
 
-
 interface NewUserModalProps {
     username: string,
     password: string,
     isOpen: boolean
+}
+
+interface LabsJson {
+    name: string,
+    id: number,
+}
+
+interface ClassJson {
+    name: string,
+    id: number,
+    labs: Array<LabsJson>
 }
 
 interface NewUserModalState{
@@ -16,24 +26,22 @@ interface NewUserModalState{
     LastName: string,
     StudentNumber: string,
     Email: string,
-    ClassName:string,
-    LabNumber:string,
-    isOpen: boolean
+    ClassId:number,
+    LabId:number,
+    isOpen: boolean,
+    classes: Array<ClassJson>
 }
 
+interface DropDownOption {
+    key: number,
+    value: number,
+    text: string
+}
 
-const Coptions = [
-    { key: 1, text: '1010', value: 1010 },
-]
+var Coptions = Array<DropDownOption>();
 
-const Loptions = [
-    { key: 0, text: '191', value: 191 },
-    { key: 1, text: '401', value: 401 },
-    { key: 2, text: '402', value: 402 },
-    { key: 3, text: '403', value: 403 },
-    { key: 4, text: '404', value: 404 },
-    { key: 5, text: '405', value: 405 },
-]
+var Loptions = Array<DropDownOption>();
+
 class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
 
     constructor(props: any){
@@ -43,8 +51,8 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
         this.handleLastNameChange = this.handleLastNameChange.bind(this);
         this.handleEmailChange = this.handleEmailChange.bind(this);
         this.handleStudentNumberChange = this.handleStudentNumberChange.bind(this);
-        this.handleClassNameChange = this.handleClassNameChange.bind(this);
-        this.handleLabNumberChange = this.handleLabNumberChange.bind(this);
+        this.handleClassIdChange = this.handleClassIdChange.bind(this);
+        this.handleLabIdChange = this.handleLabIdChange.bind(this);
         this.handleClick = this.handleClick.bind(this);
       }
 
@@ -60,15 +68,26 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
     handleStudentNumberChange(ev: React.ChangeEvent<HTMLInputElement>){
         this.setState({ StudentNumber: ev.target.value});
     }
-    handleClassNameChange(ev: FormEvent<HTMLSelectElement>, value: string){
-        this.setState({ ClassName: value});
+    handleClassIdChange(ev: FormEvent<HTMLSelectElement>, value: number){
+        this.setState({ ClassId: value});
+        Loptions = []
+        for( let i=0; i< this.state.classes.length;i++){
+            if(this.state.classes[i].id==value){
+                var holder=this.state.classes[i].labs;
+                for(let i=0; i< holder.length;i++){
+                    Loptions.push({ key: i, text: holder[i].name, value: holder[i].id });
+                }
+                break;
+            }
+        }
     }
-    handleLabNumberChange(ev: FormEvent<HTMLSelectElement>, value: string){
-        this.setState({ LabNumber: value});
+
+    handleLabIdChange(ev: FormEvent<HTMLSelectElement>, value: number){
+        this.setState({ LabId: value});
     }
     
     handleClick(){
-        axios.post(process.env.REACT_APP_BASE_API_URL + `/auth/create`, { password: this.props.password, username: this.props.username, fname: this.state.FirstName, lname: this.state.LastName, id: this.state.StudentNumber, email: this.state.Email, class_name: this.state.ClassName, lab_number: this.state.LabNumber })
+        axios.post(process.env.REACT_APP_BASE_API_URL + `/auth/create`, { password: this.props.password, username: this.props.username, fname: this.state.FirstName, lname: this.state.LastName, id: this.state.StudentNumber, email: this.state.Email, class_id: this.state.ClassId, lab_id: this.state.LabId })
         .then(res => {    
             localStorage.setItem("AUTOTA_AUTH_TOKEN", res.data.access_token);
             window.location.href = "/upload";   
@@ -78,6 +97,23 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
         });
     }
 
+    componentDidMount() {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/get_classes_labs`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+        })
+        .then(res => {
+            this.setState({ classes: res.data as Array<ClassJson> });
+            for (let i = 0; i < this.state.classes.length; i++){
+                Coptions.push({ key: i, text: this.state.classes[i].name, value: this.state.classes[i].id });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        });
+    }
+    
   render() {
     return (
         <Modal open={this.props.isOpen}>
@@ -93,8 +129,8 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
                         <Form.Input fluid label='School Email' placeholder='first.last@marquette.edu' onChange={this.handleEmailChange} />
                     </Form.Group>
                     <Form.Group widths='equal'>
-                        <Form.Select fluid label='Class Name' options={Coptions} placeholder='Class' onChange={(e:any, {value}) => this.handleClassNameChange(e, value ? value.toString() : "")}/>
-                        <Form.Select fluid label='Lab Number' options={Loptions} placeholder='Class' onChange={(e:any, {value}) => this.handleLabNumberChange(e, value ? value.toString() : "")}  />
+                        <Form.Select fluid label='Class Name' options={Coptions} placeholder='Class' onChange={(e:any, {value}) => this.handleClassIdChange(e, value ? parseInt(value.toString()) : -1)}/>
+                        <Form.Select fluid label='Lab Number' options={Loptions} placeholder='Class' onChange={(e:any, {value}) => this.handleLabIdChange(e, value ? parseInt(value.toString()) : -1)}  />
                     </Form.Group>
 
                     <Form.Button type="submit" onClick={this.handleClick}>Submit</Form.Button>
