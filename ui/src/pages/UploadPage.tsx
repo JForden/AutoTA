@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css'
-import { Button, Form, Grid, Segment } from 'semantic-ui-react'
+import { Button, Form, Grid, Segment, Dimmer, Header, Icon } from 'semantic-ui-react'
 import axios from 'axios';
 import MenuComponent from '../components/MenuComponent';
 import React from 'react'
@@ -10,11 +10,15 @@ import ErrorMessage from '../components/ErrorMessage';
 
 interface UploadPageState {
     file?: File,
-    int: number,
+    submissions_used: number,
     color: SemanticCOLORS,
     isLoading:boolean
     error_message: string,
-    isErrorMessageHidden: boolean
+    isErrorMessageHidden: boolean,
+    project_name: string,
+    project_id: number,
+    maxSubmissions: number,
+    end: string
 }
  
 class UploadPage extends Component<{}, UploadPageState> {
@@ -23,29 +27,39 @@ class UploadPage extends Component<{}, UploadPageState> {
         super(props);
 
         this.state = {
-            int: 0,
+            submissions_used: 0,
             color: 'grey',
             isLoading: false,
             error_message: '',
-            isErrorMessageHidden: true
+            isErrorMessageHidden: true,
+            project_name: "",
+            project_id: 0,
+            maxSubmissions: 0,
+            end: ""
         };
     
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleFileChange = this.handleFileChange.bind(this);
     }
     componentDidMount() {
-
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/submissioncounter`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
         })
-        .then(res => {    
-            this.setState({int: res.data });
-            if(this.state.int>10 && this.state.int <=13){
+        .then(res => {
+            this.setState({
+                submissions_used: res.data.submissions_remaining,
+                project_name: res.data.name,
+                end: res.data.end,
+                project_id: res.data.Id,
+                maxSubmissions: res.data.max_submissions
+            });
+
+            if(this.state.submissions_used > 0.5 * this.state.maxSubmissions && this.state.submissions_used <= 0.75 * this.state.maxSubmissions){
                 this.setState({color: 'orange'});
             }
-            if(this.state.int>13){
+            if(this.state.submissions_used > 0.75 * this.state.maxSubmissions){
                 this.setState({color: 'red'});
             }   
         })
@@ -61,9 +75,7 @@ class UploadPage extends Component<{}, UploadPageState> {
         const target = event.target as HTMLInputElement;
         const files = target.files;
 
-        console.log(files)
         if(files != null && files.length === 1){
-            console.log(files[0].name);
             // Update the state
             this.setState({ file: files[0] });
         } else {
@@ -72,12 +84,12 @@ class UploadPage extends Component<{}, UploadPageState> {
       
     };
     handleColorChange(){  
-        if(this.state.int>10 && this.state.int <13){
+        if(this.state.submissions_used > 0.5 * this.state.maxSubmissions && this.state.submissions_used <= 0.75 * this.state.maxSubmissions){
             this.setState({color: 'orange'});
         }
-        if(this.state.int>13){
+        if(this.state.submissions_used > 0.75 * this.state.maxSubmissions){
             this.setState({color: 'red'});
-        }   
+        }  
         return this.state.color;
     }
 
@@ -112,14 +124,14 @@ class UploadPage extends Component<{}, UploadPageState> {
         }
     }
     
-
     render() {
         return (
         <div>
             <MenuComponent showUpload={true} showHelp={false} showCreate={false}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
             <Grid.Column style={{ maxWidth: 400 }}>
-            <Form loading={this.state.isLoading} size='large' onSubmit={this.handleSubmit}>
+            <Form loading={this.state.isLoading} size='large' onSubmit={this.handleSubmit} disabled={true}>
+                <Dimmer.Dimmable dimmed={true}>
                 <Segment stacked>
                 <h1>Upload Assignment Here</h1>
                 <Form.Input type="file" fluid required onChange={this.handleFileChange} />
@@ -127,16 +139,24 @@ class UploadPage extends Component<{}, UploadPageState> {
                     Upload
                 </Button>
                 </Segment>
+                <Dimmer active={this.state.project_id === -1}>
+                    <Header as='h2' icon inverted>
+                    <Icon name='ban' />
+                    No active project
+                    </Header>
+                </Dimmer>
+                </Dimmer.Dimmable>
             </Form>
             <ErrorMessage message={this.state.error_message} isHidden={this.state.isErrorMessageHidden} ></ErrorMessage>
-            <Progress progress='value' value={this.state.int} total={15} color={this.state.color} />
-            {(() => {
-                if(this.state.int > 0) {
-                    return <Link to="/code">Go to last submission results</Link>
-                }
-                return <></>
-            })()}
-            <h5>Total submissions for this assignment: 15</h5>
+            <div hidden={this.state.project_id === -1}>
+                <Progress progress='ratio' value={this.state.submissions_used} total={this.state.maxSubmissions} color={this.state.color} />
+                {(() => {
+                    if(this.state.submissions_used > 0) {
+                        return <Link to="/code">Go to last submission results</Link>
+                    }
+                    return <></>
+                })()}
+            </div>
             </Grid.Column>
             </Grid>
         </div>

@@ -11,6 +11,7 @@ class Projects(Base):
     Start = Column(Date)
     End = Column(Date)
     Language = Column(String)
+    MaxNumberOfSubmissions = Column(Integer)
     Submissions=relationship('Submissions') 
 
 class Users(Base):

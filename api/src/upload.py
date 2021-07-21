@@ -81,6 +81,12 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
         [HTTP]: [a pass or fail HTTP message]
     """
     project = project_repository.get_current_project()
+    if project == None:
+        message = {
+                'message': 'No active project'
+            }
+        return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
+
     totalsubmissions = submission_repository.get_submissions_remaining(current_user.Id, project.Id)
     if(totalsubmissions+1>MAXSUBMISSIONS):
         message = {

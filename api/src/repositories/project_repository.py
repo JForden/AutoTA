@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 from .models import Projects
 from .database import Session
 from sqlalchemy import desc
@@ -9,7 +10,7 @@ class AProjectRepository(ABC):
     """[a class for abstract methods]
     """
     @abstractmethod
-    def get_current_project(self) -> Projects:
+    def get_current_project(self) -> Optional[Projects]:
         """[an abstract method]"""
         pass
     @abstractmethod
@@ -23,7 +24,7 @@ class AProjectRepository(ABC):
 
 class ProjectRepository(AProjectRepository):
 
-    def get_current_project(self) -> Projects:
+    def get_current_project(self) -> Optional[Projects]:
         """[Identifies the current project based on the start and end date]
         Returns:
             Project: [this should be the currently assigned project object]
@@ -32,7 +33,7 @@ class ProjectRepository(AProjectRepository):
         session = Session()
         project = session.query(Projects).filter(Projects.End >= now, Projects.Start < now).first()
         session.close()
-        return project        
+        return project
     def get_all_projects(self) -> Projects:
         """[a method to get all the projects from the mySQL database]
 

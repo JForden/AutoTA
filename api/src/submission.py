@@ -12,6 +12,7 @@ from src.services.link_service import LinkService
 from src.constants import EMPTY, BASE_URL, ADMIN_ROLE
 import json
 from tap.parser import Parser
+from flask import jsonify
 
 submission_api = Blueprint('submission_api', __name__)
 
@@ -83,10 +84,14 @@ def codefinder(submission_repository: ASubmissionRepository):
 @submission_api.route('/submissioncounter', methods=['GET'])
 @jwt_required()
 @inject
-def submission_number_finder(submission_repository: ASubmissionRepository,project_repository: AProjectRepository):
-    current_project = project_repository.get_current_project().Id
-    number = submission_repository.get_submissions_remaining(current_user.Id, current_project)
-    return make_response(str(number), HTTPStatus.OK)
+def get_submission_information(submission_repository: ASubmissionRepository,project_repository: AProjectRepository):
+    project = project_repository.get_current_project()
+    if project != None:
+        current_project = project.Id
+        number = submission_repository.get_submissions_remaining(current_user.Id, current_project)
+        return jsonify(submissions_remaining = number, name = project.Name, end = project.End, Id = project.Id, max_submissions = project.MaxNumberOfSubmissions)
+    else:
+        return jsonify(submissions_remaining = -1, name = "", end = "", Id = -1, MaxSubmission = -1)
 
 @submission_api.route('/recentsubproject', methods=['POST'])
 @jwt_required()
