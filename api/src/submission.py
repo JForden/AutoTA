@@ -16,21 +16,28 @@ from flask import jsonify
 
 submission_api = Blueprint('submission_api', __name__)
 
-def convert_tap_to_json(file_path):
+def convert_tap_to_json(file_path,role):
     parser = Parser()
     test=[]
     final={}
-    counter=0
     for line in parser.parse_file(file_path):
-        print(line.category)
         if line.category == "test":
-
-            test.append({
-                'skipped': line.skip,
-                'passed': line.ok,
-                'test': line.yaml_block
-            })
-            counter=counter+1
+            print(line.yaml_block["hidden"])
+            print(bool(line.yaml_block["hidden"]))
+            if role == ADMIN_ROLE:
+                test.append({
+                    'skipped': line.skip,
+                    'passed': line.ok,
+                    'test': line.yaml_block
+                })
+            elif line.yaml_block["hidden"] == "True" and role != ADMIN_ROLE:
+                continue
+            else:
+                test.append({
+                    'skipped': line.skip,
+                    'passed': line.ok,
+                    'test': line.yaml_block
+                })
 
     final["results"]=test
     return json.dumps(final, sort_keys=True, indent=4)
@@ -47,7 +54,7 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
         output_path = submission_repository.get_json_path_by_submission_id(submissionid)
     else:
         output_path = submission_repository.get_json_path_by_user_id(current_user.Id)
-    output = convert_tap_to_json(output_path)
+    output = convert_tap_to_json(output_path,current_user.Role)
     return make_response(output, HTTPStatus.OK)
 
 @submission_api.route('/pylintoutput', methods=['GET'])
