@@ -16,10 +16,9 @@ steps:
   displayName: 'Use Python 3.8'
 
 - script: |
-    cd api/
-    python -m pip install --upgrade pip
-    pip install pipenv
-    pipenv install
-    pipenv install pytest pytest-azurepipelines
-    pipenv run pytest
-  displayName: 'Install dependencies'
+    cd ui
+    yarn install
+    wget https://gist.githubusercontent.com/a1g3/64995f47f95365bf4fa41c0d81061f96/raw/06fba957888d151ff0edc49cb1bde36cdc76e5dc/index.d.ts
+    mv index.d.ts node_modules/react-split/
+    yarn run build
+  displayName: 'Install frontend'
