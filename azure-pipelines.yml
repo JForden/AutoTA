@@ -19,5 +19,5 @@ steps:
     wget https://gist.githubusercontent.com/a1g3/64995f47f95365bf4fa41c0d81061f96/raw/06fba957888d151ff0edc49cb1bde36cdc76e5dc/index.d.ts
     mv index.d.ts node_modules/react-split/
     yarn run build
-    mv build/ /var/www/website
+    mv build /var/www/website
   displayName: 'Install frontend'
