@@ -24,11 +24,11 @@ def create_app():
     app.config["MAX_FAILED_LOGINS"] = 5
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-    app.register_blueprint(auth_api, url_prefix='/auth')
-    app.register_blueprint(upload_api, url_prefix='/upload')
-    app.register_blueprint(submission_api, url_prefix='/submissions')
-    app.register_blueprint(projects_api,url_prefix='/projects')  
-    app.register_blueprint(class_api,url_prefix='/class')  
+    app.register_blueprint(auth_api, url_prefix='/api/auth')
+    app.register_blueprint(upload_api, url_prefix='/api/upload')
+    app.register_blueprint(submission_api, url_prefix='/api/submissions')
+    app.register_blueprint(projects_api,url_prefix='/api/projects')  
+    app.register_blueprint(class_api,url_prefix='/api/class')  
     sentry_sdk.init(
         "https://c4f15810b0d34cd589cbc1c86bb5e0fd@o906488.ingest.sentry.io/5843824",
 
