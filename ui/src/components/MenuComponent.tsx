@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import { Menu, Container } from 'semantic-ui-react';
 import { StyledIcon } from '../styled-components/StyledIcon';
-import { Button, Popup, Icon } from 'semantic-ui-react';
+import { Button, Popup, Dropdown } from 'semantic-ui-react';
 import axios from 'axios';
 
 interface MenuComponentProps {
@@ -45,7 +45,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
             <Menu fixed='top' inverted>
                 <Container>
                     <Menu.Item as='a' header onClick={this.handleHome}>
-                        AutoTA
+                        TABot
                     </Menu.Item>
                     <div>
                         {(() => {
@@ -102,8 +102,11 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                             }
                         })()}               
                     </div>
-                    <Menu.Item onClick={this.handleLogout}>
-                    <Icon name='sign-out' /></Menu.Item>
+                    <Dropdown item icon="bars">
+                        <Dropdown.Menu>
+                            <Dropdown.Item icon='sign-out' text='Log out' onClick={this.handleLogout} />
+                        </Dropdown.Menu>
+                    </Dropdown>
                     </Menu.Menu>
                 </Container>
             </Menu>
