@@ -14,6 +14,10 @@ steps:
 - script: |
     echo $(SUDO_PASSWORD) | sudo -S rm -rf /var/www/api/
     sudo mv $(Build.Repository.LocalPath)/api /var/www/
+    sudo rm /var/www/api/app.py
+    sudo mv /var/www/api/app-prod.py /var/www/api/app.py
+    sudo rm /var/www/api/src/repositories/database.py
+    sudo mv /var/www/api/src/repositories/database-prod.py /var/www/api/src/repositories/database.py
     sudo chown -R www-data:www-data /var/www/api
   displayName: 'Update api folder'
 - script: |
