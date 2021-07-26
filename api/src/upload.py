@@ -15,8 +15,6 @@ from flask_cors import cross_origin
 from src.repositories.submission_repository import ASubmissionRepository
 from src.repositories.project_repository import AProjectRepository
 
-MAXSUBMISSIONS=15
-
 upload_api = Blueprint('upload_api', __name__)
 
 ext={"python": [".py","py"],"java": [".java","java"]}
@@ -86,7 +84,7 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
         return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
 
     totalsubmissions = submission_repository.get_submissions_remaining(current_user.Id, project.Id)
-    if(totalsubmissions+1>MAXSUBMISSIONS):
+    if(totalsubmissions+1>project.MaxNumberOfSubmissions):
         message = {
                 'message': 'Too many submissions!'
             }
@@ -139,7 +137,7 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
         submission_repository.create_submission(current_user.Id, outputpath+"output/"+current_user.Username+".out", path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status,error_count)
         message = {
             'message': 'Success',
-            'remainder': (MAXSUBMISSIONS-totalsubmissions+1)
+            'remainder': (project.MaxNumberOfSubmissions-totalsubmissions+1)
         }
         return make_response(message, HTTPStatus.OK)
     message = {
