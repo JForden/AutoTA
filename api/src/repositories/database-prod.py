@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 USER_NAME = "root"
-PASSWORD = "7.qetuoSFHK"
+PASSWORD = ":7.qetuoSFHK"
 SERVICE = "@localhost"
 PATH = "/autota"
 SQLALCHEMY_DATABASE_URL = "mysql+pymysql://"+USER_NAME+PASSWORD+SERVICE+PATH
