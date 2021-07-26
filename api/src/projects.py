@@ -25,6 +25,6 @@ def all_projects(project_repository: AProjectRepository, submission_repository: 
     new_projects = []
     thisdic = submission_repository.get_total_submission_for_all_projects()
     for proj in data:
-        new_projects.append(ProjectJson(proj.Id, proj.Name, proj.Start.strftime("%m/%d/%Y"), proj.End.strftime("%m/%d/%Y"), thisdic[proj.Id]).toJson())
+        new_projects.append(ProjectJson(proj.Id, proj.Name, proj.Start.strftime("%x %X"), proj.End.strftime("%x %X"), thisdic[proj.Id]).toJson())
     return jsonify(new_projects)
     

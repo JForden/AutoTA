@@ -114,7 +114,7 @@ def recentsubproject(submission_repository: ASubmissionRepository, user_reposito
         holder = user.Firstname + " " + user.Lastname
         number = submission_repository.get_submissions_remaining(user.Id, projectid)
         if user.Id in bucket:
-            studentattempts[user.Id]=[holder,number,bucket[user.Id].Time.strftime("%m/%d/%Y"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
+            studentattempts[user.Id]=[holder,number,bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
         else:
             studentattempts[user.Id]=[holder, "N/A", "N/A", "N/A",  "N/A", -1]    
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
