@@ -158,7 +158,7 @@ class UploadPage extends Component<{}, UploadPageState> {
                 })()}
             </div>
             <br />
-            <a href="https://drive.google.com/file/d/16TM4u3d2t1kqiVxDLakg_1nPVNqhNsbe/view?usp=sharing">Current Assignment Description</a>
+            <a href="https://drive.google.com/file/d/1r_xLUjBMCCxnjx5Uhn4Uw3l0e6sIz9Vh/view?usp=sharing">Current Assignment Description</a>
             </Grid.Column>
             </Grid>
         </div>
