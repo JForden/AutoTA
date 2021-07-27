@@ -45,7 +45,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
             <Menu fixed='top' inverted>
                 <Container>
                     <Menu.Item as='a' header onClick={this.handleHome}>
-                        TABot
+                        TAbot
                     </Menu.Item>
                     <div>
                         {(() => {

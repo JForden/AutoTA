@@ -111,7 +111,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                 <div id="test-info">
                 {(() => {
                     if(!this.state.showComponent) {
-                        return (<h1 id="blank-testcase-message">Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see more details</h1>);
+                        return (<h1 id="blank-testcase-message">Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results</h1>);
                     } else {
                         return (
                             <div>
