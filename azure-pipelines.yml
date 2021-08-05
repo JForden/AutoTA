@@ -20,4 +20,9 @@ steps:
     mv index.d.ts node_modules/react-split/
     yarn run build
     echo $(SUDO_PASSWORD) | sudo -S mv build /var/www/website
+    sudo cp -R /var/www/website/build $(Build.ArtifactStagingDirectory)
   displayName: 'Install frontend'
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: drop
