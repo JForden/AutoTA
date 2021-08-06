@@ -23,7 +23,7 @@ def test_projects_all_projects_unauthorized(testcontext, mocker: MockerFixture):
         # Assert
         assert rv.status_code == HTTPStatus.UNAUTHORIZED
         assert rv.is_json == True
-        assert rv.data == b'{"message":"UNAUTHORIZED.  REPORTED TO MUPD"}\n'
+        assert rv.data == b'{"message":"Access Denied"}\n'
 
 def test_projects_all_no_projects(testcontext, mocker: MockerFixture):
     # Act

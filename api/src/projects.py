@@ -21,7 +21,7 @@ projects_api = Blueprint('projects_api', __name__)
 def all_projects(project_repository: AProjectRepository, submission_repository: ASubmissionRepository):
     if current_user.Role != ADMIN_ROLE:
         message = {
-            'message': 'UNAUTHORIZED.  REPORTED TO MUPD'
+            'message': 'Access Denied'
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
     data = project_repository.get_all_projects()
@@ -37,7 +37,7 @@ def all_projects(project_repository: AProjectRepository, submission_repository: 
 def run_moss(user_repository: AUserRepository, submission_repository: ASubmissionRepository):
     if current_user.Role != ADMIN_ROLE:
         message = {
-            'message': 'UNAUTHORIZED.  REPORTED TO MUPD'
+            'message': 'Access Denied'
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
     
