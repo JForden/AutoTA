@@ -16,7 +16,8 @@ from flask import jsonify
 
 submission_api = Blueprint('submission_api', __name__)
 
-def convert_tap_to_json(file_path,role):
+
+def convert_tap_to_json(file_path,role,current_level):
     parser = Parser()
     test=[]
     final={}
@@ -28,15 +29,25 @@ def convert_tap_to_json(file_path,role):
                     'passed': line.ok,
                     'test': line.yaml_block
                 })
+                continue
             elif line.yaml_block["hidden"] == "True" and role != ADMIN_ROLE:
                 continue
-            else:
+            if current_level >= line.yaml_block["suite"]:
                 test.append({
                     'skipped': line.skip,
                     'passed': line.ok,
                     'test': line.yaml_block
                 })
+            else:
+                new_yaml = line.yaml_block.copy()
+                new_yaml["hidden"] = "True"
+                test.append({
+                    'skipped': "",
+                    'passed': "",
+                    'test': new_yaml
+                })
 
+    print(test)
     final["results"]=test
     return json.dumps(final, sort_keys=True, indent=4)
 
@@ -45,15 +56,21 @@ def convert_tap_to_json(file_path,role):
 @jwt_required()
 @inject
 def testcaseerrors(submission_repository: ASubmissionRepository):
-    submissionid = int(request.args.get("id"))
+    submission_id = int(request.args.get("id"))
     output_path = ""
 
-    if submissionid != EMPTY and current_user.Role == ADMIN_ROLE:
-        output_path = submission_repository.get_json_path_by_submission_id(submissionid)
+    if submission_id != EMPTY and current_user.Role == ADMIN_ROLE:
+        output_path = submission_repository.get_json_path_by_submission_id(submission_id)
     else:
         output_path = submission_repository.get_json_path_by_user_id(current_user.Id)
-    output = convert_tap_to_json(output_path,current_user.Role)
+        submission_id = submission_repository.get_submission_by_user_id(current_user.Id).Id
+
+    #print(submission_id)
+    project_id = submission_repository.get_project_by_submission_id(submission_id)
+    current_level=submission_repository.get_current_level(project_id,current_user.Id)
+    output = convert_tap_to_json(output_path,current_user.Role,current_level)
     return make_response(output, HTTPStatus.OK)
+
 
 @submission_api.route('/pylintoutput', methods=['GET'])
 @jwt_required()
@@ -116,5 +133,5 @@ def recentsubproject(submission_repository: ASubmissionRepository, user_reposito
         if user.Id in bucket:
             studentattempts[user.Id]=[holder,number,bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
         else:
-            studentattempts[user.Id]=[holder, "N/A", "N/A", "N/A",  "N/A", -1]    
+            studentattempts[user.Id]=[holder, "N/A", "N/A", "N/A",  "N/A", -1]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)

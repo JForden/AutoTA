@@ -26,13 +26,20 @@
     height: 100%;
 }
 
+.split2 {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: 100%;
+}
+
 #code-container {
     overflow-x: hidden;
+    padding-top: 2.5em;
 }
 
 #lint-output {
-    padding: 0.5em;
-    margin: 0.5em;
+    padding-top: 3.5em;
 }
 
 #test-info {
@@ -48,4 +55,9 @@
 .gutter.gutter-horizontal {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
     cursor: col-resize;
+}
+
+.gutter.gutter-vertical {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+    cursor: row-resize;
 }

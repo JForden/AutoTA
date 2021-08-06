@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from .models import Submissions, Projects
+from .models import Submissions, Projects, StudentProgress, Users
 from .database import Session
 from sqlalchemy import desc, and_
 from typing import Dict, List
@@ -8,7 +8,7 @@ from typing import Dict, List
 class ASubmissionRepository(ABC):
 
     @abstractmethod
-    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int):
+    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int, level: str):
         pass
     @abstractmethod
     def get_submission_by_user_id(self, user_id: int) -> Submissions:
@@ -42,6 +42,15 @@ class ASubmissionRepository(ABC):
         pass
     @abstractmethod
     def get_most_recent_submission_by_project(self, project_id: int, user_ids: List[int]) -> Dict[int, Submissions]:
+        pass
+    @abstractmethod
+    def get_current_level(self,project_id: int, user_ids: int ) -> str:
+        pass
+    @abstractmethod
+    def modifying_level(self, project_id: int, user_id: int, submission_id: str, current_level: str) -> bool:
+        pass
+    @abstractmethod
+    def get_project_by_submission_id(self,submission_id: int) -> int:
         pass
 
 class SubmissionRepository(ASubmissionRepository):
@@ -82,9 +91,9 @@ class SubmissionRepository(ASubmissionRepository):
         submission = self.get_submission_by_user_id(user_id)
         return submission.CodeFilepath
     
-    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool,errorcount: int ):
+    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str):
         session = Session()
-        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount)
+        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level)
         session.add(submission)
         session.commit()
 
@@ -118,4 +127,34 @@ class SubmissionRepository(ASubmissionRepository):
             else:
                 bucket[obj.User] = obj
         return bucket
-   
+        
+    def get_current_level(self,project_id: int, user_ids: int ) -> str:
+        session = Session()
+        highest_level = session.query(StudentProgress).filter(and_(StudentProgress.ProjectId == project_id, StudentProgress.UserId == user_ids)).first()
+        session.close()
+        if highest_level == None:
+            return ""
+        return highest_level.LatestLevel
+
+    def modifying_level(self, project_id: int, user_id: int, submission_id: str, current_level: str) -> bool:
+        session = Session()
+        if current_level == "":
+            Level_submission = StudentProgress(UserId=user_id,ProjectId=project_id,SubmissionId=submission_id,LatestLevel="Level 1")
+            session.add(Level_submission)
+            session.commit()
+            return True
+        print(user_id)
+        level = session.query(StudentProgress).filter(and_(StudentProgress.ProjectId == project_id, StudentProgress.UserId == user_id)).first()
+        level.LatestLevel = current_level
+        level.SubmissionId = submission_id
+        session.commit()
+        return True
+
+    def get_project_by_submission_id(self,submission_id: int) -> int:
+        session =Session()
+        submission = session.query(Submissions).filter(Submissions.Id == submission_id).first()
+        project_id = submission.Project
+        return project_id
+
+
+

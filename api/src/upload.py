@@ -14,6 +14,8 @@ from datetime import datetime
 from flask_cors import cross_origin
 from src.repositories.submission_repository import ASubmissionRepository
 from src.repositories.project_repository import AProjectRepository
+from tap.parser import Parser
+
 
 upload_api = Blueprint('upload_api', __name__)
 
@@ -56,12 +58,26 @@ def output_pass_or_fail(filepath):
     Returns:
         [Bool]: [If there is even an instance of a student failing a single test case the return type is false ]
     """
-    with open(filepath+".out", "r") as file:
+    with open(filepath, "r") as file:
         for line in file:
             if "not ok" in line:
                 return False
     return True
-    
+
+def Level_Finder(file_path):
+    parser = Parser()
+    failed_levels=[]
+    for test in parser.parse_file(file_path):
+        if test.category == "test":
+            if test.ok:
+                continue
+            else:
+                failed_levels.append(test.yaml_block["suite"])
+    failed_levels.sort()
+    print(failed_levels)
+    level = failed_levels[0]
+    return level
+
 @upload_api.route('/', methods = ['POST'])
 @jwt_required()
 @cross_origin()
@@ -131,10 +147,21 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
         
         # Step 3: Save submission in submission table
         now = datetime.now()
+        tap_path = outputpath+"output/"+current_user.Username+".out"
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        status=output_pass_or_fail(outputpath+"output/"+current_user.Username)
+        status=output_pass_or_fail(tap_path)
         error_count=python_error_count(outputpath+"output/"+current_user.Username)
-        submission_repository.create_submission(current_user.Id, outputpath+"output/"+current_user.Username+".out", path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status,error_count)
+        submission_level = Level_Finder(tap_path)
+        submission_repository.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status, error_count, submission_level)
+        
+        # Step 4 assign point totals for the submission 
+        current_level = submission_repository.get_current_level(project.Id,current_user.Id)
+        if not current_level == "" and submission_level > current_level:
+            submission_data=submission_repository.get_most_recent_submission_by_project(project.Id,[current_user.Id])
+            submission_repository.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,submission_level)
+        else:
+            submission_data=submission_repository.get_most_recent_submission_by_project(project.Id,[current_user.Id])
+            submission_repository.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,current_level)
         message = {
             'message': 'Success',
             'remainder': (project.MaxNumberOfSubmissions-totalsubmissions+1)

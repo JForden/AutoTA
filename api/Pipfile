@@ -17,6 +17,7 @@ pymysql = "*"
 sentry-sdk = "*"
 pytest-mock = "*"
 "tap.py" = {extras = ["yaml"], version = "*"}
+mosspy = "*"
 
 [dev-packages]
 pytest = "*"

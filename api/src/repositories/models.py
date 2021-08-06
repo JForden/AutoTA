@@ -38,6 +38,7 @@ class Submissions(Base):
     Time = Column(Date)
     User = Column(Integer, ForeignKey('Users.Id'))
     Project = Column(Integer, ForeignKey('Projects.Id'))
+    SubmissionLevel =Column(String)
 
 class LoginAttempts(Base):
     __tablename__ = "LoginAttempts"
@@ -65,4 +66,11 @@ class ClassAssignments(Base):
     UserId = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
     ClassId = Column(Integer, ForeignKey('Classes.Id'), primary_key=True)
     LabId = Column(Integer, ForeignKey('Labs.Id'))
+
+class StudentProgress(Base):
+    __tablename__ = "StudentProgress"
+    UserId = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
+    ProjectId = Column(Integer, ForeignKey('Projects.Id'), primary_key=True)
+    SubmissionId = Column(Integer, ForeignKey('Submissions.Id'), primary_key=True)
+    LatestLevel = Column(String)
 
