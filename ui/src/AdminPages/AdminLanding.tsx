@@ -10,7 +10,7 @@ class AdminLanding extends Component<{}, {}> {
     render() {
         return (
         <div>
-            <MenuComponent showUpload={false} showHelp={false} showCreate={false}></MenuComponent>
+            <MenuComponent showUpload={false} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
             <Grid className="main-grid">
                 <AdminComponent></AdminComponent>
             </Grid>

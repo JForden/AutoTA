@@ -1,3 +1,5 @@
+from datetime import timedelta
+from src.repositories.config_repository import AConfigRepository
 from src.repositories.user_repository import AUserRepository
 from flask import Blueprint
 from flask import make_response
@@ -9,10 +11,11 @@ from flask_jwt_extended import current_user
 from src.repositories.submission_repository import ASubmissionRepository
 from src.repositories.project_repository import AProjectRepository
 from src.services.link_service import LinkService
-from src.constants import EMPTY, BASE_URL, ADMIN_ROLE
+from src.constants import EMPTY, DELAY_CONFIG, REDEEM_BY_CONFIG, ADMIN_ROLE
 import json
 from tap.parser import Parser
 from flask import jsonify
+from datetime import datetime
 
 submission_api = Blueprint('submission_api', __name__)
 
@@ -106,14 +109,37 @@ def codefinder(submission_repository: ASubmissionRepository):
 @submission_api.route('/submissioncounter', methods=['GET'])
 @jwt_required()
 @inject
-def get_submission_information(submission_repository: ASubmissionRepository,project_repository: AProjectRepository):
+def get_submission_information(submission_repository: ASubmissionRepository, project_repository: AProjectRepository, config_repository: AConfigRepository):
     project = project_repository.get_current_project()
+    can_redeem = False
     if project != None:
         current_project = project.Id
         number = submission_repository.get_submissions_remaining(current_user.Id, current_project)
-        return jsonify(submissions_remaining = number, name = project.Name, end = project.End, Id = project.Id, max_submissions = project.MaxNumberOfSubmissions)
+        config_value = int(config_repository.get_config_setting(REDEEM_BY_CONFIG))
+        cutoff_date = project.Start + timedelta(days=config_value)
+        curr_date = datetime.now()
+
+        #Check to see if they redeem it, check to see if they have enough points, and check date
+        redeemable, point = submission_repository.get_has_redeemed(config_repository, current_user.Id, project.Id)
+        
+        if curr_date < cutoff_date and redeemable:
+            can_redeem = True
+
+        day_delays_str = config_repository.get_config_setting(DELAY_CONFIG)
+        # 5,5,5,90,150,210,270
+        day_delays = [int(x) for x in day_delays_str.split(",")]
+        day = curr_date - project.Start
+
+        delay_minutes = day_delays[day.days]
+
+        submissions = submission_repository.get_most_recent_submission_by_project(current_project,[current_user.Id])
+        submission = submissions[current_user.Id]
+        time_for_next_submission = submission.Time + timedelta(minutes=delay_minutes)
+        print(time_for_next_submission)
+
+        return jsonify(submissions_remaining = number, name = project.Name, end = project.End, Id = project.Id, max_submissions = project.MaxNumberOfSubmissions, can_redeem = can_redeem, points=point, time_until_next_submission = time_for_next_submission.isoformat())
     else:
-        return jsonify(submissions_remaining = -1, name = "", end = "", Id = -1, MaxSubmission = -1)
+        return jsonify(submissions_remaining = -1, name = "", end = "", Id = -1, max_submissions = -1, can_redeem = can_redeem, points = 0)
 
 @submission_api.route('/recentsubproject', methods=['POST'])
 @jwt_required()
@@ -135,3 +161,15 @@ def recentsubproject(submission_repository: ASubmissionRepository, user_reposito
         else:
             studentattempts[user.Id]=[holder, "N/A", "N/A", "N/A",  "N/A", -1]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
+
+@submission_api.route('/extraday', methods=['GET'])
+@jwt_required()
+@inject
+def extraday(submission_repository: ASubmissionRepository, project_repository: AProjectRepository):
+    project = project_repository.get_current_project()
+    now = datetime.now()
+    dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+    result = submission_repository.redeem_points(current_user.Id, project.Id,dt_string)
+    if result:
+        return make_response("", HTTPStatus.OK)
+    return make_response("", HTTPStatus.NOT_ACCEPTABLE)

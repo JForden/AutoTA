@@ -6,7 +6,7 @@ import MenuComponent from './MenuComponent';
 class NotFoundComponent extends Component {
     render(){
         return (<div>
-            <MenuComponent showUpload={false} showHelp={false} showCreate={false}></MenuComponent>
+            <MenuComponent showUpload={false} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign="middle" >
             <Grid.Column style={{ maxWidth: 600 }}>
             <img src="https://i.ytimg.com/vi/AY-rnBoaiY8/maxresdefault.jpg" height="200px" width="300px"></img>

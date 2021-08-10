@@ -1,3 +1,4 @@
+from src.repositories.config_repository import AConfigRepository, ConfigRepository
 from injector import singleton
 from src.services.authentication_service import AuthenticationService, PAMAuthenticationService
 from src.repositories.submission_repository import ASubmissionRepository, SubmissionRepository
@@ -15,4 +16,5 @@ def configure(binder):
     binder.bind(AProjectRepository, to=ProjectRepository, scope=singleton)
     binder.bind(LinkService, to=PylintLinkService, scope=singleton)
     binder.bind(AClassRepository, to=ClassRepository, scope=singleton)
+    binder.bind(AConfigRepository, to=ConfigRepository, scope=singleton)
 

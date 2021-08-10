@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import '../css/CodePage.scss';
-import { Grid, Menu } from 'semantic-ui-react'
 import CodeComponent from '../components/CodeComponent';
 import TestResultsComponent from '../components/TestResultsComponent';
 import MenuComponent from '../components/MenuComponent';
@@ -102,7 +101,7 @@ const CodePage = () => {
 
     return (
         <div id="code-page">
-            <MenuComponent showUpload={false} showHelp={false} showCreate={false}></MenuComponent>
+            <MenuComponent showUpload={true} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
             <Split sizes={[80, 20]} className="split2" direction="vertical">
                     <CodeComponent pylintData={pylint} codedata={code}></CodeComponent>
                     <TestResultsComponent testcase={json}></TestResultsComponent>

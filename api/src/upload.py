@@ -64,6 +64,32 @@ def output_pass_or_fail(filepath):
                 return False
     return True
 
+def test_case_point(filepath):
+    parser = Parser()
+    failed_levels={}
+    passed_levels={}
+    for test in parser.parse_file(filepath):
+        if test.category == "test":
+            if test.ok:
+                if test.yaml_block["suite"] in passed_levels:
+                    passed_levels[test.yaml_block["suite"]]=passed_levels[test.yaml_block["suite"]]+1
+                else:
+                    passed_levels[test.yaml_block["suite"]]=1
+            else:
+                if test.yaml_block["suite"] in failed_levels:
+                    failed_levels[test.yaml_block["suite"]]=failed_levels[test.yaml_block["suite"]]+1
+                else:
+                    failed_levels[test.yaml_block["suite"]]=1
+    test_total=0
+    passed_test_number=0
+    for item in failed_levels:
+        test_total=test_total+failed_levels[item]
+    for item in passed_levels:
+        test_total=test_total+passed_levels[item]
+        passed_test_number=passed_test_number+passed_levels[item]
+    return (passed_test_number,test_total)
+
+
 def Level_Finder(file_path):
     parser = Parser()
     failed_levels=[]
@@ -76,7 +102,22 @@ def Level_Finder(file_path):
     failed_levels.sort()
     print(failed_levels)
     level = failed_levels[0]
+    
+    failed_tests=[0]
+    passed_tests=[0]
+    
+    for test in parser.parse_file(file_path):
+        if test.category == "test":
+            if test.yaml_block["suite"] == level:
+                if test.ok:
+                    passed_tests[0]=passed_tests[0]+1
+                else:
+                    failed_tests[0]=failed_tests[0]+1
+    if passed_tests[0] > failed_tests[0]:
+        if failed_levels[1] != None:
+            return failed_levels[1]
     return level
+
 
 @upload_api.route('/', methods = ['POST'])
 @jwt_required()

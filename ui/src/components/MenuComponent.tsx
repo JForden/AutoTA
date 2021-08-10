@@ -8,7 +8,8 @@ import axios from 'axios';
 interface MenuComponentProps {
     showUpload: boolean,
     showHelp: boolean,
-    showCreate: boolean
+    showCreate: boolean,
+    showLast:boolean
 }
 
 
@@ -45,7 +46,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
             <Menu fixed='top' inverted>
                 <Container>
                     <Menu.Item as='a' header onClick={this.handleHome}>
-                        TAbot
+                        TA-Bot
                     </Menu.Item>
                     <div>
                         {(() => {
@@ -54,6 +55,17 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                             } else {
                                 return (
                                     <Menu.Item><a href="/upload">Upload</a></Menu.Item>
+                                );
+                            }
+                        })()}               
+                    </div>
+                    <div>
+                        {(() => {
+                            if(!this.props.showLast) {
+                                return (<></>);
+                            } else {
+                                return (
+                                    <Menu.Item><a href="/code">Previous Submission</a></Menu.Item>
                                 );
                             }
                         })()}               

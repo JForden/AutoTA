@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from .models import Submissions, Projects, StudentProgress, Users
+from .models import StudentUnlocks, Submissions, Projects, StudentProgress, Users
 from .database import Session
 from sqlalchemy import desc, and_
-from typing import Dict, List
+from typing import Dict, List, Tuple
+from src.repositories.config_repository import AConfigRepository
 
 
 class ASubmissionRepository(ABC):
@@ -52,6 +53,9 @@ class ASubmissionRepository(ABC):
     @abstractmethod
     def get_project_by_submission_id(self,submission_id: int) -> int:
         pass
+    @abstractmethod
+    def get_has_redeemed(self,user_id: int,project_id: int) -> Tuple[bool, int]:
+        pass
 
 class SubmissionRepository(ASubmissionRepository):
 
@@ -93,7 +97,7 @@ class SubmissionRepository(ASubmissionRepository):
     
     def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str):
         session = Session()
-        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level)
+        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points = 0)
         session.add(submission)
         session.commit()
 
@@ -128,6 +132,7 @@ class SubmissionRepository(ASubmissionRepository):
                 bucket[obj.User] = obj
         return bucket
         
+
     def get_current_level(self,project_id: int, user_ids: int ) -> str:
         session = Session()
         highest_level = session.query(StudentProgress).filter(and_(StudentProgress.ProjectId == project_id, StudentProgress.UserId == user_ids)).first()
@@ -156,5 +161,25 @@ class SubmissionRepository(ASubmissionRepository):
         project_id = submission.Project
         return project_id
 
-
+    def get_has_redeemed(self, Config_Repository: AConfigRepository,  user_id: int, project_id: int) -> Tuple[bool, int]:
+        session =Session()
+        submission = self.get_most_recent_submission_by_project(project_id,[user_id])
+        points=submission[user_id].Points
+        unlocked=session.query(StudentUnlocks).filter(and_(Projects.Id == project_id, Users.Id == user_id)).first()
+        if not unlocked == None:
+            return (False,points)
+        
+        #TODO: Get points from submission object
+        RedeemNumber=int(Config_Repository.get_config_setting("RedeemValue"))
+        if points < RedeemNumber:
+            return (False, points)
+        return (True,points)
+    
+    def redeem_points(self,user_id: int, project_id: int,dt_string:str) -> bool:
+        session=Session()
+        entry = StudentUnlocks(UserId=user_id,ProjectId=project_id,Time=dt_string)
+        session.add(entry)
+        session.commit()
+        return True
+       
 

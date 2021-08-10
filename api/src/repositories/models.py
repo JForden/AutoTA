@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey
+from sqlalchemy.sql.sqltypes import DateTime
 from sqlalchemy.types import Date
 from .database import Base
 
@@ -39,6 +40,7 @@ class Submissions(Base):
     User = Column(Integer, ForeignKey('Users.Id'))
     Project = Column(Integer, ForeignKey('Projects.Id'))
     SubmissionLevel =Column(String)
+    Points = Column(Integer)
 
 class LoginAttempts(Base):
     __tablename__ = "LoginAttempts"
@@ -74,3 +76,13 @@ class StudentProgress(Base):
     SubmissionId = Column(Integer, ForeignKey('Submissions.Id'), primary_key=True)
     LatestLevel = Column(String)
 
+class StudentUnlocks(Base):
+    __tablename__ = "StudentUnlocks"
+    UserId = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
+    ProjectId = Column(Integer, ForeignKey('Projects.Id'), primary_key=True)
+    Time = Column(DateTime)
+
+class Config(Base):
+    __tablename__ = "Config"
+    Name  = Column(String, primary_key=True)
+    Value = Column(String)
