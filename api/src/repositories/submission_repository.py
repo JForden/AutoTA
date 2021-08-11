@@ -54,7 +54,7 @@ class ASubmissionRepository(ABC):
     def get_project_by_submission_id(self,submission_id: int) -> int:
         pass
     @abstractmethod
-    def get_has_redeemed(self,user_id: int,project_id: int) -> Tuple[bool, int]:
+    def get_can_redeemed(self, Config_Repository: AConfigRepository,  user_id: int, previous_project_id: int, project_id: int) -> Tuple[bool, int]:
         pass
     @abstractmethod
     def get_score(self,submission_id:int)->int:
@@ -163,10 +163,14 @@ class SubmissionRepository(ASubmissionRepository):
         project_id = submission.Project
         return project_id
 
-    def get_has_redeemed(self, Config_Repository: AConfigRepository,  user_id: int, project_id: int) -> Tuple[bool, int]:
-        session =Session()
-        submission = self.get_most_recent_submission_by_project(project_id,[user_id])
+    def get_can_redeemed(self, Config_Repository: AConfigRepository,  user_id: int, previous_project_id: int, project_id: int) -> Tuple[bool, int]:
+        if previous_project_id == -1:
+            return (False, 0)
+        
+        session = Session()
+        submission = self.get_most_recent_submission_by_project(previous_project_id,[user_id])
         points=submission[user_id].Points
+
         unlocked=session.query(StudentUnlocks).filter(and_(Projects.Id == project_id, Users.Id == user_id)).first()
         if not unlocked == None:
             return (False,points)

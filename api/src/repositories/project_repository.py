@@ -45,7 +45,7 @@ class ProjectRepository(AProjectRepository):
             Projects: [a project object ]
         """
         session = Session()
-        project = session.query(Projects).order_by(desc(Projects.Id)).all()
+        project = session.query(Projects).order_by(desc(Projects.End)).all()
         session.close()
         return project
     def get_selected_project(self, project_id: int) -> Projects:

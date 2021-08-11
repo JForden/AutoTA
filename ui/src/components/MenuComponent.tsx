@@ -65,7 +65,18 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 return (<></>);
                             } else {
                                 return (
-                                    <Menu.Item><a href="/code">Previous Submission</a></Menu.Item>
+                                    <Menu.Item><a href="/code">Most Recent Submission</a></Menu.Item>
+                                );
+                            }
+                        })()}               
+                    </div>
+                    <div>
+                        {(() => {
+                            if(!this.props.showLast) {
+                                return (<></>);
+                            } else {
+                                return (
+                                    <Menu.Item><a href="/code">Previous Submissions</a></Menu.Item>
                                 );
                             }
                         })()}               

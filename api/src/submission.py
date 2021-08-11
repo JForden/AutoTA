@@ -117,14 +117,21 @@ def get_submission_information(submission_repository: ASubmissionRepository, pro
         cutoff_date = project.Start + timedelta(days=config_value)
         curr_date = datetime.now()
 
+        projects = project_repository.get_all_projects()
+        previous_project_id = -1
+        for proj in projects:
+            if proj.Id == current_project:
+                break
+            previous_project_id = proj.Id
+
         #Check to see if they redeem it, check to see if they have enough points, and check date
-        redeemable, point = submission_repository.get_has_redeemed(config_repository, current_user.Id, project.Id)
+        
+        redeemable, point = submission_repository.get_can_redeemed(config_repository, current_user.Id, previous_project_id, project.Id)
         
         if curr_date < cutoff_date and redeemable:
             can_redeem = True
 
         day_delays_str = config_repository.get_config_setting(DELAY_CONFIG)
-        # 5,5,5,90,150,210,270
         day_delays = [int(x) for x in day_delays_str.split(",")]
         day = curr_date - project.Start
 
