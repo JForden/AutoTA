@@ -9,7 +9,7 @@ from src.repositories.config_repository import AConfigRepository
 class ASubmissionRepository(ABC):
 
     @abstractmethod
-    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int, level: str):
+    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int, level: str, points: int):
         pass
     @abstractmethod
     def get_submission_by_user_id(self, user_id: int) -> Submissions:
@@ -56,6 +56,9 @@ class ASubmissionRepository(ABC):
     @abstractmethod
     def get_has_redeemed(self,user_id: int,project_id: int) -> Tuple[bool, int]:
         pass
+    @abstractmethod
+    def get_score(self,submission_id:int)->int:
+        pass
 
 class SubmissionRepository(ASubmissionRepository):
 
@@ -95,9 +98,9 @@ class SubmissionRepository(ASubmissionRepository):
         submission = self.get_submission_by_user_id(user_id)
         return submission.CodeFilepath
     
-    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str):
+    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str, points: int):
         session = Session()
-        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points = 0)
+        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=points)
         session.add(submission)
         session.commit()
 
@@ -148,7 +151,6 @@ class SubmissionRepository(ASubmissionRepository):
             session.add(Level_submission)
             session.commit()
             return True
-        print(user_id)
         level = session.query(StudentProgress).filter(and_(StudentProgress.ProjectId == project_id, StudentProgress.UserId == user_id)).first()
         level.LatestLevel = current_level
         level.SubmissionId = submission_id
@@ -181,5 +183,10 @@ class SubmissionRepository(ASubmissionRepository):
         session.add(entry)
         session.commit()
         return True
+
+    def get_score(self,submission_id:int)->int:
+        session=Session()
+        submission = session.query(Submissions).filter(Submissions.Id==submission_id).one()
+        return submission.Points
        
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional
-from .models import Projects
+from typing import Optional, Dict
+from .models import Projects, Levels
 from .database import Session
 from sqlalchemy import desc
 from datetime import datetime
@@ -19,6 +19,10 @@ class AProjectRepository(ABC):
         pass
     @abstractmethod
     def get_selected_project(self, project_id: int) -> Projects:
+        """[an abstract method]"""
+        pass
+    @abstractmethod
+    def get_levels(self, project_id: int) -> Dict[str, int]:
         """[an abstract method]"""
         pass
 
@@ -56,3 +60,13 @@ class ProjectRepository(AProjectRepository):
         project= session.query(Projects).filter(Projects.Id == project_id).first()
         session.close()
         return project
+    
+    def get_levels(self, project_id: int) -> Dict[str, int]:
+        session = Session()
+        levels = session.query(Levels).filter(Projects.Id == project_id).all()
+        session.close()
+        level_points = {}
+        for level in levels:
+            level_points[level.Name] = level.Points
+
+        return level_points

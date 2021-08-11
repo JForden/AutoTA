@@ -86,3 +86,10 @@ class Config(Base):
     __tablename__ = "Config"
     Name  = Column(String, primary_key=True)
     Value = Column(String)
+
+class Levels(Base):
+    __tablename__ = "Levels"
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    ProjectId = Column(Integer, ForeignKey('Projects.Id'))
+    Name=Column(String)
+    Points=Column(Integer)

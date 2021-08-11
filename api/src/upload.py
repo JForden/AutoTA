@@ -64,12 +64,17 @@ def output_pass_or_fail(filepath):
                 return False
     return True
 
-def test_case_point(filepath):
+def level_counter(filepath):
     parser = Parser()
     failed_levels={}
     passed_levels={}
+    total_tests={}
     for test in parser.parse_file(filepath):
         if test.category == "test":
+            if test.yaml_block["suite"] in total_tests:
+                total_tests[test.yaml_block["suite"]]=total_tests[test.yaml_block["suite"]]+1
+            else:
+                total_tests[test.yaml_block["suite"]]=1
             if test.ok:
                 if test.yaml_block["suite"] in passed_levels:
                     passed_levels[test.yaml_block["suite"]]=passed_levels[test.yaml_block["suite"]]+1
@@ -80,15 +85,21 @@ def test_case_point(filepath):
                     failed_levels[test.yaml_block["suite"]]=failed_levels[test.yaml_block["suite"]]+1
                 else:
                     failed_levels[test.yaml_block["suite"]]=1
-    test_total=0
-    passed_test_number=0
-    for item in failed_levels:
-        test_total=test_total+failed_levels[item]
-    for item in passed_levels:
-        test_total=test_total+passed_levels[item]
-        passed_test_number=passed_test_number+passed_levels[item]
-    return (passed_test_number,test_total)
+    
+    return (passed_levels, total_tests)
 
+def score_finder(project_repository: AProjectRepository, passed_levels,total_tests,project_id):
+
+    #[level 1, 10. level 2, 30]
+    levels=project_repository.get_levels(project_id)
+    score_total=0
+    for item in levels:
+        individual_score=levels[item]/total_tests[item]
+        if item in passed_levels:
+            score_total=score_total+(individual_score*passed_levels[item])
+
+    
+    return score_total
 
 def Level_Finder(file_path):
     parser = Parser()
@@ -100,7 +111,7 @@ def Level_Finder(file_path):
             else:
                 failed_levels.append(test.yaml_block["suite"])
     failed_levels.sort()
-    print(failed_levels)
+    
     level = failed_levels[0]
     
     failed_tests=[0]
@@ -113,10 +124,21 @@ def Level_Finder(file_path):
                     passed_tests[0]=passed_tests[0]+1
                 else:
                     failed_tests[0]=failed_tests[0]+1
-    if passed_tests[0] > failed_tests[0]:
+    if passed_tests[0] >= failed_tests[0]:
         if failed_levels[1] != None:
             return failed_levels[1]
     return level
+    
+def pylint_score_finder(error_count):
+    if error_count <= 10 and error_count > 7:
+        return 25
+    if error_count <= 7 and error_count > 5:
+        return 30
+    if error_count <= 5:
+        return 40
+    else:
+        return 10
+
 
 
 @upload_api.route('/', methods = ['POST'])
@@ -193,7 +215,14 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
         status=output_pass_or_fail(tap_path)
         error_count=python_error_count(outputpath+"output/"+current_user.Username)
         submission_level = Level_Finder(tap_path)
-        submission_repository.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status, error_count, submission_level)
+
+        passed_levels, total_tests = level_counter(tap_path)
+        student_submission_score=score_finder(project_repository, passed_levels, total_tests, project.Id)
+        pylint_score = pylint_score_finder(error_count)
+        
+        total_submission_score = student_submission_score+pylint_score
+        
+        submission_repository.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
         
         # Step 4 assign point totals for the submission 
         current_level = submission_repository.get_current_level(project.Id,current_user.Id)

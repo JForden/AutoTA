@@ -50,7 +50,6 @@ def convert_tap_to_json(file_path,role,current_level):
                     'test': new_yaml
                 })
 
-    print(test)
     final["results"]=test
     return json.dumps(final, sort_keys=True, indent=4)
 
@@ -68,7 +67,6 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
         output_path = submission_repository.get_json_path_by_user_id(current_user.Id)
         submission_id = submission_repository.get_submission_by_user_id(current_user.Id).Id
 
-    #print(submission_id)
     project_id = submission_repository.get_project_by_submission_id(submission_id)
     current_level=submission_repository.get_current_level(project_id,current_user.Id)
     output = convert_tap_to_json(output_path,current_user.Role,current_level)
@@ -135,7 +133,6 @@ def get_submission_information(submission_repository: ASubmissionRepository, pro
         submissions = submission_repository.get_most_recent_submission_by_project(current_project,[current_user.Id])
         submission = submissions[current_user.Id]
         time_for_next_submission = submission.Time + timedelta(minutes=delay_minutes)
-        print(time_for_next_submission)
 
         return jsonify(submissions_remaining = number, name = project.Name, end = project.End, Id = project.Id, max_submissions = project.MaxNumberOfSubmissions, can_redeem = can_redeem, points=point, time_until_next_submission = time_for_next_submission.isoformat())
     else:
@@ -161,6 +158,21 @@ def recentsubproject(submission_repository: ASubmissionRepository, user_reposito
         else:
             studentattempts[user.Id]=[holder, "N/A", "N/A", "N/A",  "N/A", -1]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
+
+
+@submission_api.route('/get-score', methods=['GET'])
+@jwt_required()
+@inject
+def get_score(submission_repository: ASubmissionRepository):
+    submissionid = int(request.args.get("id"))
+    score = 0
+    if submissionid != EMPTY and current_user.Role == ADMIN_ROLE:
+        score = submission_repository.get_score(submissionid)
+    else:
+        score = submission_repository.get_submission_by_user_id(current_user.Id).Points
+        
+    return make_response(str(score), HTTPStatus.OK)
+
 
 @submission_api.route('/extraday', methods=['GET'])
 @jwt_required()

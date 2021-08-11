@@ -6,7 +6,8 @@ import { StyledIcon } from '../styled-components/StyledIcon';
 import Split from 'react-split';
 
 interface TestResultComponentProps {
-    testcase: JsonResponse
+    testcase: JsonResponse,
+    score:number
 }
 
 interface TestState {
@@ -49,7 +50,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             hidden: "",
             result: false,
             description: "",
-            output: ""
+            output: "",
         };
         this.handleClick = this.handleClick.bind(this);
     }
@@ -121,7 +122,13 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                     <div id="test-info">
                     {(() => {
                         if(!this.state.showComponent) {
-                            return (<h1 id="blank-testcase-message">Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results</h1>);
+                            return (
+                            <div><h1 id="blank-testcase-message">
+                                Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results
+                            </h1>
+                            <h2 className="center">The score of this submission is: <StyledIcon name='gem' className="GEM" color="blue" />  {this.props.score}</h2>
+                            <p className="center"><i>Note: The score of your submission is not the same as the final grade for the assignment. The score is based 60% on test cases and 40% on Pylint results</i></p>
+                            </div>);
                         } else {
                             return (
                                 <div>
