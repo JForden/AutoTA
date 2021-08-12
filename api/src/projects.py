@@ -1,3 +1,4 @@
+import json
 from src.repositories.user_repository import AUserRepository
 from src.repositories.submission_repository import ASubmissionRepository
 from flask import Blueprint
@@ -46,3 +47,23 @@ def run_moss(user_repository: AUserRepository, submission_repository: ASubmissio
 
     url= all_submissions(projectid, submission_repository, user_repository)
     return make_response(url, HTTPStatus.OK)
+    
+    
+@projects_api.route('/projects-by-user', methods=['GET'])
+@jwt_required()
+@inject
+def get_projects_by_user(project_repository: AProjectRepository, submission_repository: ASubmissionRepository):
+    projects= project_repository.get_all_projects()
+    student_submissions={}
+    for project in projects:
+        subs = submission_repository.get_most_recent_submission_by_project(project.Id, [current_user.Id])
+        sub = subs[current_user.Id]
+        student_submissions[project.Name]=[sub.Id, sub.Points, sub.Time.strftime("%x %X")]
+    
+    print("This is the dict: ", student_submissions)
+    print()
+    print()
+    print("This is the json results from student submissions: ", json.dumps(student_submissions))
+    return make_response(json.dumps(student_submissions), HTTPStatus.OK)
+
+

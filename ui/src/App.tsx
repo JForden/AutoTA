@@ -5,6 +5,7 @@ import LoginPage from './pages/Login';
 import LandingPage from './pages/Landing';
 import UploadPage from './pages/UploadPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import PastSubmissionPage from "./components/PastSubmissionPage";
 import CodePage from './pages/CodePage';
 import AdminLanding from './AdminPages/AdminLanding';
 import ProjectBreakdown from './AdminPages/ProjectBreakdown';
@@ -31,6 +32,7 @@ class App extends Component {
         <Switch>
               <Route path="/login" component={LoginPage} />
               <Route exact path="/" component={LandingPage} />
+              <ProtectedRoute exact path="/past-submission" component={PastSubmissionPage} />
               <ProtectedRoute exact path="/upload" component={UploadPage} />
               <ProtectedRoute exact path="/code/:id?" component={CodePage} />
               <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />

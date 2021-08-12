@@ -192,5 +192,9 @@ class SubmissionRepository(ASubmissionRepository):
         session=Session()
         submission = session.query(Submissions).filter(Submissions.Id==submission_id).one()
         return submission.Points
-       
 
+    def submission_view_verification(self, submission_id, user_id) -> bool:
+        
+        session=Session()
+        submission = session.query(Submissions).filter(and_(Submissions.Id==submission_id,Submissions.User==user_id)).first()
+        return submission != None

@@ -61,7 +61,7 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
     submission_id = int(request.args.get("id"))
     output_path = ""
 
-    if submission_id != EMPTY and current_user.Role == ADMIN_ROLE:
+    if submission_id != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repository.submission_view_verification(current_user.Id,submission_id)):
         output_path = submission_repository.get_json_path_by_submission_id(submission_id)
     else:
         output_path = submission_repository.get_json_path_by_user_id(current_user.Id)
@@ -79,7 +79,7 @@ def testcaseerrors(submission_repository: ASubmissionRepository):
 def pylintoutput(submission_repository: ASubmissionRepository, link_service: LinkService):
     submissionid = int(request.args.get("id"))
     pylint_output = ""
-    if submissionid != EMPTY and current_user.Role == ADMIN_ROLE:
+    if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repository.submission_view_verification(current_user.Id,submissionid)):
         pylint_output = submission_repository.get_pylint_path_by_submission_id(submissionid)
     else:
         pylint_output = submission_repository.get_pylint_path_by_user_id(current_user.Id)
@@ -95,7 +95,7 @@ def pylintoutput(submission_repository: ASubmissionRepository, link_service: Lin
 def codefinder(submission_repository: ASubmissionRepository):
     submissionid = int(request.args.get("id"))
     code_output = ""
-    if submissionid != EMPTY and current_user.Role == ADMIN_ROLE:
+    if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repository.submission_view_verification(current_user.Id,submissionid)):
         code_output = submission_repository.get_code_path_by_submission_id(submissionid)
     else:
         code_output = submission_repository.get_code_path_by_user_id(current_user.Id)
@@ -173,7 +173,7 @@ def recentsubproject(submission_repository: ASubmissionRepository, user_reposito
 def get_score(submission_repository: ASubmissionRepository):
     submissionid = int(request.args.get("id"))
     score = 0
-    if submissionid != EMPTY and current_user.Role == ADMIN_ROLE:
+    if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repository.submission_view_verification(current_user.Id,submissionid)):
         score = submission_repository.get_score(submissionid)
     else:
         score = submission_repository.get_submission_by_user_id(current_user.Id).Points

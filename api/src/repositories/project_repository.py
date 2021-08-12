@@ -70,3 +70,4 @@ class ProjectRepository(AProjectRepository):
             level_points[level.Name] = level.Points
 
         return level_points
+    

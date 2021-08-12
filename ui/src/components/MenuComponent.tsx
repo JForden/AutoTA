@@ -76,7 +76,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 return (<></>);
                             } else {
                                 return (
-                                    <Menu.Item><a href="/code">Previous Submissions</a></Menu.Item>
+                                    <Menu.Item><a href="/past-submission">Previous Submissions</a></Menu.Item>
                                 );
                             }
                         })()}               
