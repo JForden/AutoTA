@@ -104,7 +104,7 @@ const CodePage = () => {
         .catch(err => {
             console.log(err);
         });
-    }, []);
+    });
 
     return (
         <div id="code-page">

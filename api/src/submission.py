@@ -188,7 +188,7 @@ def extraday(submission_repository: ASubmissionRepository, project_repository: A
     project = project_repository.get_current_project()
     now = datetime.now()
     dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-    result = submission_repository.redeem_points(current_user.Id, project.Id,dt_string)
+    result = submission_repository.redeem_score(current_user.Id, project.Id,dt_string)
     if result:
         return make_response("", HTTPStatus.OK)
     return make_response("", HTTPStatus.NOT_ACCEPTABLE)

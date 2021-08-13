@@ -28,18 +28,18 @@ class App extends Component {
     });
 
     return (
-      <BrowserRouter>
-        <Switch>
-              <Route path="/login" component={LoginPage} />
-              <Route exact path="/" component={LandingPage} />
-              <ProtectedRoute exact path="/past-submission" component={PastSubmissionPage} />
-              <ProtectedRoute exact path="/upload" component={UploadPage} />
-              <ProtectedRoute exact path="/code/:id?" component={CodePage} />
-              <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />
-              <ProtectedRoute exact path="/admin/project/:id" component={ProjectBreakdown} />
-              <Route component={NotFoundComponent}></Route>
-        </Switch>
-      </BrowserRouter>
+        <BrowserRouter>
+                <Switch>
+                    <Route path="/login" component={LoginPage} />
+                    <Route exact path="/" component={LandingPage} />
+                    <ProtectedRoute exact path="/past-submission" component={PastSubmissionPage} />
+                    <ProtectedRoute exact path="/upload" component={UploadPage} />
+                    <ProtectedRoute exact path="/code/:id?" component={CodePage} />
+                    <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />
+                    <ProtectedRoute exact path="/admin/project/:id" component={ProjectBreakdown} />
+                    <Route component={NotFoundComponent}></Route>
+                </Switch>
+        </BrowserRouter>
     );
   }
 }

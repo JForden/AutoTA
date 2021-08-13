@@ -23,6 +23,7 @@ def get_Labs(class_repository: AClassRepository):
     labs = class_repository.get_Labs(class_name)
     return jsonify(labs)
 
+
 @class_api.route('/get_classes_labs', methods=['GET'])
 @inject
 def get_class_labs(class_repository: AClassRepository):

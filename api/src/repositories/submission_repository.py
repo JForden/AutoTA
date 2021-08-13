@@ -98,9 +98,9 @@ class SubmissionRepository(ASubmissionRepository):
         submission = self.get_submission_by_user_id(user_id)
         return submission.CodeFilepath
     
-    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str, points: int):
+    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str, score: int):
         session = Session()
-        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=points)
+        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=score)
         session.add(submission)
         session.commit()
 
@@ -169,19 +169,19 @@ class SubmissionRepository(ASubmissionRepository):
         
         session = Session()
         submission = self.get_most_recent_submission_by_project(previous_project_id,[user_id])
-        points=submission[user_id].Points
+        score=submission[user_id].Points
 
         unlocked=session.query(StudentUnlocks).filter(and_(Projects.Id == project_id, Users.Id == user_id)).first()
         if not unlocked == None:
-            return (False,points)
+            return (False,score)
         
-        #TODO: Get points from submission object
+        #TODO: Get score from submission object
         RedeemNumber=int(Config_Repository.get_config_setting("RedeemValue"))
-        if points < RedeemNumber:
-            return (False, points)
-        return (True,points)
+        if score < RedeemNumber:
+            return (False, score)
+        return (True,score)
     
-    def redeem_points(self,user_id: int, project_id: int,dt_string:str) -> bool:
+    def redeem_score(self,user_id: int, project_id: int,dt_string:str) -> bool:
         session=Session()
         entry = StudentUnlocks(UserId=user_id,ProjectId=project_id,Time=dt_string)
         session.add(entry)

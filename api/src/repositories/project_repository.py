@@ -65,9 +65,9 @@ class ProjectRepository(AProjectRepository):
         session = Session()
         levels = session.query(Levels).filter(Projects.Id == project_id).all()
         session.close()
-        level_points = {}
+        level_score = {}
         for level in levels:
-            level_points[level.Name] = level.Points
+            level_score[level.Name] = level.Points
 
-        return level_points
+        return level_score
     

@@ -82,7 +82,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             return (<Tab.Pane attached={false}>
                 <div id="testresults-container">
                 {this.props.testcase.results.map(x => {
-                     if(x.test.suite === s){
+                    if(x.test.suite === s){
                         if(x.test.hidden==="True"){
                             return (
                                 <span className="testcase">
@@ -109,7 +109,9 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                                 <StyledIcon name='close' className="FAILED" />
                             </span>);
                         }
-                     }
+                    }
+
+                    return (<></>)
                 })}
                 </div>
             </Tab.Pane>

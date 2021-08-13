@@ -1,10 +1,10 @@
 import { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css'
-import { Button, Form, Grid, Segment, Dimmer, Header, Icon,Label } from 'semantic-ui-react'
+import { Button, Form, Grid, Segment, Dimmer, Header, Icon } from 'semantic-ui-react'
 import axios from 'axios';
 import MenuComponent from '../components/MenuComponent';
 import React from 'react'
-import { Progress, SemanticCOLORS } from 'semantic-ui-react'
+import { SemanticCOLORS } from 'semantic-ui-react'
 import ErrorMessage from '../components/ErrorMessage';
 import Countdown from 'react-countdown';
 
@@ -27,7 +27,6 @@ class UploadPage extends Component<{}, UploadPageState> {
 
     constructor(props: any){
         super(props);
-
         this.state = {
             color: 'grey',
             isLoading: false,
@@ -129,6 +128,7 @@ class UploadPage extends Component<{}, UploadPageState> {
     }
     
     render() {
+        throw new Error();
         return (
         <div>
             <MenuComponent showUpload={true} showHelp={false} showCreate={false} showLast={true}></MenuComponent>
@@ -163,7 +163,7 @@ class UploadPage extends Component<{}, UploadPageState> {
             <Button
             basic
             color='blue'
-            content='Points from last assignment'
+            content='Score on last assignment'
             icon='gem'
             label={{
                 as: 'a',
@@ -175,7 +175,7 @@ class UploadPage extends Component<{}, UploadPageState> {
             />
             <br /> <br />
             <Button disabled={!this.state.canRedeem} type="submit" color='yellow' fluid size='small' onClick={this.handleRedeem}>
-                Use Extra Day (-70 Points)
+                Use Extra Day (Score must be above 70)
             </Button>
             </Grid.Column>
             </Grid>

@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import '../css/AdminComponent.scss'
 import { Grid } from 'semantic-ui-react'
 import MenuComponent from '../components/MenuComponent';
-import StudentList from '../components/StudentList'
 
 class Row {
     constructor() {
@@ -53,7 +52,8 @@ class PastSubmissionPage extends Component<{}, ProjectsState> {
                 row.score = parseInt(test[1]);
                 row.date = test[2];
                 rows.push(row);
-                console.log(row);
+                
+                return row;
             });
 
             this.setState({ rows: rows });

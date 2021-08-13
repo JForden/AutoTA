@@ -68,8 +68,8 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                 row.numberOfPylintErrors = parseInt(test[4]);
                 row.subid=parseInt(test[5]);
                 rows.push(row);    
-                console.log(row);
-                console.log(row.isPassing)
+                
+                return row;
             });
 
             this.setState({ rows: rows });

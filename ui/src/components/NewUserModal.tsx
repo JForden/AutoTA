@@ -72,7 +72,7 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
         this.setState({ ClassId: value});
         Loptions = []
         for( let i=0; i< this.state.classes.length;i++){
-            if(this.state.classes[i].id==value){
+            if(this.state.classes[i].id === value){
                 var holder=this.state.classes[i].labs;
                 for(let i=0; i< holder.length;i++){
                     Loptions.push({ key: i, text: holder[i].name, value: holder[i].id });

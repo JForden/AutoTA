@@ -11,6 +11,7 @@ from src.upload import upload_api
 from src.submission import submission_api
 from src.projects import projects_api
 from src.classes import class_api
+from src.error import error_api
 from src.dependencies import configure
 from src.jwt_manager import jwt
 import sentry_sdk
@@ -28,7 +29,8 @@ def create_app():
     app.register_blueprint(upload_api, url_prefix='/api/upload')
     app.register_blueprint(submission_api, url_prefix='/api/submissions')
     app.register_blueprint(projects_api,url_prefix='/api/projects')  
-    app.register_blueprint(class_api,url_prefix='/api/class')  
+    app.register_blueprint(class_api,url_prefix='/api/class')
+    app.register_blueprint(error_api,url_prefix='/api/error')  
     sentry_sdk.init(
         "https://c4f15810b0d34cd589cbc1c86bb5e0fd@o906488.ingest.sentry.io/5843824",
 
