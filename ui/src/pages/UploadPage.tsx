@@ -128,7 +128,6 @@ class UploadPage extends Component<{}, UploadPageState> {
     }
     
     render() {
-        throw new Error();
         return (
         <div>
             <MenuComponent showUpload={true} showHelp={false} showCreate={false} showLast={true}></MenuComponent>

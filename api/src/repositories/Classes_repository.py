@@ -22,7 +22,7 @@ class AClassRepository(ABC):
         """[Creates a new entry in the ClassAssignments table]"""
         pass
 
-class ClassRepository(AClassRepository):
+class ClassRepository():
     def get_classes(self) -> List[Classes]:
         """[Get all the current classes]"""
         session = Session()

@@ -2,9 +2,9 @@
 This is our main file for our application, from here everything else is called
 """
 
+from container import Container
 from datetime import timedelta
 from flask import Flask
-from flask_injector import FlaskInjector
 from flask_cors import CORS
 from src.auth import auth_api
 from src.upload import upload_api
@@ -14,11 +14,16 @@ from src.classes import class_api
 from src.error import error_api
 from src.dependencies import configure
 from src.jwt_manager import jwt
+from src import classes, auth, projects, submission, upload
+import sys
 import sentry_sdk
 
 
 def create_app():
     app = Flask(__name__)
+    container = Container()
+    app.container = container
+    container.wire(modules=[classes, auth, projects, submission, upload])
     CORS(app)
     app.config['TABOT_PATH'] = '/home/alex/Documents/Repositories/ta-bot/tabot.sh'
     app.config["JWT_SECRET_KEY"] = "ob1L04WeQ1U0H5Kiybk9rMoQigVhoGJCKBxC6KxF85G89vAK3L903I073JXQ"
@@ -40,7 +45,6 @@ def create_app():
         traces_sample_rate=1.0
     )
 
-    FlaskInjector(app=app, modules=[configure])
     jwt.init_app(app)
 
     return app

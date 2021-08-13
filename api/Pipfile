@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 flask-cors = "*"
 pam = "*"
-flask-injector = "*"
 flask = "==1.1.2"
 werkzeug = "==1.0.1"
 flask-jwt-extended = "*"
@@ -18,6 +17,7 @@ sentry-sdk = "*"
 pytest-mock = "*"
 "tap.py" = {extras = ["yaml"], version = "*"}
 mosspy = "*"
+dependency-injector = "*"
 
 [dev-packages]
 pytest = "*"

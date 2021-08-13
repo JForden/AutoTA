@@ -12,9 +12,11 @@ from http import HTTPStatus
 from injector import inject
 from datetime import datetime
 from flask_cors import cross_origin
-from src.repositories.submission_repository import ASubmissionRepository
-from src.repositories.project_repository import AProjectRepository
+from src.repositories.submission_repository import SubmissionRepository
+from src.repositories.project_repository import AProjectRepository, ProjectRepository
 from tap.parser import Parser
+from dependency_injector.wiring import inject, Provide
+from container import Container
 
 
 upload_api = Blueprint('upload_api', __name__)
@@ -145,7 +147,7 @@ def pylint_score_finder(error_count):
 @jwt_required()
 @cross_origin()
 @inject
-def file_upload(submission_repository: ASubmissionRepository, project_repository: AProjectRepository):
+def file_upload(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
     """[summary]
 
     Args:
@@ -155,14 +157,14 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
     Returns:
         [HTTP]: [a pass or fail HTTP message]
     """
-    project = project_repository.get_current_project()
+    project = project_repo.get_current_project()
     if project == None:
         message = {
                 'message': 'No active project'
             }
         return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
 
-    totalsubmissions = submission_repository.get_submissions_remaining(current_user.Id, project.Id)
+    totalsubmissions = submission_repo.get_submissions_remaining(current_user.Id, project.Id)
     if(totalsubmissions+1>project.MaxNumberOfSubmissions):
         message = {
                 'message': 'Too many submissions!'
@@ -217,21 +219,21 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
         submission_level = Level_Finder(tap_path)
 
         passed_levels, total_tests = level_counter(tap_path)
-        student_submission_score=score_finder(project_repository, passed_levels, total_tests, project.Id)
+        student_submission_score=score_finder(project_repo, passed_levels, total_tests, project.Id)
         pylint_score = pylint_score_finder(error_count)
         
         total_submission_score = student_submission_score+pylint_score
         
-        submission_repository.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
+        submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
         
         # Step 4 assign point totals for the submission 
-        current_level = submission_repository.get_current_level(project.Id,current_user.Id)
+        current_level = submission_repo.get_current_level(project.Id,current_user.Id)
         if not current_level == "" and submission_level > current_level:
-            submission_data=submission_repository.get_most_recent_submission_by_project(project.Id,[current_user.Id])
-            submission_repository.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,submission_level)
+            submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[current_user.Id])
+            submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,submission_level)
         else:
-            submission_data=submission_repository.get_most_recent_submission_by_project(project.Id,[current_user.Id])
-            submission_repository.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,current_level)
+            submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[current_user.Id])
+            submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,current_level)
         message = {
             'message': 'Success',
             'remainder': (project.MaxNumberOfSubmissions-totalsubmissions+1)
