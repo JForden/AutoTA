@@ -164,14 +164,6 @@ def file_upload(submission_repo: SubmissionRepository = Provide[Container.submis
             }
         return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
 
-    totalsubmissions = submission_repo.get_submissions_remaining(current_user.Id, project.Id)
-    if(totalsubmissions+1>project.MaxNumberOfSubmissions):
-        message = {
-                'message': 'Too many submissions!'
-            }
-        return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
-
-
     # check if the post request has the file part
     if 'file' not in request.files:
         message = {
@@ -236,7 +228,7 @@ def file_upload(submission_repo: SubmissionRepository = Provide[Container.submis
             submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,current_level)
         message = {
             'message': 'Success',
-            'remainder': (project.MaxNumberOfSubmissions-totalsubmissions+1)
+            'remainder': 10
         }
         return make_response(message, HTTPStatus.OK)
     message = {
