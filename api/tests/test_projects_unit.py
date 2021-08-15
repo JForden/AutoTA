@@ -18,7 +18,9 @@ def test_projects_all_projects_unauthorized(testcontext, mocker: MockerFixture):
         project_repository_mock = Mock()
         submission_repository_mock = Mock()
 
-        rv = all_projects(project_repository_mock, submission_repository_mock)
+        test_container = testcontext.app.container
+        with test_container.project_repo.override(project_repository_mock), test_container.submission_repo.override(submission_repository_mock):
+            rv = all_projects()
 
         # Assert
         assert rv.status_code == HTTPStatus.UNAUTHORIZED
@@ -38,7 +40,9 @@ def test_projects_all_no_projects(testcontext, mocker: MockerFixture):
         project_repository_mock.get_all_projects.return_value = []
         submission_repository_mock.get_total_submission_for_all_projects.return_value = []
 
-        rv = all_projects(project_repository_mock, submission_repository_mock)
+        test_container = testcontext.app.container
+        with test_container.project_repo.override(project_repository_mock), test_container.submission_repo.override(submission_repository_mock):
+            rv = all_projects()
 
         # Assert
         assert rv.status_code == HTTPStatus.OK
@@ -62,15 +66,18 @@ def test_projects_all_projects(testcontext, mocker: MockerFixture):
         project_repository_mock.get_all_projects.return_value = projects
         submission_repository_mock.get_total_submission_for_all_projects.return_value = { 0: 0, 1: 5 }
 
-        rv = all_projects(project_repository_mock, submission_repository_mock)
+        test_container = testcontext.app.container
+        with test_container.project_repo.override(project_repository_mock), test_container.submission_repo.override(submission_repository_mock):
+            rv = all_projects()
 
         # Assert
         assert rv.status_code == HTTPStatus.OK
         assert rv.is_json == True
         json_response = json.loads(rv.data)
         assert len(json_response) == 2
-        assert_project(json_response[0], 0, "Project 1", "05/17/2020", "05/17/2021", 0)
-        assert_project(json_response[1], 1, "Project 2", "05/17/2021", "05/17/2022", 5)
+        assert_project(json_response[0], 0, "Project 1", "05/17/20 00:00:00", "05/17/21 00:00:00", 0)
+        assert_project(json_response[1], 1, "Project 2", "05/17/21 00:00:00", "05/17/22 00:00:00", 5)
+
 
 def assert_project(actual: str, id: int, name: str, start: str, end: str, total_submissions: int):
     parsed_json = json.loads(actual)

@@ -66,7 +66,7 @@ def auth(auth_service: PAMAuthenticationService = Provide[Container.auth_service
         now = datetime.now()
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         if(exist):
-            user_repository.send_attempt_data(username, ipadr, dt_string)
+            user_repo.send_attempt_data(username, ipadr, dt_string)
         message = {
             'message': 'Invalid username and/or password!  Please try again!'
         }

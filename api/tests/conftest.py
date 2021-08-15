@@ -14,3 +14,4 @@ def testcontext():
     with testapp.test_client() as client:
         tc = TestContext(testapp, client)
         yield tc
+        testapp.container.unwire()

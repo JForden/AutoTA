@@ -142,7 +142,6 @@ def pylint_score_finder(error_count):
         return 10
 
 
-
 @upload_api.route('/', methods = ['POST'])
 @jwt_required()
 @cross_origin()

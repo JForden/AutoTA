@@ -59,7 +59,7 @@ def convert_tap_to_json(file_path,role,current_level):
 @submission_api.route('/testcaseerrors', methods=['GET'])
 @jwt_required()
 @inject
-def testcaseerrors(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
     submission_id = int(request.args.get("id"))
     output_path = ""
 
@@ -112,40 +112,38 @@ def codefinder(submission_repo: SubmissionRepository = Provide[Container.submiss
 def get_submission_information(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], config_repo: ConfigRepository = Provide[Container.config_repo]):
     project = project_repo.get_current_project()
     can_redeem = False
-    if project != None:
-        current_project = project.Id
-        number = submission_repo.get_submissions_remaining(current_user.Id, current_project)
-        config_value = int(config_repo.get_config_setting(REDEEM_BY_CONFIG))
-        cutoff_date = project.Start + timedelta(days=config_value)
-        curr_date = datetime.now()
+    if project is None:
+        return jsonify(submissions_remaining=-1, name="", end="", Id=-1, max_submissions=-1, can_redeem=can_redeem,
+                       points=0, time_until_next_submission="")
 
-        projects = project_repo.get_all_projects()
-        previous_project_id = -1
-        for proj in projects:
-            if proj.Id == current_project:
-                break
-            previous_project_id = proj.Id
+    current_project = project.Id
+    config_value = int(config_repo.get_config_setting(REDEEM_BY_CONFIG))
+    cutoff_date = project.Start + timedelta(days=config_value)
+    curr_date = datetime.now()
 
-        #Check to see if they redeem it, check to see if they have enough points, and check date
-        
-        redeemable, point = submission_repo.get_can_redeemed(config_repo, current_user.Id, previous_project_id, project.Id)
-        
-        if curr_date < cutoff_date and redeemable:
-            can_redeem = True
+    projects = project_repo.get_all_projects()
+    previous_project_id = -1
+    for proj in projects:
+        if proj.Id == current_project:
+            break
+        previous_project_id = proj.Id
 
-        day_delays_str = config_repo.get_config_setting(DELAY_CONFIG)
-        day_delays = [int(x) for x in day_delays_str.split(",")]
-        day = curr_date - project.Start
+    redeemable, point = submission_repo.get_can_redeemed(config_repo, current_user.Id, previous_project_id, project.Id)
 
-        delay_minutes = day_delays[day.days]
+    if curr_date < cutoff_date and redeemable:
+        can_redeem = True
 
-        submissions = submission_repo.get_most_recent_submission_by_project(current_project,[current_user.Id])
-        submission = submissions[current_user.Id]
-        time_for_next_submission = submission.Time + timedelta(minutes=delay_minutes)
+    day_delays_str = config_repo.get_config_setting(DELAY_CONFIG)
+    day_delays = [int(x) for x in day_delays_str.split(",")]
+    day = curr_date - project.Start
 
-        return jsonify(submissions_remaining = number, name = project.Name, end = project.End, Id = project.Id, max_submissions = project.MaxNumberOfSubmissions, can_redeem = can_redeem, points=point, time_until_next_submission = time_for_next_submission.isoformat())
-    else:
-        return jsonify(submissions_remaining = -1, name = "", end = "", Id = -1, max_submissions = -1, can_redeem = can_redeem, points = 0)
+    delay_minutes = day_delays[day.days]
+
+    submissions = submission_repo.get_most_recent_submission_by_project(current_project,[current_user.Id])
+    submission = submissions[current_user.Id]
+    time_for_next_submission = submission.Time + timedelta(minutes=delay_minutes)
+
+    return jsonify(submissions_remaining = 10, name = project.Name, end = project.End, Id = project.Id, max_submissions = 10, can_redeem = can_redeem, points=point, time_until_next_submission = time_for_next_submission.isoformat())
 
 @submission_api.route('/recentsubproject', methods=['POST'])
 @jwt_required()
