@@ -1,7 +1,6 @@
 from flask import Blueprint
-from injector import inject
 from flask_jwt_extended import jwt_required
-from src.repositories.Classes_repository import ClassRepository
+from src.repositories.classes_repository import ClassRepository
 from dependency_injector.wiring import inject, Provide
 from container import Container
 from flask import jsonify

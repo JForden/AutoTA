@@ -1,15 +1,13 @@
-from src.repositories.Classes_repository import AClassRepository, ClassRepository
+from src.repositories.classes_repository import ClassRepository
 from http import HTTPStatus
 from flask import Blueprint
 from flask import request
 from flask import make_response
-from injector import inject
-from src.services.authentication_service import AuthenticationService, PAMAuthenticationService
-from src.repositories.database import Session
+from src.services.authentication_service import PAMAuthenticationService
 from src.repositories.models import Users
 from flask_jwt_extended import create_access_token
 from src.jwt_manager import jwt
-from src.repositories.user_repository import AUserRepository, UserRepository
+from src.repositories.user_repository import UserRepository
 from flask_jwt_extended import jwt_required
 from flask import current_app
 from src.api_utils import get_value_or_empty
@@ -38,10 +36,8 @@ def get_user_role(user_repo: UserRepository = Provide[Container.user_repo]):
 # if the user has been deleted from the database).
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
-    session = Session()
     identity = jwt_data["sub"]
-    user = session.query(Users).filter_by(Id=identity).one_or_none()
-    session.close()
+    user = Users.query.filter_by(Id=identity).one_or_none()
     return user
 
 

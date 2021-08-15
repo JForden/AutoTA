@@ -1,6 +1,6 @@
 from datetime import timedelta
-from src.repositories.config_repository import AConfigRepository, ConfigRepository
-from src.repositories.user_repository import AUserRepository, UserRepository
+from src.repositories.config_repository import ConfigRepository
+from src.repositories.user_repository import UserRepository
 from flask import Blueprint
 from flask import make_response
 from flask import request
@@ -8,8 +8,8 @@ from http import HTTPStatus
 from injector import inject
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
-from src.repositories.submission_repository import ASubmissionRepository, SubmissionRepository
-from src.repositories.project_repository import AProjectRepository, ProjectRepository
+from src.repositories.submission_repository import SubmissionRepository
+from src.repositories.project_repository import ProjectRepository
 from src.services.link_service import LinkService
 from src.constants import EMPTY, DELAY_CONFIG, REDEEM_BY_CONFIG, ADMIN_ROLE
 import json

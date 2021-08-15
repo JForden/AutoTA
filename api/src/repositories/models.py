@@ -3,9 +3,11 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime
 from sqlalchemy.types import Date
-from .database import Base
 
-class Projects(Base):
+from src.repositories.database import db
+
+
+class Projects(db.Model):
     __tablename__ = "Projects"
     Id = Column(Integer, primary_key=True, autoincrement=True)
     Name = Column(String)
@@ -15,7 +17,7 @@ class Projects(Base):
     MaxNumberOfSubmissions = Column(Integer)
     Submissions=relationship('Submissions') 
 
-class Users(Base):
+class Users(db.Model):
     __tablename__ = "Users"
     Id = Column(Integer, primary_key=True, autoincrement=True)
     Username = Column(String)
@@ -28,7 +30,7 @@ class Users(Base):
     Submissions=relationship('Submissions')
     ClassAssignments=relationship('ClassAssignments')
 
-class Submissions(Base):
+class Submissions(db.Model):
     __tablename__ = "Submissions"
     Id = Column(Integer, primary_key=True, autoincrement=True)
     OutputFilepath = Column(String)
@@ -42,52 +44,52 @@ class Submissions(Base):
     SubmissionLevel =Column(String)
     Points = Column(Integer)
 
-class LoginAttempts(Base):
+class LoginAttempts(db.Model):
     __tablename__ = "LoginAttempts"
     Id = Column(Integer, primary_key=True, autoincrement=True)
     Time = Column(Date)
     IPAddress = Column(String)
     Username = Column(String, ForeignKey('Users.Username'))
 
-class Classes(Base):
+class Classes(db.Model):
     __tablename__ = "Classes"
     Id = Column(Integer, primary_key=True, autoincrement=True)
     Name = Column(String)
     Labs=relationship('Labs')
     ClassAssignments=relationship('ClassAssignments')
 
-class Labs(Base):
+class Labs(db.Model):
     __tablename__ = "Labs"
     Id = Column(Integer, primary_key=True, autoincrement=True)
     Name = Column(String)
     Class = Column(Integer, ForeignKey('Classes.Id'))
     ClassAssignments=relationship('ClassAssignments')
 
-class ClassAssignments(Base):
+class ClassAssignments(db.Model):
     __tablename__ = "ClassAssignments"
     UserId = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
     ClassId = Column(Integer, ForeignKey('Classes.Id'), primary_key=True)
     LabId = Column(Integer, ForeignKey('Labs.Id'))
 
-class StudentProgress(Base):
+class StudentProgress(db.Model):
     __tablename__ = "StudentProgress"
     UserId = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
     ProjectId = Column(Integer, ForeignKey('Projects.Id'), primary_key=True)
     SubmissionId = Column(Integer, ForeignKey('Submissions.Id'), primary_key=True)
     LatestLevel = Column(String)
 
-class StudentUnlocks(Base):
+class StudentUnlocks(db.Model):
     __tablename__ = "StudentUnlocks"
     UserId = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
     ProjectId = Column(Integer, ForeignKey('Projects.Id'), primary_key=True)
     Time = Column(DateTime)
 
-class Config(Base):
+class Config(db.Model):
     __tablename__ = "Config"
     Name  = Column(String, primary_key=True)
     Value = Column(String)
 
-class Levels(Base):
+class Levels(db.Model):
     __tablename__ = "Levels"
     Id = Column(Integer, primary_key=True, autoincrement=True)
     ProjectId = Column(Integer, ForeignKey('Projects.Id'))

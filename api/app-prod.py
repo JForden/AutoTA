@@ -11,7 +11,6 @@ from src.upload import upload_api
 from src.submission import submission_api
 from src.projects import projects_api
 from src.classes import class_api
-from src.dependencies import configure
 from src.jwt_manager import jwt
 import sentry_sdk
 

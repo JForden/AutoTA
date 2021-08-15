@@ -1,6 +1,6 @@
 import json
-from src.repositories.user_repository import AUserRepository, UserRepository
-from src.repositories.submission_repository import ASubmissionRepository, SubmissionRepository
+from src.repositories.user_repository import UserRepository
+from src.repositories.submission_repository import SubmissionRepository
 from flask import Blueprint
 from flask import make_response
 from http import HTTPStatus

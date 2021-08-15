@@ -3,7 +3,7 @@ from src.services.link_service import PylintLinkService
 from src.repositories.user_repository import UserRepository
 from src.services.authentication_service import PAMAuthenticationService
 from dependency_injector import containers, providers
-from src.repositories.Classes_repository import ClassRepository
+from src.repositories.classes_repository import ClassRepository
 from src.repositories.project_repository import ProjectRepository
 from src.repositories.submission_repository import SubmissionRepository
 

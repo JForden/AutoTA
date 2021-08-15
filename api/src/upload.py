@@ -9,11 +9,10 @@ from flask import request
 from flask import make_response
 from flask import current_app
 from http import HTTPStatus
-from injector import inject
 from datetime import datetime
 from flask_cors import cross_origin
 from src.repositories.submission_repository import SubmissionRepository
-from src.repositories.project_repository import AProjectRepository, ProjectRepository
+from src.repositories.project_repository import ProjectRepository
 from tap.parser import Parser
 from dependency_injector.wiring import inject, Provide
 from container import Container
@@ -90,7 +89,7 @@ def level_counter(filepath):
     
     return (passed_levels, total_tests)
 
-def score_finder(project_repository: AProjectRepository, passed_levels,total_tests,project_id):
+def score_finder(project_repository: ProjectRepository, passed_levels,total_tests,project_id):
 
     #[level 1, 10. level 2, 30]
     levels=project_repository.get_levels(project_id)

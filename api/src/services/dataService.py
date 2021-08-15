@@ -1,9 +1,9 @@
-from src.repositories.submission_repository import ASubmissionRepository
-from src.repositories.user_repository import AUserRepository
+from src.repositories.submission_repository import SubmissionRepository
+from src.repositories.user_repository import UserRepository
 import mosspy
 
 
-def all_submissions(projectid: int, submission_repository: ASubmissionRepository, user_repository: AUserRepository):
+def all_submissions(projectid: int, submission_repository: SubmissionRepository, user_repository: UserRepository):
     # TODO: Load in language from DB
     m = mosspy.Moss("41498278", "python")
     users = user_repository.get_all_users()
