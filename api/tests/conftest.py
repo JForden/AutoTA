@@ -1,5 +1,7 @@
 import pytest
 import app
+from src.repositories.database import db
+
 
 class TestContext:
     def __init__(self, app, client):
@@ -10,8 +12,9 @@ class TestContext:
 def testcontext():
     testapp = app.create_app()
     testapp.config['TESTING'] = True
+    testapp.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
 
     with testapp.test_client() as client:
         tc = TestContext(testapp, client)
         yield tc
-        testapp.container.unwire()
+        #testapp.container.unwire()

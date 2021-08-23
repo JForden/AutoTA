@@ -1,4 +1,5 @@
-from abc import ABC, abstractmethod
+import datetime
+from typing import List
 
 from src.repositories.database import db
 from .models import Users, LoginAttempts
@@ -20,20 +21,19 @@ class UserRepository():
         db.session.add(user)
         db.session.commit()
         
-    def get_user_status(self):
+    def get_user_status(self) -> str:
         return str(current_user.Role)
 
-    def get_all_users(self):
+    def get_all_users(self) -> List[Users]:
         user = Users.query.all()
         return user
 
-    def send_attempt_data(self, username: str, ipadr: str, time: str):
+    def send_attempt_data(self, username: str, ipadr: str, time: datetime):
         login_attempt = LoginAttempts(IPAddress=ipadr, Username=username, Time=time)
         db.session.add(login_attempt)
         db.session.commit()
-        return True
 
-    def can_user_login(self, username: str):
+    def can_user_login(self, username: str) -> int:
         number = LoginAttempts.query.filter(LoginAttempts.Username == username).count()
         return number
         
@@ -42,10 +42,8 @@ class UserRepository():
         for attempt in attempts:
             db.session.delete(attempt)
         db.session.commit()
-        return True
 
-    def lock_user_account(self,username: str):
-        query = Users.query.filter(Users.Username==username).first()
+    def lock_user_account(self, username: str):
+        query = Users.query.filter(Users.Username==username).one()
         query.IsLocked=True
         db.session.commit()
-        return True

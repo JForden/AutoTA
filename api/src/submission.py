@@ -142,6 +142,8 @@ def get_submission_information(submission_repo: SubmissionRepository = Provide[C
     submissions = submission_repo.get_most_recent_submission_by_project(current_project,[current_user.Id])
     submission = submissions[current_user.Id]
     time_for_next_submission = submission.Time + timedelta(minutes=delay_minutes)
+    if submission_repo.unlock_check(current_user.Id,current_project):
+        time_for_next_submission = submission.Time + timedelta(minutes=5)
 
     return jsonify(submissions_remaining = 10, name = project.Name, end = project.End, Id = project.Id, max_submissions = 10, can_redeem = can_redeem, points=point, time_until_next_submission = time_for_next_submission.isoformat())
 
@@ -159,9 +161,8 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
     bucket = submission_repo.get_most_recent_submission_by_project(projectid, userids)    
     for user in users:
         holder = user.Firstname + " " + user.Lastname
-        number = submission_repo.get_submissions_remaining(user.Id, projectid)
         if user.Id in bucket:
-            studentattempts[user.Id]=[holder,number,bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
+            studentattempts[user.Id]=[holder,10,bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
         else:
             studentattempts[user.Id]=[holder, "N/A", "N/A", "N/A",  "N/A", -1]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
@@ -192,3 +193,4 @@ def extraday(submission_repo: SubmissionRepository = Provide[Container.submissio
     if result:
         return make_response("", HTTPStatus.OK)
     return make_response("", HTTPStatus.NOT_ACCEPTABLE)
+

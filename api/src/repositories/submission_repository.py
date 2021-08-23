@@ -3,6 +3,7 @@ from .models import StudentUnlocks, Submissions, Projects, StudentProgress, User
 from sqlalchemy import desc, and_
 from typing import Dict, List, Tuple
 from src.repositories.config_repository import ConfigRepository
+from datetime import datetime
 
 
 class SubmissionRepository():
@@ -43,10 +44,6 @@ class SubmissionRepository():
         submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=score)
         db.session.add(submission)
         db.session.commit()
-
-    def get_submissions_remaining(self, user_id: int, project_id: int) -> int:
-        count = Submissions.query.filter(and_(Submissions.User == user_id, Submissions.Project == project_id)).count()
-        return count
 
     def get_total_submission_for_all_projects(self) -> Dict[int, int]:
         thisdic={}
@@ -97,9 +94,13 @@ class SubmissionRepository():
             return (False, 0)
         
         submission = self.get_most_recent_submission_by_project(previous_project_id,[user_id])
-        score=submission[user_id].Points
+        print(submission)
+        if user_id in submission:
+            score=submission[user_id].Points
+        else:
+            score=0
 
-        unlocked=StudentUnlocks.query.filter(and_(Projects.Id == project_id, Users.Id == user_id)).first()
+        unlocked=StudentUnlocks.query.filter(and_(StudentUnlocks.ProjectId == project_id, StudentUnlocks.UserId == user_id)).first()
         if not unlocked == None:
             return (False,score)
         
@@ -122,3 +123,9 @@ class SubmissionRepository():
     def submission_view_verification(self, submission_id, user_id) -> bool:
         submission = Submissions.query.filter(and_(Submissions.Id==submission_id,Submissions.User==user_id)).first()
         return submission is not None
+        
+    def unlock_check(self, user_id,project_id) -> bool:
+        unlocked_info = StudentUnlocks.query.filter(and_(StudentUnlocks.ProjectId==project_id,StudentUnlocks.UserId==user_id)).first()
+        current_day=datetime.today().strftime('%A')
+        #TODO: Make this not hardcoded for 2.0
+        return (current_day == "Wednesday" and unlocked_info != None)

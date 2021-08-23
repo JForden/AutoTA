@@ -59,9 +59,9 @@ def get_projects_by_user(project_repo: ProjectRepository = Provide[Container.pro
     student_submissions={}
     for project in projects:
         subs = submission_repo.get_most_recent_submission_by_project(project.Id, [current_user.Id])
-        sub = subs[current_user.Id]
-        student_submissions[project.Name]=[sub.Id, sub.Points, sub.Time.strftime("%x %X")]
-    
+        if current_user.Id in subs: 
+            sub = subs[current_user.Id]
+            student_submissions[project.Name]=[sub.Id, sub.Points, sub.Time.strftime("%x %X")]
     return make_response(json.dumps(student_submissions), HTTPStatus.OK)
 
 

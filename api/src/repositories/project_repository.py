@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Dict
+
+from sqlalchemy.sql.expression import asc
 from .models import Projects, Levels
 from sqlalchemy import desc
 from datetime import datetime
@@ -22,7 +24,7 @@ class ProjectRepository():
         Returns:
             Projects: [a project object ]
         """
-        project = Projects.query.order_by(desc(Projects.End)).all()
+        project = Projects.query.order_by(asc(Projects.End)).all()
         return project
 
     def get_selected_project(self, project_id: int) -> Projects:

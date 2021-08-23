@@ -28,7 +28,6 @@ def get_Labs(class_repository: ClassRepository = Provide[Container.class_repo]):
 @class_api.route('/get_classes_labs', methods=['GET'])
 @inject
 def get_class_labs(class_repository: ClassRepository = Provide[Container.class_repo]):
-    print(class_repository)
     classes = class_repository.get_classes()
     holder=[]
     for class_name in classes:
