@@ -6,18 +6,23 @@
 trigger:
 - master
 
-pool: Default
+pool:
+  vmImage: ubuntu-latest
 
 steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '14.x'
+  displayName: 'Install Node.js'
 - script: |
-    echo $(SUDO_PASSWORD) | sudo -S rm -rf /var/www/website
-    echo $(SUDO_PASSWORD) | sudo -S mkdir /var/www/website
-  displayName: File Cleanup
-- script: |
-    cd ui
+    cd $(Build.SourcesDirectory)/ui
     yarn install
     wget https://gist.githubusercontent.com/a1g3/64995f47f95365bf4fa41c0d81061f96/raw/06fba957888d151ff0edc49cb1bde36cdc76e5dc/index.d.ts
     mv index.d.ts node_modules/react-split/
     yarn run build
-    echo $(SUDO_PASSWORD) | sudo -S mv build /var/www/website
+    cp -R build/ $(Build.ArtifactStagingDirectory)
   displayName: 'Install frontend'
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: drop
