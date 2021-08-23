@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import '../css/CodePage.scss';
-import { Grid } from 'semantic-ui-react'
 import CodeComponent from '../components/CodeComponent';
 import TestResultsComponent from '../components/TestResultsComponent';
 import MenuComponent from '../components/MenuComponent';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import Split from 'react-split';
 const defaultpagenumber=-1;
 
 interface CodePageProps {
@@ -18,7 +18,8 @@ interface JsonTestResponseBody {
     type: number,
     description: string,
     name: string,
-    suite: string
+    suite: string,
+    hidden: string
 }
 interface JsonResponseBody {
     skipped: boolean,
@@ -47,10 +48,10 @@ const CodePage = () => {
     let { id } = useParams<CodePageProps>();
     var submissionId = id ? parseInt(id) : defaultpagenumber; 
     
-    const [json, setJson] = useState<JsonResponse>({ results: [ { skipped: false, passed: false, test: { description: "", output: [""], type: 0, name: "", suite: "" }} ] });
+    const [json, setJson] = useState<JsonResponse>({ results: [ { skipped: false, passed: false, test: { description: "", output: [""], type: 0, name: "", suite: "", hidden: "" }} ] });
     const [pylint, setPylint] = useState<Array<PylintObject>>([]);
     const [code, setCode] = useState<string>("");
-
+    const [score, setScore] = useState<number>(0);
 
     useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors?id=${submissionId}`, {
@@ -59,11 +60,6 @@ const CodePage = () => {
             }
         })
         .then(res => { 
-            console.log(res.data);
-            
-            
-
-
             setJson(res.data as JsonResponse);
             console.log(json);
         })
@@ -71,6 +67,18 @@ const CodePage = () => {
             console.log(err);
         });
  
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/get-score?id=${submissionId}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+        })
+        .then(res => {    
+            setScore(res.data)
+        })
+        .catch(err => {
+            console.log(err);
+        });
+
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/pylintoutput?id=${submissionId}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
@@ -96,22 +104,15 @@ const CodePage = () => {
         .catch(err => {
             console.log(err);
         });
-    }, []);
+    });
 
     return (
         <div id="code-page">
-            <MenuComponent showUpload={true} showHelp={true} showCreate={false}></MenuComponent>
-            <Grid>
-                <Grid.Column>
-                    <Grid.Row width={16} className="top-row full-height">
-                        <CodeComponent pylintData={pylint} codedata={code}></CodeComponent>
-                    </Grid.Row>
-
-                    <Grid.Row width={16}>
-                        <TestResultsComponent testcase={json}></TestResultsComponent>
-                    </Grid.Row>
-                </Grid.Column>
-            </Grid>
+            <MenuComponent showUpload={true} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
+            <Split sizes={[80, 20]} className="split2" direction="vertical">
+                    <CodeComponent pylintData={pylint} codedata={code}></CodeComponent>
+                    <TestResultsComponent testcase={json} score={score}></TestResultsComponent>
+            </Split>
         </div>
     );
 }

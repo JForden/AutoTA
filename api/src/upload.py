@@ -9,11 +9,14 @@ from flask import request
 from flask import make_response
 from flask import current_app
 from http import HTTPStatus
-from injector import inject
 from datetime import datetime
 from flask_cors import cross_origin
-from src.repositories.submission_repository import ASubmissionRepository
-from src.repositories.project_repository import AProjectRepository
+from src.repositories.submission_repository import SubmissionRepository
+from src.repositories.project_repository import ProjectRepository
+from tap.parser import Parser
+from dependency_injector.wiring import inject, Provide
+from container import Container
+
 
 upload_api = Blueprint('upload_api', __name__)
 
@@ -56,17 +59,93 @@ def output_pass_or_fail(filepath):
     Returns:
         [Bool]: [If there is even an instance of a student failing a single test case the return type is false ]
     """
-    with open(filepath+".out", "r") as file:
+    with open(filepath, "r") as file:
         for line in file:
             if "not ok" in line:
                 return False
     return True
+
+def level_counter(filepath):
+    parser = Parser()
+    failed_levels={}
+    passed_levels={}
+    total_tests={}
+    for test in parser.parse_file(filepath):
+        if test.category == "test":
+            if test.yaml_block["suite"] in total_tests:
+                total_tests[test.yaml_block["suite"]]=total_tests[test.yaml_block["suite"]]+1
+            else:
+                total_tests[test.yaml_block["suite"]]=1
+            if test.ok:
+                if test.yaml_block["suite"] in passed_levels:
+                    passed_levels[test.yaml_block["suite"]]=passed_levels[test.yaml_block["suite"]]+1
+                else:
+                    passed_levels[test.yaml_block["suite"]]=1
+            else:
+                if test.yaml_block["suite"] in failed_levels:
+                    failed_levels[test.yaml_block["suite"]]=failed_levels[test.yaml_block["suite"]]+1
+                else:
+                    failed_levels[test.yaml_block["suite"]]=1
     
+    return (passed_levels, total_tests)
+
+def score_finder(project_repository: ProjectRepository, passed_levels,total_tests,project_id):
+
+    #[level 1, 10. level 2, 30]
+    levels=project_repository.get_levels(project_id)
+    score_total=0
+    for item in levels:
+        individual_score=levels[item]/total_tests[item]
+        if item in passed_levels:
+            score_total=score_total+(individual_score*passed_levels[item])
+
+    
+    return score_total
+
+def Level_Finder(file_path):
+    parser = Parser()
+    failed_levels=[]
+    for test in parser.parse_file(file_path):
+        if test.category == "test":
+            if test.ok:
+                continue
+            else:
+                failed_levels.append(test.yaml_block["suite"])
+    failed_levels.sort()
+    
+    level = failed_levels[0]
+    
+    failed_tests=[0]
+    passed_tests=[0]
+    
+    for test in parser.parse_file(file_path):
+        if test.category == "test":
+            if test.yaml_block["suite"] == level:
+                if test.ok:
+                    passed_tests[0]=passed_tests[0]+1
+                else:
+                    failed_tests[0]=failed_tests[0]+1
+    if passed_tests[0] >= failed_tests[0]:
+        if failed_levels[1] != None:
+            return failed_levels[1]
+    return level
+    
+def pylint_score_finder(error_count):
+    if error_count <= 10 and error_count > 7:
+        return 25
+    if error_count <= 7 and error_count > 5:
+        return 30
+    if error_count <= 5:
+        return 40
+    else:
+        return 10
+
+
 @upload_api.route('/', methods = ['POST'])
 @jwt_required()
 @cross_origin()
 @inject
-def file_upload(submission_repository: ASubmissionRepository, project_repository: AProjectRepository):
+def file_upload(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
     """[summary]
 
     Args:
@@ -76,20 +155,12 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
     Returns:
         [HTTP]: [a pass or fail HTTP message]
     """
-    project = project_repository.get_current_project()
+    project = project_repo.get_current_project()
     if project == None:
         message = {
                 'message': 'No active project'
             }
         return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
-
-    totalsubmissions = submission_repository.get_submissions_remaining(current_user.Id, project.Id)
-    if(totalsubmissions+1>project.MaxNumberOfSubmissions):
-        message = {
-                'message': 'Too many submissions!'
-            }
-        return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
-
 
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -131,13 +202,31 @@ def file_upload(submission_repository: ASubmissionRepository, project_repository
         
         # Step 3: Save submission in submission table
         now = datetime.now()
+        tap_path = outputpath+"output/"+current_user.Username+".out"
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        status=output_pass_or_fail(outputpath+"output/"+current_user.Username)
+        status=output_pass_or_fail(tap_path)
         error_count=python_error_count(outputpath+"output/"+current_user.Username)
-        submission_repository.create_submission(current_user.Id, outputpath+"output/"+current_user.Username+".out", path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status,error_count)
+        submission_level = Level_Finder(tap_path)
+
+        passed_levels, total_tests = level_counter(tap_path)
+        student_submission_score=score_finder(project_repo, passed_levels, total_tests, project.Id)
+        pylint_score = pylint_score_finder(error_count)
+        
+        total_submission_score = student_submission_score+pylint_score
+        
+        submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
+        
+        # Step 4 assign point totals for the submission 
+        current_level = submission_repo.get_current_level(project.Id,current_user.Id)
+        if not current_level == "" and submission_level > current_level:
+            submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[current_user.Id])
+            submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,submission_level)
+        else:
+            submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[current_user.Id])
+            submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,current_level)
         message = {
             'message': 'Success',
-            'remainder': (project.MaxNumberOfSubmissions-totalsubmissions+1)
+            'remainder': 10
         }
         return make_response(message, HTTPStatus.OK)
     message = {

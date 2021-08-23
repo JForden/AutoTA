@@ -60,7 +60,11 @@ class Login extends Component<{}, LoginPageState> {
       }
     })
     .catch(err => {
-        this.setState({ error_message: err.response.data.message})
+        var msg = ""
+        if(err.response && err.response.data.message){
+            msg = err.response.data.message
+        }
+        this.setState({ error_message: msg})
         this.setState({ isErrorMessageHidden: false, isLoading: false });
     })
   }

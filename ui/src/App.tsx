@@ -5,6 +5,7 @@ import LoginPage from './pages/Login';
 import LandingPage from './pages/Landing';
 import UploadPage from './pages/UploadPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import PastSubmissionPage from "./components/PastSubmissionPage";
 import CodePage from './pages/CodePage';
 import AdminLanding from './AdminPages/AdminLanding';
 import ProjectBreakdown from './AdminPages/ProjectBreakdown';
@@ -19,7 +20,7 @@ class App extends Component {
             return successRes;
         }, 
         function(error) {
-            if(error.response.status === 401 || error.response.status === 422 || error.response.status === 419) {
+            if(error.response && (error.response.status === 401 || error.response.status === 422 || error.response.status === 419)) {
                 localStorage.removeItem("AUTOTA_AUTH_TOKEN");
                 window.location.href = "/login";
             }
@@ -27,17 +28,18 @@ class App extends Component {
     });
 
     return (
-      <BrowserRouter>
-        <Switch>
-              <Route path="/login" component={LoginPage} />
-              <Route exact path="/" component={LandingPage} />
-              <ProtectedRoute exact path="/upload" component={UploadPage} />
-              <ProtectedRoute exact path="/code/:id?" component={CodePage} />
-              <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />
-              <ProtectedRoute exact path="/admin/project/:id" component={ProjectBreakdown} />
-              <Route component={NotFoundComponent}></Route>
-        </Switch>
-      </BrowserRouter>
+        <BrowserRouter>
+                <Switch>
+                    <Route path="/login" component={LoginPage} />
+                    <Route exact path="/" component={LandingPage} />
+                    <ProtectedRoute exact path="/past-submission" component={PastSubmissionPage} />
+                    <ProtectedRoute exact path="/upload" component={UploadPage} />
+                    <ProtectedRoute exact path="/code/:id?" component={CodePage} />
+                    <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />
+                    <ProtectedRoute exact path="/admin/project/:id" component={ProjectBreakdown} />
+                    <Route component={NotFoundComponent}></Route>
+                </Switch>
+        </BrowserRouter>
     );
   }
 }

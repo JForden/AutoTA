@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import { Menu, Container } from 'semantic-ui-react';
 import { StyledIcon } from '../styled-components/StyledIcon';
-import { Button, Popup, Icon } from 'semantic-ui-react';
+import { Button, Popup, Dropdown } from 'semantic-ui-react';
 import axios from 'axios';
 
 interface MenuComponentProps {
     showUpload: boolean,
     showHelp: boolean,
-    showCreate: boolean
+    showCreate: boolean,
+    showLast:boolean
 }
 
 
@@ -45,7 +46,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
             <Menu fixed='top' inverted>
                 <Container>
                     <Menu.Item as='a' header onClick={this.handleHome}>
-                        AutoTA
+                        TA-Bot
                     </Menu.Item>
                     <div>
                         {(() => {
@@ -54,6 +55,28 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                             } else {
                                 return (
                                     <Menu.Item><a href="/upload">Upload</a></Menu.Item>
+                                );
+                            }
+                        })()}               
+                    </div>
+                    <div>
+                        {(() => {
+                            if(!this.props.showLast) {
+                                return (<></>);
+                            } else {
+                                return (
+                                    <Menu.Item><a href="/code">Most Recent Submission</a></Menu.Item>
+                                );
+                            }
+                        })()}               
+                    </div>
+                    <div>
+                        {(() => {
+                            if(!this.props.showLast) {
+                                return (<></>);
+                            } else {
+                                return (
+                                    <Menu.Item><a href="/past-submission">Previous Submissions</a></Menu.Item>
                                 );
                             }
                         })()}               
@@ -102,8 +125,11 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                             }
                         })()}               
                     </div>
-                    <Menu.Item onClick={this.handleLogout}>
-                    <Icon name='sign-out' /></Menu.Item>
+                    <Dropdown item icon="bars">
+                        <Dropdown.Menu>
+                            <Dropdown.Item icon='sign-out' text='Log out' onClick={this.handleLogout} />
+                        </Dropdown.Menu>
+                    </Dropdown>
                     </Menu.Menu>
                 </Container>
             </Menu>

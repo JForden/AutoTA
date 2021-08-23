@@ -3,7 +3,7 @@ import 'semantic-ui-css/semantic.min.css'
 import '../css/TestResultComponent.scss';
 import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
-import { Table, Label } from 'semantic-ui-react';
+import { Table, Label, Loader } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
 interface StudentListProps {
@@ -32,6 +32,7 @@ class Row {
 
 interface StudentListState {
     rows: Array<Row>
+    isLoading: boolean;
 }
 
 class StudentList extends Component<StudentListProps, StudentListState> {
@@ -40,8 +41,10 @@ class StudentList extends Component<StudentListProps, StudentListState> {
         super(props);
 
         this.state = {
-            rows: []
+            rows: [],
+            isLoading: false
         }
+        this.handleClick = this.handleClick.bind(this);
     }
 
     componentDidMount() {
@@ -65,11 +68,23 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                 row.numberOfPylintErrors = parseInt(test[4]);
                 row.subid=parseInt(test[5]);
                 rows.push(row);    
-                console.log(row);
-                console.log(row.isPassing)
+                
+                return row;
             });
 
             this.setState({ rows: rows });
+        })
+    }
+    handleClick(){
+        this.setState({isLoading: true});
+        axios.post(process.env.REACT_APP_BASE_API_URL + `/projects/run-moss`, { project_id: this.props.project_id }, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+        })
+        .then(res => {    
+            window.open(res.data, '_blank');
+            this.setState({ isLoading: false });
         })
     }
 
@@ -83,7 +98,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                     <Table.HeaderCell>Date of most recent submission</Table.HeaderCell>
                     <Table.HeaderCell>Number of pylint errors on most recent submission</Table.HeaderCell>
                     <Table.HeaderCell>State of Last Submission</Table.HeaderCell>
-                    <Table.HeaderCell></Table.HeaderCell>
+                    <Table.HeaderCell button> <Loader size='massive' active={this.state.isLoading}>Loading: This process might take several minutes, please do not refresh</Loader><Label button onClick={this.handleClick}>Plagiarism Checker</Label></Table.HeaderCell>
                     
                 </Table.Row>
                 </Table.Header>
@@ -108,7 +123,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                 <Table.Cell>{row.date}</Table.Cell>
                                 <Table.Cell>{row.numberOfPylintErrors}</Table.Cell>
                                 <Table.Cell>{row.isPassing ? "PASSED" : "FAILED"}</Table.Cell>
-                                <Table.Cell button><Link to={ "/code/" + row.subid }><Label button >View</Label></Link></Table.Cell>
+                                <Table.Cell button><Link target="_blank" to={ "/code/" + row.subid }><Label button >View</Label></Link></Table.Cell>
                             </Table.Row>
                         )
                     })}

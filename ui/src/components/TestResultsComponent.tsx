@@ -6,7 +6,8 @@ import { StyledIcon } from '../styled-components/StyledIcon';
 import Split from 'react-split';
 
 interface TestResultComponentProps {
-    testcase: JsonResponse
+    testcase: JsonResponse,
+    score:number
 }
 
 interface TestState {
@@ -17,6 +18,7 @@ interface TestState {
     result:boolean;
     description:string;
     output:string;
+    hidden: string;
 }
 
 interface JsonTestResponseBody {
@@ -24,7 +26,8 @@ interface JsonTestResponseBody {
     type: number,
     description: string,
     name: string,
-    suite: string
+    suite: string,
+    hidden: string
 }
 interface JsonResponseBody {
     skipped: boolean,
@@ -44,9 +47,10 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             suite: "",
             test: "",
             skipped: false,
+            hidden: "",
             result: false,
             description: "",
-            output: ""
+            output: "",
         };
         this.handleClick = this.handleClick.bind(this);
     }
@@ -78,7 +82,14 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             return (<Tab.Pane attached={false}>
                 <div id="testresults-container">
                 {this.props.testcase.results.map(x => {
-                     if(x.test.suite === s){
+                    if(x.test.suite === s){
+                        if(x.test.hidden==="True"){
+                            return (
+                                <span className="testcase">
+                                    <StyledIcon name='lock' className="LOCKED" />
+                                </span>
+                            );
+                        }    
                         if(x.passed){  
                             return (
                             <span className="testcase" onClick={() => this.handleClick(x.test.suite, x.test.name, x.skipped, x.passed, x.test.description, x.test.output)}>
@@ -98,7 +109,9 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                                 <StyledIcon name='close' className="FAILED" />
                             </span>);
                         }
-                     }
+                    }
+
+                    return (<></>)
                 })}
                 </div>
             </Tab.Pane>
@@ -107,23 +120,29 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
     return (
         <div className="bottom">
             <Split className="split">
-                <div id="code-container"><Tab menu={{ secondary: true, pointing: true }} panes={panes} /></div>
-                <div id="test-info">
-                {(() => {
-                    if(!this.state.showComponent) {
-                        return (<h1 id="blank-testcase-message">Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see more details</h1>);
-                    } else {
-                        return (
-                            <div>
-                                <div><b>[{this.state.suite}] {this.state.test}</b></div>
-                                <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
-                                <strong>Test Description: </strong>{this.state.description}<br/>
-                                <pre style={{backgroundColor: 'lightgrey'}}>{this.state.output}</pre>
-                            </div>
-                        );
-                    }
-                })()}               
-                </div>
+                    <div><Tab menu={{ secondary: true, pointing: true }} panes={panes} /></div>
+                    <div id="test-info">
+                    {(() => {
+                        if(!this.state.showComponent) {
+                            return (
+                            <div><h1 id="blank-testcase-message">
+                                Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results
+                            </h1>
+                            <h2 className="center">The score of this submission is: <StyledIcon name='gem' className="GEM" color="blue" />  {this.props.score}</h2>
+                            <p className="center"><i>Note: The score of your submission is not the same as the final grade for the assignment. The score is based 60% on test cases and 40% on Pylint results</i></p>
+                            </div>);
+                        } else {
+                            return (
+                                <div>
+                                    <div><b>[{this.state.suite}] {this.state.test}</b></div>
+                                    <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
+                                    <strong>Test Description: </strong>{this.state.description}<br/>
+                                    <pre style={{backgroundColor: 'lightgrey'}}>{this.state.output}</pre>
+                                </div>
+                            );
+                        }
+                    })()}              
+                    </div>
             </Split>
         </div>
     );

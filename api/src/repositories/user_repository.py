@@ -1,96 +1,49 @@
-from abc import ABC, abstractmethod
+import datetime
+from typing import List
+
+from src.repositories.database import db
 from .models import Users, LoginAttempts
-from .database import Session
 from flask_jwt_extended import current_user
 
 
-class AUserRepository(ABC):
-
-    @abstractmethod
+class UserRepository():
     def getUserByName(self, username: str) -> Users:
-        pass
-
-    @abstractmethod
-    def doesUserExist(self, username: str) -> bool:
-        pass
-
-    @abstractmethod
-    def create_user(self, username: str, first_name: str, last_name: str, email: str, student_number: str):
-        pass
-
-    @abstractmethod
-    def get_user_status(self):
-        pass
-    @abstractmethod
-    def get_all_users(self):
-        pass
-
-    @abstractmethod
-    def send_attempt_data(self, username: str, ipadr: str, time: str):
-        pass
-
-    @abstractmethod
-    def can_user_login(self, username: str):
-        pass
-    @abstractmethod
-    def clear_failed_attempts(self,username: str):
-        pass
-    @abstractmethod
-    def lock_user_account(self,username: str):
-        pass
-
-class UserRepository(AUserRepository):
-    def getUserByName(self, username: str) -> Users:
-        session = Session()
-        user = session.query(Users).filter(Users.Username==username).one_or_none()
-        session.close()
+        user = Users.query.filter(Users.Username==username).one_or_none()
         return user
 
     def doesUserExist(self, username: str) -> bool:
-        session = Session()
-        query = session.query(Users).filter(Users.Username==username)   
-        exist = session.query(query.exists())
-        result = session.execute(exist).scalar_one()
-        session.close()
+        user = Users.query.filter(Users.Username==username).first()
         
-        return result
+        return user is not None
 
     def create_user(self, username: str, first_name: str, last_name: str, email: str, student_number: str):
-        session = Session()
         user = Users(Username=username,Firstname=first_name,Lastname=last_name,Email=email,StudentNumber=student_number,Role = 0, IsLocked=False)
-        session.add(user)
-        session.commit()
+        db.session.add(user)
+        db.session.commit()
         
-    def get_user_status(self):
+    def get_user_status(self) -> str:
         return str(current_user.Role)
 
-    def get_all_users(self):
-        session = Session()
-        user = session.query(Users).all()
-        session.close()
+    def get_all_users(self) -> List[Users]:
+        user = Users.query.all()
         return user
 
-    def send_attempt_data(self, username: str, ipadr: str, time: str):
-        session = Session()
+    def send_attempt_data(self, username: str, ipadr: str, time: datetime):
         login_attempt = LoginAttempts(IPAddress=ipadr, Username=username, Time=time)
-        session.add(login_attempt)
-        session.commit()
-        return True
+        db.session.add(login_attempt)
+        db.session.commit()
 
-    def can_user_login(self, username: str):
-        session = Session()
-        number = session.query(LoginAttempts).filter(LoginAttempts.Username == username).count()
+    def can_user_login(self, username: str) -> int:
+        number = LoginAttempts.query.filter(LoginAttempts.Username == username).count()
         return number
         
     def clear_failed_attempts(self, username: str):
-        session= Session()
-        session.query(LoginAttempts).filter(LoginAttempts.Username == username).delete()
-        session.commit()
-        return True
+        attempts = LoginAttempts.query.filter(LoginAttempts.Username == username).all()
+        for attempt in attempts:
+            db.session.delete(attempt)
+        db.session.commit()
 
-    def lock_user_account(self,username: str):
-        session= Session()
-        query = session.query(Users).filter(Users.Username==username).first()
+    def lock_user_account(self, username: str):
+        query = Users.query.filter(Users.Username==username).one()
         query.IsLocked=True
-        session.commit()
-        return True
+        db.session.commit()
