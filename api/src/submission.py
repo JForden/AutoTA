@@ -141,7 +141,7 @@ def get_submission_information(submission_repo: SubmissionRepository = Provide[C
 
     submissions = submission_repo.get_most_recent_submission_by_project(current_project,[current_user.Id])
     if current_user.Id not in submissions:
-        return jsonify(submissions_remaining = 10, name = project.Name, end = project.End, Id = project.Id, max_submissions = 10, can_redeem = can_redeem, points=point, time_until_next_submission = "")
+        return jsonify(submissions_remaining = 10, name = project.Name, end = project.End, Id = project.Id, max_submissions = 10, can_redeem = can_redeem, points=point, time_until_next_submission = "01 Jan 1970 00:00:00 GMT")
 
     submission = submissions[current_user.Id]
     time_for_next_submission = submission.Time + timedelta(minutes=delay_minutes)
