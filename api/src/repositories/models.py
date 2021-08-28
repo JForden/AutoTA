@@ -14,8 +14,10 @@ class Projects(db.Model):
     Start = Column(Date)
     End = Column(Date)
     Language = Column(String)
-    MaxNumberOfSubmissions = Column(Integer)
     Submissions=relationship('Submissions') 
+    Levels=relationship('Levels')
+    StudentProgress=relationship('StudentProgress')
+    StudentUnlocks=relationship('StudentUnlocks') 
 
 class Users(db.Model):
     __tablename__ = "Users"
@@ -29,6 +31,9 @@ class Users(db.Model):
     IsLocked = Column(Boolean)
     Submissions=relationship('Submissions')
     ClassAssignments=relationship('ClassAssignments')
+    LoginAttempts=relationship('LoginAttempts')
+    StudentProgress=relationship('StudentProgress')
+    StudentUnlocks=relationship('StudentUnlocks') 
 
 class Submissions(db.Model):
     __tablename__ = "Submissions"
@@ -43,6 +48,7 @@ class Submissions(db.Model):
     Project = Column(Integer, ForeignKey('Projects.Id'))
     SubmissionLevel =Column(String)
     Points = Column(Integer)
+    StudentProgress=relationship('StudentProgress')
 
 class LoginAttempts(db.Model):
     __tablename__ = "LoginAttempts"
@@ -56,6 +62,7 @@ class Classes(db.Model):
     Id = Column(Integer, primary_key=True, autoincrement=True)
     Name = Column(String)
     Labs=relationship('Labs')
+    LectureSections=relationship('LectureSections')
     ClassAssignments=relationship('ClassAssignments')
 
 class Labs(db.Model):
@@ -65,11 +72,19 @@ class Labs(db.Model):
     Class = Column(Integer, ForeignKey('Classes.Id'))
     ClassAssignments=relationship('ClassAssignments')
 
+class LectureSections(db.Model):
+    __tablename__ = "LectureSections"
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Title = Column(String)
+    ClassId = Column(Integer, ForeignKey('Classes.Id'), primary_key=True)
+    ClassAssignments=relationship('ClassAssignments')
+
 class ClassAssignments(db.Model):
     __tablename__ = "ClassAssignments"
     UserId = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
     ClassId = Column(Integer, ForeignKey('Classes.Id'), primary_key=True)
     LabId = Column(Integer, ForeignKey('Labs.Id'))
+    LectureId = Column(Integer, ForeignKey('LectureSections.Id'))
 
 class StudentProgress(db.Model):
     __tablename__ = "StudentProgress"
