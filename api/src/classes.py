@@ -1,10 +1,9 @@
-from flask import Blueprint
+from flask import Blueprint, make_response
 from flask_jwt_extended import jwt_required
-from src.repositories.classes_repository import ClassRepository
+from src.repositories.class_repository import ClassRepository
 from dependency_injector.wiring import inject, Provide
 from container import Container
 from flask import jsonify
-from flask import request
 
 class_api = Blueprint('class_api', __name__)
 
@@ -16,25 +15,25 @@ def get_classes(class_repository: ClassRepository = Provide[Container.class_repo
     return jsonify(classes)
 
 
-@class_api.route('/labs', methods=['GET'])
-@jwt_required()
-@inject
-def get_Labs(class_repository: ClassRepository = Provide[Container.class_repo]):
-    class_name = int(request.args.get("class"))
-    labs = class_repository.get_Labs(class_name)
-    return jsonify(labs)
-
-
 @class_api.route('/get_classes_labs', methods=['GET'])
 @inject
 def get_class_labs(class_repository: ClassRepository = Provide[Container.class_repo]):
     classes = class_repository.get_classes()
+    labs = class_repository.get_labs()
+    lecture_sections = class_repository.get_lecture_sections()
     holder=[]
-    for class_name in classes:
-        labs = class_repository.get_Labs(class_name.Id)
-        labs_holder=[]
-        for lab in labs:
-            labs_holder.append({"name": lab.Name, "id": lab.Id})
-        holder.append({"name": class_name.Name, "id": class_name.Id, "labs": labs_holder})
+    for cls in classes:
+        class_lab = []
+        class_lectures = []
+
+        if cls.Id in labs:
+            for lab in labs[cls.Id]:
+                class_lab.append({"name": lab.Name, "id": lab.Id})
+
+        if cls.Id in lecture_sections:
+            for lab in lecture_sections[cls.Id]:
+                class_lectures.append({"name": lab.Name, "id": lab.Id})
+
+        holder.append({"name": cls.Name, "id": cls.Id, "labs": class_lab, "lectures": class_lectures})
 
     return jsonify(holder)

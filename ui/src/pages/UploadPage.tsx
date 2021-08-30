@@ -151,7 +151,7 @@ class UploadPage extends Component<{}, UploadPageState> {
                 </Dimmer>
                 </Dimmer.Dimmable>
                 {(() => {
-                    if(!this.state.is_allowed_to_submit){
+                    if(this.state.project_id !== -1 && !this.state.is_allowed_to_submit){
                         return (<><Icon name="clock outline"></Icon><Countdown date={new Date(this.state.time_until_next_submission)} onComplete={this.onTimerFinish} /></>);
                     } else {
                         return (<></>)

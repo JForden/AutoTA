@@ -18,6 +18,8 @@ pytest-mock = "*"
 "tap.py" = {extras = ["yaml"], version = "*"}
 mosspy = "*"
 dependency-injector = "*"
+simplejson = "*"
+orjson = "*"
 
 [dev-packages]
 pytest = "*"

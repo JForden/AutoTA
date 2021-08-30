@@ -1,4 +1,4 @@
-from src.repositories.classes_repository import ClassRepository
+from src.repositories.class_repository import ClassRepository
 from http import HTTPStatus
 from flask import Blueprint
 from flask import request
@@ -93,17 +93,18 @@ def create_user(auth_service: PAMAuthenticationService = Provide[Container.auth_
     username = get_value_or_empty(input_json, 'username')
     password = get_value_or_empty(input_json, 'password')
 
+    if user_repo.doesUserExist(username):
+        message = {
+            'message': 'User already exists'
+        }
+        return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
+
     if not auth_service.login(username, password):
         message = {
             'message': 'Invalid username and/or password!  Please try again!'
         }
         return make_response(message, HTTPStatus.FORBIDDEN)
 
-    if user_repo.doesUserExist(username):
-        message = {
-            'message': 'User already exists'
-        }
-        return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
 
     first_name = get_value_or_empty(input_json, 'fname')
     last_name = get_value_or_empty(input_json, 'lname')
@@ -111,8 +112,9 @@ def create_user(auth_service: PAMAuthenticationService = Provide[Container.auth_
     email = get_value_or_empty(input_json, 'email')
     class_id = get_value_or_empty(input_json, 'class_id')
     lab_id= get_value_or_empty(input_json, 'lab_id')
+    lecture_id = get_value_or_empty(input_json, 'lecture_id')
 
-    if not (first_name and last_name and student_number and email and class_id and lab_id):
+    if not (first_name and last_name and student_number and email and class_id and lab_id and lecture_id):
         message = {
             'message': 'Missing required data'
         }
@@ -123,7 +125,7 @@ def create_user(auth_service: PAMAuthenticationService = Provide[Container.auth_
     user = user_repo.getUserByName(username)
     
     #Create ClassAssignment
-    class_repo.create_assignments(int(class_id), int(lab_id), int(user.Id))
+    class_repo.create_assignments(int(class_id), int(lab_id), int(user.Id), int(lecture_id))
 
     access_token = create_access_token(identity=user)
 

@@ -37,7 +37,7 @@ class Users(db.Model):
 
 class Submissions(db.Model):
     __tablename__ = "Submissions"
-    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Id = Column(Integer, primary_key=True)
     OutputFilepath = Column(String)
     PylintFilepath = Column(String)
     CodeFilepath = Column(String)
@@ -52,14 +52,14 @@ class Submissions(db.Model):
 
 class LoginAttempts(db.Model):
     __tablename__ = "LoginAttempts"
-    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Id = Column(Integer, primary_key=True)
     Time = Column(Date)
     IPAddress = Column(String)
     Username = Column(String, ForeignKey('Users.Username'))
 
 class Classes(db.Model):
     __tablename__ = "Classes"
-    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Id = Column(Integer, primary_key=True)
     Name = Column(String)
     Labs=relationship('Labs')
     LectureSections=relationship('LectureSections')
@@ -67,15 +67,15 @@ class Classes(db.Model):
 
 class Labs(db.Model):
     __tablename__ = "Labs"
-    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Id = Column(Integer, primary_key=True)
     Name = Column(String)
-    Class = Column(Integer, ForeignKey('Classes.Id'))
+    ClassId = Column(Integer, ForeignKey('Classes.Id'))
     ClassAssignments=relationship('ClassAssignments')
 
 class LectureSections(db.Model):
     __tablename__ = "LectureSections"
-    Id = Column(Integer, primary_key=True, autoincrement=True)
-    Title = Column(String)
+    Id = Column(Integer, primary_key=True)
+    Name = Column(String)
     ClassId = Column(Integer, ForeignKey('Classes.Id'), primary_key=True)
     ClassAssignments=relationship('ClassAssignments')
 
@@ -106,7 +106,7 @@ class Config(db.Model):
 
 class Levels(db.Model):
     __tablename__ = "Levels"
-    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Id = Column(Integer, primary_key=True)
     ProjectId = Column(Integer, ForeignKey('Projects.Id'))
     Name=Column(String)
     Points=Column(Integer)

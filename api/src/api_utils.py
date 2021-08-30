@@ -1,5 +1,4 @@
-def check_valid_json():
-    pass
+from json import JSONEncoder
 
 
 def get_value_or_empty(dictionary, key):
