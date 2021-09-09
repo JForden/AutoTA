@@ -94,7 +94,6 @@ class SubmissionRepository():
             return (False, 0)
         
         submission = self.get_most_recent_submission_by_project(previous_project_id,[user_id])
-        print(submission)
         if user_id in submission:
             score=submission[user_id].Points
         else:
@@ -104,7 +103,6 @@ class SubmissionRepository():
         if not unlocked == None:
             return (False,score)
         
-        #TODO: Get score from submission object
         RedeemNumber=int(Config_Repository.get_config_setting("RedeemValue"))
         if score < RedeemNumber:
             return (False, score)

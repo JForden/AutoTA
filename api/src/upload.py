@@ -180,7 +180,6 @@ def file_upload(submission_repo: SubmissionRepository = Provide[Container.submis
 
     if file and allowed_file(file.filename, ext[project.Language]):
         # Step 1: Run TA-Bot to generate grading folder
-        #TODO: Do we always want to run final?
         result = subprocess.run([current_app.config['TABOT_PATH'], project.Name, "--final","--system" ], stdout=subprocess.PIPE)
         if result.returncode != 0:
             message = {
