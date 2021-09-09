@@ -116,7 +116,13 @@ def create_user(auth_service: PAMAuthenticationService = Provide[Container.auth_
 
     if not (first_name and last_name and student_number and email and class_id and lab_id and lecture_id):
         message = {
-            'message': 'Missing required data'
+            'message': 'Missing required data.  All fields are required'
+        }
+        return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
+
+    if int(class_id) == -1 or int(lab_id) == -1 or int(lecture_id) == -1:
+        message = {
+            'message': 'Please fill in valid class data'
         }
         return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
 
