@@ -291,6 +291,23 @@ class PylintLinkService(LinkService):
             "W0640": BASE_URL + "variables/W0640",
             "W0641": BASE_URL + "variables/W0641",
             "W0642": BASE_URL + "variables/W0642",
+            "C0144": BASE_URL + "basic/C0144",
+            "E0011": BASE_URL + "basic/E0011",
+            "E0012": BASE_URL + "basic/E0012",
+            "E0304": BASE_URL + "classes/E0304",
+            "E0305": BASE_URL + "classes/E0305",
+            "E0306": BASE_URL + "classes/E0306",
+            "E0307": BASE_URL + "classes/E0307",
+            "E0309": BASE_URL + "classes/E0309",
+            "E0311": BASE_URL + "classes/E0311",
+            "E1601": BASE_URL + "basic/E1601",
+            "R1725": BASE_URL + "classes/R1725",
+            "R1726": BASE_URL + "refactoring/R1726",
+            "R1727": BASE_URL + "refactoring/R1727",
+            "W1115": BASE_URL + "classes/W1115",
+            "W1116": BASE_URL + "string/W1116",
+            "W1203": BASE_URL + "string/W1203",
+            "W1404": BASE_URL + "string/W1404",
             "E0001":"https://realpython.com/invalid-syntax-python/"}    
         json_i = json.loads(output)
         for error in json_i:

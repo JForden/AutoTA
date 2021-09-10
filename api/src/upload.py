@@ -105,15 +105,20 @@ def score_finder(project_repository: ProjectRepository, passed_levels,total_test
 def Level_Finder(file_path):
     parser = Parser()
     failed_levels=[]
+    passed_levels=[]
     for test in parser.parse_file(file_path):
         if test.category == "test":
             if test.ok:
-                continue
+                passed_levels.append(test.yaml_block["suite"])
             else:
                 failed_levels.append(test.yaml_block["suite"])
     failed_levels.sort()
+    passed_levels.sort()
     
-    level = failed_levels[0]
+    if len(failed_levels) != 0:
+        level = failed_levels[0]
+    else:
+        level = passed_levels[-1]
     
     failed_tests=[0]
     passed_tests=[0]
@@ -126,7 +131,9 @@ def Level_Finder(file_path):
                 else:
                     failed_tests[0]=failed_tests[0]+1
     if passed_tests[0] >= failed_tests[0]:
-        if failed_levels[1] != None:
+        if len(failed_levels) == 0:
+            return level
+        if len(failed_levels) >= 2:
             return failed_levels[1]
     return level
     
