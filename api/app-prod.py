@@ -17,8 +17,8 @@ from src.jwt_manager import jwt
 from src import classes, auth, projects, submission, upload
 import sentry_sdk
 
-USER_NAME = "root"
-PASSWORD = ":7.qetuoSFHK"
+USER_NAME = "api-user"
+PASSWORD = ":EzZh-SoVQ3jFKt6"
 SERVICE = "@localhost"
 PATH = "/autota"
 
