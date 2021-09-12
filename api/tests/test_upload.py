@@ -109,7 +109,7 @@ def test_find_level_one_failing_level(testcontext):
     levels = [Levels(Id=1, ProjectId=1, Name="Level 1", Order=1, Points=30)]
 
     pass_levels = []
-    failed_levels = ["Level 1"]
+    failed_levels = ["Level 1", "Level 1", "Level 2"]
 
     # Act
     rv = upload.find_level(pass_levels, failed_levels, levels)

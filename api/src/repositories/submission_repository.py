@@ -74,12 +74,14 @@ class SubmissionRepository():
         return highest_level.LatestLevel
 
     def modifying_level(self, project_id: int, user_id: int, submission_id: str, current_level: str) -> bool:
-        if current_level == "":
-            Level_submission = StudentProgress(UserId=user_id,ProjectId=project_id,SubmissionId=submission_id,LatestLevel="Level 1")
+        level = StudentProgress.query.filter(and_(StudentProgress.ProjectId == project_id, StudentProgress.UserId == user_id)).first()
+
+        if level == None:
+            Level_submission = StudentProgress(UserId=user_id,ProjectId=project_id,SubmissionId=submission_id,LatestLevel=current_level)
             db.session.add(Level_submission)
             db.session.commit()
             return True
-        level = StudentProgress.query.filter(and_(StudentProgress.ProjectId == project_id, StudentProgress.UserId == user_id)).first()
+
         level.LatestLevel = current_level
         level.SubmissionId = submission_id
         db.session.commit()

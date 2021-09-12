@@ -220,12 +220,14 @@ def file_upload(submission_repo: SubmissionRepository = Provide[Container.submis
         
         # Step 4 assign point totals for the submission 
         current_level = submission_repo.get_current_level(project.Id,current_user.Id)
-        if not current_level == "" and submission_level > current_level:
-            submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[current_user.Id])
-            submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,submission_level)
+        if current_level != "":
+            if submission_level > current_level:
+                submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[current_user.Id])
+                submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,submission_level)
         else:
             submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[current_user.Id])
-            submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,current_level)
+            submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id, submission_level)
+
         message = {
             'message': 'Success',
             'remainder': 10
