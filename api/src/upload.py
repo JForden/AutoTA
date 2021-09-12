@@ -2,6 +2,8 @@ import json
 import os
 import subprocess
 import os.path
+from typing import List
+
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
 from flask import Blueprint
@@ -11,6 +13,8 @@ from flask import current_app
 from http import HTTPStatus
 from datetime import datetime
 from flask_cors import cross_origin
+
+from src.repositories.models import Levels
 from src.repositories.submission_repository import SubmissionRepository
 from src.repositories.project_repository import ProjectRepository
 from tap.parser import Parser
@@ -67,7 +71,6 @@ def output_pass_or_fail(filepath):
 
 def level_counter(filepath):
     parser = Parser()
-    failed_levels={}
     passed_levels={}
     total_tests={}
     for test in parser.parse_file(filepath):
@@ -81,15 +84,11 @@ def level_counter(filepath):
                     passed_levels[test.yaml_block["suite"]]=passed_levels[test.yaml_block["suite"]]+1
                 else:
                     passed_levels[test.yaml_block["suite"]]=1
-            else:
-                if test.yaml_block["suite"] in failed_levels:
-                    failed_levels[test.yaml_block["suite"]]=failed_levels[test.yaml_block["suite"]]+1
-                else:
-                    failed_levels[test.yaml_block["suite"]]=1
     
-    return (passed_levels, total_tests)
+    return passed_levels, total_tests
 
-def score_finder(project_repository: ProjectRepository, passed_levels,total_tests,project_id):
+
+def score_finder(project_repository: ProjectRepository, passed_levels,total_tests,project_id) -> str:
 
     #[level 1, 10. level 2, 30]
     levels=project_repository.get_levels(project_id)
@@ -102,7 +101,8 @@ def score_finder(project_repository: ProjectRepository, passed_levels,total_test
     
     return score_total
 
-def Level_Finder(file_path):
+
+def parse_tap_file_for_levels(file_path: str, levels: List[Levels]) -> str:
     parser = Parser()
     failed_levels=[]
     passed_levels=[]
@@ -114,29 +114,23 @@ def Level_Finder(file_path):
                 failed_levels.append(test.yaml_block["suite"])
     failed_levels.sort()
     passed_levels.sort()
-    
-    if len(failed_levels) != 0:
-        level = failed_levels[0]
-    else:
-        level = passed_levels[-1]
-    
-    failed_tests=[0]
-    passed_tests=[0]
-    
-    for test in parser.parse_file(file_path):
-        if test.category == "test":
-            if test.yaml_block["suite"] == level:
-                if test.ok:
-                    passed_tests[0]=passed_tests[0]+1
-                else:
-                    failed_tests[0]=failed_tests[0]+1
-    if passed_tests[0] >= failed_tests[0]:
-        if len(failed_levels) == 0:
-            return level
-        if len(failed_levels) >= 2:
-            return failed_levels[1]
-    return level
-    
+
+    return find_level(passed_levels, failed_levels, levels)
+
+
+def find_level(pass_levels: List[str], failed_levels: List[str], levels: List[Levels]) -> str:
+    # If no tests are failing, return the highest level.  Assumes levels are sorted by order
+    if len(failed_levels) == 0:
+        return levels[-1].Name
+
+    for level in levels:
+        if pass_levels.count(level.Name) < failed_levels.count(level.Name):
+            return level.Name
+
+    # If it gets here it means every level had more passing tests than failing tests.  Return the max level
+    return levels[-1].Name
+
+
 def pylint_score_finder(error_count):
     if error_count <= 10 and error_count > 7:
         return 25
@@ -212,7 +206,9 @@ def file_upload(submission_repo: SubmissionRepository = Provide[Container.submis
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         status=output_pass_or_fail(tap_path)
         error_count=python_error_count(outputpath+"output/"+current_user.Username)
-        submission_level = Level_Finder(tap_path)
+
+        levels = project_repo.get_levels_by_project(project.Id)
+        submission_level = parse_tap_file_for_levels(tap_path, levels)
 
         passed_levels, total_tests = level_counter(tap_path)
         student_submission_score=score_finder(project_repo, passed_levels, total_tests, project.Id)

@@ -109,4 +109,5 @@ class Levels(db.Model):
     Id = Column(Integer, primary_key=True)
     ProjectId = Column(Integer, ForeignKey('Projects.Id'))
     Name=Column(String)
+    Order=Column(Integer)
     Points=Column(Integer)
