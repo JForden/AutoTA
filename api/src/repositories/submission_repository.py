@@ -1,9 +1,11 @@
+from src.repositories.project_repository import ProjectRepository
 from src.repositories.database import db
 from .models import StudentUnlocks, Submissions, Projects, StudentProgress, Users
 from sqlalchemy import desc, and_
 from typing import Dict, List, Tuple
 from src.repositories.config_repository import ConfigRepository
-from datetime import datetime
+from datetime import datetime, timedelta
+from src.constants import DELAY_CONFIG
 
 
 class SubmissionRepository():
@@ -139,3 +141,22 @@ class SubmissionRepository():
             else:
                 submission_counter_dict[sub.User] = 1
         return submission_counter_dict
+
+    def on_timeout(self, project_id: int, user_id: int, project_repo: ProjectRepository, config_repo: ConfigRepository) -> bool:
+        curr_date = datetime.now()
+
+        project = project_repo.get_selected_project(project_id)
+
+        day_delays_str = config_repo.get_config_setting(DELAY_CONFIG)
+        day_delays = [int(x) for x in day_delays_str.split(",")]
+        day = curr_date - project.Start
+
+        delay_minutes = day_delays[day.days]
+
+        submissions = self.get_most_recent_submission_by_project(project_id,[user_id])
+        submission = submissions[user_id]
+        time_for_next_submission = submission.Time + timedelta(minutes=delay_minutes)
+        if self.unlock_check(user_id, project_id):
+            time_for_next_submission = submission.Time + timedelta(minutes=5)
+        
+        return time_for_next_submission > curr_date
