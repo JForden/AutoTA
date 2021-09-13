@@ -129,3 +129,13 @@ class SubmissionRepository():
         current_day=datetime.today().strftime('%A')
         #TODO: Make this not hardcoded for 2.0
         return (current_day == "Wednesday" and unlocked_info != None)
+        
+    def submission_counter(self, project_id: int, user_ids: List[int]) -> bool:
+        submissions = Submissions.query.filter(and_(Submissions.Project == project_id, Submissions.User.in_(user_ids))).all()
+        submission_counter_dict={}
+        for sub in submissions:
+            if sub.User in submission_counter_dict:
+                submission_counter_dict[sub.User] = submission_counter_dict[sub.User] +1
+            else:
+                submission_counter_dict[sub.User] = 1
+        return submission_counter_dict

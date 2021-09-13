@@ -162,12 +162,13 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
     for user in users:
         userids.append(user.Id)
     bucket = submission_repo.get_most_recent_submission_by_project(projectid, userids)    
+    submission_counter_dict = submission_repo.submission_counter(projectid, userids)  
     for user in users:
-        holder = user.Firstname + " " + user.Lastname
+        name = user.Firstname + " " + user.Lastname
         if user.Id in bucket:
-            studentattempts[user.Id]=[holder,10,bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
+            studentattempts[user.Id]=[name,submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
         else:
-            studentattempts[user.Id]=[holder, "N/A", "N/A", "N/A",  "N/A", -1]
+            studentattempts[user.Id]=[name, "N/A", "N/A", "N/A",  "N/A", -1]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
 
 
