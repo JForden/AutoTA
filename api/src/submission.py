@@ -29,10 +29,12 @@ def convert_tap_to_json(file_path,role,current_level):
     for line in parser.parse_file(file_path):
         if line.category == "test":
             if role == ADMIN_ROLE:
+                new_yaml = line.yaml_block.copy()
+                new_yaml["hidden"] = "False"
                 test.append({
                     'skipped': line.skip,
                     'passed': line.ok,
-                    'test': line.yaml_block
+                    'test': new_yaml
                 })
                 continue
             elif line.yaml_block["hidden"] == "True" and role != ADMIN_ROLE:
@@ -51,7 +53,6 @@ def convert_tap_to_json(file_path,role,current_level):
                     'passed': "",
                     'test': new_yaml
                 })
-
     final["results"]=test
     return json.dumps(final, sort_keys=True, indent=4)
 
