@@ -15,6 +15,7 @@ from src.classes import class_api
 from src.error import error_api
 from src.jwt_manager import jwt
 from src import classes, auth, projects, submission, upload
+from src.services import timeout_service
 import sentry_sdk
 
 USER_NAME = "dbmasteruser"
@@ -27,7 +28,7 @@ def create_app():
     app = Flask(__name__)
     container = Container()
     app.container = container
-    container.wire(modules=[classes, auth, projects, submission, upload])
+    container.wire(modules=[classes, auth, projects, submission, upload, timeout_service])
     CORS(app)
     app.config['TABOT_PATH'] = '/home/alex/Documents/Repositories/ta-bot/tabot.sh'
     app.config["JWT_SECRET_KEY"] = "ob1L04WeQ1U0H5Kiybk9rMoQigVhoGJCKBxC6KxF85G89vAK3L903I073JXQ"

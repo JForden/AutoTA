@@ -93,7 +93,7 @@ def test_get_submission_information_basic(testcontext, mocker: MockerFixture):
         # Assert
         assert rv.status_code == HTTPStatus.OK
         assert rv.is_json == True
-        assert_submission_info(rv.data.decode("utf-8"), 10, "Test Project 1", "Sun, 17 May 2020 00:00:00 GMT", 1, 10, False, 0, "2020-05-17T00:04:00")
+        assert_submission_info(rv.data.decode("utf-8"), 10, "Test Project 1", "Sun, 17 May 2020 00:00:00 GMT", 1, 10, False, 0, "2020-05-17T00:05:00")
 
 
 def get_config_setting_mock(value: str):

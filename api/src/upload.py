@@ -18,6 +18,7 @@ from flask_cors import cross_origin
 from src.repositories.models import Levels
 from src.repositories.submission_repository import SubmissionRepository
 from src.repositories.project_repository import ProjectRepository
+from src.services.timeout_service import on_timeout
 from tap.parser import Parser
 from dependency_injector.wiring import inject, Provide
 from container import Container
@@ -165,7 +166,7 @@ def file_upload(submission_repo: SubmissionRepository = Provide[Container.submis
         return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
 
     #Check to see if student is able to upload or still on timeout
-    if submission_repo.on_timeout(project.Id, current_user.Id, project_repo, config_repo):
+    if on_timeout(project.Id, current_user.Id):
         message = {
             'message': 'Please wait until timeout expires'
         }

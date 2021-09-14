@@ -190,12 +190,22 @@ def get_score(submission_repo: SubmissionRepository = Provide[Container.submissi
 @submission_api.route('/extraday', methods=['GET'])
 @jwt_required()
 @inject
-def extraday(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
-    project = project_repo.get_current_project()
-    now = datetime.now()
-    dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-    result = submission_repo.redeem_score(current_user.Id, project.Id,dt_string)
-    if result:
-        return make_response("", HTTPStatus.OK)
+def extraday(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], config_repo: ConfigRepository = Provide[Container.config_repo]):
+    #get current project
+    current_project= project_repo.get_current_project().Id
+    projects = project_repo.get_all_projects()
+    previous_project_id = -1
+    for proj in projects:
+        if proj.Id == current_project:
+            break
+        previous_project_id = proj.Id    
+    redeemable, _ = submission_repo.get_can_redeemed(config_repo, current_user.Id, previous_project_id, current_project)
+
+    if redeemable:
+        now = datetime.now()
+        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        result = submission_repo.redeem_score(current_user.Id, current_project, dt_string)
+        if result:
+            return make_response("", HTTPStatus.OK)
     return make_response("", HTTPStatus.NOT_ACCEPTABLE)
 
