@@ -84,10 +84,10 @@ class UploadPage extends Component<{}, UploadPageState> {
     handleRedeem(){
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/extraday`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
             }
         }).then(res => {            
-            alert("done!");
+            alert("You have now recieved an extra day of unlimited submissions!  Instead of the regular 45 minutes coolday this Wednesday, you'll only have a 5 minute cooldown between submissions!");
             window.location.reload();
         })
     }
