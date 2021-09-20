@@ -1,8 +1,8 @@
 import datetime
-from typing import List
+from typing import Dict, List
 
 from src.repositories.database import db
-from .models import Users, LoginAttempts
+from .models import ClassAssignments, LectureSections, Users, LoginAttempts
 from flask_jwt_extended import current_user
 
 
@@ -47,3 +47,14 @@ class UserRepository():
         query = Users.query.filter(Users.Username==username).one()
         query.IsLocked=True
         db.session.commit()
+    
+    def get_user_lectures(self, userIds: List[int]) -> Dict[int, ClassAssignments]:
+        class_assignments = ClassAssignments.query.filter(ClassAssignments.UserId.in_(userIds)).all()
+        
+        user_lectures_dict={}
+        for class_assignment in class_assignments:
+            user_lectures_dict[class_assignment.UserId] = LectureSections.query.filter(LectureSections.Id == class_assignment.LectureId).one().Name
+
+        return user_lectures_dict
+        
+    

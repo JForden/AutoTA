@@ -163,13 +163,13 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
     for user in users:
         userids.append(user.Id)
     bucket = submission_repo.get_most_recent_submission_by_project(projectid, userids)    
-    submission_counter_dict = submission_repo.submission_counter(projectid, userids)  
+    submission_counter_dict = submission_repo.submission_counter(projectid, userids)
+    user_lectures_dict =user_repo.get_user_lectures(userids)  
     for user in users:
-        name = user.Firstname + " " + user.Lastname
         if user.Id in bucket:
-            studentattempts[user.Id]=[name,submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
+            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
         else:
-            studentattempts[user.Id]=[name, "N/A", "N/A", "N/A",  "N/A", -1]
+            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
 
 
@@ -208,4 +208,6 @@ def extraday(submission_repo: SubmissionRepository = Provide[Container.submissio
         if result:
             return make_response("", HTTPStatus.OK)
     return make_response("", HTTPStatus.NOT_ACCEPTABLE)
+
+
 
