@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import '../css/AdminComponent.scss'
 import { Grid } from 'semantic-ui-react'
 import MenuComponent from '../components/MenuComponent';
+import { Helmet } from 'react-helmet';
 
 class Row {
     constructor() {
@@ -64,6 +65,9 @@ class PastSubmissionPage extends Component<{}, ProjectsState> {
     }
     render(){
         return (<div>
+        <Helmet>
+            <title>Past Submissions | TA-Bot</title>
+        </Helmet>
         <MenuComponent showUpload={false} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
         <Grid className="main-grid">
             <Table celled>

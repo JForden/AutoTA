@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { Helmet } from 'react-helmet';
 import 'semantic-ui-css/semantic.min.css';
 import { Grid } from 'semantic-ui-react';
 import MenuComponent from './MenuComponent';
@@ -6,6 +7,9 @@ import MenuComponent from './MenuComponent';
 class NotFoundComponent extends Component {
     render(){
         return (<div>
+            <Helmet>
+                <title>404 Error | TA-Bot</title>
+            </Helmet>
             <MenuComponent showUpload={false} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign="middle" >
             <Grid.Column style={{ maxWidth: 600 }}>

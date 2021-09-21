@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet';
 import { useParams } from 'react-router-dom';
 import 'semantic-ui-css/semantic.min.css'
 import { Grid } from 'semantic-ui-react'
@@ -15,6 +16,9 @@ const ProjectBreakdown = () => {
 
     return (
         <div>
+            <Helmet>
+                <title>[Admin] Students | TA-Bot</title>
+            </Helmet>
             <MenuComponent showUpload={false} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
             <Grid className="main-grid">
                 <StudentList project_id={project_id}></StudentList>

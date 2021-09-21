@@ -6,6 +6,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import NewUserModal from '../components/NewUserModal';
 import { Redirect } from 'react-router-dom'
 import { Button, Form, Grid, Header, Message, Image, Segment } from 'semantic-ui-react'
+import { Helmet } from 'react-helmet';
 
 interface LoginPageState {
   isLoggedIn: boolean,
@@ -77,7 +78,11 @@ class Login extends Component<{}, LoginPageState> {
       return ( <Redirect to={{pathname: '/admin/projects'}}/> );
     }
     return (
-        <div>    <NewUserModal username={this.state.username} password={this.state.password} isOpen={this.state.isNewUser}></NewUserModal>
+    <div>    
+        <Helmet>
+                <title>Login | TA-Bot</title>
+        </Helmet>
+        <NewUserModal username={this.state.username} password={this.state.password} isOpen={this.state.isNewUser}></NewUserModal>
         <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
             <Grid.Column style={{ maxWidth: 400 }}>
             <Header as='h2' color='blue' textAlign='center'>

@@ -7,6 +7,8 @@ import MenuComponent from '../components/MenuComponent';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import Split from 'react-split';
+import {Helmet} from "react-helmet";
+
 const defaultpagenumber=-1;
 
 interface CodePageProps {
@@ -109,6 +111,9 @@ const CodePage = () => {
 
     return (
         <div id="code-page">
+            <Helmet>
+                <title>Submission | TA-Bot</title>
+            </Helmet>
             <MenuComponent showUpload={true} showHelp={true} showCreate={false} showLast={false}></MenuComponent>
             <Split sizes={[80, 20]} className="split2" direction="vertical">
                     <CodeComponent pylintData={pylint} codedata={code}></CodeComponent>

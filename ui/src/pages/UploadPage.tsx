@@ -7,6 +7,7 @@ import React from 'react'
 import { SemanticCOLORS } from 'semantic-ui-react'
 import ErrorMessage from '../components/ErrorMessage';
 import Countdown from 'react-countdown';
+import { Helmet } from 'react-helmet';
 
 interface UploadPageState {
     file?: File,
@@ -130,6 +131,9 @@ class UploadPage extends Component<{}, UploadPageState> {
     render() {
         return (
         <div>
+            <Helmet>
+                <title>Upload | TA-Bot</title>
+            </Helmet>
             <MenuComponent showUpload={true} showHelp={false} showCreate={false} showLast={true}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
             <Grid.Column style={{ maxWidth: 400 }}>
