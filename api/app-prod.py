@@ -18,12 +18,6 @@ from src import classes, auth, projects, submission, upload
 from src.services import timeout_service
 import sentry_sdk
 
-USER_NAME = "api-user"
-PASSWORD = ":EzZh-SoVQ3jFKt6"
-SERVICE = "@localhost"
-PATH = "/autota"
-
-
 def create_app():
     app = Flask(__name__)
     container = Container()
@@ -36,7 +30,7 @@ def create_app():
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://"+USER_NAME+PASSWORD+SERVICE+PATH
+    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://api-user:EzZh-SoVQ3jFKt6@localhost/autota"
     app.register_blueprint(auth_api, url_prefix='/api/auth')
     app.register_blueprint(upload_api, url_prefix='/api/upload')
     app.register_blueprint(submission_api, url_prefix='/api/submissions')
