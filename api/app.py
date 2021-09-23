@@ -16,7 +16,6 @@ from src.error import error_api
 from src.jwt_manager import jwt
 from src import classes, auth, projects, submission, upload
 from src.services import timeout_service
-import sentry_sdk
 
 USER_NAME = "dbmasteruser"
 PASSWORD = ":pc&[sMI;5KWNNfo7F$S*4;F8B[|2xtv^"
@@ -42,15 +41,7 @@ def create_app():
     app.register_blueprint(submission_api, url_prefix='/api/submissions')
     app.register_blueprint(projects_api,url_prefix='/api/projects')  
     app.register_blueprint(class_api,url_prefix='/api/class')
-    app.register_blueprint(error_api,url_prefix='/api/error')  
-    sentry_sdk.init(
-        "https://c4f15810b0d34cd589cbc1c86bb5e0fd@o906488.ingest.sentry.io/5843824",
-
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for performance monitoring.
-        # We recommend adjusting this value in production.
-        traces_sample_rate=1.0
-    )
+    app.register_blueprint(error_api,url_prefix='/api/error')
 
     jwt.init_app(app)
     db.init_app(app)

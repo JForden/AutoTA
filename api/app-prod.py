@@ -16,6 +16,7 @@ from src.error import error_api
 from src.jwt_manager import jwt
 from src import classes, auth, projects, submission, upload
 from src.services import timeout_service
+from sentry_sdk.integrations.flask import FlaskIntegration
 import sentry_sdk
 
 def create_app():
@@ -39,6 +40,7 @@ def create_app():
     app.register_blueprint(error_api,url_prefix='/api/error')  
     sentry_sdk.init(
         "https://c4f15810b0d34cd589cbc1c86bb5e0fd@o906488.ingest.sentry.io/5843824",
+        integrations=[FlaskIntegration()],
 
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.

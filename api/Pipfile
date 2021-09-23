@@ -13,13 +13,11 @@ gunicorn = "*"
 sqlalchemy = "*"
 flask-sqlalchemy = "*"
 pymysql = "*"
-sentry-sdk = "*"
+sentry-sdk = {extras = ["flask"], version = "*"}
 pytest-mock = "*"
 "tap.py" = {extras = ["yaml"], version = "*"}
 mosspy = "*"
 dependency-injector = "*"
-simplejson = "*"
-orjson = "*"
 
 [dev-packages]
 pytest = "*"
