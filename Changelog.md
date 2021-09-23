@@ -3,7 +3,7 @@ Based off of [Keep a Changelog](https://keepachangelog.com/)
 # [Unreleased]
 
 ## [1.1.2] - [UNKNOWN]
-### Addws
+### Added
 * Install sentry-sdk[flask] package to allow better logging with Sentry
 ### Fixed
 * Pages now display the correct title
