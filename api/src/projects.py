@@ -50,7 +50,7 @@ def run_moss(user_repo: UserRepository = Provide[Container.user_repo], submissio
     userId=current_user.Id
     all_submissions(projectid, userId, submission_repo, user_repo)
     
-    return make_response("Done, the results should appear in your email within 24 hours. Please only run this call once a day.", HTTPStatus.OK)
+    return make_response("Done, the results should appear in your email within 24 hours. Please only run this call once a day. NOTE: PLEASE CHECK JUNK FOLDER ", HTTPStatus.OK)
     
     
 @projects_api.route('/projects-by-user', methods=['GET'])
