@@ -48,7 +48,7 @@ def moss_submissions(files: List[str], email: str):
     msg['Date'] = formatdate(localtime=True)
     msg['Subject'] = subject
 
-    msg.attach(MIMEText("Here is the MOSS link: "+ str(url)))
+    msg.attach(MIMEText(f"Here is the MOSS link: <{str(url)}>"))
 
     smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', 465)
     smtpObj.ehlo()
