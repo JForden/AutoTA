@@ -178,7 +178,7 @@ class UploadPage extends Component<{}, UploadPageState> {
             />
             <br /> <br />
             <Button disabled={!this.state.canRedeem} type="submit" color='yellow' fluid size='small' onClick={this.handleRedeem}>
-                Use Extra Day (Score must be above 70)
+                Use Extra Day (Score must be above 75)
             </Button>
             </Grid.Column>
             </Grid>
