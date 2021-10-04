@@ -57,4 +57,11 @@ class UserRepository():
 
         return user_lectures_dict
         
+    def get_user_email(self, userId) -> str:
+        query = Users.query.filter(Users.Id==userId).one()
+        email = query.Email
+        return email
+
+
+        
     
