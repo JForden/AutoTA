@@ -93,6 +93,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
             this.setState({ rows: rows });
         })
     }
+
     handleClick(){
         this.setState({isLoading: true});
         axios.post(process.env.REACT_APP_BASE_API_URL + `/projects/run-moss`, { project_id: this.props.project_id }, {
@@ -101,7 +102,10 @@ class StudentList extends Component<StudentListProps, StudentListState> {
             }
         })
         .then(res => {    
-            window.open(res.data, '_blank');
+            window.alert(res.data);
+            this.setState({ isLoading: false });
+        }).catch( exc => {
+            window.alert("Error running MOSS.  Please try again");
             this.setState({ isLoading: false });
         })
     }
@@ -140,7 +144,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                         <Table.HeaderCell>Date of most recent submission</Table.HeaderCell>
                         <Table.HeaderCell>Number of pylint errors on most recent submission</Table.HeaderCell>
                         <Table.HeaderCell>State of Last Submission</Table.HeaderCell>
-                        <Table.HeaderCell button> <Loader size='massive' active={this.state.isLoading}>Loading: This process might take several minutes, please do not refresh</Loader><Label button onClick={() => { alert('Please check in later.  This feature is being worked on 👷.') }}>Plagiarism Checker</Label></Table.HeaderCell>
+                        <Table.HeaderCell button> <Loader size='massive' active={this.state.isLoading}>Loading: This process might take several minutes, please do not refresh</Loader><Label button onClick={() => { this.handleClick() }}>Plagiarism Checker</Label></Table.HeaderCell>
                         
                     </Table.Row>
                     </Table.Header>
