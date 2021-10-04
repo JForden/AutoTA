@@ -35,22 +35,24 @@ def moss_submissions(files: List[str], email: str):
     for file in files:
         m.addFile(file)
     url = m.send(lambda file_path, display_name: print('*', end='', flush=True))
-
+    
     gmail_user = 'autotabugreports@gmail.com'
     gmail_password ='CKRp4h3tippctK'
-    receivers = ''
+    receivers = [str(email)]
+    sent_from = gmail_user
+
+    subject = 'TA-Bot MOSS REPORT'
 
     msg = MIMEMultipart()
     msg['From'] = "autotabugreports@gmail.com"
     msg['To'] = email
     msg['Date'] = formatdate(localtime=True)
-    msg['Subject'] = "TA-Bot MOSS RESULTS"
+    msg['Subject'] = subject
 
-    msg.attach(MIMEText(url))
-
+    msg.attach(MIMEText("Here is the MOSS link: "+ str(url)))
 
     smtpObj = smtplib.SMTP_SSL('smtp.gmail.com', 465)
     smtpObj.ehlo()
     smtpObj.login(gmail_user, gmail_password)
-    smtpObj.sendmail(email, receivers, msg)         
+    smtpObj.sendmail("autotabugreports@gmail.com", receivers, msg.as_string())         
     smtpObj.close()
