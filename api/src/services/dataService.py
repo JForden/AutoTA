@@ -39,7 +39,6 @@ def moss_submissions(files: List[str], email: str):
     gmail_user = 'autotabugreports@gmail.com'
     gmail_password ='CKRp4h3tippctK'
     receivers = [str(email)]
-    sent_from = gmail_user
 
     subject = 'TA-Bot MOSS REPORT'
 
