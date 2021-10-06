@@ -28,7 +28,7 @@ class AdminCodePage extends Component<{}, {}> {
             <Helmet>
                 <title>[Admin] Student Submission | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={false} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
+            
             <AdminCodePageComponent></AdminCodePageComponent>
         </div>
         );
