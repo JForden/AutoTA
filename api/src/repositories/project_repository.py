@@ -39,7 +39,7 @@ class ProjectRepository():
         return project
     
     def get_levels(self, project_id: int) -> Dict[str, int]:
-        levels = Levels.query.filter(Projects.Id == project_id).all()
+        levels = Levels.query.filter(Levels.ProjectId == project_id).all()
         level_score = {}
         for level in levels:
             level_score[level.Name] = level.Points
