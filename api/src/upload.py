@@ -52,8 +52,11 @@ def python_error_count(filepath):
     with open(filepath+".out.pylint", "r") as file:
         parsed_json = json.load(file)
         error_count = 0
-        for _ in parsed_json:
-            error_count = error_count + 1
+        for line in parsed_json:
+            if("UPPER_CASE" in line["message"]):
+                continue
+            else:
+                error_count = error_count + 1
         return error_count
 
 def output_pass_or_fail(filepath):
