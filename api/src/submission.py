@@ -148,7 +148,8 @@ def get_submission_information(submission_repo: SubmissionRepository = Provide[C
     time_for_next_submission = submission.Time + timedelta(minutes=delay_minutes)
     if submission_repo.unlock_check(current_user.Id,current_project):
         time_for_next_submission = submission.Time + timedelta(minutes=5)
-
+    if(current_user.Role == ADMIN_ROLE):
+        time_for_next_submission = submission.Time + timedelta(minutes=0)
     return jsonify(submissions_remaining = 10, name = project.Name, end = project.End, Id = project.Id, max_submissions = 10, can_redeem = can_redeem, points=point, time_until_next_submission = time_for_next_submission.isoformat())
 
 @submission_api.route('/recentsubproject', methods=['POST'])
