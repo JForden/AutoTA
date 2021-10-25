@@ -41,6 +41,8 @@ def get_timeout(project_id: int, user_id: int,
 
 
 def on_timeout(project_id: int, user_id: int) -> bool:
+    if(current_user.Role == ADMIN_role):
+        return True
     curr_date = datetime.now()
     time_for_next_submission = get_timeout(project_id, user_id)
 
