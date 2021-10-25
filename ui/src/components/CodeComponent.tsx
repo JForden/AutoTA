@@ -57,7 +57,7 @@ class CodeComponent extends Component<CodeComponentProps, {}> {
                         const error = this.props.pylintData[index];
                         if(error.message.includes("UPPER_CASE"){ 
                             continue;
-                        }else if(error.type === "convention"){
+                        } else if(error.type === "convention"){
                             holder[index] =( 
                                 <div>
                                     <Icon color="black" name='pencil' />
