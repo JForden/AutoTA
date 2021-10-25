@@ -180,6 +180,8 @@ class UploadPage extends Component<{}, UploadPageState> {
             <Button disabled={!this.state.canRedeem} type="submit" color='yellow' fluid size='small' onClick={this.handleRedeem}>
                 Use Extra Day (Score must be above 75)
             </Button>
+            <div>&nbsp;</div>
+            <div><Icon name="paper plane" color="red"></Icon><a href="https://docs.google.com/document/d/1Ig15zUygy85cNyPTg7_VYjW7WcgasvijmXGiNDjZssA/edit?usp=sharing" target="_blank">TA-Bot Patch Notes!</a></div>
             </Grid.Column>
             </Grid>
         </div>
