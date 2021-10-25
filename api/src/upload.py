@@ -151,7 +151,7 @@ def pylint_score_finder(error_count):
 @jwt_required()
 @cross_origin()
 @inject
-def file_upload(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], config_repo: ConfigRepository = Provide[Container.config_repo]):
+def file_upload(user_repository: UserRepository,submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], config_repo: ConfigRepository = Provide[Container.config_repo]):
     """[summary]
 
     Args:
@@ -169,11 +169,13 @@ def file_upload(submission_repo: SubmissionRepository = Provide[Container.submis
         return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
 
     #Check to see if student is able to upload or still on timeout
-    if on_timeout(project.Id, current_user.Id):
-        message = {
-            'message': 'Please wait until timeout expires'
-        }
-        return make_response(message, HTTPStatus.BAD_REQUEST)
+    
+    if(user_repository.get_user_status() != ADMIN_role):
+        if on_timeout(project.Id, current_user.Id):
+            message = {
+                'message': 'Please wait until timeout expires'
+            }
+            return make_response(message, HTTPStatus.BAD_REQUEST)
 
     # check if the post request has the file part
     if 'file' not in request.files:
