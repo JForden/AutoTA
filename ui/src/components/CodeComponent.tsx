@@ -34,7 +34,9 @@ class CodeComponent extends Component<CodeComponentProps, {}> {
     stylelinenumbers(linenumber: number) {
         for (let index = 0; index < this.props.pylintData.length; index++) {
             const error = this.props.pylintData[index];
-            if(error.line === linenumber) {
+            if(error.message.includes("UPPER_CASE")){ 
+                continue;
+            }else if(error.line === linenumber) {
                 return {'background-color': 'yellow', 'color': 'black'};
             }
         }
