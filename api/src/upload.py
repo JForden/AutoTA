@@ -18,6 +18,7 @@ from flask_cors import cross_origin
 from src.repositories.models import Levels
 from src.repositories.submission_repository import SubmissionRepository
 from src.repositories.project_repository import ProjectRepository
+from src.repositories.user_repository import UserRepository
 from src.services.timeout_service import on_timeout
 from tap.parser import Parser
 from dependency_injector.wiring import inject, Provide

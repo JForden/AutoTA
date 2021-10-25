@@ -18,9 +18,10 @@ pytest-mock = "*"
 "tap.py" = {extras = ["yaml"], version = "*"}
 mosspy = "*"
 dependency-injector = "*"
+injector = "*"
 
 [dev-packages]
 pytest = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
