@@ -172,7 +172,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
 
     #Check to see if student is able to upload or still on timeout
     print(user_repository.get_user_status())
-    if(current_user.Role == ADMIN_ROLE):
+    if(current_user.Role != ADMIN_ROLE):
         if on_timeout(project.Id, current_user.Id):
             message = {
                 'message': 'Please wait until timeout expires'
