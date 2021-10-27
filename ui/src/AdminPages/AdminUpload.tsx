@@ -5,22 +5,23 @@ import MenuComponent from '../components/MenuComponent';
 import AdminComponent from '../components/AdminComponent';
 import '../css/AdminComponent.scss'
 import { Helmet } from 'react-helmet';
+import AdminUploadPage from '../components/AdminUploadPage';
 
-class AdminLanding extends Component<{}, {}> {
+class AdminUpload extends Component<{}, {}> {
 
     render() {
         return (
         <div>
             <Helmet>
-                <title>[Admin] Projects | TA-Bot</title>
+                <title>[Admin] Student Upload | TA-Bot</title>
             </Helmet>
             <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
-            <Grid className="main-grid">
-                <AdminComponent></AdminComponent>
+            <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle' className="main-grid">
+                <AdminUploadPage></AdminUploadPage> 
             </Grid>
         </div>
         );
   }
 }
 
-export default AdminLanding;
+export default AdminUpload;

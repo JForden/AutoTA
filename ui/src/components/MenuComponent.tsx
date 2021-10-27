@@ -9,7 +9,8 @@ interface MenuComponentProps {
     showUpload: boolean,
     showHelp: boolean,
     showCreate: boolean,
-    showLast:boolean
+    showLast:boolean,
+    showAdminUpload:boolean
 }
 
 
@@ -55,6 +56,17 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                             } else {
                                 return (
                                     <Menu.Item><a href="/upload">Upload</a></Menu.Item>
+                                );
+                            }
+                        })()}               
+                    </div>
+                    <div>
+                        {(() => {
+                            if(!this.props.showAdminUpload) {
+                                return (<></>);
+                            } else {
+                                return (
+                                    <Menu.Item><a href="/admin/upload">Admin Upload</a></Menu.Item>
                                 );
                             }
                         })()}               

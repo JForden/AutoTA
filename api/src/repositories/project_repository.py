@@ -47,7 +47,7 @@ class ProjectRepository():
         return level_score
 
     def get_levels_by_project(self, project_id: int) -> Dict[str, int]:
-        levels = Levels.query.filter(Projects.Id == project_id).order_by(asc(Levels.Order)).all()
+        levels = Levels.query.filter(Levels.ProjectId == project_id).order_by(asc(Levels.Order)).all()
 
         return levels
     

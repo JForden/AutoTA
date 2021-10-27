@@ -1,3 +1,4 @@
+from flask.json import jsonify
 from src.repositories.config_repository import ConfigRepository
 import json
 import os
@@ -99,6 +100,7 @@ def score_finder(project_repository: ProjectRepository, passed_levels,total_test
 
     #[level 1, 10. level 2, 30]
     levels=project_repository.get_levels(project_id)
+    print(levels)
     score_total=0
     for item in levels:
         individual_score=levels[item]/total_tests[item]
@@ -163,7 +165,14 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     Returns:
         [HTTP]: [a pass or fail HTTP message]
     """
+    
+    #print(request.args.get(student_id,project_id))
+    username = current_user.Username
+    if "student_id" in request.form:
+        username= user_repository.get_user_by_id(int(request.form["student_id"])) 
     project = project_repo.get_current_project()
+    if "project_id" in request.form:
+        project = project_repo.get_selected_project(int(request.form["project_id"]))
     if project == None:
         message = {
                 'message': 'No active project'
@@ -171,7 +180,6 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
 
     #Check to see if student is able to upload or still on timeout
-    print(user_repository.get_user_status())
     if(current_user.Role != ADMIN_ROLE):
         if on_timeout(project.Id, current_user.Id):
             message = {
@@ -195,6 +203,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         }
         return make_response(message, HTTPStatus.BAD_REQUEST)
 
+    
     if file and allowed_file(file.filename, ext[project.Language]):
         # Step 1: Run TA-Bot to generate grading folder
         result = subprocess.run([current_app.config['TABOT_PATH'], project.Name, "--final","--system" ], stdout=subprocess.PIPE)
@@ -205,11 +214,11 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
             return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
         outputpath = result.stdout.decode('utf-8')
 
-        path = os.path.join(outputpath, "input", f"{current_user.Username}{ext[project.Language][0]}")
+        path = os.path.join(outputpath, "input", f"{username}{ext[project.Language][0]}")
         file.save(path)
 
         # Step 2: Run grade.sh
-        result = subprocess.run([outputpath +  "execute.py", current_user.Username, project.Language], cwd=outputpath) 
+        result = subprocess.run([outputpath +  "execute.py", username, project.Language], cwd=outputpath) 
         if result.returncode != 0:
             message = {
                 'message': 'Error in running grading script!'
@@ -218,12 +227,13 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         
         # Step 3: Save submission in submission table
         now = datetime.now()
-        tap_path = outputpath+"output/"+current_user.Username+".out"
+        tap_path = outputpath+"output/"+username+".out"
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         status=output_pass_or_fail(tap_path)
-        error_count=python_error_count(outputpath+"output/"+current_user.Username)
+        error_count=python_error_count(outputpath+"output/"+username)
 
         levels = project_repo.get_levels_by_project(project.Id)
+        print(levels)
         submission_level = parse_tap_file_for_levels(tap_path, levels)
 
         passed_levels, total_tests = level_counter(tap_path)
@@ -232,7 +242,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         
         total_submission_score = student_submission_score+pylint_score
         
-        submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+current_user.Username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
+        submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
         
         # Step 4 assign point totals for the submission 
         current_level = submission_repo.get_current_level(project.Id,current_user.Id)
@@ -253,3 +263,23 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         'message': 'Unsupported file type'
     }
     return make_response(message, HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
+
+
+@upload_api.route('/total_students', methods=['GET'])
+@jwt_required()
+@inject
+def total_students(user_repo: UserRepository = Provide[Container.user_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+
+    list_of_users=user_repo.get_all_users()
+    list_of_user_info=[]
+    print(list_of_user_info)
+    for user in list_of_users:
+        if(user.Role != ADMIN_ROLE):
+            list_of_user_info.append({"name":user.Firstname +" "+ user.Lastname,"mscsnet":user.Username,"id":user.Id})
+    return jsonify(list_of_user_info)
+

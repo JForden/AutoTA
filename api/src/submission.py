@@ -210,5 +210,3 @@ def extraday(submission_repo: SubmissionRepository = Provide[Container.submissio
             return make_response("", HTTPStatus.OK)
     return make_response("", HTTPStatus.NOT_ACCEPTABLE)
 
-
-

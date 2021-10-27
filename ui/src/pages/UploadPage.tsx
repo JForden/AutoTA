@@ -113,7 +113,7 @@ class UploadPage extends Component<{}, UploadPageState> {
             
             // Request made to the backend api
             // Send formData object
-            axios.post(process.env.REACT_APP_BASE_API_URL + `/upload/`, formData,{
+            axios.post(process.env.REACT_APP_BASE_API_URL + `/upload/`, formData, {
                 headers: {
                   'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
                 }
@@ -134,7 +134,7 @@ class UploadPage extends Component<{}, UploadPageState> {
             <Helmet>
                 <title>Upload | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={true} showHelp={false} showCreate={false} showLast={true}></MenuComponent>
+            <MenuComponent showUpload={true} showAdminUpload={false} showHelp={false} showCreate={false} showLast={true}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
             <Grid.Column style={{ maxWidth: 400 }}>
             <Form loading={this.state.isLoading} size='large' onSubmit={this.handleSubmit} disabled={true}>
