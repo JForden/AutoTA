@@ -168,8 +168,10 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     
     #print(request.args.get(student_id,project_id))
     username = current_user.Username
+    user_id = current_user.Id
     if "student_id" in request.form:
         username= user_repository.get_user_by_id(int(request.form["student_id"])) 
+        user_id = user_repository.getUserByName(username).Id
     project = project_repo.get_current_project()
     if "project_id" in request.form:
         project = project_repo.get_selected_project(int(request.form["project_id"]))
@@ -242,17 +244,17 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         
         total_submission_score = student_submission_score+pylint_score
         
-        submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
+        submission_repo.create_submission(user_id, tap_path, path, outputpath+"output/"+username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
         
         # Step 4 assign point totals for the submission 
-        current_level = submission_repo.get_current_level(project.Id,current_user.Id)
+        current_level = submission_repo.get_current_level(project.Id,user_id)
         if current_level != "":
             if submission_level > current_level:
-                submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[current_user.Id])
-                submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,submission_level)
+                submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[user_id])
+                submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id,submission_level)
         else:
-            submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[current_user.Id])
-            submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id, submission_level)
+            submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[user_id])
+            submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id, submission_level)
 
         message = {
             'message': 'Success',
