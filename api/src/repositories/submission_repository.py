@@ -8,7 +8,6 @@ from datetime import datetime
 
 
 class SubmissionRepository():
-
     def get_submission_by_user_id(self, user_id: int) -> Submissions:
         submission = Submissions.query.filter(Submissions.User == user_id).order_by(desc("Time")).first()
         return submission

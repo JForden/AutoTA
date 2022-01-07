@@ -37,7 +37,8 @@ def create_app():
     app.register_blueprint(submission_api, url_prefix='/api/submissions')
     app.register_blueprint(projects_api,url_prefix='/api/projects')  
     app.register_blueprint(class_api,url_prefix='/api/class')
-    app.register_blueprint(error_api,url_prefix='/api/error')  
+    app.register_blueprint(error_api,url_prefix='/api/error')
+  
     sentry_sdk.init(
         "https://c4f15810b0d34cd589cbc1c86bb5e0fd@o906488.ingest.sentry.io/5843824",
         integrations=[FlaskIntegration()],

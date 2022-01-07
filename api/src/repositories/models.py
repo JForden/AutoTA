@@ -14,6 +14,7 @@ class Projects(db.Model):
     Start = Column(Date)
     End = Column(Date)
     Language = Column(String)
+
     Submissions=relationship('Submissions') 
     Levels=relationship('Levels')
     StudentProgress=relationship('StudentProgress')
@@ -111,3 +112,18 @@ class Levels(db.Model):
     Name=Column(String)
     Order=Column(Integer)
     Points=Column(Integer)
+
+class TeacherClassAssignments(db.Model):
+    __tablename__ = "TeacherClassAssignments"
+    UserId = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
+    ClassId = Column(Integer, ForeignKey('Classes.Id'), primary_key=True)
+    LectureId=Column(Integer, ForeignKey('LectureSections.Id'),primary_key=True)
+
+    Classes=relationship('Classes')
+
+class LectureSectionSettings(db.Model):
+    __tablename__ = "LectureSectionSettings"
+    LectureSectionId = Column(Integer, ForeignKey('LectureSections.Id'), primary_key=True)
+    HasUnlockEnabled = Column(Boolean)
+    HasScoreEnabled = Column(Boolean)
+    HasTBSEnabled = Column(Boolean)

@@ -78,6 +78,7 @@ def output_pass_or_fail(filepath):
     return True
 
 def level_counter(filepath):
+    # TODO: Verify YAML is not Python specific 
     parser = Parser()
     passed_levels={}
     total_tests={}
@@ -98,7 +99,7 @@ def level_counter(filepath):
 
 def score_finder(project_repository: ProjectRepository, passed_levels,total_tests,project_id) -> str:
 
-    #[level 1, 10. level 2, 30]
+    # TODO: Needs to be per class
     levels=project_repository.get_levels(project_id)
     print(levels)
     score_total=0
@@ -166,7 +167,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         [HTTP]: [a pass or fail HTTP message]
     """
     
-    #print(request.args.get(student_id,project_id))
+    # TODO: Get the class the user is uploading for
     username = current_user.Username
     if "student_id" in request.form:
         username= user_repository.get_user_by_id(int(request.form["student_id"])) 
@@ -230,19 +231,22 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         tap_path = outputpath+"output/"+username+".out"
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         status=output_pass_or_fail(tap_path)
+
+        # TODO: Make this conditional based on language
         error_count=python_error_count(outputpath+"output/"+username)
 
         levels = project_repo.get_levels_by_project(project.Id)
-        print(levels)
         submission_level = parse_tap_file_for_levels(tap_path, levels)
 
         passed_levels, total_tests = level_counter(tap_path)
         student_submission_score=score_finder(project_repo, passed_levels, total_tests, project.Id)
+        # TODO: Make this conditional based on language
         pylint_score = pylint_score_finder(error_count)
-        
         total_submission_score = student_submission_score+pylint_score
-        
+        # TODO: Make this conditional based on language
         submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
+        
+
         
         # Step 4 assign point totals for the submission 
         current_level = submission_repo.get_current_level(project.Id,current_user.Id)

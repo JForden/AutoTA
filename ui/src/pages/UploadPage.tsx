@@ -21,7 +21,8 @@ interface UploadPageState {
     canRedeem:boolean,
     points:number
     time_until_next_submission: string,
-    is_allowed_to_submit: boolean
+    is_allowed_to_submit: boolean,
+    showUnlock: boolean
 }
  
 class UploadPage extends Component<{}, UploadPageState> {
@@ -39,7 +40,8 @@ class UploadPage extends Component<{}, UploadPageState> {
             canRedeem: false,
             points:0,
             time_until_next_submission: "",
-            is_allowed_to_submit: true
+            is_allowed_to_submit: true,
+            showUnlock: false
         };
     
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -162,7 +164,7 @@ class UploadPage extends Component<{}, UploadPageState> {
                     }
                 })()}
             </Form>
-            <ErrorMessage message={this.state.error_message} isHidden={this.state.isErrorMessageHidden} ></ErrorMessage>
+            <ErrorMessage message={this.state.error_message} isHidden={this.state.isErrorMessageHidden}></ErrorMessage>
             <Button
             basic
             color='blue'
@@ -177,9 +179,15 @@ class UploadPage extends Component<{}, UploadPageState> {
             }}
             />
             <br /> <br />
-            <Button disabled={!this.state.canRedeem} type="submit" color='yellow' fluid size='small' onClick={this.handleRedeem}>
-                Use Extra Day (Score must be above 75)
-            </Button>
+            {(() => {
+                if(this.state.showUnlock){
+                    return (<Button disabled={!this.state.canRedeem} type="submit" color='yellow' fluid size='small' onClick={this.handleRedeem}>
+                    Use Extra Day (Score must be above 75)
+                </Button>);
+                } else {
+                    return (<></>)
+                }
+            })()}
             <div>&nbsp;</div>
             <div><Icon name="paper plane" color="red"></Icon><a href="https://docs.google.com/document/d/1Ig15zUygy85cNyPTg7_VYjW7WcgasvijmXGiNDjZssA/edit?usp=sharing" target="_blank">TA-Bot Patch Notes!</a></div>
             </Grid.Column>

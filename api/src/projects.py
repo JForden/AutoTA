@@ -34,6 +34,9 @@ def all_projects(project_repo: ProjectRepository = Provide[Container.project_rep
         new_projects.append(ProjectJson(proj.Id, proj.Name, proj.Start.strftime("%x %X"), proj.End.strftime("%x %X"), thisdic[proj.Id]).toJson())
     return jsonify(new_projects)
     
+
+
+# TODO: Load in language from DB, in all_submissions
 @projects_api.route('/run-moss', methods=['POST'])
 @jwt_required()
 @inject

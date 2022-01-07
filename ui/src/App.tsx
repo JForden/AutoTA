@@ -12,6 +12,7 @@ import ProjectBreakdown from './AdminPages/ProjectBreakdown';
 import axios from 'axios';
 import NotFoundComponent from './components/NotFoundComponent';
 import AdminUpload from './AdminPages/AdminUpload';
+import AdminSettingsPage from './AdminPages/AdminSettingsPage';
 
 class App extends Component {
 
@@ -39,6 +40,7 @@ class App extends Component {
                     <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />
                     <ProtectedRoute exact path="/admin/project/:id" component={ProjectBreakdown} />
                     <ProtectedRoute exact path="/admin/upload" component={AdminUpload} />
+                    <ProtectedRoute exact path="/admin/settings" component={AdminSettingsPage} />
                     <Route component={NotFoundComponent}></Route>
                 </Switch>
         </BrowserRouter>

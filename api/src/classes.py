@@ -4,6 +4,7 @@ from src.repositories.class_repository import ClassRepository
 from dependency_injector.wiring import inject, Provide
 from container import Container
 from flask import jsonify
+from flask_jwt_extended import current_user
 
 class_api = Blueprint('class_api', __name__)
 
@@ -13,6 +14,14 @@ class_api = Blueprint('class_api', __name__)
 def get_classes(class_repository: ClassRepository = Provide[Container.class_repo]):
     classes = class_repository.get_classes()
     return jsonify(classes)
+
+
+
+
+
+
+
+
 
 
 @class_api.route('/get_classes_labs', methods=['GET'])
@@ -37,3 +46,10 @@ def get_class_labs(class_repository: ClassRepository = Provide[Container.class_r
         holder.append({"name": cls.Name, "id": cls.Id, "labs": class_lab, "lectures": class_lectures})
 
     return jsonify(holder)
+
+@class_api.route('/get_class_by_id', methods=['GET'])
+@jwt_required()
+@inject
+def get_class_by_id(class_repository: ClassRepository = Provide[Container.class_repo]):
+    classes=class_repository.get_class_by_id(current_user.Id)
+    return jsonify(classes)
