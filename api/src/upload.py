@@ -5,6 +5,7 @@ import os
 import subprocess
 import os.path
 from typing import List
+import zipfile
 
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
@@ -29,9 +30,9 @@ from src.constants import ADMIN_ROLE
 
 upload_api = Blueprint('upload_api', __name__)
 
-ext={"python": [".py","py"],"java": [".java","java"]}
+ext={"python": [".py","py"],"java": [".java","java"],"zip":[".zip","zip"]}
 
-def allowed_file(filename, extensions):
+def allowed_file(filename):
     """[function for checking to see if the file is an allowed file type]
 
     Args:
@@ -40,8 +41,12 @@ def allowed_file(filename, extensions):
     Returns:
         [Boolean]: [returns a bool if the file is allowed or not]
     """
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in extensions
+    filetype=filename.rsplit('.', 1)[1].lower()
+    print(filetype)
+    for key in ext:
+        if filetype in ext[key]:
+            return True
+
 
 def python_error_count(filepath):
     """[A function that finds the ammount of errors from the pylint.out file that was generated]
@@ -169,8 +174,10 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     
     # TODO: Get the class the user is uploading for
     username = current_user.Username
+    user_id = current_user.Id
     if "student_id" in request.form:
         username= user_repository.get_user_by_id(int(request.form["student_id"])) 
+        user_id = user_repository.getUserByName(username).Id
     project = project_repo.get_current_project()
     if "project_id" in request.form:
         project = project_repo.get_selected_project(int(request.form["project_id"]))
@@ -205,18 +212,34 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         return make_response(message, HTTPStatus.BAD_REQUEST)
 
     
-    if file and allowed_file(file.filename, ext[project.Language]):
+    if file and allowed_file(file.filename):
+        print(file)
         # Step 1: Run TA-Bot to generate grading folder
-        result = subprocess.run([current_app.config['TABOT_PATH'], project.Name, "--final","--system" ], stdout=subprocess.PIPE)
-        if result.returncode != 0:
-            message = {
-                'message': 'Error in creating output directory!'
-            }
-            return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
-        outputpath = result.stdout.decode('utf-8')
-
-        path = os.path.join(outputpath, "input", f"{username}{ext[project.Language][0]}")
-        file.save(path)
+        
+        #check to see if file is a zip file, if so extract the files
+        if file.filename.endswith(".zip"):
+            with zipfile.ZipFile(file, 'r') as zip_ref:
+                result = subprocess.run([current_app.config['TABOT_PATH'], project.Name, "--final","--system" ], stdout=subprocess.PIPE)
+                if result.returncode != 0:
+                    message = {
+                        'message': 'Error in creating output directory!'
+                    }
+                    return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
+                outputpath = result.stdout.decode('utf-8')
+                file_path = os.path.join(outputpath, "input")
+                zip_ref.extractall(file_path)                
+        else:
+            result = subprocess.run([current_app.config['TABOT_PATH'], project.Name, "--final","--system" ], stdout=subprocess.PIPE)
+            print("Result ", result)
+            if result.returncode != 0:
+                message = {
+                    'message': 'Error in creating output directory!'
+                }
+                return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
+            outputpath = result.stdout.decode('utf-8')
+            print("Outputpath ", outputpath)
+            path = os.path.join(outputpath, "input", f"{username}{ext[project.Language][0]}")
+            file.save(path)
 
         # Step 2: Run grade.sh
         result = subprocess.run([outputpath +  "execute.py", username, project.Language], cwd=outputpath) 
@@ -249,14 +272,14 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
 
         
         # Step 4 assign point totals for the submission 
-        current_level = submission_repo.get_current_level(project.Id,current_user.Id)
+        current_level = submission_repo.get_current_level(project.Id,user_id)
         if current_level != "":
             if submission_level > current_level:
-                submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[current_user.Id])
-                submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id,submission_level)
+                submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[user_id])
+                submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id,submission_level)
         else:
-            submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[current_user.Id])
-            submission_repo.modifying_level(project.Id,current_user.Id,submission_data[current_user.Id].Id, submission_level)
+            submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[user_id])
+            submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id, submission_level)
 
         message = {
             'message': 'Success',
