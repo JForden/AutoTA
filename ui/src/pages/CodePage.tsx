@@ -56,7 +56,6 @@ const CodePage = () => {
     const [score, setScore] = useState<number>(0);
 
     useEffect(() => {
-        console.log("USE EFFECT!")
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors?id=${submissionId}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 

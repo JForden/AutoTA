@@ -15,15 +15,6 @@ def get_classes(class_repository: ClassRepository = Provide[Container.class_repo
     classes = class_repository.get_classes()
     return jsonify(classes)
 
-
-
-
-
-
-
-
-
-
 @class_api.route('/get_classes_labs', methods=['GET'])
 @inject
 def get_class_labs(class_repository: ClassRepository = Provide[Container.class_repo]):
@@ -47,9 +38,19 @@ def get_class_labs(class_repository: ClassRepository = Provide[Container.class_r
 
     return jsonify(holder)
 
-@class_api.route('/get_class_by_id', methods=['GET'])
+@class_api.route('/get_teacher_class_by_id', methods=['GET'])
 @jwt_required()
 @inject
-def get_class_by_id(class_repository: ClassRepository = Provide[Container.class_repo]):
-    classes=class_repository.get_class_by_id(current_user.Id)
+def get_teacher_class_by_id(class_repository: ClassRepository = Provide[Container.class_repo]):
+    classes=class_repository.get_teacher_class_by_id(current_user.Id)
     return jsonify(classes)
+
+
+@class_api.route('/get_student_class_by_id', methods=['GET'])
+@jwt_required()
+@inject
+def get_student_class_by_id(class_repository: ClassRepository = Provide[Container.class_repo]):
+    classes=class_repository.get_student_class_by_id(current_user.Id)
+    return jsonify(classes)
+
+

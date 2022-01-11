@@ -5,7 +5,7 @@ import { Redirect } from 'react-router-dom'
 class LandingPage extends Component {
   render() {
     if (localStorage.getItem("AUTOTA_AUTH_TOKEN") != null) {
-        return ( <Redirect to={{pathname: '/upload'}}/> );
+        return ( <Redirect to={{pathname: '/class'}}/> );
     } else {
         return ( <Redirect to={{pathname: '/login'}}/> );
     }

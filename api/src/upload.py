@@ -21,6 +21,8 @@ from src.repositories.models import Levels
 from src.repositories.submission_repository import SubmissionRepository
 from src.repositories.project_repository import ProjectRepository
 from src.repositories.user_repository import UserRepository
+from src.repositories.class_repository import ClassRepository
+from src.repositories.config_repository import ConfigRepository
 from src.services.timeout_service import on_timeout
 from tap.parser import Parser
 from dependency_injector.wiring import inject, Provide
@@ -161,7 +163,7 @@ def pylint_score_finder(error_count):
 @jwt_required()
 @cross_origin()
 @inject
-def file_upload(user_repository: UserRepository =Provide[Container.user_repo],submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], config_repo: ConfigRepository = Provide[Container.config_repo]):
+def file_upload(user_repository: UserRepository =Provide[Container.user_repo],submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], config_repo: ConfigRepository = Provide[Container.config_repo],config_repos: ConfigRepository = Provide[Container.config_repo],class_repo: ClassRepository = Provide[Container.class_repo]):
     """[summary]
 
     Args:
@@ -189,11 +191,19 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
 
     #Check to see if student is able to upload or still on timeout
     if(current_user.Role != ADMIN_ROLE):
-        if on_timeout(project.Id, current_user.Id):
-            message = {
-                'message': 'Please wait until timeout expires'
-            }
-            return make_response(message, HTTPStatus.BAD_REQUEST)
+        class_id = request.form['class_id']
+        lecture_ids= class_repo.get_lecture_sections_ID(current_user.Id, class_id)
+        print(lecture_ids)
+        LectureConfigDict=config_repos.get_lecture_section_settings(lecture_ids[0])
+        print(LectureConfigDict)
+        
+        if(LectureConfigDict['HasTBSEnabled'] == True):
+            print("here")
+            if on_timeout(project.Id, current_user.Id):
+                message = {
+                    'message': 'Please wait until timeout expires'
+                }
+                return make_response(message, HTTPStatus.BAD_REQUEST)
 
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -268,8 +278,6 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         total_submission_score = student_submission_score+pylint_score
         # TODO: Make this conditional based on language
         submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
-        
-
         
         # Step 4 assign point totals for the submission 
         current_level = submission_repo.get_current_level(project.Id,user_id)

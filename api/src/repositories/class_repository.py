@@ -13,11 +13,18 @@ class ClassRepository():
         classes = Classes.query.order_by(desc(Classes.Name)).all()
         return classes
 
-    def get_class_by_id(self, user_id: int) -> Dict[int, str]:
+    def get_teacher_class_by_id(self, user_id: int) -> Dict[int, str]:
         """[Get a class by its ID]"""
         classesList = TeacherClassAssignments.query.filter(TeacherClassAssignments.UserId==user_id).all()
         classDict = {}
         for item in classesList:
+            classDict[item.ClassId] = Classes.query.filter(Classes.Id==item.ClassId).first().Name
+        return classDict
+        
+    def get_student_class_by_id(self, user_id: int) -> Dict[int, str]:
+        classList= ClassAssignments.query.filter(ClassAssignments.UserId==user_id).all()
+        classDict = {}
+        for item in classList:
             classDict[item.ClassId] = Classes.query.filter(Classes.Id==item.ClassId).first().Name
         return classDict
 

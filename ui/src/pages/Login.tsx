@@ -72,7 +72,7 @@ class Login extends Component<{}, LoginPageState> {
 
   render() {
     if (this.state.isLoggedIn && this.state.role === 0 ){
-      return ( <Redirect to={{pathname: '/upload'}}/> );
+      return ( <Redirect to={{pathname: '/class'}}/> );
     }
     if (this.state.isLoggedIn && this.state.role === 1 ){
       return ( <Redirect to={{pathname: '/admin/projects'}}/> );

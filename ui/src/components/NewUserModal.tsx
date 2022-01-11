@@ -116,7 +116,7 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
         axios.post(process.env.REACT_APP_BASE_API_URL + `/auth/create`, { password: this.props.password, username: this.props.username, fname: this.state.FirstName, lname: this.state.LastName, id: this.state.StudentNumber, email: this.state.Email, class_id: this.state.ClassId, lab_id: this.state.LabId, lecture_id: this.state.LectureId })
         .then(res => {    
             localStorage.setItem("AUTOTA_AUTH_TOKEN", res.data.access_token);
-            window.location.href = "/upload";   
+            window.location.href = "/class";   
         })
         .catch(err => {
             this.setState({ error_msg: err.response.data.message });

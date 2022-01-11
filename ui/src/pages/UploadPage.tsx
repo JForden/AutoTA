@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component, useEffect, useState } from 'react';
 import 'semantic-ui-css/semantic.min.css'
 import { Button, Form, Grid, Segment, Dimmer, Header, Icon } from 'semantic-ui-react'
 import axios from 'axios';
@@ -8,6 +8,11 @@ import { SemanticCOLORS } from 'semantic-ui-react'
 import ErrorMessage from '../components/ErrorMessage';
 import Countdown from 'react-countdown';
 import { Helmet } from 'react-helmet';
+import { useParams } from 'react-router-dom';
+
+interface UploadProps {
+    class_id?: string
+}
 
 interface UploadPageState {
     file?: File,
@@ -22,69 +27,80 @@ interface UploadPageState {
     points:number
     time_until_next_submission: string,
     is_allowed_to_submit: boolean,
-    showUnlock: boolean
-}
- 
-class UploadPage extends Component<{}, UploadPageState> {
-
-    constructor(props: any){
-        super(props);
-        this.state = {
-            color: 'grey',
-            isLoading: false,
-            error_message: '',
-            isErrorMessageHidden: true,
-            project_name: "",
-            project_id: 0,
-            end: "",
-            canRedeem: false,
-            points:0,
-            time_until_next_submission: "",
-            is_allowed_to_submit: true,
-            showUnlock: false
-        };
+    hasScoreEnabled:boolean,
+    hasUnlockEnabled: boolean,
     
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleFileChange = this.handleFileChange.bind(this);
-    }
-    componentDidMount() {
+}
+
+const UploadPage = () => {
+    let { class_id } = useParams<UploadProps>();
+    var cid = class_id ? parseInt(class_id) : -1;
+    const [file, setFile] = useState<File | null>(null);
+    const [color, setColor] = useState<string>('gray');
+    const [isLoading,setIsLoading] =useState<boolean>(false);
+    const [error_message,setError_Message]=useState<string>("");
+    const [isErrorMessageHidden,setIsErrorMessageHidden]=useState<boolean>(true);
+    const [project_name,setProject_Name]=useState<string>("");
+    const [project_id, setProject_id] = useState<number>(0);
+    const [end, setEnd] = useState<string>('');
+    const [canRedeem, setCanRedeem] = useState<boolean>(false);
+    const [points, setPoints] = useState<number>(0);
+    const [time_until_next_submission,setTime_Until_Next_Submission]=useState<string>("");
+    const [is_allowed_to_submit, setIs_Allowed_To_Submit] = useState<boolean>(true);
+    const [hasScoreEnabled, setHasScoreEnabled] = useState<boolean>(false);
+    const [hasUnlockEnabled, setHasUnlockEnabled] = useState<boolean>(false);
+    const [hasTbsEnabled, setHasTbsEnabled] = useState<boolean>(false);
+
+    useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/submissioncounter`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
         })
         .then(res => {
-            this.setState({
-                project_name: res.data.name,
-                end: res.data.end,
-                project_id: res.data.Id,
-                canRedeem: res.data.can_redeem,
-                points: res.data.points,
-                time_until_next_submission: res.data.time_until_next_submission,
-                is_allowed_to_submit: new Date() > new Date(res.data.time_until_next_submission)
-            });
+            setProject_Name(res.data.name);
+            setEnd(res.data.end);
+            setProject_id(res.data.Id);
+            setCanRedeem(res.data.can_redeem);
+            setPoints(res.data.points);
+            setTime_Until_Next_Submission(res.data.time_until_next_submission);
+            setIs_Allowed_To_Submit(!hasTbsEnabled || new Date() > new Date(res.data.time_until_next_submission));
         })
         .catch(err => {
-            this.setState({ error_message: err.response.data.message});
-            this.setState({ isErrorMessageHidden: false, isLoading: false });
+            setError_Message(err.response.data.message);
+            setIsErrorMessageHidden(false);
+            setIsLoading(false);
         });
-    }
+
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/settings/config`,  {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            },
+            params: {
+                class_id: cid
+            }
+        }).then(res => {
+            var data = res.data;
+            setHasScoreEnabled(data.HasScoreEnabled);
+            setHasUnlockEnabled(data.HasUnlockEnabled);
+            setHasTbsEnabled(data.HasTBSEnabled);
+        });
+    }, [])
 
     // On file select (from the pop up)
-    handleFileChange(event : React.FormEvent) {
-    
+    function handleFileChange(event : React.FormEvent) {
         const target = event.target as HTMLInputElement;
         const files = target.files;
 
         if(files != null && files.length === 1){
             // Update the state
-            this.setState({ file: files[0] });
+            setFile(files[0])
         } else {
-            this.setState({ file: undefined });
+            setFile(null);
         }
       
     }; 
-    handleRedeem(){
+    function handleRedeem(){
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/extraday`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
@@ -95,23 +111,25 @@ class UploadPage extends Component<{}, UploadPageState> {
         })
     }
 
-    onTimerFinish(){
+    function onTimerFinish(){
         window.location.reload();
     }
 
-    handleSubmit() {
-        if (this.state.file !== undefined) {
-            this.setState({ isErrorMessageHidden: true });
-            this.setState({isLoading: true});
+    function handleSubmit() {
+        if (file !== null) {
+            setIsErrorMessageHidden(true);
+            setIsLoading(true);
             // Create an object of formData
             const formData = new FormData();
         
             // Update the formData object
             formData.append(
                 "file",
-                this.state.file,
-                this.state.file.name
+                file,
+                file.name
             );
+
+            formData.append("class_id", cid.toString());
             
             // Request made to the backend api
             // Send formData object
@@ -124,14 +142,14 @@ class UploadPage extends Component<{}, UploadPageState> {
                 window.location.href = "/code";
             })
             .catch(err => {
-                this.setState({ error_message: err.response.data.message});
-                this.setState({ isErrorMessageHidden: false, isLoading: false });
+                setError_Message(err.response.data.message);
+                setIsErrorMessageHidden(false);
+                setIsLoading(false);
             })
         }
     }
     
-    render() {
-        return (
+    return (
         <div>
             <Helmet>
                 <title>Upload | TA-Bot</title>
@@ -139,17 +157,17 @@ class UploadPage extends Component<{}, UploadPageState> {
             <MenuComponent showUpload={true} showAdminUpload={false} showHelp={false} showCreate={false} showLast={true}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
             <Grid.Column style={{ maxWidth: 400 }}>
-            <Form loading={this.state.isLoading} size='large' onSubmit={this.handleSubmit} disabled={true}>
+            <Form loading={isLoading} size='large' onSubmit={handleSubmit} disabled={true}>
                 <Dimmer.Dimmable dimmed={true}>
                 <Segment stacked>
                 <h1>Upload Assignment Here</h1>
-                <Form.Input type="file" fluid required onChange={this.handleFileChange} />
-                <Button disabled={!this.state.is_allowed_to_submit} type="submit" color='blue' fluid size='large'>
+                <Form.Input type="file" fluid required onChange={handleFileChange} />
+                <Button disabled={!is_allowed_to_submit} type="submit" color='blue' fluid size='large'>
                     Upload
                 </Button>
                 <br></br>
                 </Segment>
-                <Dimmer active={this.state.project_id === -1}>
+                <Dimmer active={project_id === -1}>
                     <Header as='h2' icon inverted>
                     <Icon name='ban' />
                     No active project
@@ -157,31 +175,28 @@ class UploadPage extends Component<{}, UploadPageState> {
                 </Dimmer>
                 </Dimmer.Dimmable>
                 {(() => {
-                    if(this.state.project_id !== -1 && !this.state.is_allowed_to_submit){
-                        return (<><Icon name="clock outline"></Icon><Countdown date={new Date(this.state.time_until_next_submission)} onComplete={this.onTimerFinish} /></>);
-                    } else {
-                        return (<></>)
+                    if(hasTbsEnabled){
+                        if(project_id !== -1 && !is_allowed_to_submit){
+                            return (<><Icon name="clock outline"></Icon><Countdown date={new Date(time_until_next_submission)} onComplete={onTimerFinish} /></>);
+                        } else {
+                            return (<></>)
+                        }
                     }
+                    return (<></>);
                 })()}
             </Form>
-            <ErrorMessage message={this.state.error_message} isHidden={this.state.isErrorMessageHidden}></ErrorMessage>
-            <Button
-            basic
-            color='blue'
-            content='Score on last assignment'
-            icon='gem'
-            label={{
-                as: 'a',
-                basic: true,
-                color: 'blue',
-                pointing: 'left',
-                content: this.state.points,
-            }}
-            />
+            <ErrorMessage message={error_message} isHidden={isErrorMessageHidden}></ErrorMessage>
+            {(() => {
+                if(hasScoreEnabled){
+                    return (<Button basic color='blue' content='Score on last assignment' icon='gem'
+                    label={{ as: 'a', basic: true, color: 'blue', pointing: 'left', content: points, }}/>);
+                }
+                return (<></>);
+            })()}
             <br /> <br />
             {(() => {
-                if(this.state.showUnlock){
-                    return (<Button disabled={!this.state.canRedeem} type="submit" color='yellow' fluid size='small' onClick={this.handleRedeem}>
+                if(hasUnlockEnabled){
+                    return (<Button disabled={!canRedeem} type="submit" color='yellow' fluid size='small' onClick={handleRedeem}>
                     Use Extra Day (Score must be above 75)
                 </Button>);
                 } else {
@@ -193,8 +208,7 @@ class UploadPage extends Component<{}, UploadPageState> {
             </Grid.Column>
             </Grid>
         </div>
-        );
-  }
+    );
 }
 
 export default UploadPage;

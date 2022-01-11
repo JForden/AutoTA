@@ -31,9 +31,9 @@ settings_api = Blueprint('settings_api', __name__)
 def GetLecConfig(config_repos: ConfigRepository = Provide[Container.config_repo],class_repo: ClassRepository = Provide[Container.class_repo]):
     class_id = request.args.get('class_id')
     lecture_ids= class_repo.get_lecture_sections_ID(current_user.Id, class_id)
-    print(lecture_ids)
     LectureConfigDict=config_repos.get_lecture_section_settings(lecture_ids[0])
     return make_response(jsonify(LectureConfigDict), HTTPStatus.OK)
+
 
 @settings_api.route('/config', methods=['POST'])
 @jwt_required()

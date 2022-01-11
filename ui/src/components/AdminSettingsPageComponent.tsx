@@ -31,7 +31,7 @@ class AdminSettingsPageComponent extends Component<{}, AdminSettingsPageState> {
         this.handleClick = this.handleClick.bind(this);
     }
     componentDidMount() {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/get_class_by_id`, {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/get_teacher_class_by_id`, {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
