@@ -44,9 +44,11 @@ def UpdateLecConfig(config_repos: ConfigRepository = Provide[Container.config_re
     score_int = get_value_or_empty(input_json, 'HasScoreEnabled')
     tbs_int = get_value_or_empty(input_json, 'HasTBSEnabled')
     class_id= get_value_or_empty(input_json, 'ClassId')
+    lvlSYS_int=get_value_or_empty(input_json,'HasLvlSysEnabled')
     lecture_ids= class_repo.get_lecture_sections_ID(current_user.Id, class_id)
     config_repos.change_unlockday_toggle(unlocked_int,lecture_ids)
     config_repos.change_score_toggle(score_int, lecture_ids)
     config_repos.change_tbs_toggle(tbs_int, lecture_ids)
+    config_repos.change_lvlsys_toggle(lvlSYS_int,lecture_ids)
     
     return make_response("Good", HTTPStatus.OK)

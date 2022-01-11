@@ -127,3 +127,4 @@ class LectureSectionSettings(db.Model):
     HasUnlockEnabled = Column(Boolean)
     HasScoreEnabled = Column(Boolean)
     HasTBSEnabled = Column(Boolean)
+    HasLVLSYSEnabled = Column(Boolean)

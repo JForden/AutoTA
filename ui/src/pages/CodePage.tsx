@@ -61,7 +61,7 @@ const CodePage = () => {
     const [hasTbsEnabled, setHasTbsEnabled] = useState<boolean>(false);
 
     useEffect(() => {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors?id=${submissionId}`, {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors?id=${submissionId}&class_id=${cid}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }

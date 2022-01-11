@@ -10,6 +10,7 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
 from src.repositories.submission_repository import SubmissionRepository
 from src.repositories.project_repository import ProjectRepository
+from src.repositories.config_repository import ConfigRepository
 from src.services.link_service import LinkService
 from src.constants import EMPTY, DELAY_CONFIG, REDEEM_BY_CONFIG, ADMIN_ROLE
 import json
@@ -22,13 +23,14 @@ from container import Container
 submission_api = Blueprint('submission_api', __name__)
 
 
-def convert_tap_to_json(file_path,role,current_level):
+def convert_tap_to_json(file_path, role, current_level, hasLVLSYSEnabled):
     parser = Parser()
     test=[]
     final={}
+    print(hasLVLSYSEnabled)
     for line in parser.parse_file(file_path):
         if line.category == "test":
-            if role == ADMIN_ROLE:
+            if role == ADMIN_ROLE or not hasLVLSYSEnabled:
                 new_yaml = line.yaml_block.copy()
                 new_yaml["hidden"] = "False"
                 test.append({
@@ -39,6 +41,7 @@ def convert_tap_to_json(file_path,role,current_level):
                 continue
             elif line.yaml_block["hidden"] == "True" and role != ADMIN_ROLE:
                 continue
+            
             if current_level >= line.yaml_block["suite"]:
                 test.append({
                     'skipped': line.skip,
@@ -60,8 +63,9 @@ def convert_tap_to_json(file_path,role,current_level):
 @submission_api.route('/testcaseerrors', methods=['GET'])
 @jwt_required()
 @inject
-def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Container.submission_repo], config_repo: ConfigRepository = Provide[Container.config_repo]):
     submission_id = int(request.args.get("id"))
+    class_id = int(request.args.get("class_id"))
     output_path = ""
 
     if submission_id != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submission_id)):
@@ -72,7 +76,9 @@ def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Containe
 
     project_id = submission_repo.get_project_by_submission_id(submission_id)
     current_level=submission_repo.get_current_level(project_id,current_user.Id)
-    output = convert_tap_to_json(output_path,current_user.Role,current_level)
+
+    config= config_repo.get_lecture_section_frm_userid_classid(class_id,current_user.Id)
+    output = convert_tap_to_json(output_path,current_user.Role,current_level, config["HasLVLSYSEnabled"])
     return make_response(output, HTTPStatus.OK)
 
 # TODO: Create new function to handle Java
