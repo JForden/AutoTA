@@ -13,6 +13,7 @@ const defaultpagenumber=-1;
 
 interface CodePageProps {
     id?: string
+    class_id?: string
 }
 
 interface JsonTestResponseBody {
@@ -47,13 +48,17 @@ interface PylintObject {
 }
 
 const CodePage = () => {
-    let { id } = useParams<CodePageProps>();
-    var submissionId = id ? parseInt(id) : defaultpagenumber; 
+    let { id, class_id } = useParams<CodePageProps>();
+    var submissionId = id ? parseInt(id) : defaultpagenumber;
+    var cid = class_id ? parseInt(class_id) : -1;
     
     const [json, setJson] = useState<JsonResponse>({ results: [ { skipped: false, passed: false, test: { description: "", output: [""], type: 0, name: "", suite: "", hidden: "" }} ] });
     const [pylint, setPylint] = useState<Array<PylintObject>>([]);
     const [code, setCode] = useState<string>("");
     const [score, setScore] = useState<number>(0);
+    const [hasScoreEnabled, setHasScoreEnabled] = useState<boolean>(false);
+    const [hasUnlockEnabled, setHasUnlockEnabled] = useState<boolean>(false);
+    const [hasTbsEnabled, setHasTbsEnabled] = useState<boolean>(false);
 
     useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors?id=${submissionId}`, {
@@ -106,6 +111,21 @@ const CodePage = () => {
         .catch(err => {
             console.log(err);
         });
+
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/settings/config`,  {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            },
+            params: {
+                class_id: cid
+            }
+        }).then(res => {
+            var data = res.data;
+            setHasScoreEnabled(data.HasScoreEnabled);
+            setHasUnlockEnabled(data.HasUnlockEnabled);
+            setHasTbsEnabled(data.HasTBSEnabled);
+        });
+        
     }, []);
 
     return (
@@ -116,7 +136,7 @@ const CodePage = () => {
             <MenuComponent showUpload={true} showAdminUpload={false} showHelp={true} showCreate={false} showLast={false}></MenuComponent>
             <Split sizes={[80, 20]} className="split2" direction="vertical">
                     <CodeComponent pylintData={pylint} codedata={code}></CodeComponent>
-                    <TestResultsComponent testcase={json} score={score}></TestResultsComponent>
+                    <TestResultsComponent testcase={json} showScore={hasScoreEnabled} score={score}></TestResultsComponent>
             </Split>
         </div>
     );

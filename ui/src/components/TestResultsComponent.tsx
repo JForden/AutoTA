@@ -8,7 +8,8 @@ import Confetti from 'react-confetti'
 
 interface TestResultComponentProps {
     testcase: JsonResponse,
-    score:number
+    score:number,
+    showScore:boolean
 }
 
 interface TestState {
@@ -124,15 +125,14 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                     <div><Tab menu={{ secondary: true, pointing: true }} panes={panes} /></div>
                     <div id="test-info">
                     {(() => {
-                        if(!this.state.showComponent) {
-                            return (
-                                <div><h1 id="blank-testcase-message">
-                                Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results
-                            </h1>
-                            <h2 className="center">The score of this submission is: <StyledIcon name='gem' className="GEM" color="blue" />  {this.props.score}</h2>
-                            <p className="center"><i>Note: The score of your submission is not the same as the final grade for the assignment. The score is based 60% on test cases and 40% on Pylint results</i></p>
-                            <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={1000} tweenDuration={10000} run={this.props.score == 100} recycle={false}/>
-                            </div>);
+                        if(!this.state.showComponent) {                     
+                            if(this.props.showScore == true) {
+                                return (<div><h1 id="blank-testcase-message"> Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results </h1><h2 className="center">The score of this submission is: <StyledIcon name='gem' className="GEM" color="blue" />  {this.props.score}</h2>
+                                <p className="center"><i>Note: The score of your submission is not the same as the final grade for the assignment. The score is based 60% on test cases and 40% on Pylint results</i></p>
+                                <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={1000} tweenDuration={10000} run={this.props.score == 100} recycle={false}/></div>);
+                            } else {
+                                return (<div><h1 id="blank-testcase-message"> Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results </h1></div>)
+                            }
                         } else {
                             return (
                                 <div>

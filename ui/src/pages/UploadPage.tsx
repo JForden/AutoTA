@@ -139,7 +139,7 @@ const UploadPage = () => {
                 }
               })
             .then(res => {
-                window.location.href = "/code";
+                window.location.href = "code";
             })
             .catch(err => {
                 setError_Message(err.response.data.message);
