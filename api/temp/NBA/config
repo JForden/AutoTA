@@ -1,0 +1,6 @@
+POINTS="20"
+LABNUM=02
+HEADER="\nTotal:\t\t\tout of ${POINTS}\n\n
+Notes:\n\n"
+GCCFLAGS=""
+PROJECTNAME="TextFileString"

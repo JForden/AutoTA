@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
-import { Table, Label } from 'semantic-ui-react';
+import { Table, Label, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
 interface ProjectObject {
@@ -45,13 +45,16 @@ class AdminComponent extends Component<{}, ProjectsState> {
 
     render(){
         return (
+            <>
+            
             <Table celled>
                 <Table.Header>
                 <Table.Row>
                     <Table.HeaderCell>Project Name</Table.HeaderCell>
                     <Table.HeaderCell>Project Start Date</Table.HeaderCell>
                     <Table.HeaderCell>Project End Date</Table.HeaderCell>
-                    <Table.HeaderCell>Total Submissions</Table.HeaderCell>.
+                    <Table.HeaderCell>Total Submissions</Table.HeaderCell>
+                    <Table.HeaderCell><Button icon='plus' content='Create New Project' color='green' floated='left' /></Table.HeaderCell>
                 </Table.Row>
                 </Table.Header>
                 <Table.Body>
@@ -60,10 +63,11 @@ class AdminComponent extends Component<{}, ProjectsState> {
                     for (let index = this.state.projects.length-1; index >= 0; index--) {
                         holder[index] = ( 
                                 <Table.Row>
-                                    <Table.Cell><Link to={ "project/" + this.state.projects[index].Id }><Label button>{this.state.projects[index].Name}</Label></Link></Table.Cell>
+                                    <Table.Cell>{this.state.projects[index].Name}</Table.Cell>
                                     <Table.Cell>{this.state.projects[index].Start}</Table.Cell>
                                     <Table.Cell>{this.state.projects[index].End}</Table.Cell>
                                     <Table.Cell>{this.state.projects[index].TotalSubmissions}</Table.Cell>
+                                    <Table.Cell><Button.Group fluid><Button as={Link} to={"project/" + this.state.projects[index].Id}>View</Button><Button.Or /><Button as={Link} to={"project/" + this.state.projects[index].Id} color='blue'>Edit</Button></Button.Group></Table.Cell>
                                 </Table.Row>
                                 );
                     }
@@ -73,7 +77,7 @@ class AdminComponent extends Component<{}, ProjectsState> {
                 
                 </Table.Body>
             </Table>
-        );
+            </>);
     }
 }
 

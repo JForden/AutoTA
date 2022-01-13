@@ -1,0 +1,3 @@
+TYPE=1
+DESCRIPTION="Only one team is entered.  The count of teams that have won the NBA championship is displayed."
+HIDDEN=False

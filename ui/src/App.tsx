@@ -14,6 +14,7 @@ import NotFoundComponent from './components/NotFoundComponent';
 import AdminUpload from './AdminPages/AdminUpload';
 import AdminSettingsPage from './AdminPages/AdminSettingsPage';
 import ClassSelectionPage from './pages/ClassSelectionPage';
+import AdminProjectConfig from './AdminPages/AdminProjectConfig';
 
 class App extends Component {
 
@@ -43,6 +44,7 @@ class App extends Component {
                 <ProtectedRoute exact path="/admin/project/:id" component={ProjectBreakdown} />
                 <ProtectedRoute exact path="/admin/upload" component={AdminUpload} />
                 <ProtectedRoute exact path="/admin/settings" component={AdminSettingsPage} />
+                <ProtectedRoute exact path="/admin/edit" component={AdminProjectConfig} />
                 <Route component={NotFoundComponent}></Route>
             </Switch>
         </BrowserRouter>
