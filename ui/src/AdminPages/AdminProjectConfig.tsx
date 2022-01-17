@@ -4,22 +4,28 @@ import { Grid } from 'semantic-ui-react'
 import MenuComponent from '../components/MenuComponent';
 import AdminProjectConfigComponent from '../components/AdminProjectConfigComponent';
 import { Helmet } from 'react-helmet';
+import { useParams } from 'react-router-dom';
 
-class AdminProjectConfig extends Component<{}, {}> {
+interface AdminProjectConfigProps {
+    id: string  
+}
 
-    render() {
-        return (
+const AdminProjectConfig = () => {
+
+    let { id } = useParams<AdminProjectConfigProps>();
+    var project_id = parseInt(id);
+
+   return (
         <div style={{height: "100%"}}>
             <Helmet>
                 <title>[Admin] Projects | TA-Bot</title>
             </Helmet>
             <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
             <div style={{height: "100%"}} className="main-grid">
-                <AdminProjectConfigComponent></AdminProjectConfigComponent>
+                <AdminProjectConfigComponent id={project_id}></AdminProjectConfigComponent>
             </div>
         </div>
-        );
-  }
+   )
 }
 
 export default AdminProjectConfig;

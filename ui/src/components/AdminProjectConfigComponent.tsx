@@ -7,6 +7,9 @@ import MenuComponent from './MenuComponent';
 import codeimg from '../codeex.png'
 import axios from 'axios';
 import { textSpanEnd } from 'typescript';
+import AdminProjectSettingsComponent from './AdminProjectSettingsComponent';
+import { useParams } from 'react-router-dom';
+
 
 const projects =[
     {key:'p1',value:'p1',text:'p1'},
@@ -14,182 +17,21 @@ const projects =[
     {key:'p3',value:'p3',text:'p3'},
 ]
 
+interface AdminProjectConfigProps {
+    id: number  
+}
 
-const panes = [
-    { menuItem: { key: 'psettings', icon: 'pencil alternate', content: 'Project Settings', }, render: () => 
-    <Tab.Pane>
-        <Form>
-            <Form.Field
-            control={Input}
-            label='Project Name'
-            placeholder='Project Name'
-            >
-            </Form.Field>
-            <Form.Group widths={'equal'}>
-                <Form.Field
-                control={Input}
-                label='Start Date'
-                type='datetime-local'
-                placeholder='Start Date'
-                >
-                </Form.Field>
-                <Form.Field
-                control={Input}
-                label='End Date'
-                type='datetime-local'
-                placeholder='End Date'
-                >
-                </Form.Field>
-            </Form.Group>
-            <Form.Group inline>
-            <label>Language</label>
-            <Form.Field
-                label='Python'
-                control='input'
-                type='radio'
-                name='htmlRadios'
-            />
-            <Form.Field
-                label='Java'
-                control='input'
-                type='radio'
-                name='htmlRadios'
-            />
-            </Form.Group>
-            <Form.Button>Submit</Form.Button>
-        </Form>
-    </Tab.Pane>
-    },
-    { menuItem: { key: 'testcases', icon: 'clipboard check', content: 'Test Cases' }, render: () => <Tab.Pane>
-        <Form>
-        <Form.Group inline>
-                <Form.Field
-                control={Input}
-                label='Test Case Name'
-                placeholder='00-TestCaseName'
-                >
-                </Form.Field>
-                <h5 style={{height:'3.5vh'}}>Input:  </h5>
-                <Form.Field
-                control={TextArea}
-                rows={1}
-                placeholder='1,2,3'
-                >
-                </Form.Field>
-                <Form.Field
-                control={Input}
-                label='Description:'
-                placeholder='Description'
-                />
-                <Form.Field
-                control={Checkbox}
-                label='Hidden'
-                />
-                <Form.Button>Submit Changes</Form.Button>
-                <Form.Field>
-                    
-                <Icon name="trash" />
-                </Form.Field>
-            </Form.Group>
-            <Form.Group inline>
-                <Form.Field
-                control={Input}
-                label='Test Case Name'
-                placeholder='00-TestCaseName'
-                >
-                </Form.Field>
-                <h5 style={{height:'3.5vh'}}>Input:  </h5>
-                <Form.Field
-                control={TextArea}
-                rows={1}
-                placeholder='1,2,3'
-                >
-                </Form.Field>
-                <Form.Field
-                control={Input}
-                label='Description:'
-                placeholder='Description'
-                />
-                <Form.Field
-                control={Checkbox}
-                label='Hidden'
-                />
-                <Form.Button>Submit Changes</Form.Button>
-                <Form.Field>
-                    
-                <Icon name="trash" />
-                </Form.Field>
-            </Form.Group>
-            <Form.Group inline>
-                <Form.Field
-                control={Input}
-                label='Test Case Name'
-                placeholder='00-TestCaseName'
-                >
-                </Form.Field>
-                <h5 style={{height:'3.5vh'}}>Input:  </h5>
-                <Form.Field
-                control={TextArea}
-                rows={1}
-                placeholder='1,2,3'
-                >
-                </Form.Field>
-                <Form.Field
-                control={Input}
-                label='Description:'
-                placeholder='Description'
-                />
-                <Form.Field
-                control={Checkbox}
-                label='Hidden'
-                />
-                <Form.Button>Submit Changes</Form.Button>
-                <Form.Field>
-                    
-                <Icon name="trash" />
-                </Form.Field>
-            </Form.Group>
-            <Form.Group inline>
-                <Form.Field
-                control={Input}
-                label='Test Case Name'
-                placeholder='00-TestCaseName'
-                >
-                </Form.Field>
-                <h5 style={{height:'3.5vh'}}>Input:  </h5>
-                <Form.Field
-                control={TextArea}
-                rows={1}
-                placeholder='1,2,3'
-                >
-                </Form.Field>
-                <Form.Field
-                control={Input}
-                label='Description:'
-                placeholder='Description'
-                />
-                <Form.Field
-                control={Checkbox}
-                label='Hidden'
-                />
-                <Form.Button>Submit Changes</Form.Button>
-                <Form.Field>
-                    
-                <Icon name="plus" />
-                </Form.Field>
-            </Form.Group>
-            
-        </Form>
-    </Tab.Pane> 
-    }, 
-  ]
+  const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
+    const [CreateNewState,setCreateNewState] = useState<boolean>();
 
-const AdminProjectConfigComponent = () => {
-    useEffect(() => {
-    }, []);
+    function buttonhandleClick() {
+        setCreateNewState(true);
+        console.log(CreateNewState);
+    }
 
     return (
         <div style={{height: "80%"}}>
+            <div><Button style={{marginBottom: "5px"}} onClick={buttonhandleClick}>Create New Project</Button></div>
             <Dropdown placeholder='Select a Project'
                 search
                 selection 
@@ -201,7 +43,135 @@ const AdminProjectConfigComponent = () => {
             menu={{ vertical: true, secondary: true, tabular: true }}
             grid={{paneWidth: 14, tabWidth: 2}}
             menuPosition='left'
-            panes={panes}
+            panes={[
+                { menuItem: { key: 'psettings', icon: 'pencil alternate', content: 'Project Settings', }, render: () => 
+                <Tab.Pane>
+                    <AdminProjectSettingsComponent id={props.id} />
+                </Tab.Pane>
+                },
+                { menuItem: { key: 'testcases', icon: 'clipboard check', content: 'Test Cases' }, render: () => <Tab.Pane>
+                    <Form>
+                    <Form.Group inline>
+                            <Form.Field
+                            control={Input}
+                            label='Test Case Name'
+                            placeholder='00-TestCaseName'
+                            >
+                            </Form.Field>
+                            <h5 style={{height:'3.5vh'}}>Input:  </h5>
+                            <Form.Field
+                            control={TextArea}
+                            rows={1}
+                            placeholder='1,2,3'
+                            >
+                            </Form.Field>
+                            <Form.Field
+                            control={Input}
+                            label='Description:'
+                            placeholder='Description'
+                            />
+                            <Form.Field
+                            control={Checkbox}
+                            label='Hidden'
+                            />
+                            <Form.Button>Submit Changes</Form.Button>
+                            <Form.Field>
+                                
+                            <Icon name="trash" />
+                            </Form.Field>
+                        </Form.Group>
+                        <Form.Group inline>
+                            <Form.Field
+                            control={Input}
+                            label='Test Case Name'
+                            placeholder='00-TestCaseName'
+                            >
+                            </Form.Field>
+                            <h5 style={{height:'3.5vh'}}>Input:  </h5>
+                            <Form.Field
+                            control={TextArea}
+                            rows={1}
+                            placeholder='1,2,3'
+                            >
+                            </Form.Field>
+                            <Form.Field
+                            control={Input}
+                            label='Description:'
+                            placeholder='Description'
+                            />
+                            <Form.Field
+                            control={Checkbox}
+                            label='Hidden'
+                            />
+                            <Form.Button>Submit Changes</Form.Button>
+                            <Form.Field>
+                                
+                            <Icon name="trash" />
+                            </Form.Field>
+                        </Form.Group>
+                        <Form.Group inline>
+                            <Form.Field
+                            control={Input}
+                            label='Test Case Name'
+                            placeholder='00-TestCaseName'
+                            >
+                            </Form.Field>
+                            <h5 style={{height:'3.5vh'}}>Input:  </h5>
+                            <Form.Field
+                            control={TextArea}
+                            rows={1}
+                            placeholder='1,2,3'
+                            >
+                            </Form.Field>
+                            <Form.Field
+                            control={Input}
+                            label='Description:'
+                            placeholder='Description'
+                            />
+                            <Form.Field
+                            control={Checkbox}
+                            label='Hidden'
+                            />
+                            <Form.Button>Submit Changes</Form.Button>
+                            <Form.Field>
+                                
+                            <Icon name="trash" />
+                            </Form.Field>
+                        </Form.Group>
+                        <Form.Group inline>
+                            <Form.Field
+                            control={Input}
+                            label='Test Case Name'
+                            placeholder='00-TestCaseName'
+                            >
+                            </Form.Field>
+                            <h5 style={{height:'3.5vh'}}>Input:  </h5>
+                            <Form.Field
+                            control={TextArea}
+                            rows={1}
+                            placeholder='1,2,3'
+                            >
+                            </Form.Field>
+                            <Form.Field
+                            control={Input}
+                            label='Description:'
+                            placeholder='Description'
+                            />
+                            <Form.Field
+                            control={Checkbox}
+                            label='Hidden'
+                            />
+                            <Form.Button>Submit Changes</Form.Button>
+                            <Form.Field>
+                                
+                            <Icon name="plus" />
+                            </Form.Field>
+                        </Form.Group>
+                        
+                    </Form>
+                </Tab.Pane> 
+                }, 
+              ]}
             
         /> 
         </div>

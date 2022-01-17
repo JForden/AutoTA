@@ -70,3 +70,66 @@ def get_projects_by_user(project_repo: ProjectRepository = Provide[Container.pro
     return make_response(json.dumps(student_submissions), HTTPStatus.OK)
 
 
+
+@projects_api.route('/create_project', methods=['POST'])
+@jwt_required()
+@inject
+def create_project(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+    if 'name' in request.form:
+        name = request.form['name']
+    if 'start_date' in request.form:
+        start_date = request.form['start_date']
+    if  'end_date' in request.form:
+        end_date= request.form['end_date']
+    if 'language' in request.form:
+        language = request.form['language']
+    if name == '' or start_date == '' or end_date == '' or language == '':
+        return make_response("Error in form", HTTPStatus.BAD_REQUEST)
+    
+    project_repo.create_project(name, start_date, end_date, language)
+    return make_response("Project Created", HTTPStatus.OK)
+
+@projects_api.route('/edit_project', methods=['POST'])
+@jwt_required()
+@inject
+def edit_project(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+    if 'name' in request.form:
+        name = request.form['name']
+    if 'start_date' in request.form:
+        start_date = request.form['start_date']
+    if  'end_date' in request.form:
+        end_date= request.form['end_date']
+    if 'language' in request.form:
+        language = request.form['language']
+    if name == '' or start_date == '' or end_date == '' or language == '':
+        return make_response("Error in form", HTTPStatus.BAD_REQUEST)
+    
+    project_repo.edit_project(name, start_date, end_date, language, request.args.get('id'))
+    return make_response("Project Edited", HTTPStatus.OK)
+
+
+@projects_api.route('/get_project_id', methods=['GET'])
+@jwt_required()
+@inject
+def get_project(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+    project_info=project_repo.get_project(request.args.get('id'))
+    print(project_info)
+    return make_response(json.dumps(project_info), HTTPStatus.OK)
+    
+
+

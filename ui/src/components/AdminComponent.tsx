@@ -54,7 +54,7 @@ class AdminComponent extends Component<{}, ProjectsState> {
                     <Table.HeaderCell>Project Start Date</Table.HeaderCell>
                     <Table.HeaderCell>Project End Date</Table.HeaderCell>
                     <Table.HeaderCell>Total Submissions</Table.HeaderCell>
-                    <Table.HeaderCell><Button icon='plus' content='Create New Project' color='green' floated='left' /></Table.HeaderCell>
+                    <Table.HeaderCell><Button as={Link} to={"project/edit/-1"} icon='plus' content='Create New Project' color='green' floated='left' /></Table.HeaderCell>
                 </Table.Row>
                 </Table.Header>
                 <Table.Body>
@@ -67,7 +67,7 @@ class AdminComponent extends Component<{}, ProjectsState> {
                                     <Table.Cell>{this.state.projects[index].Start}</Table.Cell>
                                     <Table.Cell>{this.state.projects[index].End}</Table.Cell>
                                     <Table.Cell>{this.state.projects[index].TotalSubmissions}</Table.Cell>
-                                    <Table.Cell><Button.Group fluid><Button as={Link} to={"project/" + this.state.projects[index].Id}>View</Button><Button.Or /><Button as={Link} to={"project/" + this.state.projects[index].Id} color='blue'>Edit</Button></Button.Group></Table.Cell>
+                                    <Table.Cell><Button.Group fluid><Button as={Link} to={"project/" + this.state.projects[index].Id}>View</Button><Button.Or /><Button as={Link} to={"project/edit/" + this.state.projects[index].Id} color='blue'>Edit</Button></Button.Group></Table.Cell>
                                 </Table.Row>
                                 );
                     }

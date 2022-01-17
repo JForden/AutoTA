@@ -3,6 +3,7 @@ from typing import Optional, Dict
 
 from sqlalchemy.sql.expression import asc
 from .models import Projects, Levels
+from src.repositories.database import db
 from sqlalchemy import desc
 from datetime import datetime
 
@@ -50,4 +51,24 @@ class ProjectRepository():
         levels = Levels.query.filter(Levels.ProjectId == project_id).order_by(asc(Levels.Order)).all()
 
         return levels
-    
+
+    def create_project(self, name: str, start: datetime, end: datetime, language:str):    
+        project = Projects(Name = name, Start = start, End = end, Language = language)
+        db.session.add(project)
+        db.session.commit()
+    def get_project(self, project_id:int) -> Dict[str,int]:
+        project_data = Projects.query.filter(Projects.Id == project_id).first()
+        project_info={}
+        project_info['name']=project_data.Name
+        project_info['start_date']=project_data.Start.isoformat()
+        project_info['end_date']=project_data.End.isoformat()
+        project_info['language']=project_data.Language
+        return project_info
+
+    def edit_project(self, name: str, start: datetime, end: datetime, language:str, project_id:int):
+        project = Projects.query.filter(Projects.Id == project_id).first()
+        project.Name = name
+        project.Start = start
+        project.End = end
+        project.Language = language
+        db.session.commit()

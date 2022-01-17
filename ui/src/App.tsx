@@ -44,7 +44,7 @@ class App extends Component {
                 <ProtectedRoute exact path="/admin/project/:id" component={ProjectBreakdown} />
                 <ProtectedRoute exact path="/admin/upload" component={AdminUpload} />
                 <ProtectedRoute exact path="/admin/settings" component={AdminSettingsPage} />
-                <ProtectedRoute exact path="/admin/edit" component={AdminProjectConfig} />
+                <ProtectedRoute exact path="/admin/project/edit/:id" component={AdminProjectConfig} />
                 <Route component={NotFoundComponent}></Route>
             </Switch>
         </BrowserRouter>
