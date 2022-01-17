@@ -31,13 +31,6 @@ interface AdminProjectConfigProps {
 
     return (
         <div style={{height: "80%"}}>
-            <div><Button style={{marginBottom: "5px"}} onClick={buttonhandleClick}>Create New Project</Button></div>
-            <Dropdown placeholder='Select a Project'
-                search
-                selection 
-                scrolling
-                options={projects}>
-            </Dropdown>
         <Tab
             style={{width: '100%', height: '100%'}}
             menu={{ vertical: true, secondary: true, tabular: true }}
