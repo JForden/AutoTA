@@ -50,13 +50,13 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         })
             .then(res => {
                 var data = res.data
-                console.log(data);
+                
                 var rows: Array<Testcase> = [];
 
                 Object.entries(data).map(([key, value]) => {
                     var testcase = new Testcase();
                     var values = (value as Array<string>);
-                    console.log(key);
+                    
                     testcase.id = parseInt(key);
                     testcase.levelid = parseInt(values[0]);
                     testcase.name = values[1];
@@ -66,7 +66,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                     testcase.isHidden = !!values[5];
                     testcase.levelname = values[6]
 
-                    console.log(testcase);
+                    
                     rows.push(testcase);
 
                     return testcase;
@@ -135,10 +135,10 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
 
         for (var i = 0; i < new_testcases.length; i++) {
             if (new_testcases[i].id === testcase_id) {
-                console.log(level);
+                
                 new_testcases[i].levelname = level;
                 setTestcases(new_testcases);
-                console.log(new_testcases[i].levelid);
+                
                 break;
             }
         }
@@ -158,6 +158,36 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     }
 
 
+     
+    function buttonhandleTrashClick(testcase: number) {
+        //loop through testcase and return the one with the id
+        var test: Testcase = new Testcase();
+        for (var i = 0; i < testcases.length; i++) {
+            if (testcases[i].id === testcase) {
+                test = testcases[i];
+                break;
+            }
+        }
+        
+        const formData = new FormData();
+        formData.append('id', test.id.toString());
+        
+        axios.post(process.env.REACT_APP_BASE_API_URL + '/projects/remove_testcase', formData, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+        }).then(function (response) {
+            window.location.reload();
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
+
+
+
+
+
     function buttonhandleClick(testcase: number) {
         //loop through testcase and return the one with the id
         var test: Testcase = new Testcase();
@@ -167,10 +197,10 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                 break;
             }
         }
-        console.log(test);
+        
         const formData = new FormData();
         formData.append('id', test.id.toString());
-        console.log(test.levelname);
+        
         formData.append('name', test.name);
         formData.append('levelName', test.levelname.toString());
         formData.append('project_id', props.id.toString());
@@ -268,8 +298,8 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                                 checked={testcase.levelname === 'Level 3'}                                              
                                                 onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(testcase.id, 'Level 3')}
                                             />
-                                        <Icon name="trash" />
                                         <Form.Button onClick={() => buttonhandleClick(testcase.id)}>Submit Changes</Form.Button>
+                                        <Form.Button onClick={() => buttonhandleTrashClick(testcase.id)}>Remove Test Case</Form.Button>
                                         </Form.Group>
                                     </Form.Group>
                                 );  
