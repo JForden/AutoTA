@@ -113,6 +113,11 @@ class ProjectRepository():
             testcase.IsHidden = is_hidden
             db.session.commit()
 
+    def remove_testcase(self, testcase_id:int):
+        testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
+        db.session.delete(testcase)
+        db.session.commit()
+
 
 
 

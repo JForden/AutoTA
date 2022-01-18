@@ -191,6 +191,22 @@ def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.p
     
 
 
+
+@projects_api.route('/remove_testcase', methods=['POST'])
+@jwt_required()
+@inject
+def remove_testcase(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+
+    if 'id' in request.form:
+        id_val=request.form['id']
+    project_repo.remove_testcase(id_val)
+    return make_response("Testcase Removed", HTTPStatus.OK)
+
     
     
 
