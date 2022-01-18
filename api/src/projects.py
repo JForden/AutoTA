@@ -128,8 +128,70 @@ def get_project(project_repo: ProjectRepository = Provide[Container.project_repo
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
     project_info=project_repo.get_project(request.args.get('id'))
-    print(project_info)
     return make_response(json.dumps(project_info), HTTPStatus.OK)
+    
+@projects_api.route('/get_testcases', methods=['GET'])
+@jwt_required()
+@inject
+
+def get_testcases(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+
+    project_id = request.args.get('id')
+    testcases = project_repo.get_testcases(project_id)
+    levels = project_repo.get_levels_by_project(project_id)
+    for key in testcases:
+        value = testcases[key]
+        for level in levels:
+            if level.Id==value[0]:
+                value.append(level.Name)
+
+    return make_response(json.dumps(testcases), HTTPStatus.OK)
+
+
+
+@projects_api.route('/add_or_update_testcase', methods=['POST'])
+@jwt_required()
+@inject   
+def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+
+    if 'id' in request.form:
+        id_val=request.form['id']
+    if 'name' in request.form:
+        name = request.form['name']
+    if 'levelName' in request.form:
+        level_name = request.form['levelName']
+    if 'input' in request.form:
+        input_data = request.form['input']
+    if 'output' in request.form:
+        output = request.form['output']
+    if 'project_id' in request.form:
+        project_id = request.form['project_id']
+    if 'isHidden' in request.form:
+        isHidden = request.form['isHidden']
+    if 'description' in request.form:
+        description = request.form['description']
+    
+    if id_val == '' or name == '' or input_data == '' or project_id == '' or isHidden == '' or description == '':
+        return make_response("Error in form", HTTPStatus.BAD_REQUEST)
+    
+    print(id_val, name, level_name, input_data, output, project_id, isHidden, description)
+    
+    project_repo.add_or_update_testcase(project_id, id_val, level_name, name, description, input_data, output, isHidden == "true")
+    return make_response("Testcase Added", HTTPStatus.OK)
+    
+
+
+    
     
 
 

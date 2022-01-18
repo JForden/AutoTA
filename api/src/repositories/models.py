@@ -128,3 +128,14 @@ class LectureSectionSettings(db.Model):
     HasScoreEnabled = Column(Boolean)
     HasTBSEnabled = Column(Boolean)
     HasLVLSYSEnabled = Column(Boolean)
+
+class Testcases(db.Model):
+    __tablename__ = "Testcases"
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    ProjectId = Column(Integer, ForeignKey('Projects.Id'))
+    LevelId = Column(Integer, ForeignKey("Levels.Id"))
+    Name = Column(String)
+    Description = Column(String)
+    Input = Column(String)
+    Output = Column(String)
+    IsHidden = Column(Boolean)

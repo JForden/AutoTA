@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Optional, Dict
 
 from sqlalchemy.sql.expression import asc
-from .models import Projects, Levels
+from .models import Projects, Levels, Testcases
 from src.repositories.database import db
-from sqlalchemy import desc
+from sqlalchemy import desc, and_
 from datetime import datetime
 
 
@@ -72,3 +72,48 @@ class ProjectRepository():
         project.End = end
         project.Language = language
         db.session.commit()
+        
+    def get_testcases(self, project_id:int) -> Dict[str,str]:
+        testcases = Testcases.query.filter(Testcases.ProjectId == project_id).all()
+        testcase_info = {}
+        for test in testcases:
+            testcase_data=[]
+            testcase_data.append(test.LevelId)
+            testcase_data.append(test.Name)
+            testcase_data.append(test.Description)
+            testcase_data.append(test.Input)
+            testcase_data.append(test.Output)
+            testcase_data.append(test.IsHidden)
+            testcase_info[test.Id] = testcase_data
+        return testcase_info
+    
+    def add_or_update_testcase(self, project_id:int, testcase_id:int, level_name:str, name:str, description:str, input_data:str, output:str, is_hidden:bool):
+        #TODO: run grading script and generate output for the testcases.
+        print("This is the testcase id: ",testcase_id)
+        testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
+        if testcase is None:
+            print(project_id)
+            print(level_name)
+            level = Levels.query.filter(and_(Levels.ProjectId==project_id, Levels.Name==level_name)).first()
+            print(level.Id)
+            level_id = level.Id 
+            testcase = Testcases(ProjectId = project_id, LevelId = level_id, Name = name, Description = description, Input = input_data, Output = output, IsHidden = is_hidden)
+            db.session.add(testcase)
+            db.session.commit()
+        else:
+            level = Levels.query.filter(and_(Levels.ProjectId==project_id, Levels.Name==level_name)).first()
+            print(level.Id)
+            level_id = level.Id 
+            testcase.projectid=project_id
+            testcase.LevelId = level_id
+            testcase.Name = name
+            testcase.Description = description
+            testcase.Input = input_data
+            testcase.Output = output
+            testcase.IsHidden = is_hidden
+            db.session.commit()
+
+
+
+
+
