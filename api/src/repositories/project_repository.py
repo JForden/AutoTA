@@ -38,6 +38,11 @@ class ProjectRepository():
         """
         project= Projects.query.filter(Projects.Id == project_id).first()
         return project
+
+
+    def get_project_by_class_id(self,class_id: int) -> int:
+        project_id = Projects.query.filter(Projects.ClassId==class_id).first()
+        return project_id.Id
     
     def get_levels(self, project_id: int) -> Dict[str, int]:
         levels = Levels.query.filter(Levels.ProjectId == project_id).all()
@@ -51,6 +56,11 @@ class ProjectRepository():
         levels = Levels.query.filter(Levels.ProjectId == project_id).order_by(asc(Levels.Order)).all()
 
         return levels
+
+
+
+
+
 
     def create_project(self, name: str, start: datetime, end: datetime, language:str):    
         project = Projects(Name = name, Start = start, End = end, Language = language)

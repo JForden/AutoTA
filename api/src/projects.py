@@ -209,5 +209,17 @@ def remove_testcase(project_repo: ProjectRepository = Provide[Container.project_
 
     
     
+@projects_api.route('/get_project_by_class_id', methods=['GET'])
+@jwt_required()
+@inject
+def get_project_by_class_id(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+    project_info=project_repo.get_project_by_class_id(request.args.get('id'))
+    
+    return make_response(project_info, HTTPStatus.OK)
 
 

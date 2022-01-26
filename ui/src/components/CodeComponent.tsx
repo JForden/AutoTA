@@ -5,7 +5,6 @@ import 'semantic-ui-css/semantic.min.css';
 import Split from 'react-split';
 import { Icon } from  'semantic-ui-react';
 
-
 interface PylintObject {
     type: string,
     module: string,

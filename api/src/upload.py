@@ -175,12 +175,19 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     """
     
     # TODO: Get the class the user is uploading for
+    class_id = request.form['class_id']
+    
     username = current_user.Username
     user_id = current_user.Id
     if "student_id" in request.form:
         username= user_repository.get_user_by_id(int(request.form["student_id"])) 
         user_id = user_repository.getUserByName(username).Id
-    project = project_repo.get_current_project()
+    
+    #TODO: using the class ID, get the current project.
+
+
+    project_id = project_repo.get_project_by_class_id(class_id)
+
     if "project_id" in request.form:
         project = project_repo.get_selected_project(int(request.form["project_id"]))
     if project == None:

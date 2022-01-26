@@ -10,6 +10,7 @@ from src.repositories.database import db
 class Projects(db.Model):
     __tablename__ = "Projects"
     Id = Column(Integer, primary_key=True, autoincrement=True)
+    ClassId = Column(Integer, ForeignKey('Classes.Id'))
     Name = Column(String)
     Start = Column(Date)
     End = Column(Date)

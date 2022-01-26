@@ -154,7 +154,18 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                 break;
             }
         }
-        
+    }
+
+    function handleOutputChange(testcase_id:number, output_data: string){
+        let new_testcases = [...testcases];
+
+        for (var i = 0; i < new_testcases.length; i++) {
+            if (new_testcases[i].id === testcase_id) {
+                new_testcases[i].output = output_data;
+                setTestcases(new_testcases);
+                break;
+            }
+        }
     }
 
 
@@ -257,6 +268,14 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                             placeholder="Please Enter Input"
                                             value={testcase.input}
                                             onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleInputChange(testcase.id, ev.target.value)}
+                                        >
+                                        </Form.Field>
+                                        <Form.Field
+                                            control={TextArea}
+                                            rows={1}
+                                            placeholder="Please Enter Output"
+                                            value={testcase.output}
+                                            onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleOutputChange(testcase.id, ev.target.value)}
                                         >
                                         </Form.Field>
                                         <Form.Field
