@@ -77,8 +77,8 @@ def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Containe
     project_id = submission_repo.get_project_by_submission_id(submission_id)
     current_level=submission_repo.get_current_level(project_id,current_user.Id)
 
-    config= config_repo.get_lecture_section_frm_userid_classid(class_id,current_user.Id)
-    output = convert_tap_to_json(output_path,current_user.Role,current_level, config["HasLVLSYSEnabled"])
+    #config= config_repo.get_lecture_section_frm_userid_classid(class_id,current_user.Id)
+    output = convert_tap_to_json(output_path,current_user.Role,current_level, False)
     return make_response(output, HTTPStatus.OK)
 
 # TODO: Create new function to handle Java
