@@ -29,9 +29,15 @@ settings_api = Blueprint('settings_api', __name__)
 @jwt_required()
 @inject
 def GetLecConfig(config_repos: ConfigRepository = Provide[Container.config_repo],class_repo: ClassRepository = Provide[Container.class_repo]):
-    class_id = request.args.get('class_id')
-    lecture_ids= class_repo.get_lecture_sections_ID(current_user.Id, class_id)
-    LectureConfigDict=config_repos.get_lecture_section_settings(lecture_ids[0])
+    #class_id = request.args.get('class_id')
+    #lecture_ids= class_repo.get_lecture_sections_ID(current_user.Id, class_id)
+    #LectureConfigDict=config_repos.get_lecture_section_settings(lecture_ids[0])
+    LectureConfigDict={}
+    LectureConfigDict["HasUnlockEnabled"] = False
+    LectureConfigDict["HasScoreEnabled"] = False
+    LectureConfigDict["HasTBSEnabled"] = False
+    LectureConfigDict["HasLVLSYSEnabled"] = False
+    
     return make_response(jsonify(LectureConfigDict), HTTPStatus.OK)
 
 

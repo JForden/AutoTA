@@ -39,7 +39,7 @@ const ClassSelectionPageComponent = () => {
                     return (
                         <Grid.Row>
                             <Grid.Column width={3}>
-                                <Image src={codeimg} href={"/class/" + studentClassNumbers[index] + "/upload"} target='_blank' ></Image>
+                                <Image src={codeimg} href={"/upload"} target='_blank' ></Image>
                             </Grid.Column>
                             <Grid.Column width={7}>
                                 <h1 style={{margin: "8.5%"}}>{name}</h1>
