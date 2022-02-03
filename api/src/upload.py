@@ -279,7 +279,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         # TODO: Make this conditional based on language
         submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
         
-        # Step 4 assign point totals for the submission 
+        # Step 4 assign point totals for the submission_level
         current_level = submission_repo.get_current_level(project.Id,user_id)
         if current_level != "":
             if submission_level > current_level:
