@@ -193,12 +193,10 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     if(current_user.Role != ADMIN_ROLE):
         class_id = request.form['class_id']
         lecture_ids= class_repo.get_lecture_sections_ID(current_user.Id, class_id)
-        print(lecture_ids)
-        LectureConfigDict=config_repos.get_lecture_section_settings(lecture_ids[0])
-        print(LectureConfigDict)
+        #LectureConfigDict=config_repos.get_lecture_section_settings(lecture_ids[0])
         
-        if(LectureConfigDict['HasTBSEnabled'] == True):
-            print("here")
+        #if(LectureConfigDict['HasTBSEnabled'] == True):
+        if(False):
             if on_timeout(project.Id, current_user.Id):
                 message = {
                     'message': 'Please wait until timeout expires'
