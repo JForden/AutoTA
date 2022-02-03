@@ -192,7 +192,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     #Check to see if student is able to upload or still on timeout
     if(current_user.Role != ADMIN_ROLE):
         class_id = request.form['class_id']
-        lecture_ids= class_repo.get_lecture_sections_ID(current_user.Id, class_id)
+        #lecture_ids= class_repo.get_lecture_sections_ID(current_user.Id, class_id)
         #LectureConfigDict=config_repos.get_lecture_section_settings(lecture_ids[0])
         
         #if(LectureConfigDict['HasTBSEnabled'] == True):
