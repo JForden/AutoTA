@@ -18,10 +18,10 @@ from src.jwt_manager import jwt
 from src import classes, auth, projects, submission, upload, settings
 from src.services import timeout_service
 
-USER_NAME = "dbmasteruser"
-PASSWORD = ":pc&[sMI;5KWNNfo7F$S*4;F8B[|2xtv^"
-SERVICE = "@ls-a1219070b91f9fd2f5647d71fa8b7e70a419305b.ch4bcjnxytnt.us-east-2.rds.amazonaws.com"
-PATH = "/autota"
+USER_NAME = "research"
+PASSWORD = ":7kNPTzg2/AawJ2Hx8"
+SERVICE = "@scarif-dev.cs.mu.edu"
+PATH = "/autota-dev"
 
 
 def create_app():
@@ -30,7 +30,7 @@ def create_app():
     app.container = container
     container.wire(modules=[classes, auth, projects, submission, upload, settings, timeout_service])
     CORS(app)
-    app.config['TABOT_PATH'] = '/home/alex/Documents/repos/ta-bot/tabot.sh'
+    app.config['TABOT_PATH'] = '/home/agebhard/Documents/repos/ta-bot/tabot.sh'
     app.config["JWT_SECRET_KEY"] = "ob1L04WeQ1U0H5Kiybk9rMoQigVhoGJCKBxC6KxF85G89vAK3L903I073JXQ"
     app.config["MAX_FAILED_LOGINS"] = 5
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000

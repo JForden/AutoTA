@@ -31,6 +31,7 @@ class Users(db.Model):
     StudentNumber = Column(String)
     Role = Column(Integer)
     IsLocked = Column(Boolean)
+    ResearchGroup = Column(Integer)
     Submissions=relationship('Submissions')
     ClassAssignments=relationship('ClassAssignments')
     LoginAttempts=relationship('LoginAttempts')

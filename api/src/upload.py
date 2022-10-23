@@ -186,10 +186,13 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     #TODO: using the class ID, get the current project.
 
 
-    project_id = project_repo.get_project_by_class_id(class_id)
-
+    project_id = project_repo.get_current_project()
+    project = None
     if "project_id" in request.form:
         project = project_repo.get_selected_project(int(request.form["project_id"]))
+    else:
+        project = project_repo.get_current_project()
+        
     if project == None:
         message = {
                 'message': 'No active project'
@@ -259,7 +262,8 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
             file.save(path)
 
         # Step 2: Run grade.sh
-        result = subprocess.run([outputpath +  "execute.py", username, project.Language], cwd=outputpath) 
+        research_group = user_repository.get_user_researchgroup(current_user.Id)
+        result = subprocess.run([outputpath +  "execute.py", username, str(research_group), project.Language], cwd=outputpath) 
         if result.returncode != 0:
             message = {
                 'message': 'Error in running grading script!'

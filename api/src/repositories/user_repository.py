@@ -20,7 +20,7 @@ class UserRepository():
         return user is not None
 
     def create_user(self, username: str, first_name: str, last_name: str, email: str, student_number: str):
-        user = Users(Username=username,Firstname=first_name,Lastname=last_name,Email=email,StudentNumber=student_number,Role = 0, IsLocked=False)
+        user = Users(Username=username,Firstname=first_name,Lastname=last_name,Email=email,StudentNumber=student_number,Role = 0,IsLocked=False,ResearchGroup=0)
         db.session.add(user)
         db.session.commit()
         
@@ -64,6 +64,10 @@ class UserRepository():
         query = Users.query.filter(Users.Id==userId).one()
         email = query.Email
         return email
+    def get_user_researchgroup(self,userId) -> int:
+        query = Users.query.filter(Users.Id==userId).one()
+        research_group = query.ResearchGroup
+        return research_group
 
 
         
