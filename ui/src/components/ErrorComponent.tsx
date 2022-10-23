@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { Component } from 'react';
+import React, { Component, PropsWithChildren } from 'react';
 import 'semantic-ui-css/semantic.min.css'
 import CriticalErrorPage from './CriticalErrorPage'
 
@@ -7,7 +7,7 @@ interface ErrorMessageState {
     hasError: boolean
 }
 
-class ErrorBoundary extends Component<{}, ErrorMessageState> {
+class ErrorBoundary extends Component<PropsWithChildren, ErrorMessageState> {
     constructor(props: {}) {
         super(props);
         this.state = { hasError: false };

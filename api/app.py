@@ -30,7 +30,7 @@ def create_app():
     app.container = container
     container.wire(modules=[classes, auth, projects, submission, upload, settings, timeout_service])
     CORS(app)
-    app.config['TABOT_PATH'] = '/home/alex/repos/ta-bot/tabot.sh'
+    app.config['TABOT_PATH'] = '/home/alex/Documents/repos/ta-bot/tabot.sh'
     app.config["JWT_SECRET_KEY"] = "ob1L04WeQ1U0H5Kiybk9rMoQigVhoGJCKBxC6KxF85G89vAK3L903I073JXQ"
     app.config["MAX_FAILED_LOGINS"] = 5
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000

@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { Component, FormEvent } from 'react';
-import { render } from 'react-dom';
 import 'semantic-ui-css/semantic.min.css';
 import { Button, Checkbox, CheckboxProps, Dropdown, DropdownItemProps, Form, Header, Segment, Select } from 'semantic-ui-react';
 import { isThisTypeNode } from 'typescript';

@@ -34,8 +34,12 @@ class App extends Component {
     return (
         <BrowserRouter>
             <Switch>
-                <Route path="/login" component={LoginPage} />
-                <Route exact path="/" component={LandingPage} />
+                <Route path="/login">
+                    <LoginPage></LoginPage>
+                </Route>
+                <Route exact path="/">
+                    <LandingPage></LandingPage>
+                </Route>
                 <ProtectedRoute exact path="/class" component={ClassSelectionPage} />
                 <ProtectedRoute exact path="/class/:class_id/submissions" component={PastSubmissionPage} />
                 <ProtectedRoute exact path="/class/:class_id/upload" component={UploadPage} />
@@ -45,7 +49,9 @@ class App extends Component {
                 <ProtectedRoute exact path="/admin/upload" component={AdminUpload} />
                 <ProtectedRoute exact path="/admin/settings" component={AdminSettingsPage} />
                 <ProtectedRoute exact path="/admin/project/edit/:id" component={AdminProjectConfig} />
-                <Route component={NotFoundComponent}></Route>
+                <Route>
+                    <NotFoundComponent></NotFoundComponent>
+                </Route>
             </Switch>
         </BrowserRouter>
     );
