@@ -42,6 +42,7 @@ class ProjectRepository():
 
     def get_project_by_class_id(self,class_id: int) -> int:
         project_id = Projects.query.filter(Projects.ClassId==class_id).first()
+        
         return project_id.Id
     
     def get_levels(self, project_id: int) -> Dict[str, int]:
@@ -66,14 +67,11 @@ class ProjectRepository():
         project = Projects(Name = name, Start = start, End = end, Language = language)
         db.session.add(project)
         db.session.commit()
-    def get_project(self, project_id:int) -> Dict[str,int]:
+    def get_project(self, project_id:int) -> Projects:
+        print("THis is the project id: ",project_id)
         project_data = Projects.query.filter(Projects.Id == project_id).first()
-        project_info={}
-        project_info['name']=project_data.Name
-        project_info['start_date']=project_data.Start.isoformat()
-        project_info['end_date']=project_data.End.isoformat()
-        project_info['language']=project_data.Language
-        return project_info
+        print(project_data)
+        return project_data
 
     def edit_project(self, name: str, start: datetime, end: datetime, language:str, project_id:int):
         project = Projects.query.filter(Projects.Id == project_id).first()
