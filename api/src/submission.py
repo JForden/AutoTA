@@ -78,7 +78,9 @@ def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Containe
     current_level=submission_repo.get_current_level(project_id,current_user.Id)
 
     config= config_repo.get_lecture_section_frm_userid_classid(class_id,current_user.Id)
+    
     output = convert_tap_to_json(output_path,current_user.Role,current_level, config["HasLVLSYSEnabled"])
+
     return make_response(output, HTTPStatus.OK)
 
 # TODO: Create new function to handle Java
@@ -216,3 +218,13 @@ def extraday(submission_repo: SubmissionRepository = Provide[Container.submissio
             return make_response("", HTTPStatus.OK)
     return make_response("", HTTPStatus.NOT_ACCEPTABLE)
 
+
+'''
+TODO:
+I created a axios call to use our user_repo method to get value from db
+@submission_api.route('/Researchgroup', methods=['GET'])
+@jwt_required()
+@inject
+def Researchgroup(user_repo: UserRepository = Provide[Container.user_repo]):
+    return user_repo.get_user_researchgroup(current_user.Id)
+'''

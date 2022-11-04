@@ -125,7 +125,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                     <div><Tab menu={{ secondary: true, pointing: true }} panes={panes} /></div>
                     <div id="test-info">
                     {(() => {
-                        if(!this.state.showComponent) {                     
+                        if(!this.state.showComponent) {
                             if(this.props.showScore == true) {
                                 return (<div><h1 id="blank-testcase-message"> Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results </h1><h2 className="center">The score of this submission is: <StyledIcon name='gem' className="GEM" color="blue" />  {this.props.score}</h2>
                                 <p className="center"><i>Note: The score of your submission is not the same as the final grade for the assignment. The score is based 60% on test cases and 40% on Pylint results</i></p>
@@ -133,15 +133,45 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                             } else {
                                 return (<div><h1 id="blank-testcase-message"> Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results </h1></div>)
                             }
-                        } else {
-                            return (
-                                <div>
-                                    <div><b>[{this.state.suite}] {this.state.test}</b></div>
-                                    <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
-                                    <strong>Test Description: </strong>{this.state.description}<br/>
-                                    <pre style={{backgroundColor: 'lightgrey'}}>{this.state.output}</pre>
-                                </div>
-                            );
+                        } else { //TODO: I check the research group and depending on their value, we display different information to the user
+                            /*
+                            if(this.props.ResearchGroup==0){ //Standard diff
+                                return (
+                                    <div>
+                                        <div><b>[{this.state.suite}] {this.state.test}</b></div>
+                                        <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
+                                        <strong>Test Description: </strong>{this.state.description}<br/>
+                                        <pre style={{backgroundColor: 'lightgrey'}}>{this.state.output}</pre>
+                                    </div>
+                                );
+                            }
+                            */
+                           /*
+                            if(this.props.ResearchGroup==1){ //Color DIff
+                                return (
+                                    <div>
+                                        <div><b>[{this.state.suite}] {this.state.test}</b></div>
+                                        <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
+                                        <strong>Test Description: </strong>{this.state.description}<br/>
+                                        <pre style={{backgroundColor: 'lightgrey'}}>{this.state.output}</pre>
+                                    </div>
+                                );
+                            }
+                            */
+                           /*
+                            //if(this.props.ResearchGroup==2){ //Input-output
+                              //  return (
+                                //    <div>
+                                  //      <div><b>[{this.state.suite}] {this.state.test}</b></div>
+                                    //    <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
+                                      //  <strong>Test Description: </strong>{this.state.description}<br/>
+                                       // /**I believe this would split on our custom delimiter and return an array, index 0 of the array should be everything before the split. */
+                                       // <b><strong>Expected output:</strong>{this.state.output.split("~~~diff~~~")[0]}</b>
+                                        //<b><strong>User output:</strong>{this.state.output.split("~~~diff~~~")[1]}</b>
+                                   // </div>
+                                //);
+                           // }
+                           
                         }
                     })()}              
                     </div>
