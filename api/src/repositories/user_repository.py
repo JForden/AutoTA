@@ -67,7 +67,7 @@ class UserRepository():
     def get_user_researchgroup(self,userId) -> int:
         query = Users.query.filter(Users.Id==userId).one()
         research_group = query.ResearchGroup
-        return research_group
+        return str(research_group)
 
 
         

@@ -71,20 +71,6 @@ const UploadPage = () => {
             setIsErrorMessageHidden(false);
             setIsLoading(false);
         });
-
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/settings/config`,  {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            },
-            params: {
-                class_id: cid
-            }
-        }).then(res => {
-            var data = res.data;
-            setHasScoreEnabled(data.HasScoreEnabled);
-            setHasUnlockEnabled(data.HasUnlockEnabled);
-            setHasTbsEnabled(data.HasTBSEnabled);
-        });
     }, [])
 
     // On file select (from the pop up)

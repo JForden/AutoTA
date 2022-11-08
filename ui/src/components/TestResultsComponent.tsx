@@ -9,7 +9,8 @@ import Confetti from 'react-confetti'
 interface TestResultComponentProps {
     testcase: JsonResponse,
     score:number,
-    showScore:boolean
+    showScore:boolean,
+    researchGroup:number
 }
 
 interface TestState {
@@ -133,9 +134,10 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                             } else {
                                 return (<div><h1 id="blank-testcase-message"> Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results </h1></div>)
                             }
-                        } else { //TODO: I check the research group and depending on their value, we display different information to the user
-                            /*
-                            if(this.props.ResearchGroup==0){ //Standard diff
+                        } else { 
+                            console.log(this.props.researchGroup);
+                            console.log(this.state.output.split("~~~diff~~~")[1]);
+                            if(this.props.researchGroup==0){ //Standard diff
                                 return (
                                     <div>
                                         <div><b>[{this.state.suite}] {this.state.test}</b></div>
@@ -145,9 +147,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                                     </div>
                                 );
                             }
-                            */
-                           /*
-                            if(this.props.ResearchGroup==1){ //Color DIff
+                            if(this.props.researchGroup==1){ //Color DIff
                                 return (
                                     <div>
                                         <div><b>[{this.state.suite}] {this.state.test}</b></div>
@@ -157,20 +157,18 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                                     </div>
                                 );
                             }
-                            */
-                           /*
-                            //if(this.props.ResearchGroup==2){ //Input-output
-                              //  return (
-                                //    <div>
-                                  //      <div><b>[{this.state.suite}] {this.state.test}</b></div>
-                                    //    <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
-                                      //  <strong>Test Description: </strong>{this.state.description}<br/>
-                                       // /**I believe this would split on our custom delimiter and return an array, index 0 of the array should be everything before the split. */
-                                       // <b><strong>Expected output:</strong>{this.state.output.split("~~~diff~~~")[0]}</b>
-                                        //<b><strong>User output:</strong>{this.state.output.split("~~~diff~~~")[1]}</b>
-                                   // </div>
-                                //);
-                           // }
+                            if(this.props.researchGroup==2){ //Input-output
+                               return (
+                                <div>
+                                       <div><b>[{this.state.suite}] {this.state.test}</b></div>
+                                        <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
+                                        <strong>Test Description: </strong>{this.state.description}<br/>
+                                       
+                                        <strong>Expected output:</strong><div>{this.state.output.split("~~~diff~~~")[0]}</div>
+                                        <strong>User output:</strong><div>{this.state.output.split("~~~diff~~~")[1]}</div>
+                                   </div>
+                            );
+                           }
                            
                         }
                     })()}              

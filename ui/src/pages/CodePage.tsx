@@ -59,8 +59,7 @@ const CodePage = () => {
     const [hasScoreEnabled, setHasScoreEnabled] = useState<boolean>(false);
     const [hasUnlockEnabled, setHasUnlockEnabled] = useState<boolean>(false);
     const [hasTbsEnabled, setHasTbsEnabled] = useState<boolean>(false);
-    //TODO: Create a const Research group that we can pass to our testresultscomponent
-    //const [ResearchGroup, setResearchGroup] =useState<number>(0);
+    const [ResearchGroup, setResearchGroup] = useState<number>(0);
 
     useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors?id=${submissionId}&class_id=${cid}`, {
@@ -113,31 +112,17 @@ const CodePage = () => {
         .catch(err => {
             console.log(err);
         });
-        /* TODO: I created an axios call to call the research group function in submission.py, returns value and sets data.research group
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/Researchgroup`,  {
+        
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/ResearchGroup`,  {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             },
             
         }).then(res => {
-            var data = res.data;
-            setResearchGroup(data.ResearchGroup);
-           
-        });
-        */
-
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/settings/config`,  {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            },
-            params: {
-                class_id: cid
-            }
-        }).then(res => {
-            var data = res.data;
-            setHasScoreEnabled(data.HasScoreEnabled);
-            setHasUnlockEnabled(data.HasUnlockEnabled);
-            setHasTbsEnabled(data.HasTBSEnabled);
+            setResearchGroup(res.data);
+            console.log(res.data);
+        }).catch(err => {
+            console.log(err);
         });
         
     }, []);
@@ -150,8 +135,7 @@ const CodePage = () => {
             <MenuComponent showUpload={true} showAdminUpload={false} showHelp={true} showCreate={false} showLast={false}></MenuComponent>
             <Split sizes={[80, 20]} className="split2" direction="vertical">
                     <CodeComponent pylintData={pylint} codedata={code}></CodeComponent>
-                    /**TODO: pass in ResearchGroup to TestResultsComponent */
-                    <TestResultsComponent testcase={json} showScore={hasScoreEnabled} score={score}></TestResultsComponent>
+                    <TestResultsComponent testcase={json} showScore={hasScoreEnabled} score={score} researchGroup={ResearchGroup}></TestResultsComponent>
             </Split>
         </div>
     );

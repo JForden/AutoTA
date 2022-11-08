@@ -202,11 +202,12 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     #Check to see if student is able to upload or still on timeout
     if(current_user.Role != ADMIN_ROLE):
         class_id = request.form['class_id']
-        lecture_ids= class_repo.get_lecture_sections_ID(current_user.Id, class_id)
-        print(lecture_ids)
-        LectureConfigDict=config_repos.get_lecture_section_settings(lecture_ids[0])
-        print(LectureConfigDict)
+        #lecture_ids= class_repo.get_lecture_sections_ID(current_user.Id, class_id)
+        #print(lecture_ids)
+        #LectureConfigDict=config_repos.get_lecture_section_settings(lecture_ids[0])
+        #print(LectureConfigDict)
         
+        '''
         if(LectureConfigDict['HasTBSEnabled'] == True):
             print("here")
             if on_timeout(project.Id, current_user.Id):
@@ -214,6 +215,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
                     'message': 'Please wait until timeout expires'
                 }
                 return make_response(message, HTTPStatus.BAD_REQUEST)
+        '''
 
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -263,6 +265,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
 
         # Step 2: Run grade.sh
         research_group = user_repository.get_user_researchgroup(current_user.Id)
+        print(type(research_group))
         result = subprocess.run([outputpath +  "execute.py", username, str(research_group), project.Language], cwd=outputpath) 
         if result.returncode != 0:
             message = {
