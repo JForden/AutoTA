@@ -34,7 +34,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
         .then(res => {    
             var role=parseInt(res.data);
             if (role === 0 ){
-                window.location.replace("/upload");
+                window.location.replace("/class/1/upload");
             } 
             if (role === 1){
                 window.location.replace("/admin/projects");
@@ -55,7 +55,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 return (<></>);
                             } else {
                                 return (
-                                    <Menu.Item><a href="/upload">Upload</a></Menu.Item>
+                                    <Menu.Item><a href="/class/1/upload">Upload</a></Menu.Item>
                                 );
                             }
                         })()}               
@@ -77,7 +77,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 return (<></>);
                             } else {
                                 return (
-                                    <Menu.Item><a href="/code">Most Recent Submission</a></Menu.Item>
+                                    <Menu.Item><a href="/class/1/code">Most Recent Submission</a></Menu.Item>
                                 );
                             }
                         })()}               
@@ -88,7 +88,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 return (<></>);
                             } else {
                                 return (
-                                    <Menu.Item><a href="/past-submission">Previous Submissions</a></Menu.Item>
+                                    <Menu.Item><a href="/submissions">Previous Submissions</a></Menu.Item>
                                 );
                             }
                         })()}               

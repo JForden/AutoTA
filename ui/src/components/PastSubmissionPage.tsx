@@ -75,7 +75,6 @@ class PastSubmissionPage extends Component<{}, ProjectsState> {
                 <Table.Row>
                     <Table.HeaderCell>Project Name</Table.HeaderCell>
                     <Table.HeaderCell>Submission Date</Table.HeaderCell>
-                    <Table.HeaderCell>Score</Table.HeaderCell>
                     <Table.HeaderCell>Link</Table.HeaderCell>
                 </Table.Row>
                 </Table.Header>
@@ -85,8 +84,7 @@ class PastSubmissionPage extends Component<{}, ProjectsState> {
                             <Table.Row>
                                 <Table.Cell>{row.project_name}</Table.Cell>
                                 <Table.Cell>{row.date}</Table.Cell>
-                                <Table.Cell>{row.score}</Table.Cell>
-                                <Table.Cell button><Link target="_blank" to={ "/code/" + row.id }><Label button >View</Label></Link></Table.Cell>
+                                <Table.Cell button><Link target="_blank" to={ "/class/1/code/" + row.id }><Label button >View</Label></Link></Table.Cell>
                             </Table.Row>
                         )
                     })}

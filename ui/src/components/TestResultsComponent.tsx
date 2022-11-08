@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
+import React, { Component, PureComponent } from 'react';
 import 'semantic-ui-css/semantic.min.css'
 import { Tab } from 'semantic-ui-react'
 import '../css/TestResultComponent.scss';
 import { StyledIcon } from '../styled-components/StyledIcon';
 import Split from 'react-split';
 import Confetti from 'react-confetti'
+import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer';
 
 interface TestResultComponentProps {
     testcase: JsonResponse,
@@ -147,13 +148,13 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                                     </div>
                                 );
                             }
-                            if(this.props.researchGroup==1){ //Color DIff
+                            if(this.props.researchGroup == 1){ //Color DIff
                                 return (
                                     <div>
                                         <div><b>[{this.state.suite}] {this.state.test}</b></div>
                                         <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
                                         <strong>Test Description: </strong>{this.state.description}<br/>
-                                        <pre style={{backgroundColor: 'lightgrey'}}>{this.state.output}</pre>
+                                        <ReactDiffViewer compareMethod={DiffMethod.WORDS} disableWordDiff={false} showDiffOnly={false} oldValue={this.state.output.split("~~~diff~~~")[0]} newValue={this.state.output.split("~~~diff~~~")[1]} splitView={false} />
                                     </div>
                                 );
                             }
@@ -163,9 +164,8 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                                        <div><b>[{this.state.suite}] {this.state.test}</b></div>
                                         <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
                                         <strong>Test Description: </strong>{this.state.description}<br/>
-                                       
-                                        <strong>Expected output:</strong><div>{this.state.output.split("~~~diff~~~")[0]}</div>
-                                        <strong>User output:</strong><div>{this.state.output.split("~~~diff~~~")[1]}</div>
+                                        <strong>Expected output:</strong><div>{this.state.output.split("~~~diff~~~")[1]}</div>
+                                        <strong>Your output:</strong><div>{this.state.output.split("~~~diff~~~")[0]}</div>
                                    </div>
                             );
                            }

@@ -40,8 +40,7 @@ class App extends Component {
                 <Route exact path="/">
                     <LandingPage></LandingPage>
                 </Route>
-                <ProtectedRoute exact path="/class" component={ClassSelectionPage} />
-                <ProtectedRoute exact path="/class/:class_id/submissions" component={PastSubmissionPage} />
+                <ProtectedRoute exact path="/submissions" component={PastSubmissionPage} />
                 <ProtectedRoute exact path="/class/:class_id/upload" component={UploadPage} />
                 <ProtectedRoute exact path="/class/:class_id/code/:id?" component={CodePage} />
                 <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />
