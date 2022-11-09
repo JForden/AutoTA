@@ -152,6 +152,8 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                                 return (
                                     <div>
                                         <div><b>[{this.state.suite}] {this.state.test}</b></div>
+                                        <strong></strong> <span className='FAILED'>User Generated Output</span>
+                                        <div><strong></strong> <span className='PASSED'>Correct Output</span></div>
                                         <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
                                         <strong>Test Description: </strong>{this.state.description}<br/>
                                         <ReactDiffViewer compareMethod={DiffMethod.WORDS} disableWordDiff={false} showDiffOnly={false} oldValue={this.state.output.split("~~~diff~~~")[0]} newValue={this.state.output.split("~~~diff~~~")[1]} splitView={false} />
