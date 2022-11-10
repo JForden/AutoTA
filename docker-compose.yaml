@@ -18,10 +18,20 @@ services:
   backend:
     container_name: backend
     restart: unless-stopped
+    environment:
+      DB_USER: "user"
+      DB_PASSWORD: "password"
+      DB_HOST: "db"
+      DB_NAME: "autota"
+      FLASK_DEBUG: "True"
     build:
       context: api
     ports:
       - "5000:5000"
+    volumes:
+      - "./api:/app"
+    links: 
+      - db
     depends_on:
       - db
   frontend:
@@ -31,6 +41,8 @@ services:
       REACT_APP_BASE_API_URL: http://localhost:5000/api
     build:
       context: ui
+    volumes:
+      - "./ui:/app"
     ports:
       - "3000:3000"
     depends_on:

@@ -17,12 +17,7 @@ from src.settings import settings_api
 from src.jwt_manager import jwt
 from src import classes, auth, projects, submission, upload, settings
 from src.services import timeout_service
-
-USER_NAME = "research"
-PASSWORD = ":7kNPTzg2/AawJ2Hx8"
-SERVICE = "@scarif-dev.cs.mu.edu"
-PATH = "/autota-dev"
-
+import os
 
 def create_app():
     app = Flask(__name__)
@@ -36,7 +31,7 @@ def create_app():
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://"+USER_NAME+PASSWORD+SERVICE+PATH
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}"
     app.register_blueprint(auth_api, url_prefix='/api/auth')
     app.register_blueprint(upload_api, url_prefix='/api/upload')
     app.register_blueprint(submission_api, url_prefix='/api/submissions')

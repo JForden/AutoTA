@@ -9,11 +9,11 @@ WORKDIR /app
 # Install depenencies
 COPY package.json .
 COPY yarn.lock .
-RUN yarn --silent
+RUN yarn install 
 RUN yarn global add react-scripts --silent
 
 # Add app
-COPY . ./
+COPY . .
 
 EXPOSE 3000
 
