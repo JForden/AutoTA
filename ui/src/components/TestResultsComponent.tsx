@@ -4,7 +4,6 @@ import { Tab } from 'semantic-ui-react'
 import '../css/TestResultComponent.scss';
 import { StyledIcon } from '../styled-components/StyledIcon';
 import Split from 'react-split';
-import Confetti from 'react-confetti'
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer';
 
 interface TestResultComponentProps {
@@ -131,7 +130,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                             if(this.props.showScore == true) {
                                 return (<div><h1 id="blank-testcase-message"> Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results </h1><h2 className="center">The score of this submission is: <StyledIcon name='gem' className="GEM" color="blue" />  {this.props.score}</h2>
                                 <p className="center"><i>Note: The score of your submission is not the same as the final grade for the assignment. The score is based 60% on test cases and 40% on Pylint results</i></p>
-                                <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={1000} tweenDuration={10000} run={this.props.score == 100} recycle={false}/></div>);
+                                </div>);
                             } else {
                                 return (<div><h1 id="blank-testcase-message"> Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results </h1></div>)
                             }
