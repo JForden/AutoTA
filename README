@@ -13,8 +13,13 @@ Sorry about the brevity of this ReadMe for now, but there will be more to come i
 3. Run yarn install.
 4. Download and install Docker.
 Note for WSL Users: If you are using WSL, follow the instructions at https://medium.com/geekculture/run-docker-in-windows-10-11-wsl-without-docker-desktop-a2a7eb90556d to install Docker in your WSL environment.
+Note for WSL Users: To enable port forwarding from the WSL environment to your localhost, follow the instructions at https://dev.to/vishnumohanrk/wsl-port-forwarding-2e22
+Note: Make sure to edit the shell script to include 3000
+
 
 5. Run docker compose up from the main directory.
+
+The Development environment should now be up on localhost:3000
 
 
 
