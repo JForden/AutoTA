@@ -1,10 +1,23 @@
-Hello! 
+Welcome to TA-Bot!
 
-Welcome to TA-Bot, in the future there will be more to this ReadMe, so sorry about the brevity for now.
+Sorry about the brevity of this ReadMe for now, but there will be more to come in the future. In the meantime, you can check out the current state of TA-Bot at http://tabot.sh.
 
-If you would like to see the current state of TA-Bot, Please follow this link: http://tabot.sh
+:warning: Known Issue: There is currently a bug that prevents yarn from working in our Docker container.
 
-Thank you,
+:bulb: Workaround for Windows Users: To run the TA-Bot Docker development environment on Windows, you will need to install WSL2 (which is required for Docker) and a Linux environment of your choice (e.g. Ubuntu). Follow the steps at https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-10#1-overview to set this up. Then, follow the steps below to run TA-Bot.
 
+:rocket: Steps to Running the TA-Bot Docker Development Environment:
+
+1. Clone the repository.
+2. Navigate to the /ui directory.
+3. Run yarn install.
+4. Download and install Docker.
+Note for WSL Users: If you are using WSL, follow the instructions at https://medium.com/geekculture/run-docker-in-windows-10-11-wsl-without-docker-desktop-a2a7eb90556d to install Docker in your WSL environment.
+
+5. Run docker compose up from the main directory.
+
+
+
+
+Thanks,
 TA-Bot Team
-
