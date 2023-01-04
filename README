@@ -9,6 +9,7 @@ Sorry about the brevity of this ReadMe for now, but there will be more to come i
 :rocket: Steps to Running the TA-Bot Docker Development Environment:
 
 1. Clone the repository.
+2. In the main directory run "git submodule update --init --recursive"
 2. Navigate to the /ui directory.
 3. Run yarn install.
 4. Download and install Docker.
