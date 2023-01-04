@@ -10,7 +10,6 @@ Sorry about the brevity of this ReadMe for now, but there will be more to come i
 
 1. Clone the repository.
 2. In the main directory run "git submodule update --init --recursive"
-3. Replace app.config['TABOT_PATH'] = with the path to the ta-bot folder ex: app.config['TABOT_PATH'] = {your path here}/AutoTA/ta-bot' 
 2. Navigate to the /ui directory.
 3. Run yarn install.
 4. Download and install Docker.
