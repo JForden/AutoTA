@@ -24,12 +24,14 @@ services:
       DB_HOST: "db"
       DB_NAME: "autota"
       FLASK_DEBUG: "True"
+      TABOT_DIR: "/ta-bot"
     build:
       context: api
     ports:
       - "5000:5000"
     volumes:
       - "./api:/app"
+      - "./ta-bot:/ta-bot"
     links: 
       - db
     depends_on:

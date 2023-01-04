@@ -259,14 +259,12 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
                 }
                 return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
             outputpath = result.stdout.decode('utf-8')
-            print("Outputpath ", outputpath)
             path = os.path.join(outputpath, "input", f"{username}{ext[project.Language][0]}")
             file.save(path)
 
         # Step 2: Run grade.sh
         research_group = user_repository.get_user_researchgroup(current_user.Id)
-        print(type(research_group))
-        result = subprocess.run([outputpath +  "execute.py", username, str(research_group), project.Language], cwd=outputpath) 
+        result = subprocess.run([os.path.join(outputpath, "execute.py"), username, str(research_group), project.Language], cwd=outputpath) 
         if result.returncode != 0:
             message = {
                 'message': 'Error in running grading script!'
