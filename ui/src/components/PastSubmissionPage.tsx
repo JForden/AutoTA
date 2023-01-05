@@ -68,7 +68,7 @@ class PastSubmissionPage extends Component<{}, ProjectsState> {
         <Helmet>
             <title>Past Submissions | TA-Bot</title>
         </Helmet>
-        <MenuComponent showUpload={false} showAdminUpload={false} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
+        <MenuComponent showUpload={false} showAdminUpload={false} showHelp={false} showCreate={false} showLast={false} showReviewButton={false}></MenuComponent>
         <Grid className="main-grid">
             <Table celled>
                 <Table.Header>

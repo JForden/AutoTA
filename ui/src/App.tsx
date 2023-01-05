@@ -15,6 +15,8 @@ import AdminUpload from './AdminPages/AdminUpload';
 import AdminSettingsPage from './AdminPages/AdminSettingsPage';
 import ClassSelectionPage from './pages/ClassSelectionPage';
 import AdminProjectConfig from './AdminPages/AdminProjectConfig';
+import CodeHelpComponent from './components/CodeHelpComponent';
+import CodeHelpPage from './pages/CodeHelpPage';
 
 class App extends Component {
 
@@ -48,6 +50,7 @@ class App extends Component {
                 <ProtectedRoute exact path="/admin/upload" component={AdminUpload} />
                 <ProtectedRoute exact path="/admin/settings" component={AdminSettingsPage} />
                 <ProtectedRoute exact path="/admin/project/edit/:id" component={AdminProjectConfig} />
+                <ProtectedRoute exact path= "/class/:class_id/codeHelp" component={CodeHelpPage} />
                 <Route>
                     <NotFoundComponent></NotFoundComponent>
                 </Route>

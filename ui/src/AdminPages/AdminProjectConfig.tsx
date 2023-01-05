@@ -20,7 +20,7 @@ const AdminProjectConfig = () => {
             <Helmet>
                 <title>[Admin] Projects | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
+            <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={false} ></MenuComponent>
             <div style={{height: "100%"}} className="main-grid">
                 <AdminProjectConfigComponent id={project_id}></AdminProjectConfigComponent>
             </div>

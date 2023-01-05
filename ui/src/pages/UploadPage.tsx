@@ -140,7 +140,7 @@ const UploadPage = () => {
             <Helmet>
                 <title>Upload | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={true} showAdminUpload={false} showHelp={false} showCreate={false} showLast={true}></MenuComponent>
+            <MenuComponent showAdminUpload={false} showUpload={false} showHelp={false} showCreate={false} showLast={false} showReviewButton={false}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
             <Grid.Column style={{ maxWidth: 400 }}>
             <Form loading={isLoading} size='large' onSubmit={handleSubmit} disabled={true}>

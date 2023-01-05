@@ -1,0 +1,36 @@
+.code-container {
+    background-color: #1E1E1E;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+    margin: 0;
+    max-height: 50vh;
+    overflow-y: scroll;
+}
+
+.highlight {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.response-container {
+    margin: 0;
+}
+.api-response-container {
+    background-color: black;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .api-response-box {
+    font-size: 16px;
+    line-height: 24px;
+    color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 100px;
+    padding-top: 20px;
+  }
+  

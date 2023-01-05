@@ -10,7 +10,8 @@ interface MenuComponentProps {
     showHelp: boolean,
     showCreate: boolean,
     showLast:boolean,
-    showAdminUpload:boolean
+    showAdminUpload:boolean,
+    showReviewButton:boolean;
 }
 
 
@@ -89,6 +90,17 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                             } else {
                                 return (
                                     <Menu.Item><a href="/submissions">Previous Submissions</a></Menu.Item>
+                                );
+                            }
+                        })()}               
+                    </div>
+                    <div>
+                        {(() => {
+                            if(!this.props.showReviewButton) {
+                                return (<></>);
+                            } else {
+                                return (
+                                    <Menu.Item><a href="/class/1/codeHelp">Code Help</a></Menu.Item>
                                 );
                             }
                         })()}               

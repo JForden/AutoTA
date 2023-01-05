@@ -14,7 +14,7 @@ class AdminLanding extends Component<{}, {}> {
             <Helmet>
                 <title>[Admin] Projects | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
+            <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={false} ></MenuComponent>
             <Grid className="main-grid">
                 <AdminComponent></AdminComponent>
             </Grid>

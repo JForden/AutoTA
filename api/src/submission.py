@@ -225,3 +225,14 @@ def extraday(submission_repo: SubmissionRepository = Provide[Container.submissio
 @inject
 def Researchgroup(user_repo: UserRepository = Provide[Container.user_repo]):
     return make_response(user_repo.get_user_researchgroup(current_user.Id), HTTPStatus.OK)
+
+
+@submission_api.route('/chatupload', methods=['GET'])
+@jwt_required()
+@inject
+def chatupload(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    student_code = (request.args.get("code"))
+    student_question = (request.args.get("question"))
+    message=submission_repo.chatGPT_caller(student_code,student_question)
+    return make_response(message, HTTPStatus.OK)
+    #return make_response(NULL, HTTPStatus.OK)

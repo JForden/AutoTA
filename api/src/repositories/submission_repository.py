@@ -1,3 +1,4 @@
+import openai
 from src.repositories.project_repository import ProjectRepository
 from src.repositories.database import db
 from .models import StudentUnlocks, Submissions, Projects, StudentProgress, Users
@@ -5,7 +6,6 @@ from sqlalchemy import desc, and_
 from typing import Dict, List, Tuple
 from src.repositories.config_repository import ConfigRepository
 from datetime import datetime
-
 
 class SubmissionRepository():
     def get_submission_by_user_id(self, user_id: int) -> Submissions:
@@ -139,3 +139,35 @@ class SubmissionRepository():
             else:
                 submission_counter_dict[sub.User] = 1
         return submission_counter_dict
+
+    def chatGPT_caller(self, student_code, student_question) -> str:
+        #Jakes api key do not steal
+        openai.api_key = ""
+
+        #https://beta.openai.com/docs/models
+        model_engine = "text-davinci-003" #newest model
+
+        # Set the prompt
+        assignment_prompt = student_code + "Here is my question: "+ student_question + "  NOTE: 1 ) If the question does not relate to the code, state that and reply with [does not relate]  2) DO NOT GIVE ME CODE, PROVIDE NUMERICAL SUGGESTIONS THAT WOULD BE HELPFUL TO A NOVICE PROGRAMMER DO NOT PROVIDE ME ANY EXAMPLE CODE"
+
+        #print(assignment_prompt)
+        # Use the completions endpoint to generate text
+        completions = openai.Completion.create(
+            engine=model_engine,
+            prompt=assignment_prompt,
+            max_tokens=1024,
+            n=1,
+            stop=None,
+            temperature=0.5,
+        )
+
+        # Get the first completion from the response
+        message = completions.choices[0].text
+
+        if "not relate" in message:
+            message="This question does not relate to the given code, if you believe this response was thrown in error, please note that in the form. We are working to improve TA-BOT, thank you for your understanding"
+        if "GPT" in message or "chatGPT" in message or "chatgpt" in message or "openai" in message or "AI" in message or "ai" in message:
+            message="This question does not relate to the given code, if you believe this response was thrown in error, please note that in the form. We are working to improve TA-BOT, thank you for your understanding"
+
+        return message
+
