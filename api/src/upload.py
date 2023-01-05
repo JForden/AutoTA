@@ -1,3 +1,4 @@
+import sys
 from flask.json import jsonify
 from src.repositories.config_repository import ConfigRepository
 import json
@@ -6,6 +7,8 @@ import subprocess
 import os.path
 from typing import List
 import zipfile
+import stat
+from subprocess import Popen
 
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import current_user
@@ -264,7 +267,11 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
 
         # Step 2: Run grade.sh
         research_group = user_repository.get_user_researchgroup(current_user.Id)
-        result = subprocess.run([os.path.join(outputpath, "execute.py"), username, str(research_group), project.Language], cwd=outputpath) 
+       
+
+       
+        result = subprocess.run(["python","execute.py", username, str(research_group), project.Language], cwd=outputpath) 
+
         if result.returncode != 0:
             message = {
                 'message': 'Error in running grading script!'
