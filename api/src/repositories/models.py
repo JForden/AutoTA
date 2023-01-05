@@ -37,6 +37,7 @@ class Users(db.Model):
     LoginAttempts=relationship('LoginAttempts')
     StudentProgress=relationship('StudentProgress')
     StudentUnlocks=relationship('StudentUnlocks') 
+    ChatSubTime = Column(Date)
 
 class Submissions(db.Model):
     __tablename__ = "Submissions"

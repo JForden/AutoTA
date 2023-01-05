@@ -20,7 +20,7 @@ class UserRepository():
         return user is not None
 
     def create_user(self, username: str, first_name: str, last_name: str, email: str, student_number: str):
-        user = Users(Username=username,Firstname=first_name,Lastname=last_name,Email=email,StudentNumber=student_number,Role = 0,IsLocked=False,ResearchGroup=0)
+        user = Users(Username=username,Firstname=first_name,Lastname=last_name,Email=email,StudentNumber=student_number,Role = 0,IsLocked=False,ResearchGroup=0,ChatSubTime= datetime.datetime.now() - datetime.timedelta(hours=6))
         db.session.add(user)
         db.session.commit()
         
@@ -68,6 +68,17 @@ class UserRepository():
         query = Users.query.filter(Users.Id==userId).one()
         research_group = query.ResearchGroup
         return str(research_group)
+    def get_user_chatSubTime(self,userId) -> int:
+        query = query = Users.query.filter(Users.Id==userId).one()
+        user_time = query.ChatSubTime
+        return str(user_time)
+    def set_user_chatSubTime(self,userId):
+        query = Users.query.filter(Users.Id==userId).one()
+        now = datetime.datetime.now() + datetime.timedelta(hours=6)
+        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        query.ChatSubTime=dt_string
+        db.session.commit()
+
 
 
         

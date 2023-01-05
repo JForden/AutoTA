@@ -141,7 +141,7 @@ class SubmissionRepository():
         return submission_counter_dict
 
     def chatGPT_caller(self, student_code, student_question) -> str:
-        #Jakes api key do not steal
+
         openai.api_key = ""
 
         #https://beta.openai.com/docs/models
@@ -152,22 +152,33 @@ class SubmissionRepository():
 
         #print(assignment_prompt)
         # Use the completions endpoint to generate text
-        completions = openai.Completion.create(
-            engine=model_engine,
-            prompt=assignment_prompt,
-            max_tokens=1024,
-            n=1,
-            stop=None,
-            temperature=0.5,
-        )
+        try:
+            completions = openai.Completion.create(
+                engine=model_engine,
+                prompt=assignment_prompt,
+                max_tokens=1024,
+                n=1,
+                stop=None,
+                temperature=0.5,
+            )
+        except openai.error.ServiceUnavailableError as e:
+            # Handle the error
+            message="The server is overloaded or not ready yet."
+        except openai.error.RateLimitError as e:
+            message="The server is currently overloaded with other requests."
+        except openai.error.APIError as e:
+            message="The server is currently overloaded with other requests."
+
 
         # Get the first completion from the response
         message = completions.choices[0].text
 
+        if "overloaded" in message:
+            message="TA-BOT is currently reciving a significant number of peer questions, please try to resubmit this question in an hour"
         if "not relate" in message:
-            message="This question does not relate to the given code, if you believe this response was thrown in error, please note that in the form. We are working to improve TA-BOT, thank you for your understanding"
+            message="This question does not relate to the given code, if you believe this response was thrown in error, please note that in the form. We are working to improve TA-BOT, thank you for your understanding This response does NOT consume your question, please refresh the page and feel free to reword."
         if "GPT" in message or "chatGPT" in message or "chatgpt" in message or "openai" in message or "AI" in message or "ai" in message:
-            message="This question does not relate to the given code, if you believe this response was thrown in error, please note that in the form. We are working to improve TA-BOT, thank you for your understanding"
+            message="This question does not relate to the given code, if you believe this response was thrown in error, please note that in the form. We are working to improve TA-BOT, thank you for your understanding. This response does NOT consume your question, please refresh the page and feel free to reword."
 
         return message
 

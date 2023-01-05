@@ -1,4 +1,5 @@
 from datetime import timedelta
+import threading
 from src.repositories.config_repository import ConfigRepository
 from src.repositories.user_repository import UserRepository
 from flask import Blueprint
@@ -230,9 +231,22 @@ def Researchgroup(user_repo: UserRepository = Provide[Container.user_repo]):
 @submission_api.route('/chatupload', methods=['GET'])
 @jwt_required()
 @inject
-def chatupload(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+def chatupload(submission_repo: SubmissionRepository = Provide[Container.submission_repo],user_repo: UserRepository = Provide[Container.user_repo]):
     student_code = (request.args.get("code"))
     student_question = (request.args.get("question"))
-    message=submission_repo.chatGPT_caller(student_code,student_question)
+    mostRecentQTime=user_repo.get_user_chatSubTime(current_user.Id)
+    print()
+    print("THIS IS THE MOST RECENT TIME: ", mostRecentQTime, flush=True)
+    print()
+    datetime_object = datetime.strptime(mostRecentQTime, '%Y-%m-%d %H:%M:%S')
+
+    if datetime_object > datetime.now():
+            message ="You are not able to ask another question yet, you will be able to resubmit at: "+ str(datetime_object.hour +":"+datetime_object.minute)
+    else:
+        message=submission_repo.chatGPT_caller(student_code,student_question)
+        if "TA-BOT" not in message:
+            user_repo.set_user_chatSubTime(current_user.Id)
+    
+
     return make_response(message, HTTPStatus.OK)
     #return make_response(NULL, HTTPStatus.OK)
