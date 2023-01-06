@@ -1,7 +1,7 @@
 import openai
 from src.repositories.project_repository import ProjectRepository
 from src.repositories.database import db
-from .models import StudentUnlocks, Submissions, Projects, StudentProgress, Users
+from .models import StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
 from sqlalchemy import desc, and_
 from typing import Dict, List, Tuple
 from src.repositories.config_repository import ConfigRepository
@@ -140,9 +140,9 @@ class SubmissionRepository():
                 submission_counter_dict[sub.User] = 1
         return submission_counter_dict
 
-    def chatGPT_caller(self, student_code, student_question) -> str:
+    def chatGPT_caller(self, student_code, student_question, api_key) -> str:
 
-        openai.api_key = ""
+        openai.api_key = api_key
 
         #https://beta.openai.com/docs/models
         model_engine = "text-davinci-003" #newest model
@@ -181,4 +181,3 @@ class SubmissionRepository():
             message="This question does not relate to the given code, if you believe this response was thrown in error, please note that in the form. We are working to improve TA-BOT, thank you for your understanding. This response does NOT consume your question, please refresh the page and feel free to reword."
 
         return message
-

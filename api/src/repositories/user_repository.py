@@ -1,10 +1,10 @@
 import datetime
 from typing import Dict, List
 
-from sqlalchemy import desc
+from sqlalchemy import asc, desc
 
 from src.repositories.database import db
-from .models import ClassAssignments, LectureSections, Users, LoginAttempts, ChatGPTQuestions, ChatGPTFormSubmits
+from .models import ClassAssignments, LectureSections, Users, LoginAttempts, ChatGPTQuestions, ChatGPTFormSubmits, ChatGPTkeys
 from flask_jwt_extended import current_user
 
 
@@ -94,6 +94,27 @@ class UserRepository():
         submitForm = ChatGPTFormSubmits(Uid=userId,Qid=query.Qid,q1=q1,q2=q2,q3=q3,SubmitDate=dt_string)
         db.session.add(submitForm)
         db.session.commit()
+    def chatGPT_key(self):
+        query = ChatGPTkeys.query.order_by(asc(ChatGPTkeys.LastUsed)).first()
+        api_key = query.ChatGPTkeyscol
+        print(api_key)
+        now = datetime.datetime.now()
+        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        query.LastUsed =dt_string
+        print(dt_string, flush=True)
+        db.session.commit()
+        return api_key
+    def form_count(self,userId):
+        query = ChatGPTFormSubmits.query.filter(ChatGPTFormSubmits.Uid==userId).count()
+        return str(query)
+    def gpt_submit_count(self,userId):
+        query = ChatGPTQuestions.query.filter(ChatGPTQuestions.Uid==userId).count()
+        return str(query)
+    def get_missed_GPT_form(self,userId):
+        query = ChatGPTQuestions.query.filter(ChatGPTQuestions.Uid==userId).order_by(desc(ChatGPTQuestions.Qid)).first()
+        return([query.ChatGPTQuestionscol, query.ChatGPTResponse])
+
+
 
         
 

@@ -6,6 +6,7 @@ import 'semantic-ui-css/semantic.min.css';
 import { Dropdown, DropdownProps, Form, Icon } from  'semantic-ui-react';
 import '../css/codeHelpComponent.scss';
 import { useEffect, useState } from "react";
+import { format } from 'path';
 
 interface CodeHelpComponentProps {
     codedata: string,
@@ -16,9 +17,11 @@ interface CodeHelpComponentState {
     api_visible:boolean,
     isLoading: boolean,
     bad_response: boolean,
+    eq_check: boolean,
     q1:string,
     q2:string,
     q3:string;
+
 }
 
 const sliderOptions = [
@@ -83,6 +86,7 @@ class CodeHelpComponent extends Component<CodeHelpComponentProps, CodeHelpCompon
             api_visible: false,
             isLoading: false,
             bad_response: false,
+            eq_check: true,
             q1:"",
             q2:"",
             q3:""
@@ -94,8 +98,29 @@ class CodeHelpComponent extends Component<CodeHelpComponentProps, CodeHelpCompon
         this.handleq2Change = this.handleq2Change.bind(this);
         this.handleq3Change = this.handleq3Change.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
+        
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/formcheck`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+        })
+        .then(res => {
+            if(res.data[0] != res.data[1]){
+                this.setState({ eq_check : false});
+            }
+            if(!this.state.eq_check){
+                this.setState({question: res.data[2]});
+                this.setState({api_response: res.data[3]});
+                this.setState({api_visible: true});
+            }
+        })
+        .catch(err => {
+           
+        });
     }
-    
+
+
+      
 
     handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({ question: event.target.value });
@@ -119,7 +144,9 @@ class CodeHelpComponent extends Component<CodeHelpComponentProps, CodeHelpCompon
           })
           .then(res => {    
             this.setState({isLoading:false});
-            
+            if(!this.state.bad_response){
+                window.location.reload();
+            }
           })
     }
 
@@ -145,7 +172,6 @@ class CodeHelpComponent extends Component<CodeHelpComponentProps, CodeHelpCompon
           else{
           this.setState({api_response: res.data})
           this.setState({api_visible: true});
-          console.log(this.state.api_response);
           this.setState({isLoading:false});
           }
         })
@@ -168,10 +194,23 @@ class CodeHelpComponent extends Component<CodeHelpComponentProps, CodeHelpCompon
                     <div style={{textAlign: 'center', fontSize: '20px', color: 'white'}}>
                         TA-BOT Code Suggestions
                     </div>
-                    <div style={{height: '20px'}} />
-                    <div id="api-response-box" className="api-response-box">
-                        {this.state.api_response}
+                    {this.state.eq_check ?
+                    <div>
+                        <div style={{height: '20px'}} />
+                        <div id="api-response-box" className="api-response-box">
+                        {this.state.api_response} 
                     </div>
+                    </div>
+                    :
+                    <div>
+                        <div style={{height: '20px'}} />
+                        <div id="api-response-box" className="api-response-box">
+                        <p>You did not fill out a form after submitting a question to TA-BOT, please complete the form to submit again.</p>
+                        <p>Question Asked: {this.state.question}</p>
+                        <p>Answer Given: {this.state.api_response} </p> 
+                        </div>
+                    </div>
+                    }
                 </div>
                 { this.state.bad_response ?
                 <div>

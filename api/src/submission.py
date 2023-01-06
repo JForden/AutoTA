@@ -238,10 +238,12 @@ def chatupload(submission_repo: SubmissionRepository = Provide[Container.submiss
     mostRecentQTime=user_repo.get_user_chatSubTime(current_user.Id)
     datetime_object = datetime.strptime(mostRecentQTime, '%Y-%m-%d %H:%M:%S')
 
+    api_key = user_repo.chatGPT_key()
+
     if datetime_object > datetime.now():
             message ="You are not able to ask TA-BOT another question yet, you will be able to resubmit at: "+ str( str(datetime_object.hour) +":"+str(datetime_object.minute))
     else:
-        message=submission_repo.chatGPT_caller(student_code,student_question)
+        message=submission_repo.chatGPT_caller(student_code,student_question,api_key)
         if "TA-BOT" not in message:
             user_repo.set_user_chatSubTime(current_user.Id)
             passFlag=1
@@ -260,4 +262,24 @@ def formUplod(user_repo: UserRepository = Provide[Container.user_repo]):
 
     user_repo.chat_form_logger(current_user.Id,q1,q2,q3)
     return make_response("okay",HTTPStatus.OK)
+
+@submission_api.route('/formcheck', methods=['GET'])
+@jwt_required()
+@inject
+def formcheck(user_repo: UserRepository = Provide[Container.user_repo]):
+    form_count =  user_repo.form_count(current_user.Id)
+    submit_count = user_repo.gpt_submit_count(current_user.Id)
+    print(form_count,flush=True)
+    print(submit_count,flush=True)
+    info={}
+    info[current_user.Id] = form_count
+    info[current_user.Id] = submit_count
+    if form_count != submit_count:
+        data = user_repo.get_missed_GPT_form(current_user.Id)
+        question = str(data[0])
+        response = str(data[1])
+        return ([form_count,submit_count,question,response],HTTPStatus.OK)
+    return ([form_count,submit_count],HTTPStatus.OK)
+
+
 

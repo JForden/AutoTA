@@ -145,3 +145,8 @@ class ChatGPTQuestions(db.Model):
     Uid = Column(Integer, ForeignKey('Users.Id'))
     SubmitDate = Column(DateTime)
     Passflag = Column(Integer)
+class ChatGPTkeys(db.Model):
+    __tablename__ = "ChatGPTkeys"
+    idChatGPTkeys = Column(Integer, primary_key=True, autoincrement=True)
+    ChatGPTkeyscol = Column(String)
+    LastUsed = Column(DateTime)
