@@ -232,21 +232,32 @@ def Researchgroup(user_repo: UserRepository = Provide[Container.user_repo]):
 @jwt_required()
 @inject
 def chatupload(submission_repo: SubmissionRepository = Provide[Container.submission_repo],user_repo: UserRepository = Provide[Container.user_repo]):
+    passFlag= 0
     student_code = (request.args.get("code"))
     student_question = (request.args.get("question"))
     mostRecentQTime=user_repo.get_user_chatSubTime(current_user.Id)
-    print()
-    print("THIS IS THE MOST RECENT TIME: ", mostRecentQTime, flush=True)
-    print()
     datetime_object = datetime.strptime(mostRecentQTime, '%Y-%m-%d %H:%M:%S')
 
     if datetime_object > datetime.now():
-            message ="You are not able to ask another question yet, you will be able to resubmit at: "+ str(datetime_object.hour +":"+datetime_object.minute)
+            message ="You are not able to ask TA-BOT another question yet, you will be able to resubmit at: "+ str( str(datetime_object.hour) +":"+str(datetime_object.minute))
     else:
         message=submission_repo.chatGPT_caller(student_code,student_question)
         if "TA-BOT" not in message:
             user_repo.set_user_chatSubTime(current_user.Id)
+            passFlag=1
+    user_repo.chat_question_logger(current_user.Id ,student_question,message,passFlag)
     
-
     return make_response(message, HTTPStatus.OK)
     #return make_response(NULL, HTTPStatus.OK)
+
+@submission_api.route('/chatform', methods=['GET'])
+@jwt_required()
+@inject
+def formUplod(user_repo: UserRepository = Provide[Container.user_repo]):
+    q1 = int((request.args.get("q1")))
+    q2 = int((request.args.get("q2")))
+    q3 = (request.args.get("q3"))
+
+    user_repo.chat_form_logger(current_user.Id,q1,q2,q3)
+    return make_response("okay",HTTPStatus.OK)
+

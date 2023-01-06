@@ -1,8 +1,10 @@
 import datetime
 from typing import Dict, List
 
+from sqlalchemy import desc
+
 from src.repositories.database import db
-from .models import ClassAssignments, LectureSections, Users, LoginAttempts
+from .models import ClassAssignments, LectureSections, Users, LoginAttempts, ChatGPTQuestions, ChatGPTFormSubmits
 from flask_jwt_extended import current_user
 
 
@@ -78,6 +80,22 @@ class UserRepository():
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         query.ChatSubTime=dt_string
         db.session.commit()
+    def chat_question_logger(self,userId,message,response,passFlag):
+        now = datetime.datetime.now()
+        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        submitquestion = ChatGPTQuestions(ChatGPTQuestionscol=message, ChatGPTResponse=response, Uid=userId, SubmitDate=dt_string, Passflag=passFlag)
+        db.session.add(submitquestion)
+        db.session.commit()
+    def chat_form_logger(self,userId,q1,q2,q3):
+        #get most recent question Qid from Questions
+        query = ChatGPTQuestions.query.filter(ChatGPTQuestions.Uid==userId).order_by(desc(ChatGPTQuestions.SubmitDate)).first()
+        now = datetime.datetime.now()
+        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        submitForm = ChatGPTFormSubmits(Uid=userId,Qid=query.Qid,q1=q1,q2=q2,q3=q3,SubmitDate=dt_string)
+        db.session.add(submitForm)
+        db.session.commit()
+
+        
 
 
 

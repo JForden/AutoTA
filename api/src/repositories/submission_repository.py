@@ -174,7 +174,7 @@ class SubmissionRepository():
         message = completions.choices[0].text
 
         if "overloaded" in message:
-            message="TA-BOT is currently reciving a significant number of peer questions, please try to resubmit this question in an hour"
+            message="TA-BOT is currently receiving a significant number of peer questions, please try to resubmit this question in an hour"
         if "not relate" in message:
             message="This question does not relate to the given code, if you believe this response was thrown in error, please note that in the form. We are working to improve TA-BOT, thank you for your understanding This response does NOT consume your question, please refresh the page and feel free to reword."
         if "GPT" in message or "chatGPT" in message or "chatgpt" in message or "openai" in message or "AI" in message or "ai" in message:

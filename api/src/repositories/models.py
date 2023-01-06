@@ -126,3 +126,22 @@ class Testcases(db.Model):
     Input = Column(String)
     Output = Column(String)
     IsHidden = Column(Boolean)
+
+class ChatGPTFormSubmits(db.Model):
+    __tablename__ = "ChatGPTFormSubmits"
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    Uid = Column(Integer, ForeignKey('Users.Id'))
+    Qid = Column(Integer, ForeignKey('ChatGPTQuestions.Qid'))
+    q1 = Column(String)
+    q2 = Column(String)
+    q3 = Column(String)
+    SubmitDate = Column(DateTime)
+
+class ChatGPTQuestions(db.Model):
+    __tablename__ = "ChatGPTQuestions"
+    Qid = Column(Integer, primary_key=True, autoincrement=True)
+    ChatGPTQuestionscol = Column(String)
+    ChatGPTResponse = Column(String)
+    Uid = Column(Integer, ForeignKey('Users.Id'))
+    SubmitDate = Column(DateTime)
+    Passflag = Column(Integer)
