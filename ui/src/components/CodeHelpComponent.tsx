@@ -26,31 +26,6 @@ interface CodeHelpComponentState {
 
 const sliderOptions = [
     {
-      key: '10',
-      text: '10',
-      value: '10',
-    },
-    {
-        key: '9',
-        text: '9',
-        value: '9',
-    },
-    {
-        key: '8',
-        text: '8',
-        value: '8',
-    },
-    {
-        key: '7',
-        text: '7',
-        value: '7',
-    },
-    {
-        key: '6',
-        text: '6',
-        value: '6',
-    },
-    {
         key: '5',
         text: '5',
         value: '5',
@@ -88,7 +63,7 @@ class CodeHelpComponent extends Component<CodeHelpComponentProps, CodeHelpCompon
             bad_response: false,
             eq_check: true,
             q1:"",
-            q2:"",
+            q2:"7",
             q3:""
             
         }
@@ -226,17 +201,21 @@ class CodeHelpComponent extends Component<CodeHelpComponentProps, CodeHelpCompon
                     <div className="ui form">
                         <div className="three fields">
                             <div className="field">
-                                <label>On a Scale of 1-10 how helpful was the response</label>
+                                <label>On a Scale of 1-5(1:Lowest, 5: Highest) how helpful was the response</label>
                                 <Dropdown placeholder='~~' search selection options={sliderOptions} onChange={this.handleq1Change} />
                             </div>
                             <div className="field">
-                                <label>On a Scale of 1-10 Did the response help you solve the issue?</label>
+                                <label>On a Scale of 1-10(1: Lowest, 5: Highest) Did the response help you solve the issue?</label>
                                 <Dropdown placeholder='~~' search selection options={sliderOptions} onChange={this.handleq2Change} />
                             </div>
+                            { (this.state.q2 > "2") ?
+                            <p></p> 
+                            :
                             <div className="field">
                                 <label>Please describe how the output did or did not help you understand the issue</label>
-                                <input type="text" placeholder="1,2,3...10" onChange={this.handleq3Change}></input>
+                                <input type="text" placeholder="optional" onChange={this.handleq3Change}></input>
                             </div>
+                            }
                         </div>
                     </div>
                     <button id="submit-button" onClick={this.handleFormSubmit} style={{

@@ -148,7 +148,7 @@ class SubmissionRepository():
         model_engine = "text-davinci-003" #newest model
 
         # Set the prompt
-        assignment_prompt = student_code + "Here is my question: "+ student_question + "  NOTE: 1 ) If the question does not relate to the code, state that and reply with [does not relate]  2) DO NOT GIVE ME CODE, PROVIDE NUMERICAL SUGGESTIONS THAT WOULD BE HELPFUL TO A NOVICE PROGRAMMER DO NOT PROVIDE ME ANY EXAMPLE CODE"
+        assignment_prompt = "Please provide suggestions for the following code snippet, without providing code: \n\n```python\n"+student_code+"\n```\n\nAnd answer the following question in a way that would be helpful for a novice programmer without providing code, however if the question does not relate to the code reply with [does not relate]:\n\n"+student_question
 
         #print(assignment_prompt)
         # Use the completions endpoint to generate text
