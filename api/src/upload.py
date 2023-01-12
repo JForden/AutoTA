@@ -270,7 +270,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
        
 
        
-        result = subprocess.run(["python","execute.py", username, str(research_group), project.Language], cwd=outputpath) 
+        result = subprocess.run([os.path.join(outputpath, "execute.py"), username, str(research_group), project.Language], cwd=outputpath)  
 
         if result.returncode != 0:
             message = {
