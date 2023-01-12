@@ -76,7 +76,7 @@ class UserRepository():
         return str(user_time)
     def set_user_chatSubTime(self,userId):
         query = Users.query.filter(Users.Id==userId).one()
-        now = datetime.datetime.now() + datetime.timedelta(hours=6)
+        now = datetime.datetime.now() + datetime.timedelta(hours=0.1)
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         query.ChatSubTime=dt_string
         db.session.commit()
