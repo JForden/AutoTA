@@ -205,7 +205,7 @@ class CodeHelpComponent extends Component<CodeHelpComponentProps, CodeHelpCompon
                                 <Dropdown placeholder='~~' search selection options={sliderOptions} onChange={this.handleq1Change} />
                             </div>
                             <div className="field">
-                                <label>On a Scale of 1-10(1: Lowest, 5: Highest) Did the response help you solve the issue?</label>
+                                <label>On a Scale of 1-5(1: Lowest, 5: Highest) Did the response help you solve the issue?</label>
                                 <Dropdown placeholder='~~' search selection options={sliderOptions} onChange={this.handleq2Change} />
                             </div>
                             { (this.state.q2 > "2") ?
