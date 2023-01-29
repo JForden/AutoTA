@@ -40,10 +40,17 @@ class ProjectRepository():
         return project
 
 
-    def get_project_by_class_id(self,class_id: int) -> int:
-        project_id = Projects.query.filter(Projects.ClassId==class_id).first()
-        
-        return project_id.Id
+    def get_projects_by_class_id(self,class_id: int) -> int:
+        temp = Projects.query.filter(Projects.ClassId==class_id)
+        projects = {}
+        for project in temp:
+            print(project)
+            now = project.Start
+            start_string = now.strftime("%Y/%m/%d %H:%M:%S")
+            now = project.End
+            end_string = now.strftime("%Y/%m/%d %H:%M:%S")
+            projects[project.Id] = [str(project.Name),str(start_string),str(end_string)]
+        return projects
     
     def get_levels(self, project_id: int) -> Dict[str, int]:
         levels = Levels.query.filter(Levels.ProjectId == project_id).all()
@@ -58,11 +65,6 @@ class ProjectRepository():
 
         return levels
 
-
-
-
-
-
     def create_project(self, name: str, start: datetime, end: datetime, language:str):    
         project = Projects(Name = name, Start = start, End = end, Language = language)
         db.session.add(project)
@@ -70,8 +72,14 @@ class ProjectRepository():
     def get_project(self, project_id:int) -> Projects:
         print("THis is the project id: ",project_id)
         project_data = Projects.query.filter(Projects.Id == project_id).first()
-        print(project_data)
-        return project_data
+        project ={}
+        now=project_data.Start
+        start_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        now = project_data.End
+        end_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        project[project_data.Id] = [str(project_data.Name),str(start_string),str(end_string)]
+        print(project,flush=True)
+        return project
 
     def edit_project(self, name: str, start: datetime, end: datetime, language:str, project_id:int):
         project = Projects.query.filter(Projects.Id == project_id).first()

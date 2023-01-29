@@ -1,5 +1,5 @@
 import { Component, useEffect, useState, useReducer } from 'react';
-import { Image, Grid, Tab, Dropdown, Form, Input, Radio, Button, Icon, TextArea, Label, Checkbox } from 'semantic-ui-react'
+import { Image, Grid, Tab, Dropdown, Form, Input, Radio, Button, Icon, TextArea, Label, Checkbox, Table, Header } from 'semantic-ui-react'
 import { Helmet } from 'react-helmet';
 import 'semantic-ui-css/semantic.min.css';
 import { DropdownItemProps } from 'semantic-ui-react';
@@ -12,8 +12,9 @@ import { useParams } from 'react-router-dom';
 import { StyledIcon } from '../styled-components/StyledIcon';
 
 interface AdminProjectConfigProps {
-    id: number
+    id: number,
 }
+
 
 class Testcase {
     constructor() {
@@ -41,7 +42,13 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     const [CreateNewState, setCreateNewState] = useState<boolean>();
     const [testcases, setTestcases] = useState<Array<Testcase>>([]);
     const [checked, setChecked] = useState<string>("Level 1");
+    const [ProjectName,setProjectName] = useState<string>("");
+    const [ProjectStartDate,setProjectStartDate] = useState<string>("");
+    const [ProjectEndDate,setProjectEndDate] = useState<string>("");
+    const [ProjectLanguage,setProjectLanguage] = useState<string>("");
+    const [SubmitButton,setSubmitButton] = useState<string>("Submit Changes");
 
+   
     useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_testcases?id=${props.id}`, {
             headers: {
@@ -89,6 +96,31 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
             .catch(err => {
                 console.log(err);
             });
+        if(CreateNewState){
+            setSubmitButton("Submit New Assignment");
+        }
+        if(!CreateNewState) {
+            axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_project_id?id=${props.id}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+                }
+            })
+            .then(res => {
+                var data = res.data
+                console.log(data);
+                if(!CreateNewState){
+                setProjectName(data[props.id][0]);
+                console.log("Here is the dataname");
+                console.log(data[props.id][0]);
+                setProjectStartDate(data[props.id][1] +"00");
+                setProjectEndDate(data[props.id][2]+"00");
+                setProjectLanguage("python");
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        }
     }, [])
 
 
@@ -188,10 +220,64 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
         }).then(function (response) {
-            window.location.reload();
+            reloadtests();
         }).catch(function (error) {
             console.log(error);
         });
+    }
+
+    function handlesubmit(){
+        console.log(ProjectStartDate);
+        console.log(ProjectEndDate);
+    }
+
+    function reloadtests(){
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_testcases?id=${props.id}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+        })
+            .then(res => {
+                var data = res.data
+                
+                var rows: Array<Testcase> = [];
+
+                Object.entries(data).map(([key, value]) => {
+                    var testcase = new Testcase();
+                    var values = (value as Array<string>);
+                    
+                    testcase.id = parseInt(key);
+                    testcase.levelid = parseInt(values[0]);
+                    testcase.name = values[1];
+                    testcase.description = values[2];
+                    testcase.input = values[3];
+                    testcase.output = values[4];
+                    testcase.isHidden = !!values[5];
+                    testcase.levelname = values[6]
+
+                    
+                    rows.push(testcase);
+
+                    return testcase;
+                });
+
+                var testcase = new Testcase();
+                testcase.id = -1;
+                testcase.levelid = -1;
+                testcase.name = "";
+                testcase.description = "";
+                testcase.input = "";
+                testcase.output = "";
+                testcase.isHidden = false;
+                testcase.levelname = "UNKNOWN";
+
+                rows.push(testcase);
+
+                setTestcases(rows)
+            })
+            .catch(err => {
+                console.log(err);
+            });
     }
 
 
@@ -226,14 +312,14 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
         }).then(function (response) {
-            window.location.reload();
+            reloadtests();
         }).catch(function (error) {
             console.log(error);
         });
     }
 
     return (
-        <div style={{ height: "80%" }}>
+    <div style={{ height: "80%" }}>
             <Tab
                 style={{ width: '100%', height: '100%' }}
                 menu={{ vertical: true, secondary: true, tabular: true }}
@@ -243,7 +329,55 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                     {
                         menuItem: { key: 'psettings', icon: 'pencil alternate', content: 'Project Settings', }, render: () =>
                             <Tab.Pane>
-                                <AdminProjectSettingsComponent id={props.id} />
+                                <Form>
+                                <Form.Field
+                                control={Input}
+                                label='Project Name'
+                                value={ProjectName}
+                                onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectName(ev.target.value)}
+                                >
+                                </Form.Field>
+                                <Form.Group widths={'equal'}>
+                                    <Form.Field
+                                    control={Input}
+                                    label='Start Date'
+                                    type='string'
+                                    value={ProjectStartDate}
+                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectStartDate(ev.target.value)}
+                                    >
+                                    </Form.Field>
+                                    <Form.Field
+                                    control={Input}
+                                    label='End Date'
+                                    type='string'
+                                    value={ProjectEndDate}
+                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectEndDate(ev.target.value)}
+                                    >
+                                    </Form.Field>
+                                </Form.Group>
+                                <Form.Group inline>
+                                <label>Language</label>
+                                <Form.Field
+                                    label='Python'
+                                    control='input'
+                                    type='radio'
+                                    name='htmlRadios'
+                                    value='python'
+                                    checked={ProjectLanguage === 'python'}
+                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
+                                />
+                                <Form.Field
+                                    label='Java'
+                                    control='input'
+                                    type='radio'
+                                    name='htmlRadios'
+                                    value='java'
+                                    checked={ProjectLanguage === 'java'}
+                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
+                                />
+                                </Form.Group>
+                                <Form.Button onClick={handlesubmit}>{SubmitButton}</Form.Button>
+                            </Form>
                             </Tab.Pane>
                     },
                     {
@@ -330,6 +464,14 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
 
             />
         </div>
+        
+    
+    
+    
+
+    
+    
+    
     )
 }
 
