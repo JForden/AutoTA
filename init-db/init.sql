@@ -256,6 +256,74 @@ CREATE TABLE `Users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
+-- Dump completed on 2022-11-08 13:01:29
+
+
+DROP TABLE IF EXISTS `ChatGPTQuestions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ChatGPTQuestions` (
+  `Qid` int NOT NULL AUTO_INCREMENT,
+  `ChatGPTQuestionscol` varchar(1000) NOT NULL,
+  `ChatGPTResponse` varchar(1000) NOT NULL,
+  `Uid` int NOT NULL,
+  `SubmitDate` datetime NOT NULL,
+  `Passflag` int DEFAULT NULL,
+  PRIMARY KEY (`Qid`),
+  UNIQUE KEY `QID_UNIQUE` (`Qid`),
+  KEY `fk_chatGPTquestions_idx` (`Uid`),
+  CONSTRAINT `fk_chatGPTquestions` FOREIGN KEY (`Uid`) REFERENCES `Users` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS `ChatGPTkeys`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ChatGPTkeys` (
+  `idChatGPTkeys` int NOT NULL,
+  `ChatGPTkeyscol` varchar(100) DEFAULT NULL,
+  `LastUsed` datetime DEFAULT NULL,
+  PRIMARY KEY (`idChatGPTkeys`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS "ChatGPTQuestions";
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ChatGPTFormSubmits` (
+  `Id` int NOT NULL AUTO_INCREMENT,
+  `Uid` int NOT NULL,
+  `Qid` int DEFAULT NULL,
+  `q1` varchar(45) DEFAULT NULL,
+  `q2` varchar(45) DEFAULT NULL,
+  `q3` varchar(100) DEFAULT NULL,
+  `SubmitDate` datetime DEFAULT NULL,
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+DROP TABLE IF EXISTS "Testcases";
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Testcases` (
+  `Id` int NOT NULL AUTO_INCREMENT,
+  `ProjectId` int DEFAULT NULL,
+  `LevelId` int DEFAULT NULL,
+  `Name` varchar(45) DEFAULT NULL,
+  `Description` varchar(45) DEFAULT NULL,
+  `input` varchar(45) DEFAULT NULL,
+  `Output` varchar(45) DEFAULT NULL,
+  `IsHidden` tinyint DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `Id_UNIQUE` (`Id`),
+  KEY `tc_fk_idx` (`ProjectId`),
+  KEY `tc_fk2_idx` (`LevelId`),
+  CONSTRAINT `tc_fk` FOREIGN KEY (`ProjectId`) REFERENCES `Projects` (`Id`),
+  CONSTRAINT `tc_fk2` FOREIGN KEY (`LevelId`) REFERENCES `Levels` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
@@ -264,4 +332,4 @@ CREATE TABLE `Users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-11-08 13:01:29
+
