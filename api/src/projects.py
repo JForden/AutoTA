@@ -1,4 +1,12 @@
 import json
+import os
+import subprocess
+import os.path
+from typing import List
+import zipfile
+import stat
+import sys
+from subprocess import Popen
 from src.repositories.user_repository import UserRepository
 from src.repositories.submission_repository import SubmissionRepository
 from flask import Blueprint
@@ -75,11 +83,19 @@ def get_projects_by_user(project_repo: ProjectRepository = Provide[Container.pro
 @jwt_required()
 @inject
 def create_project(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    if 'file' not in request.files:
+        print("NO FILE")
+        message = {
+            'message': 'No selected file'
+        }
+        return make_response(message, HTTPStatus.BAD_REQUEST)    
+    file = request.files['file']
     if current_user.Role != ADMIN_ROLE:
         message = {
             'message': 'Access Denied'
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
+    
     if 'name' in request.form:
         name = request.form['name']
     if 'start_date' in request.form:
@@ -90,9 +106,19 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         language = request.form['language']
     if name == '' or start_date == '' or end_date == '' or language == '':
         return make_response("Error in form", HTTPStatus.BAD_REQUEST)
-    
-    project_repo.create_project(name, start_date, end_date, language)
-    return make_response("Project Created", HTTPStatus.OK)
+    #TODO: fix path, ext not defined
+    #ext[language]
+    path = os.path.join("/ta-bot/project-files", f"{name}.py")
+    file.save(path)
+    #TODO: Add class ID and path
+
+    project_repo.create_project(name, start_date, end_date, language,1,path)
+
+    new_project_id = project_repo.get_project_id_by_name(name)
+    project_repo.levels_creator(new_project_id)
+    print("THis is project id: ",new_project_id,flush=True)
+
+    return make_response(str(new_project_id), HTTPStatus.OK)
 
 @projects_api.route('/edit_project', methods=['POST'])
 @jwt_required()
@@ -128,6 +154,7 @@ def get_project(project_repo: ProjectRepository = Provide[Container.project_repo
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
     project_info=project_repo.get_project(request.args.get('id'))
+    print(project_info,flush=True)
     return make_response(json.dumps(project_info), HTTPStatus.OK)
     
 @projects_api.route('/get_testcases', methods=['GET'])
@@ -185,7 +212,6 @@ def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.p
         return make_response("Error in form", HTTPStatus.BAD_REQUEST)
     
     print(id_val, name, level_name, input_data, output, project_id, isHidden, description)
-    
     project_repo.add_or_update_testcase(project_id, id_val, level_name, name, description, input_data, output, isHidden == "true")
     return make_response("Testcase Added", HTTPStatus.OK)
     
@@ -209,17 +235,17 @@ def remove_testcase(project_repo: ProjectRepository = Provide[Container.project_
 
     
     
-@projects_api.route('/get_project_by_class_id', methods=['GET'])
+@projects_api.route('/get_projects_by_class_id', methods=['GET'])
 @jwt_required()
 @inject
-def get_project_by_class_id(project_repo: ProjectRepository = Provide[Container.project_repo]):
+def get_projects_by_class_id(project_repo: ProjectRepository = Provide[Container.project_repo]):
     if current_user.Role != ADMIN_ROLE:
         message = {
             'message': 'Access Denied'
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
-    project_info=project_repo.get_project_by_class_id(request.args.get('id'))
+    project_info=project_repo.get_projects_by_class_id(request.args.get('id'))
     
-    return make_response(project_info, HTTPStatus.OK)
+    return make_response(json.dumps(project_info), HTTPStatus.OK)
 
 

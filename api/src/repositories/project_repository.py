@@ -6,6 +6,18 @@ from .models import Projects, Levels, Testcases
 from src.repositories.database import db
 from sqlalchemy import desc, and_
 from datetime import datetime
+from pyston import PystonClient,File
+import asyncio
+
+async def runner(filepath,input):
+        with open(filepath) as f:
+            file = File(f)
+            client = PystonClient()
+            output = await client.execute("python",[file],"*",input)
+        print("Output from pylint: ",output,flush=True)
+        print(output.raw_json)
+        return output
+
 
 
 class ProjectRepository():
@@ -65,8 +77,8 @@ class ProjectRepository():
 
         return levels
 
-    def create_project(self, name: str, start: datetime, end: datetime, language:str):    
-        project = Projects(Name = name, Start = start, End = end, Language = language)
+    def create_project(self, name: str, start: datetime, end: datetime, language:str,class_id:int,file_path:str):    
+        project = Projects(Name = name, Start = start, End = end, Language = language,ClassId=class_id,solutionpath=file_path)
         db.session.add(project)
         db.session.commit()
     def get_project(self, project_id:int) -> Projects:
@@ -105,6 +117,13 @@ class ProjectRepository():
     
     def add_or_update_testcase(self, project_id:int, testcase_id:int, level_name:str, name:str, description:str, input_data:str, output:str, is_hidden:bool):
         #TODO: run grading script and generate output for the testcases.
+        project = Projects.query.filter(Projects.Id == project_id).first()
+        filepath = project.solutionpath
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        output
+        output = loop.run_until_complete(runner(filepath,input_data))
+        loop.close()
         print("This is the testcase id: ",testcase_id)
         testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
         if testcase is None:
@@ -133,8 +152,25 @@ class ProjectRepository():
         testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
         db.session.delete(testcase)
         db.session.commit()
-
-
-
-
-
+    
+    def get_testcase_input(self, testcase_id:int):
+         testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
+         return testcase.input
+    
+    def get_testcase_project(self, testcase_id:int):
+        testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
+        return testcase.ProjectId
+    def get_project_id_by_name(self, projectname:str):
+        if(Projects.query.filter(Projects.Name==projectname).count() == 0):
+            return 0
+        project = Projects.query.filter(Projects.Name==projectname).first()
+        return project.Id
+    def levels_creator(self,project_id:int):
+        level_1=Levels(ProjectId=project_id,Name="Level 1",Points=20,Order=1)
+        level_2=Levels(ProjectId=project_id,Name="Level 2",Points=20,Order=2)
+        level_3=Levels(ProjectId=project_id,Name="Level 3",Points=20,Order=3)
+        db.session.add(level_1)
+        db.session.add(level_2)
+        db.session.add(level_3)
+        db.session.commit()
+    

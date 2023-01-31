@@ -11,6 +11,7 @@ RUN pip install -r requirements.txt
 RUN pip install requests
 RUN pip install pylint
 RUN pip install openai
+RUN pip install aiopyston
 
 # copy every content from the local file to the image
 COPY . /app

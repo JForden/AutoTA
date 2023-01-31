@@ -337,3 +337,17 @@ def total_students(user_repo: UserRepository = Provide[Container.user_repo]):
             list_of_user_info.append({"name":user.Firstname +" "+ user.Lastname,"mscsnet":user.Username,"id":user.Id})
     return jsonify(list_of_user_info)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+    

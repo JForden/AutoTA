@@ -1,5 +1,5 @@
 import { Component, useEffect, useState, useReducer } from 'react';
-import { Image, Grid, Tab, Dropdown, Form, Input, Radio, Button, Icon, TextArea, Label, Checkbox, Table, Header } from 'semantic-ui-react'
+import { Image, Grid, Tab, Dropdown, Form, Input, Radio, Button, Icon, TextArea, Label, Checkbox, Table, Header, Segment } from 'semantic-ui-react'
 import { Helmet } from 'react-helmet';
 import 'semantic-ui-css/semantic.min.css';
 import { DropdownItemProps } from 'semantic-ui-react';
@@ -47,6 +47,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     const [ProjectEndDate,setProjectEndDate] = useState<string>("");
     const [ProjectLanguage,setProjectLanguage] = useState<string>("");
     const [SubmitButton,setSubmitButton] = useState<string>("Submit Changes");
+    const [File, setFile] = useState<File>();
 
    
     useEffect(() => {
@@ -99,7 +100,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         if(CreateNewState){
             setSubmitButton("Submit New Assignment");
         }
-        if(!CreateNewState) {
+        if(!CreateNewState && props.id!=0 ) {
             axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_project_id?id=${props.id}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
@@ -279,6 +280,39 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                 console.log(err);
             });
     }
+    function handleNewSubmit(){
+        const formData = new FormData();
+        formData.append("file",File!);
+        formData.append("name",ProjectName);
+        formData.append("start_date",ProjectStartDate);
+        formData.append("end_date",ProjectEndDate);
+        formData.append("language","python");
+        axios.post(process.env.REACT_APP_BASE_API_URL + `/projects/create_project`, formData, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+        })
+        .then(res => {
+            var data = res.data;
+            console.log(data[0]);
+            console.log("/admin/project/edit/"+data);
+            window.location.href ="/admin/project/edit/"+data;
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+    function handleFileChange(event : React.FormEvent) {
+    
+        const target = event.target as HTMLInputElement;
+        const files = target.files;
+
+        if(files != null && files.length === 1){
+            // Update the state
+            setFile(files[0]);
+        } else {
+            setFile(undefined);
+        }
+    }; 
 
 
 
@@ -376,11 +410,17 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                     onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
                                 />
                                 </Form.Group>
-                                <Form.Button onClick={handlesubmit}>{SubmitButton}</Form.Button>
+                                <Segment stacked>
+                                    <h1>upload solution code</h1>
+                                    <Form.Input type="file" fluid required onChange={handleFileChange} />
+                                    <br></br>
+                                </Segment>
+                                <Form.Button onClick={handleNewSubmit}>{SubmitButton}</Form.Button>
                             </Form>
                             </Tab.Pane>
                     },
                     {
+                        
                         menuItem: { key: 'testcases', icon: 'clipboard check', content: 'Test Cases' }, render: () => 
                         <Tab.Pane>
                             <Form>
@@ -407,9 +447,11 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                         <Form.Field
                                             control={TextArea}
                                             rows={1}
-                                            placeholder="Please Enter Output"
+                                            placeholder="Add test case to see output"
                                             value={testcase.output}
-                                            onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleOutputChange(testcase.id, ev.target.value)}
+                                            style={testcase.output === "" ? {backgroundColor: "lightgray"} : {}}
+                                            readOnly={true}
+                                            //onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleOutputChange(testcase.id, ev.target.value)}
                                         >
                                         </Form.Field>
                                         <Form.Field
@@ -451,9 +493,9 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                                 checked={testcase.levelname === 'Level 3'}                                              
                                                 onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(testcase.id, 'Level 3')}
                                             />
-                                        <Form.Button onClick={() => buttonhandleClick(testcase.id)}>Submit Changes</Form.Button>
-                                        <Form.Button onClick={() => buttonhandleTrashClick(testcase.id)}>Remove Test Case</Form.Button>
                                         </Form.Group>
+                                        <Form.Button onClick={() => buttonhandleClick(testcase.id)}>Submit testcase</Form.Button>
+                                        <Form.Button onClick={() => buttonhandleTrashClick(testcase.id)}>Remove Test Case</Form.Button>
                                     </Form.Group>
                                 );  
                             })}

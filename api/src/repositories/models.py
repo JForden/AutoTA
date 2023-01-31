@@ -20,6 +20,7 @@ class Projects(db.Model):
     Levels=relationship('Levels')
     StudentProgress=relationship('StudentProgress')
     StudentUnlocks=relationship('StudentUnlocks') 
+    solutionpath=Column(String)
 
 class Users(db.Model):
     __tablename__ = "Users"

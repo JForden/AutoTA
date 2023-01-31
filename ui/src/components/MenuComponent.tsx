@@ -144,7 +144,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 return (<></>);
                             } else {
                                 return (
-                                    <Menu.Item><a href="/admin/project/edit/:id">Create New Assignment</a></Menu.Item>
+                                    <Menu.Item><a href="/admin/project/edit/0">Create New Assignment</a></Menu.Item>
                                 );
                             }
                         })()}               
