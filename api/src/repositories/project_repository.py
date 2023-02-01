@@ -8,8 +8,10 @@ from sqlalchemy import desc, and_
 from datetime import datetime
 from pyston import PystonClient,File
 import asyncio
+import json
 
 async def runner(filepath,input):
+        print("this is the input",input,flush=True)
         with open(filepath) as f:
             file = File(f)
             client = PystonClient()
@@ -173,4 +175,21 @@ class ProjectRepository():
         db.session.add(level_2)
         db.session.add(level_3)
         db.session.commit()
+    def testcases_to_json(self,project_id:int):
+        testcase_holder={}
+        testcase = Testcases.query.filter(Testcases.ProjectId == project_id)
+        for test in testcase:
+            level  =  Levels.query.filter(Levels.Id == test.LevelId)
+            print(level, flush=True)
+            level_name=level[0].Name
+            testcase_holder[test.Id] = [test.Name,level_name,test.Description, test.input, test.Output, test.IsHidden]
+        json_object = json.dumps(testcase_holder)
+        print(json_object,flush=True) 
+        return json_object
+        
+
+
+
+        
+
     

@@ -124,7 +124,7 @@ class Testcases(db.Model):
     LevelId = Column(Integer, ForeignKey("Levels.Id"))
     Name = Column(String)
     Description = Column(String)
-    Input = Column(String)
+    input = Column(String)
     Output = Column(String)
     IsHidden = Column(Boolean)
 
