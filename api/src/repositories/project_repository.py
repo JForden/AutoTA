@@ -111,7 +111,7 @@ class ProjectRepository():
             testcase_data.append(test.LevelId)
             testcase_data.append(test.Name)
             testcase_data.append(test.Description)
-            testcase_data.append(test.Input)
+            testcase_data.append(test.input)
             testcase_data.append(test.Output)
             testcase_data.append(test.IsHidden)
             testcase_info[test.Id] = testcase_data
@@ -134,7 +134,7 @@ class ProjectRepository():
             level = Levels.query.filter(and_(Levels.ProjectId==project_id, Levels.Name==level_name)).first()
             print(level.Id)
             level_id = level.Id 
-            testcase = Testcases(ProjectId = project_id, LevelId = level_id, Name = name, Description = description, Input = input_data, Output = output, IsHidden = is_hidden)
+            testcase = Testcases(ProjectId = project_id, LevelId = level_id, Name = name, Description = description, input = input_data, Output = output, IsHidden = is_hidden)
             db.session.add(testcase)
             db.session.commit()
         else:
