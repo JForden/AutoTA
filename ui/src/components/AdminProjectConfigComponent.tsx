@@ -286,7 +286,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         formData.append("name",ProjectName);
         formData.append("start_date",ProjectStartDate);
         formData.append("end_date",ProjectEndDate);
-        formData.append("language","python");
+        formData.append("language",ProjectLanguage);
         axios.post(process.env.REACT_APP_BASE_API_URL + `/projects/create_project`, formData, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`

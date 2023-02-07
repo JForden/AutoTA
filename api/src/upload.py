@@ -444,7 +444,10 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
          #   print(file.read())
 
         # TODO: Make this conditional based on language
-        error_count=python_error_count(outputpath+"/"+username)
+        if project.Language == "python":
+            error_count=python_error_count(outputpath+"/"+username)
+        else:
+            error_count=0
         print(error_count, "EC", flush=True)
     
         levels = project_repo.get_levels_by_project(project.Id)
@@ -454,7 +457,10 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         passed_levels, total_tests = level_counter(tap_path)
         student_submission_score=score_finder(project_repo, passed_levels, total_tests, project.Id)
         # TODO: Make this conditional based on language
-        pylint_score = pylint_score_finder(error_count)
+        if project.Language == "python":
+            error_count=python_error_count(outputpath+"/"+username)
+        else:
+            pylint_score = 40
         total_submission_score = student_submission_score+pylint_score
         # TODO: Make this conditional based on language
         print("HERE", flush=True)

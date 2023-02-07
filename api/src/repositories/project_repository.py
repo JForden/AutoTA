@@ -10,14 +10,12 @@ from pyston import PystonClient,File
 import asyncio
 import json
 
-async def runner(filepath,input):
-        print("this is the input",input,flush=True)
+async def runner(filepath,input, language):
+        #TODO, Rewrite to call local TA-BOT
         with open(filepath) as f:
             file = File(f)
             client = PystonClient()
-            output = await client.execute("python",[file],"*",input)
-        print("Output from pylint: ",output,flush=True)
-        print(output.raw_json)
+            output = await client.execute(language,[file],"*",input)
         return output
 
 
@@ -120,11 +118,12 @@ class ProjectRepository():
     def add_or_update_testcase(self, project_id:int, testcase_id:int, level_name:str, name:str, description:str, input_data:str, output:str, is_hidden:bool):
         #TODO: run grading script and generate output for the testcases.
         project = Projects.query.filter(Projects.Id == project_id).first()
+        language = project.Language
         filepath = project.solutionpath
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         output
-        output = loop.run_until_complete(runner(filepath,input_data))
+        output = loop.run_until_complete(runner(filepath,input_data, language))
         loop.close()
         print("This is the testcase id: ",testcase_id)
         testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()

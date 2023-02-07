@@ -108,7 +108,17 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         return make_response("Error in form", HTTPStatus.BAD_REQUEST)
     #TODO: fix path, ext not defined
     #ext[language]
-    path = os.path.join("/ta-bot/project-files", f"{name}.py")
+    extension_mapping = {
+    "python": "py",
+    "java": "java",
+    "c++": "cpp",
+    "c": "c",
+    "javascript": "js",
+    "ruby": "rb",
+    "php": "php"
+    }
+    extension = extension_mapping.get(language, "txt")
+    path = os.path.join("/ta-bot/project-files", f"{name}.{extension}")
     file.save(path)
     #TODO: Add class ID and path
 
@@ -116,7 +126,6 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
 
     new_project_id = project_repo.get_project_id_by_name(name)
     project_repo.levels_creator(new_project_id)
-    print("THis is project id: ",new_project_id,flush=True)
 
     return make_response(str(new_project_id), HTTPStatus.OK)
 
