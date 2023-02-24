@@ -1,9 +1,10 @@
 import { Component, useEffect, useState, useReducer } from 'react';
-import { Image,Grid, } from 'semantic-ui-react'
+import { Image,Grid, Button, } from 'semantic-ui-react'
 import { Helmet } from 'react-helmet';
 import 'semantic-ui-css/semantic.min.css';
 import { DropdownItemProps } from 'semantic-ui-react';
 import MenuComponent from './MenuComponent';
+import NewUserModal from '../components/NewUserModal';
 import codeimg from '../codeex.png'
 import axios from 'axios';
 
@@ -11,6 +12,12 @@ const ClassSelectionPageComponent = () => {
 
     const [studentClassNames,setstudentClassNames] = useState<Array<string>>([]);
     const [studentClassNumbers,setstudentClassNumbers] = useState<Array<string>>([]);
+    const [showModal, setShowModal] = useState(false);
+
+
+    const handleAddClassClick = () => {
+        setShowModal(true);
+    };
 
     useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/class/get_student_class_by_id`, {
@@ -48,6 +55,15 @@ const ClassSelectionPageComponent = () => {
                     )
             })}
             </Grid>
+            <Button
+                content="Add new class"
+                icon="plus"
+                labelPosition="right"
+                primary
+                onClick={handleAddClassClick}
+                style={{marginTop: '1em'}}
+            />
+            {showModal && <NewUserModal username={'NAN'} password={'NAN'} isOpen={true} />}
         </div>
     )
 }

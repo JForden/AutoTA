@@ -7,13 +7,15 @@ import { Helmet } from 'react-helmet';
 import { useParams } from 'react-router-dom';
 
 interface AdminProjectConfigProps {
-    id: string  
+    id: string
+    class_id : string  
 }
 
 const AdminProjectConfig = () => {
 
-    let { id } = useParams<AdminProjectConfigProps>();
+    let { class_id, id } = useParams<AdminProjectConfigProps>();
     var project_id = parseInt(id);
+    var classId = parseInt(class_id);
 
    return (
         <div style={{height: "100%"}}>
@@ -22,7 +24,7 @@ const AdminProjectConfig = () => {
             </Helmet>
             <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={false} ></MenuComponent>
             <div style={{height: "100%"}} className="main-grid">
-                <AdminProjectConfigComponent id={project_id} ></AdminProjectConfigComponent>
+                <AdminProjectConfigComponent id={project_id} class_id={classId}  ></AdminProjectConfigComponent>
             </div>
         </div>
    )

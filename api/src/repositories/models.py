@@ -66,9 +66,8 @@ class Classes(db.Model):
     __tablename__ = "Classes"
     Id = Column(Integer, primary_key=True)
     Name = Column(String)
-    Labs=relationship('Labs')
-    LectureSections=relationship('LectureSections')
-    ClassAssignments=relationship('ClassAssignments')
+    Tid = Column(Integer, ForeignKey('Users.Id'))
+    
 
 class Labs(db.Model):
     __tablename__ = "Labs"

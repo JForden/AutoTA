@@ -15,6 +15,14 @@ def get_classes(class_repository: ClassRepository = Provide[Container.class_repo
     classes = class_repository.get_classes()
     return jsonify(classes)
 
+@class_api.route('/classes_by_Tid', methods=['GET'])
+@jwt_required()
+@inject
+def get_classes_by_tid(class_repository: ClassRepository = Provide[Container.class_repo]):
+    classes = class_repository.get_assigned_courses(current_user.Id)
+    return jsonify(classes)
+
+
 @class_api.route('/get_classes_labs', methods=['GET'])
 @inject
 def get_class_labs(class_repository: ClassRepository = Provide[Container.class_repo]):

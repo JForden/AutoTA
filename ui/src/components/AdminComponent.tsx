@@ -1,47 +1,55 @@
 import { Component } from 'react';
-import 'semantic-ui-css/semantic.min.css';
+import { RouteComponentProps } from 'react-router-dom';
 import axios from 'axios';
 import { Table, Label, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import { parse } from 'path';
 
 interface ProjectObject {
-    Id: number,
-    Name: string,
-    Start:string,
-    End:string,
-    TotalSubmissions:number
+  Id: number;
+  Name: string;
+  Start: string;
+  End: string;
+  TotalSubmissions: number;
 }
 
 interface ProjectsState {
-    projects: Array<ProjectObject>
+  projects: ProjectObject[];
+  classId: string;
 }
 
+interface AdminComponentProps extends RouteComponentProps<{ id: string }> {}
 
-class AdminComponent extends Component<{}, ProjectsState> {
+class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
+  constructor(props: AdminComponentProps) {
+    super(props);
+    this.state = {
+      projects: [],
+      classId: props.match.params.id
+    };
+  }
 
-    constructor(props: {}) {
-        super(props);
-        this.state = {
-            projects: []
+  componentDidMount() {
+    const classId = this.props.match.params.id;
+    axios
+      .get(
+        `${process.env.REACT_APP_BASE_API_URL}/projects/get_projects_by_class_id?id=${classId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(
+              'AUTOTA_AUTH_TOKEN'
+            )}`,
+          },
         }
-    }
-    componentDidMount() {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/all_projects`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            }
-        })
-        .then(res => {
-            let arr: Array<ProjectObject> = [];
-            res.data.forEach((str: any) => {
-                arr.push(JSON.parse(str) as ProjectObject);
-            });
-            this.setState({projects: arr });
-        })
-        .catch(err => {
-            console.log(err);
-        });
-    }
+      )
+      .then((res) => {
+        const projects = res.data.map((str: any) => JSON.parse(str) as ProjectObject);
+        this.setState({ projects });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
     render(){
         return (
@@ -69,8 +77,8 @@ class AdminComponent extends Component<{}, ProjectsState> {
                                     <Table.Cell>{this.state.projects[index].Start}</Table.Cell>
                                     <Table.Cell>{this.state.projects[index].End}</Table.Cell>
                                     <Table.Cell>{this.state.projects[index].TotalSubmissions}</Table.Cell>
-                                    <Table.Cell><Button as={Link} to={"project/" + this.state.projects[index].Id}>View</Button></Table.Cell>
-                                    <Table.Cell><Button icon='edit' as={Link} to={"/admin/project/edit/" + this.state.projects[index].Id}  />
+                                    <Table.Cell><Button as={Link} to={"/admin/project/"+this.state.projects[index].Id}>View</Button></Table.Cell>
+                                    <Table.Cell><Button icon='edit' as={Link} to={"/admin/project/edit/" + this.state.classId + "/" + this.state.projects[index].Id}  />
                                     <Button icon='refresh' />
                                     <Button icon='trash' /></Table.Cell>
                                 </Table.Row>
@@ -81,6 +89,12 @@ class AdminComponent extends Component<{}, ProjectsState> {
                 
                 </Table.Body>
             </Table>
+            <Button
+                as={Link}
+                to={"/admin/project/edit/" + this.state.classId + "/0"}
+                content="Create new assignment"
+                primary
+            />
             </>);
     }
 }

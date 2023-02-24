@@ -41,10 +41,9 @@ def all_projects(project_repo: ProjectRepository = Provide[Container.project_rep
     for proj in data:
         new_projects.append(ProjectJson(proj.Id, proj.Name, proj.Start.strftime("%x %X"), proj.End.strftime("%x %X"), thisdic[proj.Id]).toJson())
     return jsonify(new_projects)
-    
 
 
-# TODO: Load in language from DB, in all_submissions
+
 @projects_api.route('/run-moss', methods=['POST'])
 @jwt_required()
 @inject
@@ -104,10 +103,10 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         end_date= request.form['end_date']
     if 'language' in request.form:
         language = request.form['language']
+    if  'class_id'  in request.form:
+        class_id = request.form['class_id']
     if name == '' or start_date == '' or end_date == '' or language == '':
         return make_response("Error in form", HTTPStatus.BAD_REQUEST)
-    #TODO: fix path, ext not defined
-    #ext[language]
     extension_mapping = {
     "python": "py",
     "java": "java",
@@ -122,7 +121,7 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
     file.save(path)
     #TODO: Add class ID and path
 
-    project_repo.create_project(name, start_date, end_date, language,1,path)
+    project_repo.create_project(name, start_date, end_date, language,class_id,path)
 
     new_project_id = project_repo.get_project_id_by_name(name)
     project_repo.levels_creator(new_project_id)
@@ -247,14 +246,19 @@ def remove_testcase(project_repo: ProjectRepository = Provide[Container.project_
 @projects_api.route('/get_projects_by_class_id', methods=['GET'])
 @jwt_required()
 @inject
-def get_projects_by_class_id(project_repo: ProjectRepository = Provide[Container.project_repo]):
+def get_projects_by_class_id(project_repo: ProjectRepository = Provide[Container.project_repo], submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
     if current_user.Role != ADMIN_ROLE:
         message = {
             'message': 'Access Denied'
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
-    project_info=project_repo.get_projects_by_class_id(request.args.get('id'))
-    
-    return make_response(json.dumps(project_info), HTTPStatus.OK)
+    print("ID: ", request.args.get('id'), flush=True)
+    data = project_repo.get_projects_by_class_id(request.args.get('id'))
+    print(data, " <- Data", flush=True)
+    new_projects = []
+    thisdic = submission_repo.get_total_submission_for_all_projects()
+    for proj in data:
+        new_projects.append(ProjectJson(proj.Id, proj.Name, proj.Start.strftime("%x %X"), proj.End.strftime("%x %X"), thisdic[proj.Id]).toJson())
+    return jsonify(new_projects)
 
 

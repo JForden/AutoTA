@@ -31,6 +31,15 @@ class ProjectRepository():
         project = Projects.query.filter(Projects.End >= now, Projects.Start < now).first()
         return project
 
+    def get_current_project_by_class(self, class_id: int) -> Optional[Projects]:
+        """[Identifies the current project based on the start and end date]
+        Returns:
+            Project: [this should be the currently assigned project object]
+        """
+        now = datetime.now()
+        project = Projects.query.filter(Projects.ClassId==class_id,Projects.End >= now, Projects.Start < now).first()
+        return project
+
     def get_all_projects(self) -> Projects:
         """[a method to get all the projects from the mySQL database]
 
@@ -54,15 +63,7 @@ class ProjectRepository():
 
     def get_projects_by_class_id(self,class_id: int) -> int:
         temp = Projects.query.filter(Projects.ClassId==class_id)
-        projects = {}
-        for project in temp:
-            print(project)
-            now = project.Start
-            start_string = now.strftime("%Y/%m/%d %H:%M:%S")
-            now = project.End
-            end_string = now.strftime("%Y/%m/%d %H:%M:%S")
-            projects[project.Id] = [str(project.Name),str(start_string),str(end_string)]
-        return projects
+        return temp
     
     def get_levels(self, project_id: int) -> Dict[str, int]:
         levels = Levels.query.filter(Levels.ProjectId == project_id).all()

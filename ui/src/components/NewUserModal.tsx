@@ -113,14 +113,26 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
     }
     
     handleClick(){
-        axios.post(process.env.REACT_APP_BASE_API_URL + `/auth/create`, { password: this.props.password, username: this.props.username, fname: this.state.FirstName, lname: this.state.LastName, id: this.state.StudentNumber, email: this.state.Email, class_id: this.state.ClassId, lab_id: this.state.LabId, lecture_id: this.state.LectureId })
-        .then(res => {    
-            localStorage.setItem("AUTOTA_AUTH_TOKEN", res.data.access_token);
-            window.location.href = "/class/1/upload";   
-        })
-        .catch(err => {
-            this.setState({ error_msg: err.response.data.message });
-        });
+        if(this.props.password!="NAN" && this.props.password!="NAN"){
+            axios.post(process.env.REACT_APP_BASE_API_URL + `/auth/create`, { password: this.props.password, username: this.props.username, fname: this.state.FirstName, lname: this.state.LastName, id: this.state.StudentNumber, email: this.state.Email, class_id: this.state.ClassId, lab_id: this.state.LabId, lecture_id: this.state.LectureId })
+            .then(res => {    
+                localStorage.setItem("AUTOTA_AUTH_TOKEN", res.data.access_token);
+                window.location.href = "/class/classes";   
+            })
+            .catch(err => {
+                this.setState({ error_msg: err.response.data.message });
+            });
+        }
+        else{
+            axios.post(process.env.REACT_APP_BASE_API_URL + `/auth/create_newclass`, { password: this.props.password, username: this.props.username, fname: this.state.FirstName, lname: this.state.LastName, id: this.state.StudentNumber, email: this.state.Email, class_id: this.state.ClassId, lab_id: this.state.LabId, lecture_id: this.state.LectureId })
+            .then(res => {    
+                localStorage.setItem("AUTOTA_AUTH_TOKEN", res.data.access_token);
+                window.location.href = "/class/classes";   
+            })
+            .catch(err => {
+                this.setState({ error_msg: err.response.data.message });
+            });
+        }
     }
 
     componentDidMount() {

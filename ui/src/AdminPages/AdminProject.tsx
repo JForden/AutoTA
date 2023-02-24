@@ -4,23 +4,27 @@ import { Grid } from 'semantic-ui-react'
 import MenuComponent from '../components/MenuComponent';
 import '../css/AdminComponent.scss'
 import { Helmet } from 'react-helmet';
-import AdminLandingComponent from '../components/AdminLandingComponent';
+import AdminComponent from '../components/AdminComponent';
+import { Route, RouteComponentProps } from 'react-router-dom';
 
-class AdminLanding extends Component<{}, {}> {
+interface AdminProjectProps extends RouteComponentProps<{ id: string }> {}
+
+class AdminProject extends Component<AdminProjectProps, {}> {
 
     render() {
         return (
         <div>
+            <div>hi</div>
             <Helmet>
                 <title>[Admin] Projects | TA-Bot</title>
             </Helmet>
             <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={false} ></MenuComponent>
             <Grid className="main-grid">
-                <AdminLandingComponent></AdminLandingComponent>
+            <Route path="/admin/projects/:id" component={AdminComponent} />
             </Grid>
         </div>
         );
   }
 }
 
-export default AdminLanding;
+export default AdminProject;

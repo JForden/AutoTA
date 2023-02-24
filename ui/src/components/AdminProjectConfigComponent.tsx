@@ -13,6 +13,7 @@ import { StyledIcon } from '../styled-components/StyledIcon';
 
 interface AdminProjectConfigProps {
     id: number,
+    class_id : number
 }
 
 
@@ -111,8 +112,6 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                 console.log(data);
                 if(!CreateNewState){
                 setProjectName(data[props.id][0]);
-                console.log("Here is the dataname");
-                console.log(data[props.id][0]);
                 setProjectStartDate(data[props.id][1] +"00");
                 setProjectEndDate(data[props.id][2]+"00");
                 setProjectLanguage("python");
@@ -287,6 +286,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         formData.append("start_date",ProjectStartDate);
         formData.append("end_date",ProjectEndDate);
         formData.append("language",ProjectLanguage);
+        formData.append("class_id",props.class_id.toString());
         axios.post(process.env.REACT_APP_BASE_API_URL + `/projects/create_project`, formData, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
@@ -313,11 +313,6 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
             setFile(undefined);
         }
     }; 
-
-
-
-
-
 
     function buttonhandleClick(testcase: number) {
         //loop through testcase and return the one with the id
@@ -376,6 +371,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                     control={Input}
                                     label='Start Date'
                                     type='string'
+                                    placeholder= "2022-08-25 08:01:00"
                                     value={ProjectStartDate}
                                     onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectStartDate(ev.target.value)}
                                     >
@@ -383,6 +379,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                     <Form.Field
                                     control={Input}
                                     label='End Date'
+                                    placeholder = "2022-08-25 08:01:00"
                                     type='string'
                                     value={ProjectEndDate}
                                     onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectEndDate(ev.target.value)}
@@ -409,6 +406,15 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                     checked={ProjectLanguage === 'java'}
                                     onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
                                 />
+                                <Form.Field
+                                    label='C'
+                                    control='input'
+                                    type='radio'
+                                    name='htmlRadios'
+                                    value='C'
+                                    checked={ProjectLanguage === 'C'}
+                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
+                                />
                                 </Form.Group>
                                 <Segment stacked>
                                     <h1>upload solution code</h1>
@@ -420,7 +426,6 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                             </Tab.Pane>
                     },
                     {
-                        
                         menuItem: { key: 'testcases', icon: 'clipboard check', content: 'Test Cases' }, render: () => 
                         <Tab.Pane>
                             <Form>

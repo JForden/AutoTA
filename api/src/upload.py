@@ -88,7 +88,6 @@ def output_pass_or_fail(filepath):
     return True
 
 def level_counter(filepath):
-    # TODO: Verify YAML is not Python specific 
     parser = Parser()
     passed_levels={}
     total_tests={}
@@ -109,12 +108,12 @@ def level_counter(filepath):
 
 def score_finder(project_repository: ProjectRepository, passed_levels,total_tests,project_id) -> str:
 
-    # TODO: Needs to be per class
     levels=project_repository.get_levels(project_id)
     print(levels)
     score_total=0
     for item in levels:
-        individual_score=levels[item]/total_tests[item]
+        #individual_score=levels[item]/total_tests[item]
+        individual_score=0
         if item in passed_levels:
             score_total=score_total+(individual_score*passed_levels[item])
 
@@ -161,154 +160,6 @@ def pylint_score_finder(error_count):
     else:
         return 10
 
-
-@upload_api.route('/temp', methods = ['POST'])
-@jwt_required()
-@cross_origin()
-@inject
-def temp_file_upload(user_repository: UserRepository =Provide[Container.user_repo],submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], config_repo: ConfigRepository = Provide[Container.config_repo],config_repos: ConfigRepository = Provide[Container.config_repo],class_repo: ClassRepository = Provide[Container.class_repo]):
-    """[summary]
-
-    Args:
-        submission_repository (ASubmissionRepository): [the existing submissions directory and all the functions in it]
-        project_repository (AProjectRepository): [the existing projects directory and all the functions in it]
-
-    Returns:
-        [HTTP]: [a pass or fail HTTP message]
-    """
-    
-    # TODO: Get the class the user is uploading for
-    class_id = request.form['class_id']
-    
-    username = current_user.Username
-    user_id = current_user.Id
-    if "student_id" in request.form:
-        username= user_repository.get_user_by_id(int(request.form["student_id"])) 
-        user_id = user_repository.getUserByName(username).Id
-    
-    #TODO: using the class ID, get the current project.
-
-
-    project_id = project_repo.get_current_project()
-    project = None
-    if "project_id" in request.form:
-        project = project_repo.get_selected_project(int(request.form["project_id"]))
-    else:
-        project = project_repo.get_current_project()
-        
-    if project == None:
-        message = {
-                'message': 'No active project'
-            }
-        return make_response(message, HTTPStatus.NOT_ACCEPTABLE)
-
-    #Check to see if student is able to upload or still on timeout
-    if(current_user.Role != ADMIN_ROLE):
-        class_id = request.form['class_id']
-
-    # check if the post request has the file part
-    if 'file' not in request.files:
-        message = {
-            'message': 'No selected file'
-        }
-        return make_response(message, HTTPStatus.BAD_REQUEST)
-
-    file = request.files['file']
-    # if user does not select file, browser also
-    # submit an empty part without filename
-    if file.filename == '':
-        message = {
-            'message': 'No selected file'
-        }
-        return make_response(message, HTTPStatus.BAD_REQUEST)
-
-    
-    if file and allowed_file(file.filename):
-        # Step 1: Run TA-Bot to generate grading folder
-        
-        #check to see if file is a zip file, if so extract the files
-        if file.filename.endswith(".zip"):
-            with zipfile.ZipFile(file, 'r') as zip_ref:
-                result = subprocess.run([current_app.config['TABOT_PATH'], project.Name, "--final","--system" ], stdout=subprocess.PIPE)
-                if result.returncode != 0:
-                    message = {
-                        'message': 'Error in creating output directory ZIP!'
-                    }
-                    return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
-                outputpath = result.stdout.decode('utf-8')
-                file_path = os.path.join(outputpath, "input")
-                zip_ref.extractall(file_path)                
-        else:
-            result = subprocess.run([current_app.config['TABOT_PATH'], project.Name, "--final","--system" ], stdout=subprocess.PIPE)
-            if result.returncode != 0:
-                message = {
-                    'message': 'Error in creating output directory FILE!'
-                }
-                return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
-            outputpath = result.stdout.decode('utf-8')
-            path = os.path.join(outputpath, "input", f"{username}{ext[project.Language][0]}")
-            file.save(path)
-
-        # Step 2: Run grade.sh
-        research_group = user_repository.get_user_researchgroup(current_user.Id)
-       
-
-       
-        result = subprocess.run(["python","execute.py", username, str(research_group), project.Language], cwd=outputpath)  
-
-        if result.returncode != 0:
-            message = {
-                'message': 'Error in running grading script!'
-            }
-            return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
-        
-        # Step 3: Save submission in submission table
-        now = datetime.now()
-        tap_path = outputpath+"output/"+username+".out"
-        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        status=output_pass_or_fail(tap_path)
-
-        #TODO: TAPPATHPRINT DELETE THIS
-        #with open(tap_path, 'r') as file:
-         #   print(file.read())
-
-        # TODO: Make this conditional based on language
-        error_count=python_error_count(outputpath+"output/"+username)
-
-
-
-        levels = project_repo.get_levels_by_project(project.Id)
-        submission_level = parse_tap_file_for_levels(tap_path, levels)
-
-        passed_levels, total_tests = level_counter(tap_path)
-        student_submission_score=score_finder(project_repo, passed_levels, total_tests, project.Id)
-        # TODO: Make this conditional based on language
-        pylint_score = pylint_score_finder(error_count)
-        total_submission_score = student_submission_score+pylint_score
-        # TODO: Make this conditional based on language
-        submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"output/"+username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
-        
-        # Step 4 assign point totals for the submission 
-        current_level = submission_repo.get_current_level(project.Id,user_id)
-        if current_level != "":
-            if submission_level > current_level:
-                submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[user_id])
-                submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id,submission_level)
-        else:
-            submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[user_id])
-            submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id, submission_level)
-
-        message = {
-            'message': 'Success',
-            'remainder': 10
-        }
-        return make_response(message, HTTPStatus.OK)
-    message = {
-        'message': 'Unsupported file type'
-    }
-    return make_response(message, HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
-
-
 @upload_api.route('/total_students', methods=['GET'])
 @jwt_required()
 @inject
@@ -345,6 +196,10 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     # TODO: Get the class the user is uploading for
     class_id = request.form['class_id']
     
+    
+
+
+
     username = current_user.Username
     user_id = current_user.Id
     if "student_id" in request.form:
@@ -354,12 +209,13 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     #TODO: using the class ID, get the current project.
 
 
-    project_id = project_repo.get_current_project()
+    project_id = project_repo.get_current_project_by_class(class_id)
+    print("PROJ_ID", project_id, flush=True)
     project = None
     if "project_id" in request.form: #TODO: make it so project_id is a required field
         project = project_repo.get_selected_project(int(request.form["project_id"]))
     else:
-        project = project_repo.get_current_project()
+        project = project_repo.get_current_project_by_class(class_id)
         
     if project == None:
         message = {
@@ -405,28 +261,29 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
                 file_path = os.path.join(outputpath, "input")
                 zip_ref.extractall(file_path)                
         else:
-            #TODO: Make this creation dynamic, rename outputpath to a var
             print("WWWWW", os.getcwd(), flush=True)
-            outputpath = "/ta-bot/simplecalc-out"
-            path = os.path.join(outputpath, f"{username}{ext[project.Language][0]}")
+            path = os.path.join("/ta-bot",project.Name+"-out")
+            print("Path: ", path, flush=True)
+            if not(os.path.isdir(path)):
+                os.mkdir(path)
+            outputpath = path
+            path = os.path.join(path, f"{username}{ext[project.Language][0]}")
             file.save(path)
             print("Saved file at :", path)
 
         # Step 2: Run grade.sh
         research_group = user_repository.get_user_researchgroup(current_user.Id)
        
-
-       #TODO: REPLACE execute.py
-
-        #TODO: Query database, make JSON dict it needs all test case information such as input/output/description
         testcase_info_json =project_repo.testcases_to_json(project.Id)
 
+        print(testcase_info_json)
 
 
+
+        #TODO: Pass language depending on file upload
         result = subprocess.run(["python","../tabot.py", username, str(research_group), project.Language, str(testcase_info_json), path], cwd=outputpath) 
 
 
-        #print(result)
         if result.returncode != 0:
             message = {
                 'message': 'Error in running grading script!'
@@ -458,6 +315,99 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         student_submission_score=score_finder(project_repo, passed_levels, total_tests, project.Id)
         # TODO: Make this conditional based on language
         if project.Language == "python":
+            pylint_score=python_error_count(outputpath+"/"+username)
+        else:
+            pylint_score = 40
+        total_submission_score = student_submission_score+pylint_score
+        # TODO: Make this conditional based on language
+        print("HERE", flush=True)
+        submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"/"+username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
+        
+        # Step 4 assign point totals for the submission 
+        current_level = submission_repo.get_current_level(project.Id,user_id)
+        if current_level != "":
+            if submission_level > current_level:
+                submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[user_id])
+                submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id,submission_level)
+        else:
+            submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[user_id])
+            submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id, submission_level)
+
+        message = {
+            'message': 'Success',
+            'remainder': 10
+        }
+        return make_response(message, HTTPStatus.OK)
+    message = {
+        'message': 'Unsupported file type'
+    }
+    return make_response(message, HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
+
+
+'''
+@upload_api.route('/CLUpload/', methods=['POST'])
+@jwt_required()
+@inject
+def file_upload(user_repository: UserRepository =Provide[Container.user_repo],submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], config_repo: ConfigRepository = Provide[Container.config_repo],config_repos: ConfigRepository = Provide[Container.config_repo],class_repo: ClassRepository = Provide[Container.class_repo]):
+    auth = request.authorization
+    if not auth or not auth.username or not auth.password:
+        # Send a response with a 401 Unauthorized status code
+        response = make_response('Could not verify your credentials. Please provide your username and password.', 401)
+        response.headers['WWW-Authenticate'] = 'Basic realm="Login Required"'
+        return response
+    
+
+    username = auth.username
+    #TODO: implement Diffie-Hellman key sharing to make this more secure.
+    password = auth.password
+
+
+    classname = request.form['class_name']
+    filedata = request.form['file_data']
+    tap_output = request.form['tap_output']
+    language = request.form['language']
+
+
+    #TODO:Make Dynamic based on project
+    outputpath = "/ta-bot/simplecalc-out"
+    path = os.path.join(outputpath, f"{username}{ext[language][0]}")
+    with open(f"{username}{ext[language][0]}", "w") as file:
+        file.write = filedata
+        file.save(path)
+
+    # Get the uploaded file from the request
+    
+    
+    now = datetime.now()
+    path = os.path.join(outputpath+"/"+username+".out")
+    with open(outputpath+"/"+username+".out") as file:
+        file.write = tap_output
+        file.save(path)
+
+    tap_path = outputpath+"/"+username+".out"
+    dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+    status=output_pass_or_fail(tap_path)
+
+
+    project = "e" #TODO, get project dynamic
+
+    #TODO: TAPPATHPRINT DELETE THIS
+    #with open(tap_path, 'r') as file:
+     #   print(file.read())
+    # TODO: Make this conditional based on language
+    if language == "python":
+        error_count=python_error_count(outputpath+"/"+username)
+    else:
+        error_count=0
+        print(error_count, "EC", flush=True)
+    
+        levels = project_repo.get_levels_by_project(project.Id)
+
+        submission_level = parse_tap_file_for_levels(tap_path, levels)
+
+        passed_levels, total_tests = level_counter(tap_path)
+        student_submission_score=score_finder(project_repo, passed_levels, total_tests, project.Id)
+        if project.Language == "python":
             error_count=python_error_count(outputpath+"/"+username)
         else:
             pylint_score = 40
@@ -487,9 +437,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     return make_response(message, HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
 
 
-
-
-
+'''
 
 
 

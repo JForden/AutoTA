@@ -35,10 +35,10 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
         .then(res => {    
             var role=parseInt(res.data);
             if (role === 0 ){
-                window.location.replace("/class/1/upload");
+                window.location.replace("/class/classes");
             } 
             if (role === 1){
-                window.location.replace("/admin/projects");
+                window.location.replace("/admin/classes");
             }   
         })
     }
@@ -144,6 +144,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 return (<></>);
                             } else {
                                 return (
+                                    //TODO: Move out of menu, add to projects page to allow multi-class
                                     <Menu.Item><a href="/admin/project/edit/0">Create New Assignment</a></Menu.Item>
                                 );
                             }

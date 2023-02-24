@@ -15,6 +15,9 @@ class UserRepository():
     def get_user_by_id(self,user_id: int) -> int:
         user = Users.query.filter(Users.Id==user_id).one_or_none()
         return user.Username
+    def get_user_by_studentid(self, student_id: int):
+        user = Users.query.filter(Users.StudentNumber==student_id).one_or_none()
+        return user.Username
 
     def doesUserExist(self, username: str) -> bool:
         user = Users.query.filter(Users.Username==username).first()
