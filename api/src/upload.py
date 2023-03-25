@@ -62,7 +62,7 @@ def python_error_count(filepath):
     Returns:
         [int]: [The number of errors that the student had in their pylint output]
     """
-    with open(filepath+".out.pylint", "r") as file:
+    with open(filepath+".out.lint", "r") as file:
         parsed_json = json.load(file)
         error_count = 0
         for line in parsed_json:
@@ -321,7 +321,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         total_submission_score = student_submission_score+pylint_score
         # TODO: Make this conditional based on language
         print("HERE", flush=True)
-        submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"/"+username+".out.pylint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
+        submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
         
         # Step 4 assign point totals for the submission 
         current_level = submission_repo.get_current_level(project.Id,user_id)

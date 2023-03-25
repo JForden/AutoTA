@@ -94,8 +94,21 @@ def pylintoutput(submission_repo: SubmissionRepository = Provide[Container.submi
     else:
         pylint_output = submission_repo.get_pylint_path_by_user_id(current_user.Id)
     with open(pylint_output, 'r') as file:
+        output=""
         output = file.read()
-        output = link_service.add_link_info_links(output)
+        #TODO: Move this link service elsewhere
+        if output != "":
+            try:
+                # Check if output is in JSON format
+                json.loads(output)
+            except json.JSONDecodeError:
+                # If output is not in JSON format, skip running link_service
+                #json.loads(output)
+                print("Output is not in JSON format, skipping link_service.")
+            else:
+                # If output is in JSON format, run link_service
+                output = link_service.add_link_info_links(output)
+    #print(output, "OUT", flush=True)
     return make_response(output, HTTPStatus.OK)
 
 

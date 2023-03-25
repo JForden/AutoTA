@@ -9,6 +9,7 @@ from flask_jwt_extended import create_access_token
 from src.jwt_manager import jwt
 from src.repositories.user_repository import UserRepository
 from flask_jwt_extended import jwt_required
+from flask_jwt_extended import current_user
 from flask import current_app
 from src.api_utils import get_value_or_empty
 from datetime import datetime
@@ -147,6 +148,7 @@ def create_user(auth_service: PAMAuthenticationService = Provide[Container.auth_
 
 
 @auth_api.route('/create_newclass', methods=['POST'])
+@jwt_required()
 @inject
 def add_class(auth_service: PAMAuthenticationService = Provide[Container.auth_service], user_repo: UserRepository = Provide[Container.user_repo], class_repo: ClassRepository = Provide[Container.class_repo]):
     input_json = request.get_json()
@@ -161,6 +163,8 @@ def add_class(auth_service: PAMAuthenticationService = Provide[Container.auth_se
     lab_id= get_value_or_empty(input_json, 'lab_id')
     lecture_id = get_value_or_empty(input_json, 'lecture_id')
 
+
+    user_id = current_user.Id
     if not (first_name and last_name and student_number and email and class_id and lab_id and lecture_id):
         message = {
             'message': 'Missing required data.  All fields are required'

@@ -60,6 +60,7 @@ const CodePage = () => {
     const [hasUnlockEnabled, setHasUnlockEnabled] = useState<boolean>(false);
     const [hasTbsEnabled, setHasTbsEnabled] = useState<boolean>(false);
     const [ResearchGroup, setResearchGroup] = useState<number>(0);
+    const [lint, setLint] = useState<String>("");
 
     useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/testcaseerrors?id=${submissionId}&class_id=${cid}`, {
@@ -94,8 +95,12 @@ const CodePage = () => {
         })
         .then(res => {    
             var x = res.data as Array<PylintObject>;
+            console.log(x);
             x = x.sort((a, b) => (a.line < b.line ? -1 : 1));
             setPylint(x);    
+            console.log(pylint);
+            console.log("wack");
+            console.log(x);
         })
         .catch(err => {
             console.log(err);
