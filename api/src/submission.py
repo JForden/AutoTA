@@ -1,4 +1,5 @@
 from datetime import timedelta
+import os
 import threading
 from src.repositories.config_repository import ConfigRepository
 from src.repositories.user_repository import UserRepository
@@ -122,8 +123,17 @@ def codefinder(submission_repo: SubmissionRepository = Provide[Container.submiss
         code_output = submission_repo.get_code_path_by_submission_id(submissionid)
     else:
         code_output = submission_repo.get_code_path_by_user_id(current_user.Id)
-    with open(code_output, 'r') as file:
-        output = file.read()
+    if not os.path.isdir(code_output):
+        with open(code_output, 'r') as file:
+            output = file.read()
+    else:
+        files = [filename for filename in os.listdir(code_output) if filename.endswith('.java')]
+        if "Main.java" in files:
+            with open(code_output + "/" + "Main.java") as file:
+                output = file.read()
+        else:
+            with open(code_output + "/" + files[0]) as file:
+                output = file.read()
         
     return make_response(output, HTTPStatus.OK)
 

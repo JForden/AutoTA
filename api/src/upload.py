@@ -1,3 +1,4 @@
+import shutil
 import sys
 from flask.json import jsonify
 from src.repositories.config_repository import ConfigRepository
@@ -47,10 +48,10 @@ def allowed_file(filename):
         [Boolean]: [returns a bool if the file is allowed or not]
     """
     filetype=filename.rsplit('.', 1)[1].lower()
-    print(filetype)
+    print("FILETYPE: ", filetype)
     for key in ext:
         if filetype in ext[key]:
-            return True
+            return True 
 
 
 def python_error_count(filepath):
@@ -195,10 +196,6 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     
     # TODO: Get the class the user is uploading for
     class_id = request.form['class_id']
-    
-    
-
-
 
     username = current_user.Username
     user_id = current_user.Id
@@ -243,23 +240,22 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         }
         return make_response(message, HTTPStatus.BAD_REQUEST)
 
-    
     if file and allowed_file(file.filename):
-        print(file)
+        language = file.filename.rsplit('.', 1)[1].lower()
+
         # Step 1: Run TA-Bot to generate grading folder
         
         #check to see if file is a zip file, if so extract the files
         if file.filename.endswith(".zip"):
             with zipfile.ZipFile(file, 'r') as zip_ref:
-                result = subprocess.run([current_app.config['TABOT_PATH'], project.Name, "--final","--system" ], stdout=subprocess.PIPE)
-                if result.returncode != 0:
-                    message = {
-                        'message': 'Error in creating output directory ZIP!'
-                    }
-                    return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
-                outputpath = result.stdout.decode('utf-8')
-                file_path = os.path.join(outputpath, "input")
-                zip_ref.extractall(file_path)                
+                path = os.path.join("/ta-bot", project.Name + "-out")
+                extract_dir = os.path.join(path, f"{username}")
+                if os.path.isdir(extract_dir):
+                    shutil.rmtree(extract_dir)
+                os.mkdir(extract_dir)
+                zip_ref.extractall(extract_dir)
+                outputpath=path
+                path=extract_dir                
         else:
             print("WWWWW", os.getcwd(), flush=True)
             path = os.path.join("/ta-bot",project.Name+"-out")
@@ -279,8 +275,6 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         print(testcase_info_json)
 
 
-
-        #TODO: Pass language depending on file upload
         result = subprocess.run(["python","../tabot.py", username, str(research_group), project.Language, str(testcase_info_json), path], cwd=outputpath) 
 
 
