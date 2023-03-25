@@ -48,7 +48,10 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     const [ProjectEndDate,setProjectEndDate] = useState<string>("");
     const [ProjectLanguage,setProjectLanguage] = useState<string>("");
     const [SubmitButton,setSubmitButton] = useState<string>("Submit Changes");
+    const [SubmitJSON, setSubmitJSON] = useState<string>("Submit .JSON file");
+    const [getJSON, setGetJSON] = useState<string>("Export test cases");
     const [File, setFile] = useState<File>();
+    const [edit, setEdit] =useState<boolean>(false);
 
    
     useEffect(() => {
@@ -112,9 +115,10 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                 console.log(data);
                 if(!CreateNewState){
                 setProjectName(data[props.id][0]);
-                setProjectStartDate(data[props.id][1] +"00");
-                setProjectEndDate(data[props.id][2]+"00");
-                setProjectLanguage("python");
+                setProjectStartDate(data[props.id][1]);
+                setProjectEndDate(data[props.id][2]);
+                setProjectLanguage(data[props.id][3]);
+                setEdit(true);
                 }
             })
             .catch(err => {
@@ -254,8 +258,6 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                     testcase.output = values[4];
                     testcase.isHidden = !!values[5];
                     testcase.levelname = values[6]
-
-                    
                     rows.push(testcase);
 
                     return testcase;
@@ -279,7 +281,25 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                 console.log(err);
             });
     }
+    function handleJsonSubmit(){
+        const formData = new FormData();
+        formData.append("file",File!);
+        formData.append("project_id",props.id.toString());
+        formData.append("class_id",props.class_id.toString());
+        axios.post(process.env.REACT_APP_BASE_API_URL + `/projects/json_add_testcases`, formData, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+        })
+        .then(res => {
+            reloadtests();
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
     function handleNewSubmit(){
+        console.log("in new submit");
         const formData = new FormData();
         formData.append("file",File!);
         formData.append("name",ProjectName);
@@ -301,6 +321,31 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
             console.log(error);
         });
     }
+    function handleEditSubmit(){
+        console.log(edit);
+        const formData = new FormData();
+        formData.append("id",props.id.toString());
+        formData.append("file",File!);
+        formData.append("name",ProjectName);
+        formData.append("start_date",ProjectStartDate);
+        formData.append("end_date",ProjectEndDate);
+        formData.append("language",ProjectLanguage);
+        formData.append("class_id",props.class_id.toString());
+        axios.post(process.env.REACT_APP_BASE_API_URL + `/projects/edit_project`, formData, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+        })
+        .then(res => {
+            var data = res.data;
+            window.location.href ="/admin/project/edit/"+props.class_id+"/"+props.id;
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
+
+
     function handleFileChange(event : React.FormEvent) {
     
         const target = event.target as HTMLInputElement;
@@ -347,6 +392,49 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         });
     }
 
+    function get_testcase_json() {
+          axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_testcases?id=${props.id}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+          })
+          .then(res => {
+            var data = res.data
+      
+            var rows: Array<Testcase> = [];
+      
+            Object.entries(data).map(([key, value]) => {
+              var testcase = new Testcase();
+              var values = (value as Array<string>);
+              testcase.id = -1;
+              testcase.levelid = parseInt(values[0]);
+              testcase.name = values[1];
+              testcase.description = values[2];
+              testcase.input = values[3];
+              testcase.output = values[4];
+              testcase.isHidden = !!values[5];
+              testcase.levelname = values[6]
+      
+              rows.push(testcase);
+      
+              return testcase;
+            });
+            const fileContent = JSON.stringify(rows, null, 2);
+            const fileName = ProjectName+'.json';
+            const blob = new Blob([fileContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          })
+          .catch(error => {
+            console.error(error);
+          });
+    }
+    
     return (
     <div style={{ height: "80%" }}>
             <Tab
@@ -418,10 +506,10 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                 </Form.Group>
                                 <Segment stacked>
                                     <h1>upload solution code</h1>
-                                    <Form.Input type="file" fluid required onChange={handleFileChange} />
+                                    <Form.Input type="file" fluid onChange={handleFileChange} />
                                     <br></br>
                                 </Segment>
-                                <Form.Button onClick={handleNewSubmit}>{SubmitButton}</Form.Button>
+                                <Form.Button onClick={edit ?  handleEditSubmit  : handleNewSubmit}>{SubmitButton}</Form.Button>
                             </Form>
                             </Tab.Pane>
                     },
@@ -505,9 +593,22 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                 );  
                             })}
                             </Form>
+                            <Segment stacked>
+                                    <h1>Upload Test Cases</h1>
+                                    <Form.Input type="file" fluid required={true} onChange={handleFileChange} />
+                                    <br></br>
+                            </Segment>
+                            <Button.Group>
+                            <Form.Button onClick={handleJsonSubmit}>{SubmitJSON}</Form.Button>
+                            <div style={{ marginLeft: '10px', marginRight: '10px' }}></div>
+                            <Form.Button color={'green'} onClick={get_testcase_json}>{getJSON}</Form.Button>
+                            </Button.Group>
                         </Tab.Pane>
-                    },
-                ]}
+                    }
+                ]
+            }
+                
+                
 
             />
         </div>

@@ -137,6 +137,8 @@ def edit_project(project_repo: ProjectRepository = Provide[Container.project_rep
             'message': 'Access Denied'
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
+    if "id" in request.form:
+        pid = request.form["id"]
     if 'name' in request.form:
         name = request.form['name']
     if 'start_date' in request.form:
@@ -148,7 +150,7 @@ def edit_project(project_repo: ProjectRepository = Provide[Container.project_rep
     if name == '' or start_date == '' or end_date == '' or language == '':
         return make_response("Error in form", HTTPStatus.BAD_REQUEST)
     
-    project_repo.edit_project(name, start_date, end_date, language, request.args.get('id'))
+    project_repo.edit_project(name, start_date, end_date, language, pid)
     return make_response("Project Edited", HTTPStatus.OK)
 
 
@@ -168,7 +170,6 @@ def get_project(project_repo: ProjectRepository = Provide[Container.project_repo
 @projects_api.route('/get_testcases', methods=['GET'])
 @jwt_required()
 @inject
-
 def get_testcases(project_repo: ProjectRepository = Provide[Container.project_repo]):
     if current_user.Role != ADMIN_ROLE:
         message = {
@@ -187,6 +188,31 @@ def get_testcases(project_repo: ProjectRepository = Provide[Container.project_re
 
     return make_response(json.dumps(testcases), HTTPStatus.OK)
 
+
+
+@projects_api.route('/json_add_testcases', methods=['POST'])
+@jwt_required()
+@inject   
+def json_add_testcases(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+    file = request.files['file']
+    project_id = request.form["project_id"]
+    try:
+        json_obj = json.load(file)
+    except json.JSONDecodeError:
+         message = {
+            'message': 'Incorrect JSON format'
+        }
+         return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
+    else:
+        for testcase in json_obj:
+            project_repo.add_or_update_testcase(project_id, -1, testcase["levelname"], testcase["name"], testcase["description"], testcase["input"], testcase["output"], bool(testcase["isHidden"]))
+        print("hi")
+    return make_response("Testcase Added", HTTPStatus.OK)
 
 
 @projects_api.route('/add_or_update_testcase', methods=['POST'])
@@ -220,7 +246,7 @@ def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.p
         return make_response("Error in form", HTTPStatus.BAD_REQUEST)
     
     print(id_val, name, level_name, input_data, output, project_id, isHidden, description)
-    project_repo.add_or_update_testcase(project_id, id_val, level_name, name, description, input_data, output, isHidden == "true")
+    project_repo.add_or_update_testcase(project_id, id_val, level_name, name, description, input_data, output, isHidden == "false")
     return make_response("Testcase Added", HTTPStatus.OK)
     
 

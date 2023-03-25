@@ -87,10 +87,11 @@ class ProjectRepository():
         project_data = Projects.query.filter(Projects.Id == project_id).first()
         project ={}
         now=project_data.Start
-        start_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        start_string = now.strftime("%Y-%m-%d %H:%M:%S")
+        print("SS: ", start_string)
         now = project_data.End
-        end_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        project[project_data.Id] = [str(project_data.Name),str(start_string),str(end_string)]
+        end_string = now.strftime("%Y-%m-%d %H:%M:%S")
+        project[project_data.Id] = [str(project_data.Name),str(start_string),str(end_string), str(project_data.Language)]
         print(project,flush=True)
         return project
 
@@ -100,7 +101,7 @@ class ProjectRepository():
         project.Start = start
         project.End = end
         project.Language = language
-        db.session.commit()
+        db.session.commit() 
         
     def get_testcases(self, project_id:int) -> Dict[str,str]:
         testcases = Testcases.query.filter(Testcases.ProjectId == project_id).all()
