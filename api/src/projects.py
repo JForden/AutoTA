@@ -266,7 +266,6 @@ def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.p
     
 
 
-
 @projects_api.route('/remove_testcase', methods=['POST'])
 @jwt_required()
 @inject
@@ -303,3 +302,36 @@ def get_projects_by_class_id(project_repo: ProjectRepository = Provide[Container
     return jsonify(new_projects)
 
 
+@projects_api.route('/reset_project', methods=['POST', 'DELETE'])
+@jwt_required()
+@inject
+def reset_project(project_repo: ProjectRepository = Provide[Container.project_repo], submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+    project_id = request.args.get('id')
+    project_repo.wipe_submissions(project_id)
+    return make_response("Project reset", HTTPStatus.OK)
+
+
+@projects_api.route('/delete_project', methods=['POST', 'DELETE'])
+@jwt_required()
+@inject
+def delete_project(project_repo: ProjectRepository = Provide[Container.project_repo], submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    print(current_user.Role, flush=True)
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+    project_id = request.args.get('id')
+    print("ProjectID: ", project_id)
+    
+    project_repo.wipe_submissions(project_id)
+    print("MADE IT HERE", flush=True)
+    project_repo.delete_project(project_id)
+    print("Finished", flush=True)
+    return make_response("Project reset", HTTPStatus.OK)
+    

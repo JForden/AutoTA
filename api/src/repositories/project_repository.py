@@ -4,21 +4,13 @@ import subprocess
 from typing import Optional, Dict
 
 from sqlalchemy.sql.expression import asc
-from .models import Projects, Levels, Testcases
+from .models import Projects, Levels, StudentProgress, Submissions, Testcases
 from src.repositories.database import db
 from sqlalchemy import desc, and_
 from datetime import datetime
 from pyston import PystonClient,File
 import asyncio
 import json
-
-async def runner(filepath,input, language):
-        #TODO, Rewrite to call local TA-BOT
-        with open(filepath) as f:
-            file = File(f)
-            client = PystonClient()
-            output = await client.execute(language,[file],"*",input)
-        return output
 
 
 
@@ -189,7 +181,28 @@ class ProjectRepository():
         json_object = json.dumps(testcase_holder)
         print(json_object,flush=True) 
         return json_object
-        
+    def wipe_submissions(self, project_id:int):
+        submissions = Submissions.query.filter(Submissions.Project == project_id).all()
+        student_progress = StudentProgress.query.filter(StudentProgress.ProjectId ==project_id).all()
+        for student in student_progress:
+            db.session.delete(student)
+        db.session.commit()
+        for submission in submissions:
+            db.session.delete(submission)
+        db.session.commit()
+    def delete_project(self, project_id:int):
+        project = Projects.query.filter(Projects.Id == project_id).first()
+        testcases =Testcases.query.filter(Testcases.ProjectId==project_id).all()
+        for test in testcases:
+            db.session.delete(test)
+            db.session.commit()
+        levels = Levels.query.filter(Levels.ProjectId==project_id).all()
+        for level in levels:
+            print(level, flush=True)
+            db.session.delete(level)
+            db.session.commit()
+        db.session.delete(project)
+        db.session.commit()
 
 
 

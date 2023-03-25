@@ -16,7 +16,10 @@ interface ProjectObject {
 interface ProjectsState {
   projects: ProjectObject[];
   classId: string;
+  open: boolean;
 }
+
+
 
 interface AdminComponentProps extends RouteComponentProps<{ id: string }> {}
 
@@ -25,10 +28,11 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
     super(props);
     this.state = {
       projects: [],
-      classId: props.match.params.id
+      classId: props.match.params.id,
+      open:false
     };
   }
-
+  
   componentDidMount() {
     const classId = this.props.match.params.id;
     axios
@@ -50,7 +54,32 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
         console.log(err);
       });
   }
-
+  private handleDelete(projectId: number){
+    axios.delete(`${process.env.REACT_APP_BASE_API_URL}/projects/delete_project?id=${projectId}`, {
+      headers: {
+          'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+      }
+      })
+        .then((res) => {
+          window.location.reload();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+  }
+  private handleRefresh(projectId: number){
+    axios.delete(`${process.env.REACT_APP_BASE_API_URL}/projects/reset_project?id=${projectId}`, {
+      headers: {
+          'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+      }
+      })
+        .then((res) => {
+          window.location.reload();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+  }
     render(){
         return (
             <>
@@ -79,8 +108,9 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
                                     <Table.Cell>{this.state.projects[index].TotalSubmissions}</Table.Cell>
                                     <Table.Cell><Button as={Link} to={"/admin/project/"+this.state.projects[index].Id}>View</Button></Table.Cell>
                                     <Table.Cell><Button icon='edit' as={Link} to={"/admin/project/edit/" + this.state.classId + "/" + this.state.projects[index].Id}  />
-                                    <Button icon='refresh' />
-                                    <Button icon='trash' /></Table.Cell>
+                                    <Button icon='refresh' onClick={() => this.handleRefresh(this.state.projects[index].Id)} />
+                                    <Button icon='trash' onClick={() => this.handleDelete(this.state.projects[index].Id)} />
+                                    </Table.Cell>
                                 </Table.Row>
                                 );
                     }
