@@ -316,7 +316,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
             var data = res.data;
             console.log(data[0]);
             console.log("/admin/project/edit/"+data);
-            window.location.href ="/admin/project/edit/"+data;
+            window.location.href ="/admin/project/edit/"+props.class_id+"/"+data;
         }).catch(function (error) {
             console.log(error);
         });

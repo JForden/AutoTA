@@ -137,7 +137,7 @@ const CodePage = () => {
             <Helmet>
                 <title>Submission | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={true}></MenuComponent>
+            <MenuComponent showUpload={false} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={true}></MenuComponent>
             <Split sizes={[80, 20]} className="split2" direction="vertical">
                     <CodeComponent pylintData={pylint} codedata={code}></CodeComponent>
                     <TestResultsComponent testcase={json} showScore={hasScoreEnabled} score={score} researchGroup={ResearchGroup}></TestResultsComponent>

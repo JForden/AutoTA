@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import subprocess
 import os.path
 from typing import List
@@ -116,9 +117,20 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
     "ruby": "rb",
     "php": "php"
     }
-    extension = extension_mapping.get(language, "txt")
-    path = os.path.join("/ta-bot/project-files", f"{name}.{extension}")
-    file.save(path)
+
+    filename =file.filename
+    extension = os.path.splitext(filename)[1]
+    print("Extension in projects: ", extension, flush=True)
+    if extension != ".zip":
+        path = os.path.join("/ta-bot/project-files", f"{name}.{extension}")
+        file.save(path)
+    else:
+        path = os.path.join("/ta-bot/project-files", f"{name}")
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        os.mkdir(path)
+        with zipfile.ZipFile(file, "r") as zip_ref:
+            zip_ref.extractall(path) 
     #TODO: Add class ID and path
 
     project_repo.create_project(name, start_date, end_date, language,class_id,path)
@@ -245,8 +257,11 @@ def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.p
     if id_val == '' or name == '' or input_data == '' or project_id == '' or isHidden == '' or description == '':
         return make_response("Error in form", HTTPStatus.BAD_REQUEST)
     
-    print(id_val, name, level_name, input_data, output, project_id, isHidden, description)
-    project_repo.add_or_update_testcase(project_id, id_val, level_name, name, description, input_data, output, isHidden == "false")
+
+
+    isHidden = True if isHidden.lower() =="true" else False
+    
+    project_repo.add_or_update_testcase(project_id, id_val, level_name, name, description, input_data, output, isHidden)
     return make_response("Testcase Added", HTTPStatus.OK)
     
 

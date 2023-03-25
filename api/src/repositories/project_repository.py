@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+import os
+import subprocess
 from typing import Optional, Dict
 
 from sqlalchemy.sql.expression import asc
@@ -122,12 +124,11 @@ class ProjectRepository():
         project = Projects.query.filter(Projects.Id == project_id).first()
         language = project.Language
         filepath = project.solutionpath
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        output
-        output = loop.run_until_complete(runner(filepath,input_data, language))
-        loop.close()
-        print("This is the testcase id: ",testcase_id)
+        #TODO: Make this not rely on piston API
+        
+        result = subprocess.run(["python","../ta-bot/tabot.py", "ADMIN", str(-1), project.Language, input_data, filepath], stdout=subprocess.PIPE, text=True)
+        output = result.stdout.strip()
+        
         testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
         if testcase is None:
             print(project_id)
@@ -150,6 +151,7 @@ class ProjectRepository():
             testcase.Output = output
             testcase.IsHidden = is_hidden
             db.session.commit()
+        print("made it here: ", output,  flush=True)
 
     def remove_testcase(self, testcase_id:int):
         testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
