@@ -122,7 +122,8 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
     extension = os.path.splitext(filename)[1]
     print("Extension in projects: ", extension, flush=True)
     if extension != ".zip":
-        path = os.path.join("/ta-bot/project-files", f"{name}.{extension}")
+        path = os.path.join("/ta-bot/project-files", f"{name}{extension}")
+        os.mkdir(os.path.join("/ta-bot", f"{name}-out"))
         file.save(path)
     else:
         path = os.path.join("/ta-bot/project-files", f"{name}")
