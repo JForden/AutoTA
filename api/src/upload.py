@@ -260,8 +260,6 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
             print("WWWWW", os.getcwd(), flush=True)
             path = os.path.join("/ta-bot",project.Name+"-out")
             print("Path: ", path, flush=True)
-            if not(os.path.isdir(path)):
-                os.mkdir(path)
             outputpath = path
             path = os.path.join(path, f"{username}{ext[project.Language][0]}")
             file.save(path)
