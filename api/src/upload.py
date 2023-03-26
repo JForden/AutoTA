@@ -284,7 +284,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         
         # Step 3: Save submission in submission table
         now = datetime.now()
-        tap_path = outputpath+"/"+username+".out"
+        tap_path = outputpath+"/"+username+"/"+username+".out"
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         status=output_pass_or_fail(tap_path)
 

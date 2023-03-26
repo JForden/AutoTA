@@ -120,6 +120,7 @@ class ProjectRepository():
         
         result = subprocess.run(["python","../ta-bot/tabot.py", "ADMIN", str(-1), project.Language, input_data, filepath], stdout=subprocess.PIPE, text=True)
         output = result.stdout.strip()
+        print("OUTPUT HERE: ", output, flush=True)
         
         testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
         if testcase is None:
