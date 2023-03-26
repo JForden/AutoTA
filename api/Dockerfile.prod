@@ -11,7 +11,7 @@ COPY ./requirements.txt /app/requirements.txt
 
 # install the dependencies and packages in the requirements file
 
-RUN apt-get update && apt-get install -y default-jdk
+RUN apt-get update && apt-get install -y default-jdk sssd
 
 
 RUN pip install -r requirements.txt

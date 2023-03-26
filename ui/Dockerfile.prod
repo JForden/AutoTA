@@ -10,19 +10,26 @@ COPY yarn.lock .
 RUN yarn install 
 RUN yarn global add react-scripts --silent
 
+ENV REACT_APP_BASE_API_URL=/api
+
 # Add app
 COPY . .
-
-# production environment
-FROM build as production
-
-# add `/app/node_modules/.bin` to PATH
-ENV PATH /app/node_modules/.bin:$PATH
 
 # build app
 RUN yarn build
 
+# production environment
+FROM nginx:stable-alpine
+
+# copy over app
+COPY --from=build /app/build /usr/share/nginx/html
+
+COPY nginx.conf /etc/nginx/nginx.conf
+
 EXPOSE 3000
 
 # start app
-CMD ["node", "/app/build/server.js"]
+CMD ["nginx", "-g", "daemon off;"]
+
+# build container: docker build -f Dockerfile.prod -t abacus-app:prod .
+# run container: docker run -it --rm -p 80:80 abacus-app:prod
