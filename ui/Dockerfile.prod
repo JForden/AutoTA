@@ -22,6 +22,8 @@ FROM nginx:stable-alpine
 # copy over app
 COPY --from=build /app/build /usr/share/nginx/html
 
+COPY nginx.conf /etc/nginx/
+
 EXPOSE 3000
 
 # start app
