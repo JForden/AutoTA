@@ -10,6 +10,8 @@ COPY yarn.lock .
 RUN yarn install 
 RUN yarn global add react-scripts --silent
 
+ENV REACT_APP_BASE_API_URL=/api
+
 # Add app
 COPY . .
 
