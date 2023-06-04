@@ -79,6 +79,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
 
     render() {
         var suites = [...new Set<string>(this.props.testcase.results.map(item => item.test.suite))];
+        var numberOfEntries = suites.length;
         const panes = suites.map(s => ({
             menuItem: s,
             render: () => {

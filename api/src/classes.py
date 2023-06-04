@@ -1,6 +1,7 @@
-from flask import Blueprint, make_response
+from flask import Blueprint, make_response, request
 from flask_jwt_extended import jwt_required
 from src.repositories.class_repository import ClassRepository
+from src.repositories.database import db
 from dependency_injector.wiring import inject, Provide
 from container import Container
 from flask import jsonify
@@ -61,4 +62,22 @@ def get_student_class_by_id(class_repository: ClassRepository = Provide[Containe
     classes=class_repository.get_student_class_by_id(current_user.Id)
     return jsonify(classes)
 
+@class_api.route('/add_class_student', methods=['POST'])
+@jwt_required()
+@inject
+def add_class_student(class_repository: ClassRepository = Provide[Container.class_repo]):
+    print("IN ADD CLASSES", flush=True)
+    class_name = request.form.get('class_name')
+    lecture_name = request.form.get('lecture_name')
+    lab_name = request.form.get('lab_name')
+
+    print(class_name,lecture_name,lab_name,"out",flush=True)
+
+    class_id = class_repository.get_class_id(class_name)
+    lecture_id = class_repository.get_lecture_id_withName(lecture_name)
+    lab_id = class_repository.get_lab_id_withName(lab_name)
+   
+    class_repository.add_class_assignment(class_id= class_id,lab_id=lab_id,lecture_id= lecture_id,user_id= current_user.Id)
+
+    return jsonify(message="Class assignment added successfully"), 200
 

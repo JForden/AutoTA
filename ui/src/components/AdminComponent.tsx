@@ -1,9 +1,10 @@
 import { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import axios from 'axios';
-import { Table, Label, Button } from 'semantic-ui-react';
+import { Table, Label, Button, Popup, Grid, Header } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { parse } from 'path';
+import internal from 'stream';
 
 interface ProjectObject {
   Id: number;
@@ -29,7 +30,7 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
     this.state = {
       projects: [],
       classId: props.match.params.id,
-      open:false
+      open:false,
     };
   }
   
@@ -54,6 +55,9 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
         console.log(err);
       });
   }
+  
+  
+
   private handleDelete(projectId: number){
     axios.delete(`${process.env.REACT_APP_BASE_API_URL}/projects/delete_project?id=${projectId}`, {
       headers: {
@@ -109,7 +113,14 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
                                     <Table.Cell><Button as={Link} to={"/admin/project/"+this.state.projects[index].Id}>View</Button></Table.Cell>
                                     <Table.Cell><Button icon='edit' as={Link} to={"/admin/project/edit/" + this.state.classId + "/" + this.state.projects[index].Id}  />
                                     <Button icon='refresh' onClick={() => this.handleRefresh(this.state.projects[index].Id)} />
-                                    <Button icon='trash' onClick={() => this.handleDelete(this.state.projects[index].Id)} />
+                                    <Popup trigger={<Button>delete project</Button>} flowing hoverable>
+                                    <Grid centered divided columns={1}>
+                                      <Grid.Column textAlign='center'>
+                                        <Header as='h4'>confirm delete project</Header>
+                                        <Button icon='trash' onClick={() => this.handleDelete(this.state.projects[index].Id)}>delete</Button>
+                                      </Grid.Column>
+                                    </Grid>
+                                  </Popup>
                                     </Table.Cell>
                                 </Table.Row>
                                 );

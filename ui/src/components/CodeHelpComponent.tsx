@@ -94,9 +94,6 @@ class CodeHelpComponent extends Component<CodeHelpComponentProps, CodeHelpCompon
         });
     }
 
-
-      
-
     handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({ question: event.target.value });
     }
@@ -140,7 +137,7 @@ class CodeHelpComponent extends Component<CodeHelpComponentProps, CodeHelpCompon
             this.setState({ q3: "INVALID" as string });
             this.setState({api_response: res.data});
             this.setState({api_visible: true});
-            this.setState({bad_response: true});
+            this.setState({bad_response: false}); //setting this to temp as a testing outcome
             this.handleFormSubmit();
             this.setState({isLoading:false});
           }

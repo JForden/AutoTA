@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 import os
+import shutil
 import subprocess
 from typing import Optional, Dict
 
 from sqlalchemy.sql.expression import asc
-from .models import Projects, Levels, StudentProgress, Submissions, Testcases
+from .models import Projects, Levels, StudentProgress, Submissions, Testcases, Classes
 from src.repositories.database import db
 from sqlalchemy import desc, and_
 from datetime import datetime
@@ -32,6 +33,7 @@ class ProjectRepository():
         """
         now = datetime.now()
         project = Projects.query.filter(Projects.ClassId==class_id,Projects.End >= now, Projects.Start < now).first()
+        #Start and end time format: 2023-05-31 14:33:00
         return project
 
     def get_all_projects(self) -> Projects:
@@ -116,8 +118,7 @@ class ProjectRepository():
         project = Projects.query.filter(Projects.Id == project_id).first()
         language = project.Language
         filepath = project.solutionpath
-        #TODO: Make this not rely on piston API
-        
+        #TODO: see if we can get away from stdout
         result = subprocess.run(["python","../ta-bot/tabot.py", "ADMIN", str(-1), project.Language, input_data, filepath], stdout=subprocess.PIPE, text=True)
         output = result.stdout.strip()
         print("OUTPUT HERE: ", output, flush=True)
@@ -194,6 +195,9 @@ class ProjectRepository():
     def delete_project(self, project_id:int):
         project = Projects.query.filter(Projects.Id == project_id).first()
         testcases =Testcases.query.filter(Testcases.ProjectId==project_id).all()
+        path = "../../ta-bot/" + project.Name +"-out"
+        shutil.rmtree(path)
+
         for test in testcases:
             db.session.delete(test)
             db.session.commit()
@@ -204,6 +208,11 @@ class ProjectRepository():
             db.session.commit()
         db.session.delete(project)
         db.session.commit()
+    def get_className_by_projectId(self, project_id):
+        project = Projects.query.filter(Projects.Id == project_id).first()
+        class_obj = Classes.query.filter(Classes.Id ==project.ClassId).first()
+        return class_obj.Name
+        
 
 
 

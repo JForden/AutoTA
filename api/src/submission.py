@@ -26,6 +26,7 @@ submission_api = Blueprint('submission_api', __name__)
 
 
 def convert_tap_to_json(file_path, role, current_level, hasLVLSYSEnabled):
+    print("THIS IS filepath LEVEL: ", file_path, flush=True)
     parser = Parser()
     test=[]
     final={}
@@ -33,13 +34,14 @@ def convert_tap_to_json(file_path, role, current_level, hasLVLSYSEnabled):
     for line in parser.parse_file(file_path):
         if line.category == "test":
             if role == ADMIN_ROLE or not hasLVLSYSEnabled:
-                new_yaml = line.yaml_block.copy()
-                new_yaml["hidden"] = "False"
-                test.append({
-                    'skipped': line.skip,
-                    'passed': line.ok,
-                    'test': new_yaml
-                })
+                if line.yaml_block is not None:
+                    new_yaml = line.yaml_block.copy()
+                    new_yaml["hidden"] = "False"
+                    test.append({
+                        'skipped': line.skip,
+                        'passed': line.ok,
+                        'test': new_yaml
+                    })
                 continue
             elif line.yaml_block["hidden"] == "True" and role != ADMIN_ROLE:
                 continue
@@ -65,21 +67,14 @@ def convert_tap_to_json(file_path, role, current_level, hasLVLSYSEnabled):
 @submission_api.route('/testcaseerrors', methods=['GET'])
 @jwt_required()
 @inject
-def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Container.submission_repo], config_repo: ConfigRepository = Provide[Container.config_repo]):
-    submission_id = int(request.args.get("id"))
+def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Container.submission_repo], config_repo: ConfigRepository = Provide[Container.config_repo],project_repo:  ProjectRepository = Provide[Container.project_repo]):
     class_id = int(request.args.get("class_id"))
-    output_path = ""
-
-    if submission_id != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submission_id)):
-        output_path = submission_repo.get_json_path_by_submission_id(submission_id)
-    else:
-        output_path = submission_repo.get_json_path_by_user_id(current_user.Id)
-        submission_id = submission_repo.get_submission_by_user_id(current_user.Id).Id
-
-    project_id = submission_repo.get_project_by_submission_id(submission_id)
-    current_level=submission_repo.get_current_level(project_id,current_user.Id)
+    projectid = project_repo.get_current_project_by_class(class_id).Id
+    submission = submission_repo.get_submission_by_user_and_projectid(current_user.Id,projectid)
+    current_level=submission_repo.get_current_level(submission.Id,current_user.Id)
     
-    output = convert_tap_to_json(output_path,current_user.Role,current_level, False)
+    print("Submission ID: ", submission.Id, "outfile", submission.OutputFilepath, "cur levl", current_level, flush=True)
+    output = convert_tap_to_json(submission.OutputFilepath,current_user.Role,current_level, False)
 
     return make_response(output, HTTPStatus.OK)
 
@@ -87,13 +82,15 @@ def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Containe
 @submission_api.route('/pylintoutput', methods=['GET'])
 @jwt_required()
 @inject
-def pylintoutput(submission_repo: SubmissionRepository = Provide[Container.submission_repo], link_service: LinkService = Provide[Container.link_service]):
+def pylintoutput(submission_repo: SubmissionRepository = Provide[Container.submission_repo], link_service: LinkService = Provide[Container.link_service],project_repo:  ProjectRepository = Provide[Container.project_repo]):
     submissionid = int(request.args.get("id"))
+    class_id = int(request.args.get("class_id"))
     pylint_output = ""
     if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submissionid)):
         pylint_output = submission_repo.get_pylint_path_by_submission_id(submissionid)
     else:
-        pylint_output = submission_repo.get_pylint_path_by_user_id(current_user.Id)
+        projectid = project_repo.get_current_project_by_class(class_id).Id
+        pylint_output = submission_repo.get_pylint_path_by_user_and_project_id(current_user.Id,projectid)
     with open(pylint_output, 'r') as file:
         output=""
         output = file.read()
@@ -116,13 +113,15 @@ def pylintoutput(submission_repo: SubmissionRepository = Provide[Container.submi
 @submission_api.route('/codefinder', methods=['GET'])
 @jwt_required()
 @inject
-def codefinder(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+def codefinder(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
     submissionid = int(request.args.get("id"))
+    class_id = int(request.args.get("class_id"))
     code_output = ""
     if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submissionid)):
         code_output = submission_repo.get_code_path_by_submission_id(submissionid)
     else:
-        code_output = submission_repo.get_code_path_by_user_id(current_user.Id)
+        projectid = project_repo.get_current_project_by_class(class_id).Id
+        code_output = submission_repo.get_submission_by_user_and_projectid(current_user.Id,projectid).CodeFilepath
     if not os.path.isdir(code_output):
         with open(code_output, 'r') as file:
             output = file.read()

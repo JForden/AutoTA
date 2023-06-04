@@ -1,5 +1,4 @@
 import openai
-from src.repositories.project_repository import ProjectRepository
 from src.repositories.database import db
 from .models import StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
 from sqlalchemy import desc, and_
@@ -10,6 +9,10 @@ from datetime import datetime
 class SubmissionRepository():
     def get_submission_by_user_id(self, user_id: int) -> Submissions:
         submission = Submissions.query.filter(Submissions.User == user_id).order_by(desc("Time")).first()
+        return submission
+    def get_submission_by_user_and_projectid(self, user_id:int, project_id: int)-> Submissions:
+        #get project id for class
+        submission = Submissions.query.filter(and_(Submissions.Project == project_id, Submissions.User == user_id)).order_by(desc("Time")).first()
         return submission
 
     def get_submission_by_submission_id(self, submission_id: int) -> Submissions:
@@ -31,6 +34,10 @@ class SubmissionRepository():
     def get_pylint_path_by_user_id(self, user_id: int) -> str:
         submission = self.get_submission_by_user_id(user_id)
         return submission.PylintFilepath
+    def get_pylint_path_by_user_and_project_id(self,user_id:int, project_id:int):
+        submission = self.get_submission_by_user_and_projectid(user_id,project_id)
+        return submission.PylintFilepath
+        
 
     def get_json_path_by_user_id(self, user_id: int) -> str:
         submission = self.get_submission_by_user_id(user_id)
