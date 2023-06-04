@@ -61,7 +61,7 @@ const CodeHelpPage = () => {
  
         
     }, []);
-    axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/codefinder?id=${submissionId}`, {
+    axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/codefinder?id=${submissionId}&class_id=${cid}`, {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
         }
@@ -78,7 +78,7 @@ const CodeHelpPage = () => {
             <Helmet>
                 <title>Submission | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={true}></MenuComponent>
+            <MenuComponent showUpload={true} showAdminUpload={false} showHelp={false} showCreate={false} showLast={false} showReviewButton={true}></MenuComponent>
             <Split sizes={[80, 20]} className="split2" direction="vertical">
                     <CodeHelpComponent codedata={code}></CodeHelpComponent>
             </Split>

@@ -88,7 +88,7 @@ const CodePage = () => {
             console.log(err);
         });
 
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/pylintoutput?id=${submissionId}`, {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/pylintoutput?id=${submissionId}&class_id=${cid}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
@@ -106,7 +106,7 @@ const CodePage = () => {
             console.log(err);
         });
 
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/codefinder?id=${submissionId}`, {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/codefinder?id=${submissionId}&class_id=${cid}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
@@ -137,7 +137,7 @@ const CodePage = () => {
             <Helmet>
                 <title>Submission | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={false} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={true}></MenuComponent>
+            <MenuComponent showUpload={false} showAdminUpload={false} showHelp={false} showCreate={false} showLast={false} showReviewButton={true}></MenuComponent>
             <Split sizes={[80, 20]} className="split2" direction="vertical">
                     <CodeComponent pylintData={pylint} codedata={code}></CodeComponent>
                     <TestResultsComponent testcase={json} showScore={hasScoreEnabled} score={score} researchGroup={ResearchGroup}></TestResultsComponent>

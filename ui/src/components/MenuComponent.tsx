@@ -56,7 +56,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 return (<></>);
                             } else {
                                 return (
-                                    <Menu.Item><a href="/class/1/upload">Upload</a></Menu.Item>
+                                    <Menu.Item><a href="/class/classes">Upload</a></Menu.Item>
                                 );
                             }
                         })()}               
@@ -77,8 +77,13 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                             if(!this.props.showLast) {
                                 return (<></>);
                             } else {
+                                const args = window.location.href;
+                                const regex = /\/class\/(\d+)\/upload/;
+                                const match = args.match(regex);
+                                const extractedValue = match ? match[1] : null;
+                                const path = "/class/" + extractedValue +"/code";
                                 return (
-                                    <Menu.Item><a href="/class/1/code">Most Recent Submission</a></Menu.Item>
+                                    <Menu.Item><a href={path}>Most Recent Submission</a></Menu.Item>
                                 );
                             }
                         })()}               

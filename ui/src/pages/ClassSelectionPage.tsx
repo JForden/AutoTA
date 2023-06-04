@@ -12,7 +12,7 @@ class ClassSelectionPage extends Component {
                 <Helmet>
                     <title>Select A Class | TA-Bot</title>
                 </Helmet>
-                <MenuComponent showUpload={true} showAdminUpload={false} showHelp={true} showCreate={false} showLast={false} showReviewButton={false}></MenuComponent>
+                <MenuComponent showUpload={true} showAdminUpload={false} showHelp={false} showCreate={false} showLast={false} showReviewButton={false}></MenuComponent>
                 <ClassSelectionPageComponent></ClassSelectionPageComponent>
             </div>
         );
