@@ -49,6 +49,7 @@ DROP TABLE IF EXISTS `Classes`;
 CREATE TABLE `Classes` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `Name` varchar(45) NOT NULL,
+  'Tid' int DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Name_UNIQUE` (`Name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
