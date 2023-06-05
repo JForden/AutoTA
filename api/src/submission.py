@@ -69,9 +69,17 @@ def convert_tap_to_json(file_path, role, current_level, hasLVLSYSEnabled):
 @inject
 def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Container.submission_repo], config_repo: ConfigRepository = Provide[Container.config_repo],project_repo:  ProjectRepository = Provide[Container.project_repo]):
     class_id = int(request.args.get("class_id"))
-    projectid = project_repo.get_current_project_by_class(class_id).Id
-    submission = submission_repo.get_submission_by_user_and_projectid(current_user.Id,projectid)
-    current_level=submission_repo.get_current_level(submission.Id,current_user.Id)
+    submission_id = int(request.args.get("id"))
+    print("THIS IS SUBMISSION ID IN TESTFACSE ERRORS:  ", submission_id, flush=True)
+    print("THIS IS CLASSID IN TESTCASE ERRORS:   ", class_id, flush=True)
+    if submission_id != -1:
+        projectid = submission_repo.get_project_by_submission_id(submission_id)
+        submission = submission_repo.get_submission_by_submission_id(submission_id)
+        current_level = submission_repo.get_current_level(submission_id, submission.User)
+    else:
+        projectid = project_repo.get_current_project_by_class(class_id).Id
+        submission = submission_repo.get_submission_by_user_and_projectid(current_user.Id,projectid)
+        current_level=submission_repo.get_current_level(submission.Id,current_user.Id)
     
     print("Submission ID: ", submission.Id, "outfile", submission.OutputFilepath, "cur levl", current_level, flush=True)
     output = convert_tap_to_json(submission.OutputFilepath,current_user.Role,current_level, False)
@@ -184,7 +192,7 @@ def get_submission_information(submission_repo: SubmissionRepository = Provide[C
 @submission_api.route('/recentsubproject', methods=['POST'])
 @jwt_required()
 @inject
-def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.submission_repo], user_repo: UserRepository = Provide[Container.user_repo]):
+def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.submission_repo], user_repo: UserRepository = Provide[Container.user_repo],project_repo: ProjectRepository = Provide[Container.project_repo] ):
     input_json = request.get_json()
     projectid = input_json['project_id']
     users = user_repo.get_all_users()
@@ -194,10 +202,12 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
         userids.append(user.Id)
     bucket = submission_repo.get_most_recent_submission_by_project(projectid, userids)    
     submission_counter_dict = submission_repo.submission_counter(projectid, userids)
-    user_lectures_dict =user_repo.get_user_lectures(userids)  
+    user_lectures_dict =user_repo.get_user_lectures(userids)
+    class_name = project_repo.get_className_by_projectId(projectid)
+    class_id = project_repo.get_class_id_by_name(class_name)
     for user in users:
         if user.Id in bucket:
-            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
+            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id, str(class_id)]    
         else:
             studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)

@@ -36,6 +36,8 @@ from src.constants import ADMIN_ROLE
 upload_api = Blueprint('upload_api', __name__)
 
 ext={"python": [".py","py"],"java": [".java","java"],"zip":[".zip","zip"]}
+#ext={"python": [".py","py"],"java": [".java","java"],"c": [".c", "c"],"zip":[".zip","zip"]}
+
 
 def allowed_file(filename):
     """[function for checking to see if the file is an allowed file type]
@@ -226,6 +228,16 @@ def CL_file_upload(user_repository: UserRepository =Provide[Container.user_repo]
         config_file = "../ta-bot/google_checks.xml"
         lint_file = open(outputpath+"/"+student_username+".out.lint", "w")
         data = subprocess.run(["java", "-jar", checkstyle_jar, "-c", config_file, path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # added 6/04/23
+    if project.Language == "c":
+        lint_file = open(outputpath + "/" + student_username + ".out.lint", "w")
+        # clang-format -style=file -output-replacements-xml <input_file> | clang-format-diff.py -p1 -i -output-replacements-xml > <output_file>
+
+        data = subprocess.run(["clang-format", "-style=llvm", ])
+        
+        # -exportlocalreport generates a local report (outputs to standard output stream) instead of creating a report file
+        #data = subprocess.run(["splint", "-json", "-exportlocalreport", "-file", path if '.c' in path else path + '.c'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
     output = data.stdout.decode("utf-8")
     lint_file.write(output)
     lint_file.close()

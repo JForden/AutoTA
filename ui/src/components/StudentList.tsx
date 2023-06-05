@@ -22,6 +22,7 @@ class Row {
         this.subid=0;
         this.lecture_number=0;
         this.hidden = false;
+        this.classId= "";
     }
     
     id: number;
@@ -34,6 +35,7 @@ class Row {
     subid:number;
     lecture_number:number;
     hidden: boolean;
+    classId: string;
 }
 
 interface StudentListState {
@@ -83,6 +85,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                 row.numberOfPylintErrors = parseInt(student_output_data[6]);
                 row.subid=parseInt(student_output_data[7]);
                 row.hidden = false;
+                row.classId = student_output_data[8];
                 rows.push(row);    
                 
                 return row;
@@ -175,7 +178,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                     <Table.Cell>{row.date}</Table.Cell>
                                     <Table.Cell>{row.numberOfPylintErrors}</Table.Cell>
                                     <Table.Cell>{row.isPassing ? "PASSED" : "FAILED"}</Table.Cell>
-                                    <Table.Cell button><Link target="_blank" to={ "/class/1/code/" + row.subid }><Label button >View</Label></Link></Table.Cell>
+                                    <Table.Cell button><Link target="_blank" to={ "/class/"+ row.classId +"/code/" + row.subid }><Label button >View</Label></Link></Table.Cell>
                                 </Table.Row>
                             )
                         })}

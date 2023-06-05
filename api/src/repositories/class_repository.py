@@ -78,9 +78,11 @@ class ClassRepository():
 
     def add_class_assignment(self, class_id: int, lab_id:int, lecture_id: int, user_id: int):
         """[Creates a new entry in the ClassAssignments table]"""
+        #TODO: check if this works?
         print("in repo", flush=True)
         class_assignment = ClassAssignments(ClassId=class_id,LabId=lab_id,LectureId=lecture_id,UserId=user_id,)
         db.session.add(class_assignment)
         db.session.commit()
         return "ok"
+
 
