@@ -18,10 +18,13 @@ class ClassRepository():
         return class_id
     def get_lecture_id_withName(self,lectureName):
         print("THIS IS LECTURE NAME: ", lectureName, flush=True)
-        lecture_id = LectureSections.query.filter(LectureSections.Name==lectureName).first().Id
+        # changed LectureSections.Name to Id
+        lecture_id = LectureSections.query.filter(LectureSections.Id==lectureName).first().Id
         return lecture_id
     def get_lab_id_withName(self,labName):
-        lab_id = Labs.query.filter(Labs.Name==labName).first().Id
+        print("Labname: ", labName, flush=True)
+        # changed Labs.Name to Labs.Id
+        lab_id = Labs.query.filter(Labs.Id==labName).first().Id
         return lab_id
     def get_classes(self) -> List[Classes]:
         """[Get all the current classes]"""

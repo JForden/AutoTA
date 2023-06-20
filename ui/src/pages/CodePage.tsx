@@ -88,15 +88,22 @@ const CodePage = () => {
             console.log(err);
         });
 
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/pylintoutput?id=${submissionId}&class_id=${cid}`, {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/lint_output?id=${submissionId}&class_id=${cid}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
         })
         .then(res => {    
             var x = res.data as Array<PylintObject>;
-            console.log(x);
-            x = x.sort((a, b) => (a.line < b.line ? -1 : 1));
+            console.log("THIS IS X");
+            console.log("X:",x);
+            if (Array.isArray(x)) {
+                x = x.sort((a, b) => (a.line < b.line ? -1 : 1));
+                console.log("X WAS ABLE TO CAST TO PYLINTOBJEC");
+              } else {
+                console.error("x is not an array. Skipping the sorting step.");
+              }
+            //x = x.sort((a, b) => (a.line < b.line ? -1 : 1));
             setPylint(x);    
             console.log(pylint);
             console.log("wack");

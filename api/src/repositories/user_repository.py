@@ -12,9 +12,15 @@ class UserRepository():
     def getUserByName(self, username: str) -> Users:
         user = Users.query.filter(Users.Username==username).one_or_none()
         return user
-    def get_user_by_id(self,user_id: int) -> int:
+    
+    def get_user(self, user_id: int) -> Users:
+        user = Users.query.filter(Users.Id == user_id).one_or_none()
+        return user
+
+    def get_user_by_id(self,user_id: int) -> str:
         user = Users.query.filter(Users.Id==user_id).one_or_none()
         return user.Username
+    
     def get_user_by_studentid(self, student_id: int):
         user = Users.query.filter(Users.StudentNumber==student_id).one_or_none()
         return user.Username
@@ -74,8 +80,9 @@ class UserRepository():
         research_group = query.ResearchGroup
         return str(research_group)
     def get_user_chatSubTime(self,userId) -> int:
-        query = query = Users.query.filter(Users.Id==userId).one()
+        query = Users.query.filter(Users.Id==userId).one()
         user_time = query.ChatSubTime
+        print("User time ", user_time, flush=True)
         return str(user_time)
     def set_user_chatSubTime(self,userId):
         query = Users.query.filter(Users.Id==userId).one()

@@ -41,14 +41,17 @@ class AdminComponent extends Component<{}, ClassState> {
 
     render() {
         return (
-            <div style={{ textAlign: "center" }}>
-              {this.state.classes.map((classObj: ClassObject) => (
-                <Label key={classObj.Id} as='div' color='blue' empty style={{ width: "100px", height: "100px", display: "inline-block" }}>
-                  <Link to={`/admin/projects/${classObj.Id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                   <h3>{classObj.Name}</h3>
-                 </Link>
-                </Label>
-              ))}
+            <div>
+                <h1>Your Classes</h1>
+                <div style={{ textAlign: "center" }}>
+                  {this.state.classes.map((classObj: ClassObject) => (
+                    <Label key={classObj.Id} as='div' color='blue' empty style={{ margin: "3px", width: "100px", height: "100px", display: "inline-block" }}>
+                      <Link to={`/admin/projects/${classObj.Id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                       <h3>{classObj.Name}</h3>
+                     </Link>
+                    </Label>
+                  ))}
+                </div>
             </div>
         );
     }

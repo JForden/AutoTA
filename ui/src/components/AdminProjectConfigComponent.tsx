@@ -447,6 +447,8 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                         menuItem: { key: 'psettings', icon: 'pencil alternate', content: 'Project Settings', }, render: () =>
                             <Tab.Pane>
                                 <Form>
+                                <Segment stacked>
+                                    <h1>Create Assignment</h1>
                                 <Form.Field
                                 control={Input}
                                 label='Project Name'
@@ -495,17 +497,25 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                     onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
                                 />
                                 <Form.Field
+                                    label='Racket'
+                                    control='input'
+                                    type='radio'
+                                    name='htmlRadios'
+                                    value='racket'
+                                    checked={ProjectLanguage === 'racket'}
+                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
+                                />
+                                <Form.Field
                                     label='C'
                                     control='input'
                                     type='radio'
                                     name='htmlRadios'
-                                    value='C'
-                                    checked={ProjectLanguage === 'C'}
+                                    value='c'
+                                    checked={ProjectLanguage === 'c'}
                                     onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
                                 />
                                 </Form.Group>
-                                <Segment stacked>
-                                    <h1>upload solution code</h1>
+                                    <h1>Upload Solution Code</h1>
                                     <Form.Input type="file" fluid onChange={handleFileChange} />
                                     <br></br>
                                 </Segment>
@@ -528,9 +538,10 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                             onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleNameChange(testcase.id, ev.target.value)}
                                         >
                                         </Form.Field>
-                                        <h5 style={{ height: '3.5vh' }}>Input:  </h5>
+                                        {/*<h5 style={{ height: '3.5vh' }}>Input:  </h5>*/}
                                         <Form.Field
                                             control={TextArea}
+                                            label='Input'
                                             rows={1}
                                             placeholder="Please Enter Input"
                                             value={testcase.input}
@@ -539,6 +550,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                         </Form.Field>
                                         <Form.Field
                                             control={TextArea}
+                                            label='Output'
                                             rows={1}
                                             placeholder="Add test case to see output"
                                             value={testcase.output}
@@ -549,7 +561,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                         </Form.Field>
                                         <Form.Field
                                             control={Input}
-                                            label='Description:'
+                                            label='Description'
                                             placeholder="Please Enter Description"
                                             value={testcase.description}
                                             onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleDescriptionChange(testcase.id, ev.target.value)}

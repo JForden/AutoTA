@@ -37,6 +37,10 @@ class SubmissionRepository():
     def get_pylint_path_by_user_and_project_id(self,user_id:int, project_id:int):
         submission = self.get_submission_by_user_and_projectid(user_id,project_id)
         return submission.PylintFilepath
+    
+    def get_clangtidy_path_by_user_id(self, user_id:int) -> str:
+        submission = self.get_submission_by_user_id(user_id)
+        return submission.PylintFilepath
         
 
     def get_json_path_by_user_id(self, user_id: int) -> str:
@@ -155,6 +159,7 @@ class SubmissionRepository():
         model_engine = "text-davinci-003" #newest model
 
         # Set the prompt
+        # Provide line numbers?
         assignment_prompt = "Please provide suggestions for the following code snippet, without providing code: \n\n```python\n"+student_code+"\n```\n\nAnd answer the following question in a way that would be helpful for a novice programmer without providing code, however if the question does not relate to the code reply with [does not relate]:\n\n"+student_question
 
         #print(assignment_prompt)

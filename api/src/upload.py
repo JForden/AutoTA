@@ -35,8 +35,8 @@ from src.constants import ADMIN_ROLE
 
 upload_api = Blueprint('upload_api', __name__)
 
-ext={"python": [".py","py"],"java": [".java","java"],"zip":[".zip","zip"]}
-#ext={"python": [".py","py"],"java": [".java","java"],"c": [".c", "c"],"zip":[".zip","zip"]}
+#ext={"python": [".py","py"],"java": [".java","java"],"zip":[".zip","zip"]}
+ext={"python": [".py","py"],"java": [".java","java"],"c": [".c", "c"],"zip":[".zip","zip"]}
 
 
 def allowed_file(filename):
@@ -180,6 +180,51 @@ def total_students(user_repo: UserRepository = Provide[Container.user_repo]):
             list_of_user_info.append({"name":user.Firstname +" "+ user.Lastname,"mscsnet":user.Username,"id":user.Id})
     return jsonify(list_of_user_info)
 
+# figure out a way to access this from tabot.py - it doesn't like it because of this error
+# ImportError: cannot import name 'StaticDiffTest' from 'tests' (/app/tests/__init__.py)
+
+def find_line_by_char(c_file: str, target_char_count: int) -> int:
+    line_count = 1
+    char_count = 0
+    with open(c_file, "r") as file:
+        lines = file.read()
+    # 0 based fileoffset indexing in .yaml file
+    for c in lines:
+        if c == '\n':
+            line_count += 1
+        if c == lines[target_char_count] and char_count == target_char_count:
+            return line_count
+        char_count += 1
+    return -1
+
+
+def parse_clang_tidy_output(yaml_file: str, c_file: str):
+    warnings = []
+    with open(yaml_file, "r") as file:
+        lines = file.readlines()
+
+    print("YAML FILE: ", lines, flush=True)
+
+    data = {' '.join(line.replace("'", '').split()[1:]): [find_line_by_char(c_file, int(''.join(lines[idx + 2].split()[1]))), int(''.join(lines[idx + 2].split()[1])), lines[1].split()[1].replace("'", ''), lines[idx - 2].split()[-1]] for idx, line in enumerate(lines) if line.split()[0] == "Message:"}
+    for msg, line_num in data.items():
+        warning = {
+            'column': line_num[1],
+            'endColumn': None,
+            'endLine': None,
+            'line': line_num[0],
+            'message': msg,
+            'message-id': line_num[3],
+            'module': None,
+            'obj': "",
+            'path': line_num[2],
+            'reflink': None,
+            'symbol': None,
+            'type': 'convention' # assuming all warnings are of type convention
+        }
+        warnings.append(warning)
+    return json.dumps(warnings, ensure_ascii=False, default=str)
+
+
 @upload_api.route('/CLUpload', methods=['POST'])
 @inject
 def CL_file_upload(user_repository: UserRepository =Provide[Container.user_repo],submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], config_repo: ConfigRepository = Provide[Container.config_repo],config_repos: ConfigRepository = Provide[Container.config_repo],class_repo: ClassRepository = Provide[Container.class_repo]):
@@ -187,9 +232,6 @@ def CL_file_upload(user_repository: UserRepository =Provide[Container.user_repo]
     
     #submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=score)
     #submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
-    
-
-    
     
     tap_file = request.files['Output_file']                   # tap_path
     student_file = request.files['Student_file']                 # path
@@ -207,7 +249,8 @@ def CL_file_upload(user_repository: UserRepository =Provide[Container.user_repo]
         path = os.path.join("/ta-bot",project.Name+"-out")
         print("Path: ", path, flush=True)
         outputpath = path
-        path = os.path.join(path, f"{student_username}{ext[project.Language][0]}")
+        language = project.Language.lower()
+        path = os.path.join(path, f"{student_username}{ext[language][0]}")
         student_file.save(path)
         print("Saved file at :", path)
     
@@ -228,17 +271,27 @@ def CL_file_upload(user_repository: UserRepository =Provide[Container.user_repo]
         config_file = "../ta-bot/google_checks.xml"
         lint_file = open(outputpath+"/"+student_username+".out.lint", "w")
         data = subprocess.run(["java", "-jar", checkstyle_jar, "-c", config_file, path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    # added 6/04/23
     if project.Language == "c":
         lint_file = open(outputpath + "/" + student_username + ".out.lint", "w")
-        # clang-format -style=file -output-replacements-xml <input_file> | clang-format-diff.py -p1 -i -output-replacements-xml > <output_file>
+        data = subprocess.run(["clang-tidy", "--checks=llvm-*", f"--export-fixes={outputpath + '/' + student_username}.yaml", path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    '''
+    SOME USEFUL CHECKS FOR --checks= 
+    
+    modernize-*: Modernize code to use modern C++ features and idioms.
+    bugprone-*: Detect potential bugs or dangerous coding patterns.
+    performance-*: Identify performance-related issues and suggest improvements.
+    readability-*: Improve code readability and clarity.
+    cppcoreguidelines-*: Enforce guidelines from the C++ Core Guidelines.
+    clang-analyzer-*: Enable static analysis checks provided by Clang.
+    google-*: Enforce coding style guidelines from Google.
+    misc-*: Miscellaneous checks for various aspects of code improvement.
+    cert-*: Detect security vulnerabilities based on CERT coding standards.
+    hicpp-*: Checks based on the High Integrity C++ Coding Standard.
+    llvm-*: Checks based on LLVM's coding style and conventions.
+    '''
 
-        data = subprocess.run(["clang-format", "-style=llvm", ])
-        
-        # -exportlocalreport generates a local report (outputs to standard output stream) instead of creating a report file
-        #data = subprocess.run(["splint", "-json", "-exportlocalreport", "-file", path if '.c' in path else path + '.c'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    output = data.stdout.decode("utf-8")
+    #output = data.stdout.decode("utf-8")
+    output = parse_clang_tidy_output(outputpath + '/' + student_username + '.yaml', path)
     lint_file.write(output)
     lint_file.close()
 
@@ -249,6 +302,9 @@ def CL_file_upload(user_repository: UserRepository =Provide[Container.user_repo]
     error_count = 0
     total_submission_score = 100
 
+    # THIS IS WHAT CREATES THE STUDENT_NAME.OUT.LINT FILE LOCATION AS SEEN IN SQL 
+    # we can change it to just the directory, and filter out all the .out.lint files in submission.py /lint_output
+    
     submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+student_username+".out.lint", dt_string, project.Id, status, error_count, submission_level,total_submission_score)
 
     # fake pylint (sql) path -- output path       
@@ -327,12 +383,19 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         #check to see if file is a zip file, if so extract the files
         if file.filename.endswith(".zip"):
             with zipfile.ZipFile(file, 'r') as zip_ref:
+                print("PROJECT NAME ", project.Name, flush=True)
                 path = os.path.join("/ta-bot", project.Name + "-out")
-                extract_dir = os.path.join(path, f"{username}")
+                #extract_dir = os.path.join(path, f"{username}")
+                extract_dir = os.path.join(path) # creates one directory with multiple .c files 
+                print("EXTRACT DIR ", extract_dir, flush=True)
                 if os.path.isdir(extract_dir):
                     shutil.rmtree(extract_dir)
                 os.mkdir(extract_dir)
                 zip_ref.extractall(extract_dir)
+                print("FILE NAME ", file.filename, flush=True)
+                # move files out of extract folder
+                print("USERNAME ", username, flush=True)
+                #os.rename(os.path.join(extract_dir, file.filename.replace('.zip', '')), os.path.join(extract_dir, username))
                 outputpath=path
                 path=extract_dir                
         else:
@@ -340,7 +403,8 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
             path = os.path.join("/ta-bot",project.Name+"-out")
             print("Path: ", path, flush=True)
             outputpath = path
-            path = os.path.join(path, f"{username}{ext[project.Language][0]}")
+            language = project.Language.lower()
+            path = os.path.join(path, f"{username}{ext[language][0]}") # for some reason c is lowercase in ext but shows uppercase here
             file.save(path)
             print("Saved file at :", path)
 

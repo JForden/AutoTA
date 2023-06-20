@@ -86,36 +86,47 @@ def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Containe
 
     return make_response(output, HTTPStatus.OK)
 
-# TODO: Create new function to handle Java
-@submission_api.route('/pylintoutput', methods=['GET'])
+# TODO: Create new function to handle Java and C
+@submission_api.route('/lint_output', methods=['GET'])
 @jwt_required()
 @inject
-def pylintoutput(submission_repo: SubmissionRepository = Provide[Container.submission_repo], link_service: LinkService = Provide[Container.link_service],project_repo:  ProjectRepository = Provide[Container.project_repo]):
+def lint_output(submission_repo: SubmissionRepository = Provide[Container.submission_repo], link_service: LinkService = Provide[Container.link_service],project_repo:  ProjectRepository = Provide[Container.project_repo]):
     submissionid = int(request.args.get("id"))
     class_id = int(request.args.get("class_id"))
-    pylint_output = ""
+    #TODO: Review if this {if statement} logic makes sense
+    project = project_repo.get_current_project_by_class(class_id)
     if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submissionid)):
-        pylint_output = submission_repo.get_pylint_path_by_submission_id(submissionid)
+        lint_file = submission_repo.get_pylint_path_by_submission_id(submissionid)
     else:
-        projectid = project_repo.get_current_project_by_class(class_id).Id
-        pylint_output = submission_repo.get_pylint_path_by_user_and_project_id(current_user.Id,projectid)
-    with open(pylint_output, 'r') as file:
-        output=""
-        output = file.read()
-        #TODO: Move this link service elsewhere
-        if output != "":
-            try:
-                # Check if output is in JSON format
-                json.loads(output)
-            except json.JSONDecodeError:
-                # If output is not in JSON format, skip running link_service
-                #json.loads(output)
-                print("Output is not in JSON format, skipping link_service.")
-            else:
-                # If output is in JSON format, run link_service
-                output = link_service.add_link_info_links(output)
+        lint_file = submission_repo.get_pylint_path_by_user_and_project_id(current_user.Id,project.Id)
+
+    lint_dir = lint_file.replace(f"{current_user.Username}.out.lint", '')
+    lint_files = [lint_dir+filename for filename in os.listdir(lint_dir) if filename.endswith(".out.lint")]
+    print("Lint dir ", lint_dir, flush=True)
+    print("Lint dir list ", lint_files, flush=True)
+
+    outputs = []    
+    for lf in lint_files:
+        with open(lf, 'r') as file: # lint_file
+            output=""
+            output = file.read()
+            #TODO: Move this link service elsewhere
+            if output != "":
+                try:
+                    # Check if output is in JSON format
+                    json.loads(output)
+                except json.JSONDecodeError:
+                    # If output is not in JSON format, skip running link_service
+                    #json.loads(output)
+                    print("Output is not in JSON format, skipping link_service.")
+                else:
+                    # If output is in JSON format, run link_service
+                    if project.Language == "python":
+                        output = link_service.add_link_info_links(output)
+                outputs.append(output)
     #print(output, "OUT", flush=True)
-    return make_response(output, HTTPStatus.OK)
+    #return make_response(outputs, HTTPStatus.OK)
+    return make_response(outputs[0], HTTPStatus.OK)
 
 
 @submission_api.route('/codefinder', methods=['GET'])
@@ -130,19 +141,28 @@ def codefinder(submission_repo: SubmissionRepository = Provide[Container.submiss
     else:
         projectid = project_repo.get_current_project_by_class(class_id).Id
         code_output = submission_repo.get_submission_by_user_and_projectid(current_user.Id,projectid).CodeFilepath
+    output = ""
+    outputs = []
     if not os.path.isdir(code_output):
+        print("I AM IN IF NOT STATEMENT ", code_output, flush=True)
         with open(code_output, 'r') as file:
             output = file.read()
+            outputs.append(output)
     else:
-        files = [filename for filename in os.listdir(code_output) if filename.endswith('.java')]
-        if "Main.java" in files:
-            with open(code_output + "/" + "Main.java") as file:
-                output = file.read()
-        else:
-            with open(code_output + "/" + files[0]) as file:
-                output = file.read()
-        
-    return make_response(output, HTTPStatus.OK)
+        # these files are all files in submission directory
+        #files = [filename for filename in os.listdir(code_output)] #  if filename.endswith('.java') <-- why java?
+        files = [filename for filename in os.listdir(code_output) if filename.endswith(".java") or filename.endswith(".c")]
+        print("FILES SUB.PY ", files, flush=True)
+        for f in files:
+            if "Main.java" in files:
+                with open(code_output + "/" + "Main.java") as file:
+                    output = file.read()
+            else:
+                with open(code_output + "/" + f) as file: # files[0]
+                    output = file.read()
+            outputs.append(output)
+
+    return make_response(outputs[0], HTTPStatus.OK)
 
 @submission_api.route('/submissioncounter', methods=['GET'])
 @jwt_required()
@@ -267,7 +287,9 @@ def chatupload(submission_repo: SubmissionRepository = Provide[Container.submiss
     passFlag= 0
     student_code = (request.args.get("code"))
     student_question = (request.args.get("question"))
+    user_repo.set_user_chatSubTime(current_user.Id)
     mostRecentQTime=user_repo.get_user_chatSubTime(current_user.Id)
+    print("TIME ", mostRecentQTime,flush=True)
     datetime_object = datetime.strptime(mostRecentQTime, '%Y-%m-%d %H:%M:%S')
 
     api_key = user_repo.chatGPT_key()
@@ -277,6 +299,7 @@ def chatupload(submission_repo: SubmissionRepository = Provide[Container.submiss
     else:
         message=submission_repo.chatGPT_caller(student_code,student_question,api_key)
         if "TA-BOT" not in message:
+            print("Time function has been called ", flush=True)
             user_repo.set_user_chatSubTime(current_user.Id)
             passFlag=1
     user_repo.chat_question_logger(current_user.Id ,student_question,message,passFlag)
@@ -314,4 +337,16 @@ def formcheck(user_repo: UserRepository = Provide[Container.user_repo]):
     return ([form_count,submit_count],HTTPStatus.OK)
 
 
+@submission_api.route('/gpt_suggestion', methods=['GET'])
+@jwt_required()
+@inject
+def gpt_suggestion(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    submissionid = int(request.args.get("id"))
+    class_id = int(request.args.get("class_id"))
+    code_output = ""
+    if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submissionid)):
+        code_output = submission_repo.get_code_path_by_submission_id(submissionid)
+    else:
+        projectid = project_repo.get_current_project_by_class(class_id).Id
+        code_output = submission_repo.get_submission_by_user_and_projectid(current_user.Id,projectid).CodeFilepath
 

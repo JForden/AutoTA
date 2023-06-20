@@ -96,7 +96,8 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
             'message': 'Access Denied'
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
-    
+
+
     if 'name' in request.form:
         name = request.form['name']
     if 'start_date' in request.form:
@@ -116,7 +117,8 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
     "c": "c",
     "javascript": "js",
     "ruby": "rb",
-    "php": "php"
+    "php": "php",
+    "racket": "rkt"
     }
 
     filename =file.filename
@@ -127,6 +129,7 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         os.mkdir(os.path.join("/ta-bot", f"{name}-out"))
         file.save(path)
     else:
+        print("In file save else", flush=True)
         path = os.path.join("/ta-bot/project-files", f"{name}")
         if os.path.isdir(path):
             shutil.rmtree(path)

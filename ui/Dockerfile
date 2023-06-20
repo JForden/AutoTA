@@ -10,7 +10,10 @@ WORKDIR /app
 COPY package.json .
 COPY yarn.lock .
 RUN yarn install 
-RUN yarn global add react-scripts --silent
+#RUN yarn global add react-scripts --silent
+
+# Update package lists
+
 
 # Add app
 COPY . .
