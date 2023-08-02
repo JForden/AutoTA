@@ -64,11 +64,7 @@ class CodeComponent extends Component<CodeComponentProps, {}> {
                                     <Icon color="black" name='pencil' />
                                     <strong>{error.line} : </strong>  
                                     {error.message}
-                                    {error.reflink 
-                                        ? <a href={error.reflink} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
-                                        : null 
-                                    }
-                                    
+                                    <a href={error.reflink} target="_blank" rel="noreferrer"><strong> (see more)</strong></a>
                                 </div>);
                         } else if(error.type === "refactor") {
                             holder[index] =( 

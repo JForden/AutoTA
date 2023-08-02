@@ -1,12 +1,15 @@
 import React, { Component, PureComponent } from 'react';
 import 'semantic-ui-css/semantic.min.css'
-import { Tab } from 'semantic-ui-react'
+import { Button, Dimmer, Header, Icon, Loader, Tab } from 'semantic-ui-react'
 import '../css/TestResultComponent.scss';
 import { StyledIcon } from '../styled-components/StyledIcon';
 import Split from 'react-split';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer';
+import axios from 'axios';
+import internal from 'stream';
 
 interface TestResultComponentProps {
+    codedata: string,
     testcase: JsonResponse,
     score:number,
     showScore:boolean,
@@ -22,6 +25,10 @@ interface TestState {
     description:string;
     output:string;
     hidden: string;
+    isLoading: boolean;
+    helpRequested: boolean;
+    helpResponse: string;
+    questionId: string;
 }
 
 interface JsonTestResponseBody {
@@ -54,8 +61,17 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             result: false,
             description: "",
             output: "",
+            isLoading: false,
+            helpRequested: false,
+            helpResponse: "",
+            questionId:"",
+
         };
         this.handleClick = this.handleClick.bind(this);
+        this.handlehelpbuttonclick = this.handlehelpbuttonclick.bind(this);
+        this.handleexplinationbuttonclick = this.handleexplinationbuttonclick.bind(this);
+        this.handleNegativeClick = this.handleNegativeClick.bind(this);
+        this.handlePositiveClick = this.handlePositiveClick.bind(this);
     }
 
     getResult(){
@@ -74,9 +90,95 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             description:description,
             output: output.join("\n"),
             showComponent: true,
+            helpRequested: false,
         });
     }
+    private handlehelpbuttonclick(){
+        this.setState({isLoading:true})
+        axios.get(`${process.env.REACT_APP_BASE_API_URL}/submissions/gptData`, {
+            params: {
+              code: this.props.codedata,
+              description: this.state.description,
+              output: this.state.output,
+            },
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+          })
+            .then((res) => {
+                console.log("Finished API request");
+                var response = res.data.toString();
+                console.log("This is response");
+                console.log(response)
+                this.setState({helpResponse: response});
+                this.setState({questionId:res.data[1].toString()});
+                this.setState({helpRequested: true});
+                this.setState({isLoading: false });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+      }
+      private handleexplinationbuttonclick(){
+        this.setState({isLoading:true})
+        axios.get(`${process.env.REACT_APP_BASE_API_URL}/submissions/gptexplainer`, {
+            params: {
+              description: this.state.description,
+              output: this.state.output,
+            },
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+          })
+            .then((res) => {
+                console.log("Finished API request");
+                var response = res.data[0].toString();
+                console.log("This is QID");
+                console.log(res.data[1].toString());
+                this.setState({helpResponse: response});
+                this.setState({questionId:res.data[1].toString()});
+                this.setState({helpRequested: true});
+                this.setState({isLoading: false });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+      }
+      private handleNegativeClick(){
+        axios.get(`${process.env.REACT_APP_BASE_API_URL}/submissions/updateGPTStudentFeedback`, {
+            params: {
+              questionId: this.state.questionId,
+              student_feedback: 0,
+            },
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+          })
+            .then((res) => {
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+      }
+      private handlePositiveClick(){
+        axios.get(`${process.env.REACT_APP_BASE_API_URL}/submissions/updateGPTStudentFeedback`, {
+            params: {
+              questionId: this.state.questionId,
+              student_feedback: 1,
+            },
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+          })
+            .then((res) => {
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+      }
+      
 
+    
     render() {
         var suites = [...new Set<string>(this.props.testcase.results.map(item => item.test.suite))];
         var numberOfEntries = suites.length;
@@ -135,18 +237,65 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                             } else {
                                 return (<div><h1 id="blank-testcase-message"> Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results </h1></div>)
                             }
-                        } else { 
-                            console.log(this.props.researchGroup);
-                            console.log(this.state.output.split("~~~diff~~~")[1]);
-                            if(this.props.researchGroup==0){ //Standard diff
+                        }
+                        if(this.state.helpRequested){
+                            return (
+                                <div>
+                                  <p>Please note that this is an experimental feature. If the output is helpful, your feedback will train the system.</p>
+                                  <pre style={{ backgroundColor: 'lightgrey' }}>{this.state.output}</pre>
+                                  <div className="help-response">
+                                    <Header as="h1" id="blank-testcase-message">
+                                      {this.state.helpResponse}
+                                    </Header>
+                                  </div>                      
+                                  <Button onClick={this.handlePositiveClick} color="green" className="feedback-button helpful-button">
+                                    <Icon name="check" />
+                                    Feedback was helpful
+                                  </Button>
+                        
+                                  
+                                  <Button onClick={this.handleNegativeClick} color="red" className="feedback-button unhelpful-button">
+                                    <Icon name="remove" />
+                                    Feedback was unhelpful
+                                  </Button>
+                                </div>
+                              );
+                        }
+                        else { 
+                            if (this.state.isLoading) {
+                                // Display the loading circle when isLoading is true
+                                return (
+                                  <div>
+                                    <Dimmer active>
+                                      <Loader content="Loading..." />
+                                    </Dimmer>
+                                  </div>
+                                );
+                            }
+                            else{
+                            if (this.props.researchGroup === 0) { // Standard diff
                                 return (
                                     <div>
-                                        <div><b>[{this.state.suite}] {this.state.test}</b></div>
-                                        <strong>Result: </strong> <span className={this.getResult()}>{this.getResult()}</span><br/>
-                                        <strong>Test Description: </strong>{this.state.description}<br/>
-                                        <pre style={{backgroundColor: 'lightgrey'}}>{this.state.output}</pre>
+                                      <div>
+                                        <b>[{this.state.suite}] {this.state.test}</b>
+                                      </div>
+                                      <strong>Result: </strong>
+                                      <span className={this.getResult()}>{this.getResult()}</span>
+                                      <strong>For additional help, please select a button: </strong>
+                              
+                                      {/* Conditional buttons */}
+                                      <Button.Group>
+                                        <Button onClick={this.handlehelpbuttonclick}>test case help</Button>
+                                        <Button.Or />
+                                        <Button onClick={this.handleexplinationbuttonclick}>Output explination</Button>
+                                      </Button.Group>
+                              
+                                      <br />
+                                      <strong>Test Description: </strong>{this.state.description}<br />
+                                      <pre style={{ backgroundColor: 'lightgrey' }}>{this.state.output}</pre>
                                     </div>
-                                );
+                                  );
+                              }
                             }
                             if(this.props.researchGroup == 1){ //Color DIff
                                 return (

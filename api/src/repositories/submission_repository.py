@@ -1,6 +1,6 @@
 import openai
 from src.repositories.database import db
-from .models import StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
+from .models import GPTLogs, StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
 from sqlalchemy import desc, and_
 from typing import Dict, List, Tuple
 from src.repositories.config_repository import ConfigRepository
@@ -55,6 +55,8 @@ class SubmissionRepository():
         submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=score)
         db.session.add(submission)
         db.session.commit()
+        created_id = submission.Id  # Assuming the auto-incremented ID field is named "ID"
+        return created_id
 
     def get_total_submission_for_all_projects(self) -> Dict[int, int]:
         thisdic={}
@@ -151,45 +153,95 @@ class SubmissionRepository():
                 submission_counter_dict[sub.User] = 1
         return submission_counter_dict
 
-    def chatGPT_caller(self, student_code, student_question, api_key) -> str:
 
-        openai.api_key = api_key
+    def chatGPT_caller(self, submission_id, question_description, student_output, student_code) -> str:
+        print("in subfunctino", flush=True)
+        openai.api_key = "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"
+        # https://beta.openai.com/docs/models
+        # to find average tokens OpenAI's tiktoken Python library.
+        model_engine = "gpt-3.5-turbo"  # fastest model
+        lines = student_code.strip().split('\n')
+        max_line_number_width = len(str(len(lines)))
+        lines_with_numbers = [f"{i:>{max_line_number_width}} {line}" for i, line in enumerate(lines, start=1)]
+        lined_code = '\n'.join(lines_with_numbers)
+        assignment_prompt = f"""
+        I failed a test case, give me a single bulletpoint on why this might have happened.
 
-        #https://beta.openai.com/docs/models
-        model_engine = "text-davinci-003" #newest model
+        The Linux diff is: {student_output}  
+        A description of the test case is: {question_description}  
 
-        # Set the prompt
-        # Provide line numbers?
-        assignment_prompt = "Please provide suggestions for the following code snippet, without providing code: \n\n```python\n"+student_code+"\n```\n\nAnd answer the following question in a way that would be helpful for a novice programmer without providing code, however if the question does not relate to the code reply with [does not relate]:\n\n"+student_question
-
-        #print(assignment_prompt)
-        # Use the completions endpoint to generate text
+        Here is my code
+        {lined_code}"""
         try:
-            completions = openai.Completion.create(
-                engine=model_engine,
-                prompt=assignment_prompt,
-                max_tokens=1024,
-                n=1,
-                stop=None,
+            completions = openai.ChatCompletion.create(
+                model=model_engine,
+                messages=[
+                    {"role": "system", "content": assignment_prompt},
+                ],
+                max_tokens=500,  # Reduce the number of tokens in the response
                 temperature=0.5,
             )
+
+            # Get the generated response from completions
+            generated_response = completions['choices'][0]['message']['content']
+
+            # Save the generated response into the database
+            log = GPTLogs(SubmissionId=submission_id, GPTResponse=generated_response, StudentFeedback=-1, Type=0)
+            db.session.add(log)
+            db.session.commit()
+
+            # Return the generated response if needed (optional)
+            return [generated_response,log.Qid]
+
         except openai.error.ServiceUnavailableError as e:
             # Handle the error
-            message="The server is overloaded or not ready yet."
-        except openai.error.RateLimitError as e:
-            message="The server is currently overloaded with other requests."
-        except openai.error.APIError as e:
-            message="The server is currently overloaded with other requests."
+            message = "The server is overloaded or not ready yet."
+
+    def chatGPT_explainer(self, submission_id, question_description, student_output) -> str:
+        print("in subfunctino", flush=True)
+        openai.api_key = "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"
+        # https://beta.openai.com/docs/models
+        # to find average tokens OpenAI's tiktoken Python library.
+        model_engine = "gpt-3.5-turbo"  # fastest model
+        assignment_prompt = f"""
+        Here is my output Linux diff format: {student_output}  
+        A description of the test case is: {question_description}
+
+        Write me a sentance on what the diff is telling me, be specific"""
+        try:
+            completions = openai.ChatCompletion.create(
+                model=model_engine,
+                messages=[
+                    {"role": "system", "content": assignment_prompt},
+                ],
+                max_tokens=500,  # Reduce the number of tokens in the response
+                temperature=0.5,
+            )
+
+            # Get the generated response from completions
+            generated_response = completions['choices'][0]['message']['content']
+
+            # Save the generated response into the database
+            log = GPTLogs(SubmissionId=submission_id, GPTResponse=generated_response, StudentFeedback=-1,Type=1)
+            db.session.add(log)
+            db.session.commit()
+
+            # Return the generated response if needed (optional)
+            return [generated_response,log.Qid]
+
+        except openai.error.ServiceUnavailableError as e:
+            # Handle the error
+            message = "The server is overloaded or not ready yet."
+    def getGPTResponse(self, submission_number) -> str:
+        tempdata= GPTLogs.query.filter(GPTLogs.SubmissionId ==submission_number).first()
+        return tempdata.GPTResponse
+    def Update_GPT_Student_Feedback(self,question_id, student_feedback):
+        question = GPTLogs.query.filter(GPTLogs.Qid == question_id).first()
+        question.StudentFeedback =int(student_feedback)
+        db.session.commit()
+        return "ok"
 
 
-        # Get the first completion from the response
-        message = completions.choices[0].text
 
-        if "overloaded" in message:
-            message="TA-BOT is currently receiving a significant number of peer questions, please try to resubmit this question in an hour"
-        if "not relate" in message:
-            message="This question does not relate to the given code, if you believe this response was thrown in error, please note that in the form. We are working to improve TA-BOT, thank you for your understanding This response does NOT consume your question, please refresh the page and feel free to reword."
-        if "GPT" in message or "chatGPT" in message or "chatgpt" in message or "openai" in message or "AI" in message or "ai" in message:
-            message="This question does not relate to the given code, if you believe this response was thrown in error, please note that in the form. We are working to improve TA-BOT, thank you for your understanding. This response does NOT consume your question, please refresh the page and feel free to reword."
 
-        return message
+

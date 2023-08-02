@@ -38,7 +38,6 @@ class Users(db.Model):
     LoginAttempts=relationship('LoginAttempts')
     StudentProgress=relationship('StudentProgress')
     StudentUnlocks=relationship('StudentUnlocks') 
-    ChatSubTime = Column(Date)
 
 class Submissions(db.Model):
     __tablename__ = "Submissions"
@@ -126,25 +125,14 @@ class Testcases(db.Model):
     input = Column(String)
     Output = Column(String)
     IsHidden = Column(Boolean)
-
-class ChatGPTFormSubmits(db.Model):
-    __tablename__ = "ChatGPTFormSubmits"
-    Id = Column(Integer, primary_key=True, autoincrement=True)
-    Uid = Column(Integer, ForeignKey('Users.Id'))
-    Qid = Column(Integer, ForeignKey('ChatGPTQuestions.Qid'))
-    q1 = Column(String)
-    q2 = Column(String)
-    q3 = Column(String)
-    SubmitDate = Column(DateTime)
-
-class ChatGPTQuestions(db.Model):
-    __tablename__ = "ChatGPTQuestions"
+class GPTLogs(db.Model):
+    __tablename__ = "GPTLogs"
     Qid = Column(Integer, primary_key=True, autoincrement=True)
-    ChatGPTQuestionscol = Column(String)
-    ChatGPTResponse = Column(String)
-    Uid = Column(Integer, ForeignKey('Users.Id'))
-    SubmitDate = Column(DateTime)
-    Passflag = Column(Integer)
+    SubmissionId = Column(Integer, ForeignKey('Submissions.Id'))
+    GPTResponse = Column(String)
+    StudentFeedback = Column(Integer)
+    Type = Column(Integer)
+
 class ChatGPTkeys(db.Model):
     __tablename__ = "ChatGPTkeys"
     idChatGPTkeys = Column(Integer, primary_key=True, autoincrement=True)

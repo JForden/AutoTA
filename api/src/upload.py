@@ -327,24 +327,18 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     Returns:
         [HTTP]: [a pass or fail HTTP message]
     """
-    
-    # TODO: Get the class the user is uploading for
-    class_id = request.form['class_id']
-    print("IN UPLOAD.PY TEST TEST TEST", flush=True)
 
+    class_id = request.form['class_id']
     username = current_user.Username
     user_id = current_user.Id
     if "student_id" in request.form:
         username= user_repository.get_user_by_id(int(request.form["student_id"])) 
         user_id = user_repository.getUserByName(username).Id
-    
-    #TODO: using the class ID, get the current project.
-
 
     project_id = project_repo.get_current_project_by_class(class_id)
     print("PROJ_ID", project_id, flush=True)
     project = None
-    if "project_id" in request.form: #TODO: make it so project_id is a required field
+    if "project_id" in request.form:
         project = project_repo.get_selected_project(int(request.form["project_id"]))
     else:
         project = project_repo.get_current_project_by_class(class_id)
@@ -374,7 +368,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
             'message': 'No selected file'
         }
         return make_response(message, HTTPStatus.BAD_REQUEST)
-
+    filedata=file.read()
     if file and allowed_file(file.filename):
         language = file.filename.rsplit('.', 1)[1].lower()
 
@@ -385,38 +379,28 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
             with zipfile.ZipFile(file, 'r') as zip_ref:
                 print("PROJECT NAME ", project.Name, flush=True)
                 path = os.path.join("/ta-bot", project.Name + "-out")
-                #extract_dir = os.path.join(path, f"{username}")
-                extract_dir = os.path.join(path) # creates one directory with multiple .c files 
+                extract_dir = os.path.join(path) 
                 print("EXTRACT DIR ", extract_dir, flush=True)
                 if os.path.isdir(extract_dir):
                     shutil.rmtree(extract_dir)
                 os.mkdir(extract_dir)
                 zip_ref.extractall(extract_dir)
                 print("FILE NAME ", file.filename, flush=True)
-                # move files out of extract folder
                 print("USERNAME ", username, flush=True)
-                #os.rename(os.path.join(extract_dir, file.filename.replace('.zip', '')), os.path.join(extract_dir, username))
                 outputpath=path
                 path=extract_dir                
         else:
-            print("WWWWW", os.getcwd(), flush=True)
+            file.seek(0)
             path = os.path.join("/ta-bot",project.Name+"-out")
-            print("Path: ", path, flush=True)
             outputpath = path
             language = project.Language.lower()
-            path = os.path.join(path, f"{username}{ext[language][0]}") # for some reason c is lowercase in ext but shows uppercase here
+            path = os.path.join(path, f"{username}{ext[language][0]}") 
             file.save(path)
-            print("Saved file at :", path)
 
         # Step 2: Run grade.sh
         research_group = user_repository.get_user_researchgroup(current_user.Id)
        
         testcase_info_json =project_repo.testcases_to_json(project.Id)
-
-        print(testcase_info_json)
-
-
-        print("This is the current working directory:   "+outputpath, flush=True)
         result = subprocess.run(["python","../tabot.py", username, str(research_group), project.Language, str(testcase_info_json), path], cwd=outputpath) 
 
 
@@ -431,33 +415,22 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         tap_path = outputpath+"/"+username+".out"
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         status=output_pass_or_fail(tap_path)
-
-        #TODO: TAPPATHPRINT DELETE THIS
-        #with open(tap_path, 'r') as file:
-         #   print(file.read())
-
-        # TODO: Make this conditional based on language
         if project.Language == "python":
             error_count=python_error_count(outputpath+"/"+username)
         else:
-            error_count=0
-        print(error_count, "EC", flush=True)
-    
+            error_count=0    
         levels = project_repo.get_levels_by_project(project.Id)
 
         submission_level = parse_tap_file_for_levels(tap_path, levels)
 
         passed_levels, total_tests = level_counter(tap_path)
         student_submission_score=score_finder(project_repo, passed_levels, total_tests, project.Id)
-        # TODO: Make this conditional based on language
         if project.Language == "python":
             pylint_score=python_error_count(outputpath+"/"+username)
         else:
             pylint_score = 40
         total_submission_score = student_submission_score+pylint_score
-        # TODO: Make this conditional based on language
-        print("HERE", flush=True)
-        submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
+        submissionId = submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
         
         # Step 4 assign point totals for the submission 
         current_level = submission_repo.get_current_level(project.Id,user_id)
@@ -468,7 +441,6 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         else:
             submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[user_id])
             submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id, submission_level)
-
         message = {
             'message': 'Success',
             'remainder': 10

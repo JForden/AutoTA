@@ -270,8 +270,28 @@ def extraday(submission_repo: SubmissionRepository = Provide[Container.submissio
     return make_response("", HTTPStatus.NOT_ACCEPTABLE)
 
 
+@submission_api.route('/gptData', methods=['GET'])
+@jwt_required()
+@inject
+def gptData(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    print("In GPT call", flush=True)
+    question_description = str(request.args.get("description"))
+    output = str(request.args.get("output"))
+    code_data = str(request.args.get("code"))
+    submissionid = submission_repo.get_submission_by_user_id(current_user.Id).Id
+    return make_response(submission_repo.chatGPT_caller(submissionid,question_description, output, code_data), HTTPStatus.OK)
 
 
+
+@submission_api.route('/gptexplainer', methods=['GET'])
+@jwt_required()
+@inject
+def gptexplainer(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    print("In GPT call", flush=True)
+    question_description = str(request.args.get("description"))
+    output = str(request.args.get("output"))
+    submissionid = submission_repo.get_submission_by_user_id(current_user.Id).Id
+    return make_response(submission_repo.chatGPT_explainer(submissionid,question_description, output), HTTPStatus.OK)
 
 @submission_api.route('/ResearchGroup', methods=['GET'])
 @jwt_required()
@@ -279,74 +299,12 @@ def extraday(submission_repo: SubmissionRepository = Provide[Container.submissio
 def Researchgroup(user_repo: UserRepository = Provide[Container.user_repo]):
     return make_response(user_repo.get_user_researchgroup(current_user.Id), HTTPStatus.OK)
 
-
-@submission_api.route('/chatupload', methods=['GET'])
+@submission_api.route('/updateGPTStudentFeedback', methods=['GET'])
 @jwt_required()
 @inject
-def chatupload(submission_repo: SubmissionRepository = Provide[Container.submission_repo],user_repo: UserRepository = Provide[Container.user_repo]):
-    passFlag= 0
-    student_code = (request.args.get("code"))
-    student_question = (request.args.get("question"))
-    user_repo.set_user_chatSubTime(current_user.Id)
-    mostRecentQTime=user_repo.get_user_chatSubTime(current_user.Id)
-    print("TIME ", mostRecentQTime,flush=True)
-    datetime_object = datetime.strptime(mostRecentQTime, '%Y-%m-%d %H:%M:%S')
+def update_GPT_Student_feedback(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    qid = str(request.args.get("questionId"))
+    student_feedback = str(request.args.get("student_feedback"))
+    return make_response(submission_repo.Update_GPT_Student_Feedback(qid,student_feedback), HTTPStatus.OK)
 
-    api_key = user_repo.chatGPT_key()
-
-    if datetime_object > datetime.now():
-            message ="You are not able to ask TA-BOT another question yet, you will be able to resubmit at: "+ str( str(datetime_object.hour) +":"+str(datetime_object.minute))
-    else:
-        message=submission_repo.chatGPT_caller(student_code,student_question,api_key)
-        if "TA-BOT" not in message:
-            print("Time function has been called ", flush=True)
-            user_repo.set_user_chatSubTime(current_user.Id)
-            passFlag=1
-    user_repo.chat_question_logger(current_user.Id ,student_question,message,passFlag)
-    
-    return make_response(message, HTTPStatus.OK)
-    #return make_response(NULL, HTTPStatus.OK)
-
-@submission_api.route('/chatform', methods=['GET'])
-@jwt_required()
-@inject
-def formUplod(user_repo: UserRepository = Provide[Container.user_repo]):
-    q1 = int((request.args.get("q1")))
-    q2 = int((request.args.get("q2")))
-    q3 = (request.args.get("q3"))
-
-    user_repo.chat_form_logger(current_user.Id,q1,q2,q3)
-    return make_response("okay",HTTPStatus.OK)
-
-@submission_api.route('/formcheck', methods=['GET'])
-@jwt_required()
-@inject
-def formcheck(user_repo: UserRepository = Provide[Container.user_repo]):
-    form_count =  user_repo.form_count(current_user.Id)
-    submit_count = user_repo.gpt_submit_count(current_user.Id)
-    print(form_count,flush=True)
-    print(submit_count,flush=True)
-    info={}
-    info[current_user.Id] = form_count
-    info[current_user.Id] = submit_count
-    if form_count != submit_count:
-        data = user_repo.get_missed_GPT_form(current_user.Id)
-        question = str(data[0])
-        response = str(data[1])
-        return ([form_count,submit_count,question,response],HTTPStatus.OK)
-    return ([form_count,submit_count],HTTPStatus.OK)
-
-
-@submission_api.route('/gpt_suggestion', methods=['GET'])
-@jwt_required()
-@inject
-def gpt_suggestion(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
-    submissionid = int(request.args.get("id"))
-    class_id = int(request.args.get("class_id"))
-    code_output = ""
-    if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submissionid)):
-        code_output = submission_repo.get_code_path_by_submission_id(submissionid)
-    else:
-        projectid = project_repo.get_current_project_by_class(class_id).Id
-        code_output = submission_repo.get_submission_by_user_and_projectid(current_user.Id,projectid).CodeFilepath
 

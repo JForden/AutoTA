@@ -46,6 +46,10 @@ interface PylintObject {
     messageid: string,
     reflink: string
 }
+interface gptobject{
+    type:string,
+    message:string
+}
 
 const CodePage = () => {
     let { id, class_id } = useParams<CodePageProps>();
@@ -54,6 +58,7 @@ const CodePage = () => {
     
     const [json, setJson] = useState<JsonResponse>({ results: [ { skipped: false, passed: false, test: { description: "", output: [""], type: 0, name: "", suite: "", hidden: "" }} ] });
     const [pylint, setPylint] = useState<Array<PylintObject>>([]);
+    const [gptresponsedata, setgptresponsedata] = useState<Array<gptobject>>([]);
     const [code, setCode] = useState<string>("");
     const [score, setScore] = useState<number>(0);
     const [hasScoreEnabled, setHasScoreEnabled] = useState<boolean>(false);
@@ -87,7 +92,6 @@ const CodePage = () => {
         .catch(err => {
             console.log(err);
         });
-
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/lint_output?id=${submissionId}&class_id=${cid}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
@@ -147,7 +151,7 @@ const CodePage = () => {
             <MenuComponent showUpload={false} showAdminUpload={false} showHelp={false} showCreate={false} showLast={false} showReviewButton={true}></MenuComponent>
             <Split sizes={[80, 20]} className="split2" direction="vertical">
                     <CodeComponent pylintData={pylint} codedata={code}></CodeComponent>
-                    <TestResultsComponent testcase={json} showScore={hasScoreEnabled} score={score} researchGroup={ResearchGroup}></TestResultsComponent>
+                    <TestResultsComponent codedata={code} testcase={json} showScore={hasScoreEnabled} score={score} researchGroup={ResearchGroup}></TestResultsComponent>
             </Split>
         </div>
     );

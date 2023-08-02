@@ -37,6 +37,12 @@ class ClassRepository():
         for c in classes:
             classDict[c.Id] = c.Name
         return classDict
+    
+    def create_assignments(self, class_id: int, lab_id:int, user_id: int, lecture_id: int):
+        """[Creates a new entry in the ClassAssignments table]"""
+        class_assignment = ClassAssignments(ClassId=class_id,LabId=lab_id,UserId=user_id,LectureId=lecture_id)
+        db.session.add(class_assignment)
+        db.session.commit()
 
         
     def get_student_class_by_id(self, user_id: int) -> Dict[int, str]:
