@@ -155,7 +155,6 @@ class SubmissionRepository():
 
 
     def chatGPT_caller(self, submission_id, question_description, student_output, student_code) -> str:
-        print("in subfunctino", flush=True)
         openai.api_key = "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"
         # https://beta.openai.com/docs/models
         # to find average tokens OpenAI's tiktoken Python library.
@@ -198,7 +197,6 @@ class SubmissionRepository():
             message = "The server is overloaded or not ready yet."
 
     def chatGPT_explainer(self, submission_id, question_description, student_output) -> str:
-        print("in subfunctino", flush=True)
         openai.api_key = "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"
         # https://beta.openai.com/docs/models
         # to find average tokens OpenAI's tiktoken Python library.

@@ -11,18 +11,14 @@ class ClassRepository():
 
     def get_class_id(self, class_name):
         """[Gets class id given the name]"""
-        
-        print("made it here", flush=True)
         class_id = Classes.query.filter(Classes.Name==class_name).first().Id
         
         return class_id
     def get_lecture_id_withName(self,lectureName):
-        print("THIS IS LECTURE NAME: ", lectureName, flush=True)
         # changed LectureSections.Name to Id
         lecture_id = LectureSections.query.filter(LectureSections.Id==lectureName).first().Id
         return lecture_id
     def get_lab_id_withName(self,labName):
-        print("Labname: ", labName, flush=True)
         # changed Labs.Name to Labs.Id
         lab_id = Labs.query.filter(Labs.Id==labName).first().Id
         return lab_id

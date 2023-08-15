@@ -158,18 +158,9 @@ def add_class(auth_service: PAMAuthenticationService = Provide[Container.auth_se
     class_id = class_repo.get_class_id(class_name)
     lab_id = class_repo.get_lab_id_withName(lab_name)
     lecture_Id = class_repo.get_lecture_id_withName
-
-
-    print("IN CREATE NEW CLASS", flush=True)
-    print(class_id,lab_id,lecture_id, flush=True)
-
     user_id = current_user.Id
 
-    user = user_repo.get_user_by_id(user_id)
-
-    print("Current user ID: ", current_user.Id)
-    print("Second current user ID: ", user.Id, flush=True)
-    
+    user = user_repo.get_user_by_id(user_id)    
     #Create ClassAssignment
     class_repo.add_class_assignment(class_id, int(lab_id), int(user.Id), int(lecture_id))
 

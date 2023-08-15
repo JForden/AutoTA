@@ -79,16 +79,13 @@ class ProjectRepository():
         db.session.add(project)
         db.session.commit()
     def get_project(self, project_id:int) -> Projects:
-        print("THis is the project id: ",project_id)
         project_data = Projects.query.filter(Projects.Id == project_id).first()
         project ={}
         now=project_data.Start
         start_string = now.strftime("%Y-%m-%d %H:%M:%S")
-        print("SS: ", start_string)
         now = project_data.End
         end_string = now.strftime("%Y-%m-%d %H:%M:%S")
         project[project_data.Id] = [str(project_data.Name),str(start_string),str(end_string), str(project_data.Language)]
-        print(project,flush=True)
         return project
 
     def edit_project(self, name: str, start: datetime, end: datetime, language:str, project_id:int, path:str):
@@ -122,21 +119,16 @@ class ProjectRepository():
         #TODO: see if we can get away from stdout
         result = subprocess.run(["python","../ta-bot/tabot.py", "ADMIN", str(-1), project.Language, input_data, filepath], stdout=subprocess.PIPE, text=True)
         output = result.stdout.strip()
-        print("OUTPUT HERE: ", output, flush=True)
         
         testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
         if testcase is None:
-            print(project_id)
-            print(level_name)
             level = Levels.query.filter(and_(Levels.ProjectId==project_id, Levels.Name==level_name)).first()
-            print(level.Id)
             level_id = level.Id 
             testcase = Testcases(ProjectId = project_id, LevelId = level_id, Name = name, Description = description, input = input_data, Output = output, IsHidden = is_hidden)
             db.session.add(testcase)
             db.session.commit()
         else:
             level = Levels.query.filter(and_(Levels.ProjectId==project_id, Levels.Name==level_name)).first()
-            print(level.Id)
             level_id = level.Id 
             testcase.projectid=project_id
             testcase.LevelId = level_id
@@ -146,7 +138,6 @@ class ProjectRepository():
             testcase.Output = output
             testcase.IsHidden = is_hidden
             db.session.commit()
-        print("made it here: ", output,  flush=True)
 
     def remove_testcase(self, testcase_id:int):
         testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()

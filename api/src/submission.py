@@ -26,11 +26,9 @@ submission_api = Blueprint('submission_api', __name__)
 
 
 def convert_tap_to_json(file_path, role, current_level, hasLVLSYSEnabled):
-    print("THIS IS filepath LEVEL: ", file_path, flush=True)
     parser = Parser()
     test=[]
     final={}
-    print(hasLVLSYSEnabled)
     for line in parser.parse_file(file_path):
         if line.category == "test":
             if role == ADMIN_ROLE or not hasLVLSYSEnabled:
@@ -70,8 +68,6 @@ def convert_tap_to_json(file_path, role, current_level, hasLVLSYSEnabled):
 def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Container.submission_repo], config_repo: ConfigRepository = Provide[Container.config_repo],project_repo:  ProjectRepository = Provide[Container.project_repo]):
     class_id = int(request.args.get("class_id"))
     submission_id = int(request.args.get("id"))
-    print("THIS IS SUBMISSION ID IN TESTFACSE ERRORS:  ", submission_id, flush=True)
-    print("THIS IS CLASSID IN TESTCASE ERRORS:   ", class_id, flush=True)
     if submission_id != -1:
         projectid = submission_repo.get_project_by_submission_id(submission_id)
         submission = submission_repo.get_submission_by_submission_id(submission_id)
@@ -124,8 +120,6 @@ def lint_output(submission_repo: SubmissionRepository = Provide[Container.submis
                     if project.Language == "python":
                         output = link_service.add_link_info_links(output)
                 outputs.append(output)
-    #print(output, "OUT", flush=True)
-    #return make_response(outputs, HTTPStatus.OK)
     return make_response(outputs[0], HTTPStatus.OK)
 
 
@@ -144,7 +138,6 @@ def codefinder(submission_repo: SubmissionRepository = Provide[Container.submiss
     output = ""
     outputs = []
     if not os.path.isdir(code_output):
-        print("I AM IN IF NOT STATEMENT ", code_output, flush=True)
         with open(code_output, 'r') as file:
             output = file.read()
             outputs.append(output)
@@ -152,7 +145,6 @@ def codefinder(submission_repo: SubmissionRepository = Provide[Container.submiss
         # these files are all files in submission directory
         #files = [filename for filename in os.listdir(code_output)] #  if filename.endswith('.java') <-- why java?
         files = [filename for filename in os.listdir(code_output) if filename.endswith(".java") or filename.endswith(".c")]
-        print("FILES SUB.PY ", files, flush=True)
         for f in files:
             if "Main.java" in files:
                 with open(code_output + "/" + "Main.java") as file:
@@ -287,7 +279,6 @@ def gptData(submission_repo: SubmissionRepository = Provide[Container.submission
 @jwt_required()
 @inject
 def gptexplainer(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
-    print("In GPT call", flush=True)
     question_description = str(request.args.get("description"))
     output = str(request.args.get("output"))
     submissionid = submission_repo.get_submission_by_user_id(current_user.Id).Id

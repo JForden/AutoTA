@@ -66,13 +66,9 @@ def get_student_class_by_id(class_repository: ClassRepository = Provide[Containe
 @jwt_required()
 @inject
 def add_class_student(class_repository: ClassRepository = Provide[Container.class_repo]):
-    print("IN ADD CLASSES", flush=True)
     class_name = request.form.get('class_name')
     lecture_name = request.form.get('lecture_name')
     lab_name = request.form.get('lab_name')
-
-    print(class_name,lecture_name,lab_name,"out",flush=True)
-
     class_id = class_repository.get_class_id(class_name)
     lecture_id = class_repository.get_lecture_id_withName(lecture_name)
     lab_id = class_repository.get_lab_id_withName(lab_name)

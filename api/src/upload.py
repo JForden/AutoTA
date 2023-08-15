@@ -49,7 +49,6 @@ def allowed_file(filename):
         [Boolean]: [returns a bool if the file is allowed or not]
     """
     filetype=filename.rsplit('.', 1)[1].lower()
-    print("FILETYPE: ", filetype)
     for key in ext:
         if filetype in ext[key]:
             return True 
@@ -203,7 +202,6 @@ def parse_clang_tidy_output(yaml_file: str, c_file: str):
     with open(yaml_file, "r") as file:
         lines = file.readlines()
 
-    print("YAML FILE: ", lines, flush=True)
 
     data = {' '.join(line.replace("'", '').split()[1:]): [find_line_by_char(c_file, int(''.join(lines[idx + 2].split()[1]))), int(''.join(lines[idx + 2].split()[1])), lines[1].split()[1].replace("'", ''), lines[idx - 2].split()[-1]] for idx, line in enumerate(lines) if line.split()[0] == "Message:"}
     for msg, line_num in data.items():
