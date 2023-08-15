@@ -91,12 +91,13 @@ class ProjectRepository():
         print(project,flush=True)
         return project
 
-    def edit_project(self, name: str, start: datetime, end: datetime, language:str, project_id:int):
+    def edit_project(self, name: str, start: datetime, end: datetime, language:str, project_id:int, path:str):
         project = Projects.query.filter(Projects.Id == project_id).first()
         project.Name = name
         project.Start = start
         project.End = end
         project.Language = language
+        project.solutionpath = path
         db.session.commit() 
         
     def get_testcases(self, project_id:int) -> Dict[str,str]:
@@ -214,8 +215,10 @@ class ProjectRepository():
         return class_obj.Name
     def get_class_id_by_name(self, class_name):
         class_id = Classes.query.filter(Classes.Name==class_name).first().Id
-        print("THIS IS CLASS ID:    ", flush=True)
         return class_id
+    def get_project_path(self, project_id):
+        project = Projects.query.filter(Projects.Id==project_id).first()
+        return project.solutionpath
 
         
 

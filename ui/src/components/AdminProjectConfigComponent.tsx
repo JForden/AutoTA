@@ -2,7 +2,7 @@ import { Component, useEffect, useState, useReducer } from 'react';
 import { Image, Grid, Tab, Dropdown, Form, Input, Radio, Button, Icon, TextArea, Label, Checkbox, Table, Header, Segment } from 'semantic-ui-react'
 import { Helmet } from 'react-helmet';
 import 'semantic-ui-css/semantic.min.css';
-import { DropdownItemProps } from 'semantic-ui-react';
+import { DropdownItemProps, } from 'semantic-ui-react';
 import MenuComponent from './MenuComponent';
 import codeimg from '../codeex.png'
 import axios from 'axios';
@@ -47,7 +47,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     const [ProjectStartDate,setProjectStartDate] = useState<string>("");
     const [ProjectEndDate,setProjectEndDate] = useState<string>("");
     const [ProjectLanguage,setProjectLanguage] = useState<string>("");
-    const [SubmitButton,setSubmitButton] = useState<string>("Submit Changes");
+    const [SubmitButton,setSubmitButton] = useState<string>("Create new assignment");
     const [SubmitJSON, setSubmitJSON] = useState<string>("Submit .JSON file");
     const [getJSON, setGetJSON] = useState<string>("Export test cases");
     const [File, setFile] = useState<File>();
@@ -96,14 +96,11 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
 
                 rows.push(testcase);
 
-                setTestcases(rows)
+                setTestcases(rows);
             })
             .catch(err => {
                 console.log(err);
             });
-        if(CreateNewState){
-            setSubmitButton("Submit New Assignment");
-        }
         if(!CreateNewState && props.id!=0 ) {
             axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_project_id?id=${props.id}`, {
                 headers: {
@@ -119,6 +116,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                 setProjectEndDate(data[props.id][2]);
                 setProjectLanguage(data[props.id][3]);
                 setEdit(true);
+                setSubmitButton("Submit changes");
                 }
             })
             .catch(err => {
@@ -515,9 +513,20 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                     onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
                                 />
                                 </Form.Group>
-                                    <h1>Upload Solution Code</h1>
-                                    <Form.Input type="file" fluid onChange={handleFileChange} />
-                                    <br></br>
+                                    {
+                                        edit ?
+                                        <div>
+                                        <h1>change solution files</h1>
+                                        <Form.Input type="file" fluid onChange={handleFileChange} />
+                                        <br></br>
+                                        </div>
+                                        :
+                                        <div>
+                                            <h1>upload solution files</h1>
+                                            <Form.Input type="file" fluid onChange={handleFileChange} />
+                                            <br></br>
+                                        </div>
+                                    }
                                 </Segment>
                                 <Form.Button onClick={edit ?  handleEditSubmit  : handleNewSubmit}>{SubmitButton}</Form.Button>
                             </Form>

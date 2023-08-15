@@ -164,10 +164,39 @@ def edit_project(project_repo: ProjectRepository = Provide[Container.project_rep
         end_date= request.form['end_date']
     if 'language' in request.form:
         language = request.form['language']
+    path = project_repo.get_project_path(pid)
+    file = request.files.get('file')
+    if file is not None:
+        filename =file.filename
+        extension = os.path.splitext(filename)[1]
+        if os.path.isfile(path):
+            try:
+                os.remove(path)
+            except OSError as e:
+                print("Error deleting file:", e)
+                return make_response("Error deleting file", HTTPStatus.INTERNAL_SERVER_ERROR) 
+        elif os.path.isdir(path):
+            try:
+                shutil.rmtree(path)
+                
+            except OSError as e:
+                print("Error deleting directory:", e)  
+                return make_response("Error deleting directory", HTTPStatus.INTERNAL_SERVER_ERROR)      
+        if extension != ".zip":
+            path = os.path.join("/ta-bot/project-files", f"{name}{extension}")
+            os.mkdir(os.path.join("/ta-bot", f"{name}-out"))
+            file.save(path)
+        else:
+            path = os.path.join("/ta-bot/project-files", f"{name}")
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            os.mkdir(path)
+            with zipfile.ZipFile(file, "r") as zip_ref:
+                zip_ref.extractall(path) 
     if name == '' or start_date == '' or end_date == '' or language == '':
         return make_response("Error in form", HTTPStatus.BAD_REQUEST)
     
-    project_repo.edit_project(name, start_date, end_date, language, pid)
+    project_repo.edit_project(name, start_date, end_date, language, pid, path)
     return make_response("Project Edited", HTTPStatus.OK)
 
 

@@ -112,8 +112,8 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
                                     <Table.Cell>{this.state.projects[index].TotalSubmissions}</Table.Cell>
                                     <Table.Cell><Button as={Link} to={"/admin/project/"+this.state.projects[index].Id}>View</Button></Table.Cell>
                                     <Table.Cell><Button icon='edit' as={Link} to={"/admin/project/edit/" + this.state.classId + "/" + this.state.projects[index].Id}  />
-                                    <Button icon='refresh' onClick={() => this.handleRefresh(this.state.projects[index].Id)} />
-                                    <Popup trigger={<Button>delete project</Button>} flowing hoverable>
+                                    <Button icon='refresh' disabled={true} onClick={() => this.handleRefresh(this.state.projects[index].Id)} />
+                                    <Popup trigger={<Button disabled={true}>delete project</Button>} flowing hoverable>
                                     <Grid centered divided columns={1}>
                                       <Grid.Column textAlign='center'>
                                         <Header as='h4'>confirm delete project</Header>
