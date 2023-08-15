@@ -334,7 +334,6 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         user_id = user_repository.getUserByName(username).Id
 
     project_id = project_repo.get_current_project_by_class(class_id)
-    print("PROJ_ID", project_id, flush=True)
     project = None
     if "project_id" in request.form:
         project = project_repo.get_selected_project(int(request.form["project_id"]))
@@ -375,16 +374,12 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         #check to see if file is a zip file, if so extract the files
         if file.filename.endswith(".zip"):
             with zipfile.ZipFile(file, 'r') as zip_ref:
-                print("PROJECT NAME ", project.Name, flush=True)
                 path = os.path.join("/ta-bot", project.Name + "-out")
                 extract_dir = os.path.join(path) 
-                print("EXTRACT DIR ", extract_dir, flush=True)
                 if os.path.isdir(extract_dir):
                     shutil.rmtree(extract_dir)
                 os.mkdir(extract_dir)
                 zip_ref.extractall(extract_dir)
-                print("FILE NAME ", file.filename, flush=True)
-                print("USERNAME ", username, flush=True)
                 outputpath=path
                 path=extract_dir                
         else:
