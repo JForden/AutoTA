@@ -1,8 +1,9 @@
 import { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
-import { Table, Label, Button } from 'semantic-ui-react';
+import { Table, Label, Button, Card, Image } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import codeimg from '../codeex.png'
 
 interface ClassObject {
     Id: number,
@@ -45,11 +46,18 @@ class AdminComponent extends Component<{}, ClassState> {
                 <h1>Your Classes</h1>
                 <div style={{ textAlign: "center" }}>
                   {this.state.classes.map((classObj: ClassObject) => (
-                    <Label key={classObj.Id} as='div' color='blue' empty style={{ margin: "3px", width: "100px", height: "100px", display: "inline-block" }}>
-                      <Link to={`/admin/projects/${classObj.Id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                       <h3>{classObj.Name}</h3>
-                     </Link>
-                    </Label>
+                    <Link key={classObj.Id} to={`/admin/projects/${classObj.Id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    <Card style={{ margin: "3px", width: "200px", display: "inline-block" }}>
+                        <Card.Content style={{padding: "5px", textAlign: "center" }}>
+                            <Image src={codeimg} />
+                        </Card.Content>
+                        <Card.Content>
+                            <Card.Header>
+                                {classObj.Name}
+                            </Card.Header>
+                        </Card.Content>
+                    </Card>
+                </Link>
                   ))}
                 </div>
             </div>

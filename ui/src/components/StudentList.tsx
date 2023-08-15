@@ -147,7 +147,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                         <Table.HeaderCell>Date of most recent submission</Table.HeaderCell>
                         <Table.HeaderCell>Number of pylint errors on most recent submission</Table.HeaderCell>
                         <Table.HeaderCell>State of Last Submission</Table.HeaderCell>
-                        <Table.HeaderCell button> <Loader size='massive' active={this.state.isLoading}>Loading: This process might take several minutes, please do not refresh</Loader><Label button onClick={() => { this.handleClick() }}>Plagiarism Checker</Label></Table.HeaderCell>
+                        <Table.HeaderCell button > <Loader size='massive' active={this.state.isLoading}>Loading: This process might take several minutes, please do not refresh</Loader><Label button onClick={() => { this.handleClick() }}>Plagiarism Checker</Label></Table.HeaderCell>
                         
                     </Table.Row>
                     </Table.Header>

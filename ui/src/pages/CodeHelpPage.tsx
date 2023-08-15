@@ -78,7 +78,7 @@ const CodeHelpPage = () => {
             <Helmet>
                 <title>Submission | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={true} showAdminUpload={false} showHelp={false} showCreate={false} showLast={false} showReviewButton={true}></MenuComponent>
+            <MenuComponent showUpload={true} showAdminUpload={false} showHelp={false} showCreate={false} showLast={false} showReviewButton={false}></MenuComponent>
             <Split sizes={[80, 20]} className="split2" direction="vertical">
                     <CodeHelpComponent codedata={code}></CodeHelpComponent>
             </Split>
