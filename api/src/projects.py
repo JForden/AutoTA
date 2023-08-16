@@ -326,9 +326,7 @@ def get_projects_by_class_id(project_repo: ProjectRepository = Provide[Container
             'message': 'Access Denied'
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
-    print("ID: ", request.args.get('id'), flush=True)
     data = project_repo.get_projects_by_class_id(request.args.get('id'))
-    print(data, " <- Data", flush=True)
     new_projects = []
     thisdic = submission_repo.get_total_submission_for_all_projects()
     for proj in data:

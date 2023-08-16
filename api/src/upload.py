@@ -172,9 +172,7 @@ def total_students(user_repo: UserRepository = Provide[Container.user_repo]):
         return make_response(message, HTTPStatus.UNAUTHORIZED)
     class_id = request.args.get('class_id')
     users=user_repo.get_all_users_by_cid(class_id)
-    print("list of users: ", users, flush=True)
     list_of_user_info=[]
-    print(list_of_user_info)
     for user in users:
         if(user.Role != ADMIN_ROLE):
             list_of_user_info.append({"name":user.Firstname +" "+ user.Lastname,"mscsnet":user.Username,"id":user.Id})
