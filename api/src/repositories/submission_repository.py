@@ -94,7 +94,6 @@ class SubmissionRepository():
             db.session.add(Level_submission)
             db.session.commit()
             return True
-
         level.LatestLevel = current_level
         level.SubmissionId = submission_id
         db.session.commit()

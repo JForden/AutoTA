@@ -35,7 +35,6 @@ from src.constants import ADMIN_ROLE
 
 upload_api = Blueprint('upload_api', __name__)
 
-#ext={"python": [".py","py"],"java": [".java","java"],"zip":[".zip","zip"]}
 ext={"python": [".py","py"],"java": [".java","java"],"c": [".c", "c"],"zip":[".zip","zip"]}
 
 
@@ -390,7 +389,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
             file.save(path)
 
         # Step 2: Run grade.sh
-        research_group = user_repository.get_user_researchgroup(current_user.Id)
+        research_group = user_repository.get_user_researchgroup(user_id)
        
         testcase_info_json =project_repo.testcases_to_json(project.Id)
         result = subprocess.run(["python","../tabot.py", username, str(research_group), project.Language, str(testcase_info_json), path], cwd=outputpath) 
@@ -422,7 +421,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         else:
             pylint_score = 40
         total_submission_score = student_submission_score+pylint_score
-        submissionId = submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
+        submissionId = submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
         
         # Step 4 assign point totals for the submission 
         current_level = submission_repo.get_current_level(project.Id,user_id)
@@ -432,10 +431,12 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
                 submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id,submission_level)
         else:
             submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[user_id])
+            print("Submission data", submission_data, flush=True)
             submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id, submission_level)
         message = {
             'message': 'Success',
-            'remainder': 10
+            'remainder': 10,
+            "sid": submissionId,
         }
         return make_response(message, HTTPStatus.OK)
     message = {

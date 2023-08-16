@@ -180,6 +180,7 @@ class AdminUploadPage extends Component<{}, UploadPageState> {
             
             formData.append("student_id", "" + this.state.student_id);
             formData.append("project_id", "" + this.state.project_id);
+            formData.append("class_id", "" +this.state.class_id);
             // Request made to the backend api
             // Send formData object
             axios.post(process.env.REACT_APP_BASE_API_URL + `/upload/`, formData,{
@@ -188,7 +189,7 @@ class AdminUploadPage extends Component<{}, UploadPageState> {
                 }
               })
             .then(res => {
-                window.location.href = "/code";
+                window.location.href = "/class/" + this.state.class_id.toString()+ "/code/" + res.data.sid.toString();
             })
             .catch(err => {
                 this.setState({ error_message: err.response.data.message});
