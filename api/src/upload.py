@@ -431,7 +431,6 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
                 submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id,submission_level)
         else:
             submission_data=submission_repo.get_most_recent_submission_by_project(project.Id,[user_id])
-            print("Submission data", submission_data, flush=True)
             submission_repo.modifying_level(project.Id,user_id,submission_data[user_id].Id, submission_level)
         message = {
             'message': 'Success',
