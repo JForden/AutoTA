@@ -41,7 +41,12 @@ class UserRepository():
     def get_all_users(self) -> List[Users]:
         user = Users.query.all()
         return user
-
+    def get_all_users_by_cid(self, class_id) -> List[Users]:
+        users_in_class = ClassAssignments.query.filter(ClassAssignments.ClassId==class_id).all()
+        users = []
+        for temp in users_in_class:
+            users.append(Users.query.filter(Users.Id==temp.UserId).one_or_none() )
+        return users
     def send_attempt_data(self, username: str, ipadr: str, time: datetime):
         login_attempt = LoginAttempts(IPAddress=ipadr, Username=username, Time=time)
         db.session.add(login_attempt)

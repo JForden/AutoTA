@@ -161,7 +161,7 @@ def pylint_score_finder(error_count):
     else:
         return 10
 
-@upload_api.route('/total_students', methods=['GET'])
+@upload_api.route('/total_students_by_cid', methods=['GET'])
 @jwt_required()
 @inject
 def total_students(user_repo: UserRepository = Provide[Container.user_repo]):
@@ -170,11 +170,12 @@ def total_students(user_repo: UserRepository = Provide[Container.user_repo]):
             'message': 'Access Denied'
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
-
-    list_of_users=user_repo.get_all_users()
+    class_id = request.args.get('class_id')
+    users=user_repo.get_all_users_by_cid(class_id)
+    print("list of users: ", users, flush=True)
     list_of_user_info=[]
     print(list_of_user_info)
-    for user in list_of_users:
+    for user in users:
         if(user.Role != ADMIN_ROLE):
             list_of_user_info.append({"name":user.Firstname +" "+ user.Lastname,"mscsnet":user.Username,"id":user.Id})
     return jsonify(list_of_user_info)

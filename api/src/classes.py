@@ -1,4 +1,5 @@
 from flask import Blueprint, make_response, request
+from src.repositories.user_repository import UserRepository
 from flask_jwt_extended import jwt_required
 from src.repositories.class_repository import ClassRepository
 from src.repositories.database import db
@@ -15,6 +16,18 @@ class_api = Blueprint('class_api', __name__)
 def get_classes(class_repository: ClassRepository = Provide[Container.class_repo]):
     classes = class_repository.get_classes()
     return jsonify(classes)
+
+@class_api.route('/all_classes_and_ids', methods=['GET'])
+@jwt_required()
+@inject
+def get_classes_and_ids(class_repository: ClassRepository = Provide[Container.class_repo]):
+    classes = class_repository.get_classes()
+    classes_list =[]
+    for c in classes:
+       if c.Tid == current_user.Id:
+           classes_list.append({"name":c.Name, "id":c.Id})
+    return jsonify(classes_list)
+
 
 @class_api.route('/classes_by_Tid', methods=['GET'])
 @jwt_required()
@@ -61,6 +74,8 @@ def get_teacher_class_by_id(class_repository: ClassRepository = Provide[Containe
 def get_student_class_by_id(class_repository: ClassRepository = Provide[Container.class_repo]):
     classes=class_repository.get_student_class_by_id(current_user.Id)
     return jsonify(classes)
+
+
 
 @class_api.route('/add_class_student', methods=['POST'])
 @jwt_required()

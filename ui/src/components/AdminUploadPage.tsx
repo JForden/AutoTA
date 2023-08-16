@@ -4,33 +4,6 @@ import '../css/AdminComponent.scss'
 import { Button, Dropdown, DropdownProps, Form, Segment } from 'semantic-ui-react';
 import axios from 'axios';
 
-const countryOptions = [
-    { key: 'af', value: 'af', flag: 'af', text: 'Afghanistan' },
-    { key: 'ax', value: 'ax', flag: 'ax', text: 'Aland Islands' },
-    { key: 'al', value: 'al', flag: 'al', text: 'Albania' },
-    { key: 'dz', value: 'dz', flag: 'dz', text: 'Algeria' },
-    { key: 'as', value: 'as', flag: 'as', text: 'American Samoa' },
-    { key: 'ad', value: 'ad', flag: 'ad', text: 'Andorra' },
-    { key: 'ao', value: 'ao', flag: 'ao', text: 'Angola' },
-    { key: 'ai', value: 'ai', flag: 'ai', text: 'Anguilla' },
-    { key: 'ag', value: 'ag', flag: 'ag', text: 'Antigua' },
-    { key: 'ar', value: 'ar', flag: 'ar', text: 'Argentina' },
-    { key: 'am', value: 'am', flag: 'am', text: 'Armenia' },
-    { key: 'aw', value: 'aw', flag: 'aw', text: 'Aruba' },
-    { key: 'au', value: 'au', flag: 'au', text: 'Australia' },
-    { key: 'at', value: 'at', flag: 'at', text: 'Austria' },
-    { key: 'az', value: 'az', flag: 'az', text: 'Azerbaijan' },
-    { key: 'bs', value: 'bs', flag: 'bs', text: 'Bahamas' },
-    { key: 'bh', value: 'bh', flag: 'bh', text: 'Bahrain' },
-    { key: 'bd', value: 'bd', flag: 'bd', text: 'Bangladesh' },
-    { key: 'bb', value: 'bb', flag: 'bb', text: 'Barbados' },
-    { key: 'by', value: 'by', flag: 'by', text: 'Belarus' },
-    { key: 'be', value: 'be', flag: 'be', text: 'Belgium' },
-    { key: 'bz', value: 'bz', flag: 'bz', text: 'Belize' },
-    { key: 'bj', value: 'bj', flag: 'bj', text: 'Benin' },
-  ]
-
-
 interface Student {
     name: string,
     mscsnet: string,
@@ -48,12 +21,16 @@ interface UploadPageState {
     isLoading:boolean
     error_message: string,
     isErrorMessageHidden: boolean,
+    class_id:number,
     project_name: string,
     project_id: number,
     end: string,
+    classlist: Array<DropDownOption>,
     studentList: Array<DropDownOption>,
     projects: Array<DropDownOption>,
-    student_id:number
+    student_id:number,
+    class_selected: boolean,
+
 }
 
 interface ProjectObject {
@@ -63,7 +40,6 @@ interface ProjectObject {
     End:string,
     TotalSubmissions:number
 }
-
 
 class AdminUploadPage extends Component<{}, UploadPageState> {
 
@@ -76,9 +52,12 @@ class AdminUploadPage extends Component<{}, UploadPageState> {
             project_name: "",
             project_id: 0,
             student_id:0,
+            class_id:0,
             end: "",
+            classlist:[],
             studentList: [],
             projects: [],
+            class_selected: false,
 
         };
     
@@ -86,6 +65,7 @@ class AdminUploadPage extends Component<{}, UploadPageState> {
         this.handleProjectIdChange = this.handleProjectIdChange.bind(this);
         this.handleStudentIdChange = this.handleStudentIdChange.bind(this);
         this.handleFileChange = this.handleFileChange.bind(this);
+        this.handleClassIdChange = this.handleClassIdChange.bind(this);
     }
 
     handleStudentIdChange(ev: SyntheticEvent<HTMLElement, Event>, value: DropdownProps){
@@ -94,9 +74,14 @@ class AdminUploadPage extends Component<{}, UploadPageState> {
     handleProjectIdChange(ev: SyntheticEvent<HTMLElement, Event>, value: DropdownProps){
         this.setState({ project_id: value.value ? parseInt(value.value.toString()) : -1 });
     }
-    
-    componentDidMount() {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/upload/total_students`, {
+    handleClassIdChange(ev: SyntheticEvent<HTMLElement, Event>, value: DropdownProps){
+        this.setState({isLoading:true});
+
+        this.setState({ class_id: value.value ? parseInt(value.value.toString()) : -1 });
+        this.setState({class_selected: true});
+
+        var cid = value.value?.toString();
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/upload/total_students_by_cid?class_id=${cid}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
@@ -115,8 +100,8 @@ class AdminUploadPage extends Component<{}, UploadPageState> {
             this.setState({ error_message: err.response.data.message});
             this.setState({ isErrorMessageHidden: false, isLoading: false });
         });
-
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/all_projects`, {
+        
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_projects_by_class_id?id=${cid}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
@@ -137,6 +122,32 @@ class AdminUploadPage extends Component<{}, UploadPageState> {
         .catch(err => {
             console.log(err);
         });
+
+        this.setState({isLoading:false});
+    }
+
+    componentDidMount() {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/all_classes_and_ids`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+            })
+        .then(res => {
+            var classes = res.data as Array<Student>;
+            var classesDropdown = [];
+            for(let i=0; i< classes.length;i++){
+                classesDropdown.push({ key: classes[i].id, text: classes[i].name, value: classes[i].id });
+            }
+            console.log(classesDropdown);
+            this.setState({ classlist: classesDropdown });
+
+        })
+        .catch(err => {
+            this.setState({ error_message: err.response.data.message});
+            this.setState({ isErrorMessageHidden: false, isLoading: false });
+        });
+
+        
     }
     
     handleFileChange(event : React.FormEvent) {
@@ -188,40 +199,59 @@ class AdminUploadPage extends Component<{}, UploadPageState> {
     render() {
         return (
         <div>
-            <p>Please select a student</p>
+            <p>Please select a class</p>
             <Dropdown
-                placeholder='Select Student'
+                placeholder='Select class'
                 fluid
                 search
                 selection
-                options={this.state.studentList}
-                onChange={this.handleStudentIdChange}
+                options={this.state.classlist}
+                onChange={this.handleClassIdChange}
             />
-            <div>
-            &nbsp;
-            </div>
-            <p>Please select a project</p>
-            <Dropdown
-                placeholder='Select Project'
-                fluid
-                search
-                selection
-                options={this.state.projects}
-                onChange={this.handleProjectIdChange}
-            />
-            <div>
-            &nbsp;
-            </div>
-            <Form loading={this.state.isLoading} size='large' onSubmit={this.handleSubmit} disabled={true}>
-            <Segment stacked>
-                <h1>Upload Assignment Here</h1>
-                <Form.Input type="file" fluid required onChange={this.handleFileChange} />
-                <Button type="submit" color='blue' fluid size='large'>
-                    Upload
-                </Button>
-                <br></br>
-                </Segment>
-            </Form>
+            {
+                this.state.class_selected ?
+                <div>
+                    <div>
+                    &nbsp;
+                    </div>
+                    <p>Please select a student</p>
+                    <Dropdown
+                        placeholder='Select Student'
+                        fluid
+                        search
+                        selection
+                        options={this.state.studentList}
+                        onChange={this.handleStudentIdChange}
+                    />
+                    <div>
+                    &nbsp;
+                    </div>
+                    <p>Please select a project</p>
+                    <Dropdown
+                        placeholder='Select Project'
+                        fluid
+                        search
+                        selection
+                        options={this.state.projects}
+                        onChange={this.handleProjectIdChange}
+                    />
+                    <div>
+                    &nbsp;
+                    </div>
+                    <Form loading={this.state.isLoading} size='large' onSubmit={this.handleSubmit} disabled={true}>
+                    <Segment stacked>
+                        <h1>Upload Assignment Here</h1>
+                        <Form.Input type="file" fluid required onChange={this.handleFileChange} />
+                        <Button type="submit" color='blue' fluid size='large'>
+                            Upload
+                        </Button>
+                        <br></br>
+                        </Segment>
+                    </Form>
+                </div>
+                :
+                <div></div>
+            }
         </div>
         );
   }
