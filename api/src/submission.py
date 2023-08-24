@@ -320,9 +320,11 @@ def Get_OH_Questions(submission_repo: SubmissionRepository = Provide[Container.s
         class_name = project_repo.get_className_by_projectId(question.projectId)
         class_id = project_repo.get_class_id_by_name(class_name)
         subs = submission_repo.get_most_recent_submission_by_project(question.projectId, [question.StudentId])
-        if question.StudentId not in subs:
+        try:
+            question_list.append([question.Sqid,question.StudentQuestionscol, question.TimeSubmitted.strftime("%x %X"), Student_name, question.ruling, question.projectId, class_id, subs[question.StudentId].Id])
             question_list.append([question.Sqid,question.StudentQuestionscol, question.TimeSubmitted.strftime("%x %X"), Student_name, question.ruling, question.projectId, class_id, -1])
-        question_list.append([question.Sqid,question.StudentQuestionscol, question.TimeSubmitted.strftime("%x %X"), Student_name, question.ruling, question.projectId, class_id, subs[question.StudentId].Id])
+        except:
+            question_list.append([question.Sqid,question.StudentQuestionscol, question.TimeSubmitted.strftime("%x %X"), Student_name, question.ruling, question.projectId, class_id, -1])
     return make_response(json.dumps(question_list), HTTPStatus.OK)
 
 
