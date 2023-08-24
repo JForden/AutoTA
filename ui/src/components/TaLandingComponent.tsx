@@ -196,14 +196,17 @@ class TaComponent extends Component<{}, OfficeHoursState> {
                     : 
                     <Button.Group>
                     <Table.Cell>
-                    <Link target="_blank" to={"/class/" + item.class_id + "/code/" + item.submission_id}>
-                        <Button
-                        color={item.ruled === -1 ? 'grey' : 'orange'}
-                        disabled={item.ruled === -1}
-                        >
-                        View
-                        </Button>
-                    </Link>
+                        {item.submission_id !== -1 ? (
+                            <Link target="_blank" to={"/class/" + item.class_id + "/code/" + item.submission_id}>
+                                <Button color={item.ruled === -1 ? 'grey' : 'orange'}>
+                                    View
+                                </Button>
+                            </Link>
+                        ) : (
+                            <Button color='grey' disabled>
+                                View
+                            </Button>
+                        )}
                     </Table.Cell>
                     </Button.Group>
                     

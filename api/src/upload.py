@@ -347,6 +347,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     #Check to see if student is able to upload or still on timeout
     if(current_user.Role != ADMIN_ROLE):
         class_id = request.form['class_id']
+        #TODO: Static 5 minute timeout
 
     # check if the post request has the file part
     if 'file' not in request.files:

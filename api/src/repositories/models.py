@@ -149,3 +149,5 @@ class StudentQuestions(db.Model):
     StudentId = Column(Integer, ForeignKey('Users.Id'))
     TimeSubmitted = Column(DateTime)
     projectId = Column(Integer, ForeignKey('Projects.Id'))
+    TimeAccepted = Column(DateTime)
+    TimeCompleted = Column(DateTime)

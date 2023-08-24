@@ -248,12 +248,14 @@ class SubmissionRepository():
         question.ruling = int(ruling)
         if(int(ruling) == 0):
             question.dismissed = int(1)
+        else:
+            question.TimeAccepted = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         db.session.commit()
         return "ok"
     def Submit_OH_dismiss(self, question_id):
         question = StudentQuestions.query.filter(StudentQuestions.Sqid == question_id).first()
         question.dismissed = int(1)
-        print("here", flush=True)
+        question.TimeCompleted = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         db.session.commit()
         return "ok"
     def Get_all_OH_questions(self):
