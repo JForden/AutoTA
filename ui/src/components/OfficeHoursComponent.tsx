@@ -20,9 +20,11 @@ interface OfficeHoursState {
   projects: Array<DropDownOption>;
   selectedClass: number | null;
   selectedProject: number;
+  usersQuestionID: number;
 }
 
 interface OHQuestion {
+  questionID: number;
   question: string;
   question_time: string;
 }
@@ -45,6 +47,7 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
       projects: [],
       selectedClass: 0,
       selectedProject: 0,
+      usersQuestionID: 0
     };
 
     this.handleQuestionSubmit = this.handleQuestionSubmit.bind(this);
@@ -54,11 +57,33 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
     this.fetchProjects = this.fetchProjects.bind(this);
     this.handleClassIdChange = this.handleClassIdChange.bind(this);
     this.handleProjectIdChange = this.handleProjectIdChange.bind(this);
+    this.calculateTimeDifference = this.calculateTimeDifference.bind(this);
+    this.activequestion = this.activequestion.bind(this);
 
 
     }
     componentDidMount(): void {
+      this.activequestion();
       this.fetchClasses();
+    }
+    activequestion = () => {
+      axios.get(process.env.REACT_APP_BASE_API_URL + '/submissions/getactivequestion', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+      }
+      })
+      .then(res => {
+        var data = parseInt(res.data);
+        console.log(data);
+        if (data != -1) {
+          this.setState({ usersQuestionID: data });
+          this.setState({ questionAsked: true });
+          this.startFetchingInterval();
+        }
+    })
+    .catch(err => {
+        console.log(err);
+    });
     }
 
     fetchClasses() {
@@ -128,6 +153,8 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
     })
     .then(res => {
       console.log(this.state.question);
+      console.log(res.data);
+      this.setState({ usersQuestionID: res.data });
       this.setState({ questionAsked: true });
       this.startFetchingInterval();
 
@@ -145,6 +172,7 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
       .then(res => {
         console.log(res.data);
         const formattedQuestions = res.data.map((item: any[]) => ({
+          questionID: parseInt(item[0]),
           question: item[1],
           question_time: item[2]
         }));
@@ -249,7 +277,9 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
             console.log('Question Time:', question.question_time);
             return (
               <Table.Row key={index}>
-                <Table.Cell>{index + 1}</Table.Cell>
+                <Table.Cell>
+                {question.questionID === this.state.usersQuestionID ? 'Your position' : index + 1}
+                </Table.Cell>
                 <Table.Cell>
                   {question.question_time} - This was {this.calculateTimeDifference(question.question_time)} minutes ago
                 </Table.Cell>

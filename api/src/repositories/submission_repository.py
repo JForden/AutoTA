@@ -242,7 +242,7 @@ class SubmissionRepository():
         student_question = StudentQuestions(StudentQuestionscol=question, StudentId=user_id, dismissed=0, ruling=-1, TimeSubmitted=dt_string, projectId=project_id)
         db.session.add(student_question)
         db.session.commit()
-        return "ok"
+        return str(student_question.Sqid)
     def Submit_OH_ruling(self, question_id, ruling):
         question = StudentQuestions.query.filter(StudentQuestions.Sqid == question_id).first()
         question.ruling = int(ruling)
@@ -260,6 +260,11 @@ class SubmissionRepository():
         #get all questions that have not been dismissed
         questions = StudentQuestions.query.filter(StudentQuestions.dismissed == 0).all()
         return questions
+    def get_active_question(self, user_id):
+        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.dismissed == 0)).first()
+        if question == None:
+            return -1
+        return question.Sqid
 
 
 
