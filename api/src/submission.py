@@ -299,3 +299,44 @@ def update_GPT_Student_feedback(submission_repo: SubmissionRepository = Provide[
     return make_response(submission_repo.Update_GPT_Student_Feedback(qid,student_feedback), HTTPStatus.OK)
 
 
+@submission_api.route('/submitOHquestion', methods=['GET'])
+@jwt_required()
+@inject
+def Submit_OH_Question(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    question = str(request.args.get("question"))
+    project_id = str(request.args.get("projectId"))
+    return make_response(submission_repo.Submit_Student_OH_question(question,current_user.Id, project_id), HTTPStatus.OK)
+
+@submission_api.route('/getOHquestions', methods=['GET'])
+@jwt_required()
+@inject
+def Get_OH_Questions(submission_repo: SubmissionRepository = Provide[Container.submission_repo], user_repo: UserRepository = Provide[Container.user_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    questions = submission_repo.Get_all_OH_questions()
+    question_list = []
+    #Need class ID and submission ID
+    for question in questions:
+        user = user_repo.get_user(question.StudentId)
+        Student_name = user.Firstname + " " + user.Lastname
+        class_name = project_repo.get_className_by_projectId(question.projectId)
+        class_id = project_repo.get_class_id_by_name(class_name)
+        subs = submission_repo.get_most_recent_submission_by_project(question.projectId, [current_user.Id])
+        question_list.append([question.Sqid,question.StudentQuestionscol, question.TimeSubmitted.strftime("%x %X"), Student_name, question.ruling, question.projectId, class_id, subs[current_user.Id].Id])
+    return make_response(json.dumps(question_list), HTTPStatus.OK)
+
+
+@submission_api.route('/submitOHQuestionRuling', methods=['GET'])
+@jwt_required()
+@inject
+def Submit_OH_Question_Ruling(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    question_id = str(request.args.get("question_id"))
+    ruling = str(request.args.get("ruling"))
+    return make_response(submission_repo.Submit_OH_ruling(question_id,ruling), HTTPStatus.OK)
+
+#dismiss question
+@submission_api.route('/dismissOHQuestion', methods=['GET'])
+@jwt_required()
+@inject
+def Dismiss_OH_Question(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    question_id = str(request.args.get("question_id"))
+    return make_response(submission_repo.Submit_OH_dismiss(question_id), HTTPStatus.OK)
+

@@ -77,6 +77,9 @@ class Login extends Component<{}, LoginPageState> {
     if (this.state.isLoggedIn && this.state.role === 1 ){
       return ( <Redirect to={{pathname: '/admin/classes'}}/> );
     }
+    if (this.state.isLoggedIn && this.state.role === 2 ){
+      return ( <Redirect to={{pathname: '/admin/TaLanding'}}/> );
+    }
     return (
     <div>    
         <Helmet>

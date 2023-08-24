@@ -51,6 +51,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     const [SubmitJSON, setSubmitJSON] = useState<string>("Submit .JSON file");
     const [getJSON, setGetJSON] = useState<string>("Export test cases");
     const [File, setFile] = useState<File>();
+    const [AssignmentDesc, setDesc] = useState<File>();
     const [edit, setEdit] =useState<boolean>(false);
 
    
@@ -300,11 +301,16 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         console.log("in new submit");
         const formData = new FormData();
         formData.append("file",File!);
+        formData.append("assignmentdesc", AssignmentDesc!);
         formData.append("name",ProjectName);
         formData.append("start_date",ProjectStartDate);
         formData.append("end_date",ProjectEndDate);
         formData.append("language",ProjectLanguage);
         formData.append("class_id",props.class_id.toString());
+        if(ProjectName === "" || ProjectStartDate === "" || ProjectEndDate === "" || ProjectLanguage === ""){
+            window.alert("Please fill out all fields");
+            return;
+        }
         axios.post(process.env.REACT_APP_BASE_API_URL + `/projects/create_project`, formData, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
@@ -324,6 +330,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         const formData = new FormData();
         formData.append("id",props.id.toString());
         formData.append("file",File!);
+        formData.append("assignmentdesc", AssignmentDesc!);
         formData.append("name",ProjectName);
         formData.append("start_date",ProjectStartDate);
         formData.append("end_date",ProjectEndDate);
@@ -357,6 +364,20 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         }
     }; 
 
+    function handleDescFileChange(event : React.FormEvent) {
+    
+        const target = event.target as HTMLInputElement;
+        const files = target.files;
+
+        if(files != null && files.length === 1){
+            // Update the state
+            setDesc(files[0]);
+        } else {
+            setDesc(undefined);
+        }
+    };
+
+
     function buttonhandleClick(testcase: number) {
         //loop through testcase and return the one with the id
         var test: Testcase = new Testcase();
@@ -378,7 +399,11 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         formData.append('isHidden', test.isHidden.toString());
         formData.append('description', test.description.toString());
 
-
+    
+        if(test.name === "" || test.levelname === "" || test.input === "" ||  test.description === ""){
+            window.alert("Please fill out all fields");
+            return;
+        } 
         axios.post(process.env.REACT_APP_BASE_API_URL + '/projects/add_or_update_testcase', formData, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
@@ -446,7 +471,11 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                             <Tab.Pane>
                                 <Form>
                                 <Segment stacked>
+                                    {edit ?
+                                    <h1>Edit Assignment</h1>
+                                    :
                                     <h1>Create Assignment</h1>
+                                    }
                                 <Form.Field
                                 control={Input}
                                 label='Project Name'
@@ -519,12 +548,19 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                         <h1>change solution files</h1>
                                         <Form.Input type="file" fluid onChange={handleFileChange} />
                                         <br></br>
+                                        <h1>change assignment description file</h1>
+                                        <Form.Input type="file" fluid onChange={handleDescFileChange} />
+                                        <br></br>
                                         </div>
                                         :
                                         <div>
                                             <h1>upload solution files</h1>
                                             <Form.Input type="file" fluid onChange={handleFileChange} />
                                             <br></br>
+                                            <h1>upload assignment description</h1>
+                                            <Form.Input type="file" fluid onChange={handleDescFileChange} />
+                                            <br></br>
+
                                         </div>
                                     }
                                 </Segment>
@@ -624,6 +660,34 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                             <div style={{ marginLeft: '10px', marginRight: '10px' }}></div>
                             <Form.Button color={'green'} onClick={get_testcase_json}>{getJSON}</Form.Button>
                             </Button.Group>
+                            <Grid>
+                            <Grid.Row>
+                            <Grid.Column width={8}>
+                                <h2>Level 1: Base Cases (Simple Cases)</h2>
+                                <ul>
+                                <li>Test basic functionality with simple inputs.</li>
+                                </ul>
+                                <h2>Level 2: Main Functionality Cases</h2>
+                                <ul>
+                                <li>Test core features and main tasks.</li>
+                                <li>Use a variety of inputs, positive/negative scenarios.</li>
+                                </ul>
+                            </Grid.Column>
+
+                            <Grid.Column width={8}>
+                                <h2>Level 3: Edge Cases (Boundary and Extreme Cases)</h2>
+                                <ul>
+                                <li>Test less common or extreme situations.</li>
+                                </ul>
+                                <h2>General Best Practices for Test Cases:</h2>
+                                <ul>
+                                <li>Clear and descriptive names.</li>
+                                <li>Complete coverage with representative cases.</li>
+                                <li>Descriptions are robust for students</li>
+                                </ul>
+                            </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
                         </Tab.Pane>
                     }
                 ]

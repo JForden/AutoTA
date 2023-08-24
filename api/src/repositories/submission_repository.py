@@ -1,6 +1,6 @@
 import openai
 from src.repositories.database import db
-from .models import GPTLogs, StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
+from .models import GPTLogs, StudentQuestions, StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
 from sqlalchemy import desc, and_
 from typing import Dict, List, Tuple
 from src.repositories.config_repository import ConfigRepository
@@ -237,6 +237,29 @@ class SubmissionRepository():
         question.StudentFeedback =int(student_feedback)
         db.session.commit()
         return "ok"
+    def Submit_Student_OH_question(self, question, user_id, project_id):
+        dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        student_question = StudentQuestions(StudentQuestionscol=question, StudentId=user_id, dismissed=0, ruling=-1, TimeSubmitted=dt_string, projectId=project_id)
+        db.session.add(student_question)
+        db.session.commit()
+        return "ok"
+    def Submit_OH_ruling(self, question_id, ruling):
+        question = StudentQuestions.query.filter(StudentQuestions.Sqid == question_id).first()
+        question.ruling = int(ruling)
+        if(int(ruling) == 0):
+            question.dismissed = int(1)
+        db.session.commit()
+        return "ok"
+    def Submit_OH_dismiss(self, question_id):
+        question = StudentQuestions.query.filter(StudentQuestions.Sqid == question_id).first()
+        question.dismissed = int(1)
+        print("here", flush=True)
+        db.session.commit()
+        return "ok"
+    def Get_all_OH_questions(self):
+        #get all questions that have not been dismissed
+        questions = StudentQuestions.query.filter(StudentQuestions.dismissed == 0).all()
+        return questions
 
 
 

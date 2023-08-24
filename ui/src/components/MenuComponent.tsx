@@ -63,11 +63,33 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                     </div>
                     <div>
                         {(() => {
+                            if(!this.props.showUpload) {
+                                return (<></>);
+                            } else {
+                                return (
+                                    <Menu.Item><a href="/class/OfficeHours">Office Hours</a></Menu.Item>
+                                );
+                            }
+                        })()}               
+                    </div>
+                    <div>
+                        {(() => {
                             if(!this.props.showAdminUpload) {
                                 return (<></>);
                             } else {
                                 return (
                                     <Menu.Item><a href="/admin/upload">Admin Upload</a></Menu.Item>
+                                );
+                            }
+                        })()}               
+                    </div>
+                    <div>
+                        {(() => {
+                            if(!this.props.showAdminUpload) {
+                                return (<></>);
+                            } else {
+                                return (
+                                    <Menu.Item><a href="/admin/TaLanding">Office Hours</a></Menu.Item>
                                 );
                             }
                         })()}               

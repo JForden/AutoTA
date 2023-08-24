@@ -1,3 +1,4 @@
+from io import BytesIO
 import json
 import os
 import shutil
@@ -10,7 +11,7 @@ import sys
 from subprocess import Popen
 from src.repositories.user_repository import UserRepository
 from src.repositories.submission_repository import SubmissionRepository
-from flask import Blueprint
+from flask import Blueprint, Response, send_file
 from flask import make_response
 from http import HTTPStatus
 from injector import inject
@@ -78,6 +79,16 @@ def get_projects_by_user(project_repo: ProjectRepository = Provide[Container.pro
             student_submissions[project.Name]=[sub.Id, sub.Points, sub.Time.strftime("%x %X"), class_name, str(project.ClassId)]
     return make_response(json.dumps(student_submissions), HTTPStatus.OK)
 
+@projects_api.route('/submission-by-user-most-recent-project', methods=['GET'])
+@jwt_required()
+@inject
+def get_submission_by_user_most_recent_project(project_repo: ProjectRepository = Provide[Container.project_repo], submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    projectId = str(request.args.get("projectId"))
+    subs = submission_repo.get_most_recent_submission_by_project(projectId, [current_user.Id])
+    temp =[]
+    temp.append(subs[current_user.Id].Id)
+    return make_response(json.dumps(temp), HTTPStatus.OK)
+    
 
 
 @projects_api.route('/create_project', methods=['POST'])
@@ -89,8 +100,15 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         message = {
             'message': 'No selected file'
         }
-        return make_response(message, HTTPStatus.BAD_REQUEST)    
+        return make_response(message, HTTPStatus.BAD_REQUEST)  
+    if 'assignmentdesc' not in request.files:
+        print("NO FILE")
+        message = {
+            'message': 'No assignment description file'
+        }
+        return make_response(message, HTTPStatus.BAD_REQUEST)     
     file = request.files['file']
+    
     if current_user.Role != ADMIN_ROLE:
         message = {
             'message': 'Access Denied'
@@ -128,6 +146,9 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         path = os.path.join("/ta-bot/project-files", f"{name}{extension}")
         os.mkdir(os.path.join("/ta-bot", f"{name}-out"))
         file.save(path)
+        file = request.files['assignmentdesc']
+        assignmentdesc_path = os.path.join("/ta-bot/project-files", f"{name}.pdf")
+        file.save(assignmentdesc_path)
     else:
         print("In file save else", flush=True)
         path = os.path.join("/ta-bot/project-files", f"{name}")
@@ -136,9 +157,13 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         os.mkdir(path)
         with zipfile.ZipFile(file, "r") as zip_ref:
             zip_ref.extractall(path) 
+        file = request.files['assignmentdesc']
+        assignmentdesc_path = os.path.join("/ta-bot/project-files", f"{name}.pdf")
+        file.save(assignmentdesc_path)
+        
     #TODO: Add class ID and path
 
-    project_repo.create_project(name, start_date, end_date, language,class_id,path)
+    project_repo.create_project(name, start_date, end_date, language,class_id,path, assignmentdesc_path)
 
     new_project_id = project_repo.get_project_id_by_name(name)
     project_repo.levels_creator(new_project_id)
@@ -165,6 +190,7 @@ def edit_project(project_repo: ProjectRepository = Provide[Container.project_rep
     if 'language' in request.form:
         language = request.form['language']
     path = project_repo.get_project_path(pid)
+    assignmentdesc_path = project_repo.get_project_desc_path(pid)
     file = request.files.get('file')
     if file is not None:
         filename =file.filename
@@ -193,10 +219,14 @@ def edit_project(project_repo: ProjectRepository = Provide[Container.project_rep
             os.mkdir(path)
             with zipfile.ZipFile(file, "r") as zip_ref:
                 zip_ref.extractall(path) 
+    
+    file = request.files.get('assignmentdesc')
+    if file is not None:
+        file.save(assignmentdesc_path)
     if name == '' or start_date == '' or end_date == '' or language == '':
         return make_response("Error in form", HTTPStatus.BAD_REQUEST)
     
-    project_repo.edit_project(name, start_date, end_date, language, pid, path)
+    project_repo.edit_project(name, start_date, end_date, language, pid, path, assignmentdesc_path)
     return make_response("Project Edited", HTTPStatus.OK)
 
 
@@ -321,12 +351,8 @@ def remove_testcase(project_repo: ProjectRepository = Provide[Container.project_
 @jwt_required()
 @inject
 def get_projects_by_class_id(project_repo: ProjectRepository = Provide[Container.project_repo], submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
-    if current_user.Role != ADMIN_ROLE:
-        message = {
-            'message': 'Access Denied'
-        }
-        return make_response(message, HTTPStatus.UNAUTHORIZED)
     data = project_repo.get_projects_by_class_id(request.args.get('id'))
+    
     new_projects = []
     thisdic = submission_repo.get_total_submission_for_all_projects()
     for proj in data:
@@ -366,4 +392,21 @@ def delete_project(project_repo: ProjectRepository = Provide[Container.project_r
     project_repo.delete_project(project_id)
     print("Finished", flush=True)
     return make_response("Project reset", HTTPStatus.OK)
+
+@projects_api.route('/getAssignmentDescription', methods=['GET'])
+@jwt_required()
+@inject
+def getAssignmentDescription(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    print("MADE IT HERE1", flush=True)
+    project_id = request.args.get('project_id')
+    assignmentdesc_contents = project_repo.get_project_desc_file(project_id)
+    file_stream = BytesIO(assignmentdesc_contents)
+    print("MADE IT HERE", flush=True)
+    
+    # Use send_file to send the PDF contents as a response
+    return Response(
+        file_stream.getvalue(),
+        content_type='application/pdf',
+        headers={'Content-Disposition': 'inline; filename=assignment_description.pdf'}
+    )
     

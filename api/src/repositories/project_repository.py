@@ -4,6 +4,8 @@ import shutil
 import subprocess
 from typing import Optional, Dict
 
+from flask import send_file
+
 from sqlalchemy.sql.expression import asc
 from .models import Projects, Levels, StudentProgress, Submissions, Testcases, Classes
 from src.repositories.database import db
@@ -74,8 +76,8 @@ class ProjectRepository():
 
         return levels
 
-    def create_project(self, name: str, start: datetime, end: datetime, language:str,class_id:int,file_path:str):    
-        project = Projects(Name = name, Start = start, End = end, Language = language,ClassId=class_id,solutionpath=file_path)
+    def create_project(self, name: str, start: datetime, end: datetime, language:str,class_id:int,file_path:str, description_path:str):    
+        project = Projects(Name = name, Start = start, End = end, Language = language,ClassId=class_id,solutionpath=file_path, AsnDescriptionPath = description_path)
         db.session.add(project)
         db.session.commit()
     def get_project(self, project_id:int) -> Projects:
@@ -88,13 +90,14 @@ class ProjectRepository():
         project[project_data.Id] = [str(project_data.Name),str(start_string),str(end_string), str(project_data.Language)]
         return project
 
-    def edit_project(self, name: str, start: datetime, end: datetime, language:str, project_id:int, path:str):
+    def edit_project(self, name: str, start: datetime, end: datetime, language:str, project_id:int, path:str, description_path:str):
         project = Projects.query.filter(Projects.Id == project_id).first()
         project.Name = name
         project.Start = start
         project.End = end
         project.Language = language
         project.solutionpath = path
+        project.AsnDescriptionPath = description_path
         db.session.commit() 
         
     def get_testcases(self, project_id:int) -> Dict[str,str]:
@@ -201,6 +204,7 @@ class ProjectRepository():
         db.session.delete(project)
         db.session.commit()
     def get_className_by_projectId(self, project_id):
+        print("This is project ID", project_id, flush=True)
         project = Projects.query.filter(Projects.Id == project_id).first()
         class_obj = Classes.query.filter(Classes.Id ==project.ClassId).first()
         return class_obj.Name
@@ -210,6 +214,16 @@ class ProjectRepository():
     def get_project_path(self, project_id):
         project = Projects.query.filter(Projects.Id==project_id).first()
         return project.solutionpath
+    def get_project_desc_path(self, project_id):
+        project = Projects.query.filter(Projects.Id==project_id).first()
+        return project.AsnDescriptionPath
+    def get_project_desc_file(self, project_id):
+        print("This is project ID", project_id, flush=True)
+        project = Projects.query.filter(Projects.Id == project_id).first()
+        filepath = project.AsnDescriptionPath
+        with open(filepath, 'rb') as file:
+            file_contents = file.read()
+        return file_contents  # Return the contents of the PDF file
 
         
 

@@ -18,7 +18,7 @@ class AdminProject extends Component<AdminProjectProps, {}> {
             <Helmet>
                 <title>[Admin] Projects | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={false} ></MenuComponent>
+            <MenuComponent showUpload={false} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={false} ></MenuComponent>
             <Grid className="main-grid">
             <Route path="/admin/projects/:id" component={AdminComponent} />
             </Grid>

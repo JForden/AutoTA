@@ -21,6 +21,7 @@ class Projects(db.Model):
     StudentProgress=relationship('StudentProgress')
     StudentUnlocks=relationship('StudentUnlocks') 
     solutionpath=Column(String)
+    AsnDescriptionPath = Column(String)
 
 class Users(db.Model):
     __tablename__ = "Users"
@@ -65,7 +66,7 @@ class Classes(db.Model):
     __tablename__ = "Classes"
     Id = Column(Integer, primary_key=True)
     Name = Column(String)
-    Tid = Column(Integer, ForeignKey('Users.Id'))
+    Tid = Column(String)
     
 
 class Labs(db.Model):
@@ -138,3 +139,13 @@ class ChatGPTkeys(db.Model):
     idChatGPTkeys = Column(Integer, primary_key=True, autoincrement=True)
     ChatGPTkeyscol = Column(String)
     LastUsed = Column(DateTime)
+
+class StudentQuestions(db.Model):
+    __tablename__ = "StudentQuestions"
+    Sqid = Column(Integer, primary_key=True, autoincrement=True)
+    StudentQuestionscol = Column(String)
+    ruling = Column(Integer)
+    dismissed = Column(Integer)
+    StudentId = Column(Integer, ForeignKey('Users.Id'))
+    TimeSubmitted = Column(DateTime)
+    projectId = Column(Integer, ForeignKey('Projects.Id'))

@@ -28,10 +28,11 @@ class ClassRepository():
         return classes
     
     def get_assigned_courses(self, user_id):
-        classes = Classes.query.filter(Classes.Tid==user_id).all()
+        classes = Classes.query.all()
         classDict = {}
         for c in classes:
-            classDict[c.Id] = c.Name
+            if str(user_id) in c.Tid:
+                classDict[c.Id] = c.Name
         return classDict
     
     def create_assignments(self, class_id: int, lab_id:int, user_id: int, lecture_id: int):

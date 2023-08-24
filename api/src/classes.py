@@ -24,7 +24,7 @@ def get_classes_and_ids(class_repository: ClassRepository = Provide[Container.cl
     classes = class_repository.get_classes()
     classes_list =[]
     for c in classes:
-       if c.Tid == current_user.Id:
+       if str(current_user.Id) in c.Tid:
            classes_list.append({"name":c.Name, "id":c.Id})
     return jsonify(classes_list)
 
