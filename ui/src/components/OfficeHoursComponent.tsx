@@ -74,7 +74,6 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
       })
       .then(res => {
         var data = parseInt(res.data);
-        console.log(data);
         if (data != -1) {
           this.setState({ usersQuestionID: data });
           this.setState({ questionAsked: true });
@@ -87,7 +86,7 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
     }
 
     fetchClasses() {
-      axios.get(process.env.REACT_APP_BASE_API_URL + '/class/all_classes_and_ids', {
+      axios.get(process.env.REACT_APP_BASE_API_URL + '/class/all_classes_and_ids_for_student', {
           headers: {
               'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
           }
@@ -99,8 +98,6 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
           value: item.id,
           text: item.name
         }));
-        console.log("This is classes dropdown");
-        console.log(classesDropdown);
         this.setState({ classes: classesDropdown });
       })
       .catch(err => {
@@ -108,8 +105,6 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
       });
     }
     fetchProjects(classId: number) {
-      console.log("This is class id");
-      console.log(classId);
       axios
       .get(
         `${process.env.REACT_APP_BASE_API_URL}/projects/get_projects_by_class_id?id=${classId}`,
@@ -123,7 +118,6 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
       )
       .then(res => {
         //map the response data to the correct format
-        console.log(res.data);
         const projectDropdown: DropDownOption[] = res.data.map((itemString: string) => {
           const item = JSON.parse(itemString);
           return {
@@ -133,8 +127,6 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
           };
         });
         this.setState({ projects: projectDropdown });
-        console.log("This is projects dropdown");
-        console.log(projectDropdown);
       })
       .catch(err => {
           console.log(err);
@@ -152,8 +144,6 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
         }
     })
     .then(res => {
-      console.log(this.state.question);
-      console.log(res.data);
       this.setState({ usersQuestionID: res.data });
       this.setState({ questionAsked: true });
       this.startFetchingInterval();
@@ -170,7 +160,6 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
           }
       })
       .then(res => {
-        console.log(res.data);
         const formattedQuestions = res.data.map((item: any[]) => ({
           questionID: parseInt(item[0]),
           question: item[1],
@@ -273,12 +262,14 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
         </Table.Header>
         <Table.Body>
           {this.state.Student_questions.map((question, index) => {
-            console.log('Question:', question);
-            console.log('Question Time:', question.question_time);
             return (
               <Table.Row key={index}>
                 <Table.Cell>
-                {question.questionID === this.state.usersQuestionID ? 'Your position' : index + 1}
+                {question.questionID === this.state.usersQuestionID && index === 0
+                ? 'Your turn!'
+                : question.questionID === this.state.usersQuestionID
+                    ? 'Your submission'
+                    : index + 1}
                 </Table.Cell>
                 <Table.Cell>
                   {question.question_time} - This was {this.calculateTimeDifference(question.question_time)} minutes ago

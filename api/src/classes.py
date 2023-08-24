@@ -28,6 +28,16 @@ def get_classes_and_ids(class_repository: ClassRepository = Provide[Container.cl
            classes_list.append({"name":c.Name, "id":c.Id})
     return jsonify(classes_list)
 
+@class_api.route('/all_classes_and_ids_for_student', methods=['GET'])
+@jwt_required()
+@inject
+def get_classes_and_ids_for_student(class_repository: ClassRepository = Provide[Container.class_repo]):
+    classes = class_repository.get_classes()
+    classes_list =[]
+    for c in classes:
+        classes_list.append({"name":c.Name, "id":c.Id})
+    return jsonify(classes_list)
+
 
 @class_api.route('/classes_by_Tid', methods=['GET'])
 @jwt_required()
