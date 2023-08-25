@@ -51,8 +51,8 @@ class SubmissionRepository():
         submission = self.get_submission_by_user_id(user_id)
         return submission.CodeFilepath
     
-    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str, score: int):
-        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=score)
+    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str, score: int, is_visible: int):
+        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=score, visible=is_visible)
         db.session.add(submission)
         db.session.commit()
         created_id = submission.Id  # Assuming the auto-incremented ID field is named "ID"
@@ -267,89 +267,49 @@ class SubmissionRepository():
         if question == None:
             return -1
         return question.Sqid
-    def check_timeout(self, user_id, submission_id, project_id):
-        TBS_config = [5, 15, 45, 60, 90, 120, 120, 120]
-        project = Projects.query.filter(Projects.Id == project_id).first()
-        # get most recent submission using submission_id
-        submission = Submissions.query.filter(Submissions.Id == submission_id).first()
-        submission_time = submission.Time
-        start_date = project.Start
-        current_date = datetime.now()
-        time_difference = current_date - start_date
-        days_passed = time_difference.days
+    def check_timeout(self, user_id, project_id):
+        tbs_settings = [5, 15, 45, 60, 90, 120, 120, 120]
+        #get the two most recent submissions for a given projectID
+        submissions = Submissions.query.filter(and_(Submissions.Project == project_id, Submissions.User == user_id, Submissions.visible ==1)).order_by(desc(Submissions.Time)).first()
+        #get the time of the most recent submission
+        if submissions == None:
+            return 1
+        most_recent_submission = submissions.Time
+        project_start_date = Projects.query.filter(Projects.Id == project_id).first().Start
+        #Get how many days have passed since the project start date
+        days_passed = (datetime.now() - project_start_date).days
         if days_passed > 7:
             days_passed = 7
-        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.ruling == 1)).order_by(desc(StudentQuestions.TimeAccepted)).first()
+        # get current time
+        current_time = datetime.now()
+        print("current timeout time: ", tbs_settings[days_passed], flush=True)
+        #given the student ID and project, query to see if there was a question asked for this project, get the most recent question
+        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == project_id)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
+        if question == None:
+            if most_recent_submission + timedelta(minutes=tbs_settings[days_passed]) < current_time:
+                return 1
         if question != None:
-            if question.TimeCompleted != None:
-                time_difference = current_date - question.TimeCompleted
-                six_hours = timedelta(hours=6)
-                if time_difference <= six_hours:
-                    if submission_time + timedelta(minutes=(TBS_config[days_passed])/3) < current_date:
-                        return True
-                else:
-                    return False
-            else:
-                #if the TimeCompleted is None, the question is still active and a student should be allowed to submit
-                return True
-            new_submission_time = submission_time + timedelta(minutes=TBS_config[days_passed])
-            #if the current date time is less than the new submission time then return the time left until the next submission is allowed
-            if current_date < new_submission_time:
-                return False
-            else:
-                #return the next time a submission is allowed
-                return True
-    def get_timeout(self, user_id, project_id):
-        user_id = int(user_id)
-        project_id = int(project_id)
-        TBS_config = [5, 15, 45, 60, 90, 120, 120, 120]
-        project = Projects.query.filter(Projects.Id == project_id).first()
-        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.ruling == 1, StudentQuestions.projectId== project_id)).order_by(desc(StudentQuestions.TimeAccepted)).first()
-        #Given the userID and project, get the most recent submission
-        submission = Submissions.query.filter(and_(Submissions.User == user_id, Submissions.Project == project_id)).order_by(desc(Submissions.Time)).first()
-        submission_time = 0
-        remaining_submission_str = 0
-        current_date = datetime.now()
-        start_date = project.Start
-        time_difference = current_date - start_date
-        days_passed = time_difference.days
-        if days_passed > 7:
-            days_passed = 7
-        if submission != None:
-            submission_time = submission.Time
-            if(submission_time + timedelta(minutes=(TBS_config[days_passed])/3) > current_date):
-                time_difference = submission_time + timedelta(minutes=(TBS_config[days_passed])/3) - current_date
-                remaining_minutes = time_difference.seconds // 60
-                remaining_seconds = time_difference.seconds % 60
-                # Calculate hours from remaining minutes (if greater than 60)
-                remaining_hours = remaining_minutes // 60
-                remaining_minutes %= 60
-                remaining_submission_str = f"{remaining_hours:02}:{remaining_minutes:02}:{remaining_seconds:02}"
-        time_difference = current_date - start_date
-        if question != None:
-            if question.TimeCompleted != None:
-                #if the question has been completed, check if it has been more than 6 hours since it was completed
-                timeout = question.TimeCompleted + timedelta(hours=6)
-                if timeout > current_date:
-                    time_difference = timeout - current_date
-                    remaining_minutes = time_difference.seconds // 60
-                    remaining_seconds = time_difference.seconds % 60
-                    # Calculate hours from remaining minutes (if greater than 60)
-                    remaining_hours = remaining_minutes // 60
-                    remaining_minutes %= 60
-                    remaining_time_str = f"{remaining_hours:02}:{remaining_minutes:02}:{remaining_seconds:02}"  # e.g., "05:31:50"
-                    if remaining_submission_str != "":
-                    # if the submission time plus the timedelta(minutes=(TBS_config[days_passed])/3) is greater than the current date. Return how much time until timedelta(minutes=(TBS_config[days_passed])/3)
-                        return [remaining_time_str, TBS_config[days_passed], remaining_submission_str]
+            if question.ruling ==1:
+                if(question.dismissed == 0):
+                    return 1
+                if question.TimeSubmitted + timedelta(hours=6) > current_time:
+                    if most_recent_submission + timedelta(minutes=(tbs_settings[days_passed])/3) < current_time:
+                        return 1
                     else:
-                        return [remaining_time_str, TBS_config[days_passed], remaining_submission_str] # 
+                        return 0
                 else:
-                    return [-1, TBS_config[days_passed], remaining_submission_str] #return 0 if the question has been completed and it has been more than 6 hours
-            else:
-                return [1, TBS_config[days_passed], remaining_submission_str] #return 1 if the question is still active
-        else:
-            return [-1, TBS_config[days_passed], remaining_submission_str]
-
-
+                    if most_recent_submission + timedelta(minutes=tbs_settings[days_passed]) < current_time:
+                        return 1
+                    else:
+                        return 0
+        return 0
+    def check_visibility(self, user_id, project_id):
+        # Get most recent submission given userId and projectID
+        submission = Submissions.query.filter(and_(Submissions.User == user_id, Submissions.Project == project_id)).order_by(desc(Submissions.Time)).first()
+        if submission == None:
+            print("Error: No submission found", flush=True)
+        if submission.visible == 1:
+            return True
+        return False
 
 

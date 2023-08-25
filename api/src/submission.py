@@ -82,7 +82,7 @@ def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Containe
         return make_response(output, HTTPStatus.OK)
     else:
         #call get-timout to see if user is in timeout
-        timeout = submission_repo.check_timeout(current_user.Id, submission.Id, projectid)
+        timeout = submission_repo.check_visibility(current_user.Id, projectid)
         if timeout == True:
             return make_response(output, HTTPStatus.OK)
         else:
@@ -332,7 +332,6 @@ def Get_OH_Questions(submission_repo: SubmissionRepository = Provide[Container.s
         subs = submission_repo.get_most_recent_submission_by_project(question.projectId, [question.StudentId])
         try:
             question_list.append([question.Sqid,question.StudentQuestionscol, question.TimeSubmitted.strftime("%x %X"), Student_name, question.ruling, question.projectId, class_id, subs[question.StudentId].Id])
-            question_list.append([question.Sqid,question.StudentQuestionscol, question.TimeSubmitted.strftime("%x %X"), Student_name, question.ruling, question.projectId, class_id, -1])
         except:
             question_list.append([question.Sqid,question.StudentQuestionscol, question.TimeSubmitted.strftime("%x %X"), Student_name, question.ruling, question.projectId, class_id, -1])
     return make_response(json.dumps(question_list), HTTPStatus.OK)
@@ -359,11 +358,3 @@ def Dismiss_OH_Question(submission_repo: SubmissionRepository = Provide[Containe
 @inject
 def get_active_Question(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
     return make_response(str(submission_repo.get_active_question(current_user.Id)), HTTPStatus.OK)
-
-@submission_api.route('/getStudentTimeout', methods=['GET'])
-@jwt_required()
-@inject
-def get_Student_Timeout(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
-    class_id = int(request.args.get("class_id"))
-    project = project_repo.get_current_project_by_class(class_id)
-    return make_response(json.dumps(submission_repo.get_timeout(current_user.Id, project.Id)), HTTPStatus.OK)

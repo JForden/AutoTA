@@ -134,6 +134,7 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
     }
 
     handleQuestionSubmit() {
+      console.log("In handleQuestionSubmit");
       if (this.state.question === "") {
         window.alert("Please enter a question");
         return;
@@ -160,6 +161,7 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
           }
       })
       .then(res => {
+        console.log(res.data);
         const formattedQuestions = res.data.map((item: any[]) => ({
           questionID: parseInt(item[0]),
           question: item[1],
@@ -265,12 +267,11 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
             return (
               <Table.Row key={index}>
                 <Table.Cell>
-                {question.questionID === this.state.usersQuestionID && index === 0
-                ? 'Your turn!'
-                : question.questionID === this.state.usersQuestionID
-                    ? 'Your submission'
-                    : index + 1}
-                </Table.Cell>
+                {question.questionID === this.state.usersQuestionID
+                  ? 
+                  'Your submission'
+                  : index + 1}
+              </Table.Cell>
                 <Table.Cell>
                   {question.question_time} - This was {this.calculateTimeDifference(question.question_time)} minutes ago
                 </Table.Cell>

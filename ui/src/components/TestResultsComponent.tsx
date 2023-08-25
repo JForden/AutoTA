@@ -175,10 +175,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             .catch((err) => {
               console.log(err);
             });
-      }
-      
-
-    
+      }    
     render() {
         var suites = [...new Set<string>(this.props.testcase.results.map(item => item.test.suite))];
         var numberOfEntries = suites.length;

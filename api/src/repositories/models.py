@@ -54,6 +54,7 @@ class Submissions(db.Model):
     SubmissionLevel =Column(String)
     Points = Column(Integer)
     StudentProgress=relationship('StudentProgress')
+    visible = Column(Integer)
 
 class LoginAttempts(db.Model):
     __tablename__ = "LoginAttempts"

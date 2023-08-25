@@ -1,6 +1,6 @@
 import { Component, useEffect, useState } from 'react';
 import 'semantic-ui-css/semantic.min.css'
-import { Button, Form, Grid, Segment, Dimmer, Header, Icon } from 'semantic-ui-react'
+import { Button, Form, Grid, Segment, Dimmer, Header, Icon, Table } from 'semantic-ui-react'
 import axios from 'axios';
 import MenuComponent from '../components/MenuComponent';
 import React from 'react'
@@ -75,23 +75,6 @@ const UploadPage = () => {
             setIsErrorMessageHidden(false);
             setIsLoading(false);
         });
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/getStudentTimeout?class_id=${cid.toString()}`,  {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            }
-          })
-        .then(res => {
-            setTbsTime(res.data[0]);
-            setTbsMessage(res.data[1]);
-            setTbsUploadTime(res.data[2]);
-            console.log(res.data[0]);
-            console.log(res.data[1]);
-            console.log(res.data[2]);
-        })
-        .catch(err => {
-            console.log(err);
-        }
-        );
     }, [])
 
     // On file select (from the pop up)
@@ -155,21 +138,7 @@ const UploadPage = () => {
             })
         }
     }
-
-    
-    /*
-    const [hoursStr, minutesStr, secondsStr] = tbstime.split(":");
-    const hours = parseInt(hoursStr, 10);
-    const minutes = parseInt(minutesStr, 10);
-    const seconds = parseInt(secondsStr, 10);
-
-    const countdownDate = new Date();
-    countdownDate.setHours(hours);
-    countdownDate.setMinutes(minutes);
-    countdownDate.setSeconds(seconds);
-    <h1>You have  <Icon name="clock outline"></Icon> <Countdown date={countdownDate} /> left of reduced rate limit submissions.</h1>
-    */
-    
+  
     return (
         <div>
     <Helmet>
@@ -177,38 +146,6 @@ const UploadPage = () => {
     </Helmet>
     <MenuComponent showAdminUpload={false} showUpload={false} showHelp={false} showCreate={false} showLast={true} showReviewButton={false}></MenuComponent>
     <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
-        <Grid.Column width={5}>
-            <Segment stacked>
-                    {tbstime === "1" ? (
-                        <div><h1>Currently at office hours: No rate limit!</h1></div>
-                    ) : (
-                        <div></div>
-                    )}
-                    {tbstime === "-1" ? (
-                        <div>
-                            <h1>You can upload to get test case results once every {tbsMessage} minutes <br></br> Attending office hours reduces this to {parseInt(tbsMessage)/3} minutes for 6 hours!</h1>
-                            <h1>Next upload is available in <Countdown date={new Date().setHours(parseInt(tbstime.split(":")[0], 10), parseInt(tbstime.split(":")[1], 10), parseInt(tbstime.split(":")[2], 10))} /></h1> </div>
-                    ) : (
-                        <><div>
-                                    <h1>Office Hours TBS reduction, you can get results once every {parseInt(tbsMessage) / 3} minutes 
-                                    This is in effect for 
-                                    <Countdown date={new Date().setHours(parseInt(tbstime.split(":")[0], 10), parseInt(tbstime.split(":")[1], 10), parseInt(tbstime.split(":")[2], 10))} /> more minutes! </h1> </div></> 
-                    )}
-            </Segment>
-                <div className="countdown-box">
-                <div className="countdown-info">
-                </div>
-            </div>
-        
-        </Grid.Column>
-        <Grid.Column width={5}>
-        {tbsUploadTime == "0" ? (
-                        <div><h1>You can upload for test case results!</h1></div>
-                    ) : (
-                        <div><h1>You will be able to upload for test case results in <Countdown date={new Date().setHours(parseInt(tbsUploadTime.split(":")[0], 10), parseInt(tbsUploadTime.split(":")[1], 10), parseInt(tbsUploadTime.split(":")[2], 10))} /> more minutes! </h1> </div>
-                    )}
-        </Grid.Column>
-
         <Grid.Column width={4}>
             <Form loading={isLoading} size='large' onSubmit={handleSubmit} disabled={true}>
                 <Dimmer.Dimmable dimmed={true}>
@@ -228,6 +165,43 @@ const UploadPage = () => {
                     </Dimmer>
                 </Dimmer.Dimmable>
             </Form>
+            <div>
+                <Table definition>
+                    <Table.Header>
+                    <Table.Row>
+                        <Table.HeaderCell />
+                        <Table.HeaderCell>Day 1</Table.HeaderCell>
+                        <Table.HeaderCell>Day 2</Table.HeaderCell>
+                        <Table.HeaderCell>Day 3</Table.HeaderCell>
+                        <Table.HeaderCell>Day 4</Table.HeaderCell>
+                        <Table.HeaderCell>Day 5</Table.HeaderCell>
+                        <Table.HeaderCell>Day 6+</Table.HeaderCell>
+                    </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                    <Table.Row>
+                        <Table.Cell>normal TBS</Table.Cell>
+                        <Table.Cell>5</Table.Cell>
+                        <Table.Cell>15</Table.Cell>
+                        <Table.Cell>45</Table.Cell>
+                        <Table.Cell>60</Table.Cell>
+                        <Table.Cell>90</Table.Cell>
+                        <Table.Cell>120</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
+                        <Table.Cell>office hours TBS</Table.Cell>
+                        <Table.Cell>1.7</Table.Cell>
+                        <Table.Cell>5</Table.Cell>
+                        <Table.Cell>15</Table.Cell>
+                        <Table.Cell>20</Table.Cell>
+                        <Table.Cell>30</Table.Cell>
+                        <Table.Cell>40</Table.Cell>
+                    </Table.Row>
+                    </Table.Body>
+                </Table>
+                <p>You get instant test case feedback while in office hours! <br></br>
+                After you leave office hours, you will have the reduced TBS for 6 hours!</p>
+                </div>
 
             {hasTbsEnabled && project_id !== -1 && !is_allowed_to_submit && (
                 <>
@@ -248,7 +222,6 @@ const UploadPage = () => {
                     Use Extra Day (Score must be above 75)
                 </Button>
             )}
-
             <div>&nbsp;</div>
             <div><Icon name="paper plane" color="red" /><a href="https://docs.google.com/document/d/1Ig15zUygy85cNyPTg7_VYjW7WcgasvijmXGiNDjZssA/edit?usp=sharing" target="_blank">TA-Bot Patch Notes!</a></div>
         </Grid.Column>
