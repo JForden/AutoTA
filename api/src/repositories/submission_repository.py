@@ -292,7 +292,7 @@ class SubmissionRepository():
             if question.ruling ==1:
                 if(question.dismissed == 0):
                     return 1
-                if question.TimeSubmitted + timedelta(hours=6) > current_time:
+                if question.TimeSubmitted + timedelta(hours=3) > current_time:
                     if most_recent_submission + timedelta(minutes=(tbs_settings[days_passed])/3) < current_time:
                         return 1
                     else:
@@ -311,5 +311,17 @@ class SubmissionRepository():
         if submission.visible == 1:
             return True
         return False
+    
+    def get_remaining_OH_Time(self, user_id, project_id):
+        #Get the most recent question asked by the student for the given project that is dismissed
+        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == project_id, StudentQuestions.dismissed == 1)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
+        #Get how long until this time is the current time
+        if question == None:
+            return 0
+        current_time = datetime.now()
+        time_remaining = question.TimeCompleted + timedelta(hours=3) - current_time
+        return time_remaining.seconds/60
+    
+
 
 

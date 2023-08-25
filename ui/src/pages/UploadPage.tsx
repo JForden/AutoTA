@@ -100,6 +100,15 @@ const UploadPage = () => {
             window.location.reload();
         })
     }
+    function getRemaingingTime(){
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/getremaingOHTime?project_id=${project_id}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+        }).then(res => {
+            console.log(res.data);
+    })
+    }
 
     function onTimerFinish(){
         window.location.reload();
@@ -200,7 +209,7 @@ const UploadPage = () => {
                     </Table.Body>
                 </Table>
                 <p>You get instant test case feedback while in office hours! <br></br>
-                After you leave office hours, you will have the reduced TBS for 6 hours!</p>
+                After you leave office hours, you will have the reduced TBS for 3 hours!</p>
                 </div>
 
             {hasTbsEnabled && project_id !== -1 && !is_allowed_to_submit && (

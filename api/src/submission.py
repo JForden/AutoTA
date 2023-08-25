@@ -358,3 +358,10 @@ def Dismiss_OH_Question(submission_repo: SubmissionRepository = Provide[Containe
 @inject
 def get_active_Question(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
     return make_response(str(submission_repo.get_active_question(current_user.Id)), HTTPStatus.OK)
+
+@submission_api.route('/getremaingOHTime', methods=['GET'])
+@jwt_required()
+@inject
+def get_remaining_OH_Time(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    projectId = str(request.args.get("projectId"))
+    return make_response(str(submission_repo.get_remaining_OH_Time(current_user.Id, projectId)), HTTPStatus.OK)

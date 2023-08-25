@@ -204,6 +204,10 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
     render() {
     return (
       <div>
+      <br>
+      </br>
+      <br>
+      </br>
       <h2>Office Hours Queue</h2>
 
       { !this.state.questionAsked ?
