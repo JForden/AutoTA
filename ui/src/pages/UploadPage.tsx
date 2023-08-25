@@ -1,6 +1,6 @@
 import { Component, useEffect, useState } from 'react';
 import 'semantic-ui-css/semantic.min.css'
-import { Button, Form, Grid, Segment, Dimmer, Header, Icon } from 'semantic-ui-react'
+import { Button, Form, Grid, Segment, Dimmer, Header, Icon, Table } from 'semantic-ui-react'
 import axios from 'axios';
 import MenuComponent from '../components/MenuComponent';
 import React from 'react'
@@ -50,6 +50,10 @@ const UploadPage = () => {
     const [hasScoreEnabled, setHasScoreEnabled] = useState<boolean>(false);
     const [hasUnlockEnabled, setHasUnlockEnabled] = useState<boolean>(false);
     const [hasTbsEnabled, setHasTbsEnabled] = useState<boolean>(false);
+    const [tbstime, setTbsTime] = useState<string>("");
+    const [tbsMessage, setTbsMessage] = useState<string>("");
+    const [tbsUploadTime, setTbsUploadTime] = useState<string>("");
+
 
     useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/submissioncounter`, {
@@ -70,20 +74,6 @@ const UploadPage = () => {
             setError_Message(err.response.data.message);
             setIsErrorMessageHidden(false);
             setIsLoading(false);
-        });
-
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/settings/config`,  {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            },
-            params: {
-                class_id: cid
-            }
-        }).then(res => {
-            var data = res.data;
-            setHasScoreEnabled(data.HasScoreEnabled);
-            setHasUnlockEnabled(data.HasUnlockEnabled);
-            setHasTbsEnabled(data.HasTBSEnabled);
         });
     }, [])
 
@@ -109,6 +99,15 @@ const UploadPage = () => {
             alert("You have now recieved an extra day of unlimited submissions!  Instead of the regular 45 minutes coolday this Wednesday, you'll only have a 5 minute cooldown between submissions!");
             window.location.reload();
         })
+    }
+    function getRemaingingTime(){
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/getremaingOHTime?project_id=${project_id}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+        }).then(res => {
+            console.log(res.data);
+    })
     }
 
     function onTimerFinish(){
@@ -148,66 +147,95 @@ const UploadPage = () => {
             })
         }
     }
-    
+  
     return (
         <div>
-            <Helmet>
-                <title>Upload | TA-Bot</title>
-            </Helmet>
-            <MenuComponent showUpload={true} showAdminUpload={false} showHelp={false} showCreate={false} showLast={true}></MenuComponent>
-            <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
-            <Grid.Column style={{ maxWidth: 400 }}>
+    <Helmet>
+        <title>Upload | TA-Bot</title>
+    </Helmet>
+    <MenuComponent showAdminUpload={false} showUpload={false} showHelp={false} showCreate={false} showLast={true} showReviewButton={false}></MenuComponent>
+    <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
+        <Grid.Column width={4}>
             <Form loading={isLoading} size='large' onSubmit={handleSubmit} disabled={true}>
                 <Dimmer.Dimmable dimmed={true}>
-                <Segment stacked>
-                <h1>Upload Assignment Here</h1>
-                <Form.Input type="file" fluid required onChange={handleFileChange} />
-                <Button disabled={!is_allowed_to_submit} type="submit" color='blue' fluid size='large'>
-                    Upload
-                </Button>
-                <br></br>
-                </Segment>
-                <Dimmer active={project_id === -1}>
-                    <Header as='h2' icon inverted>
-                    <Icon name='ban' />
-                    No active project
-                    </Header>
-                </Dimmer>
+                    <Segment stacked>
+                        <h1>Upload Assignment Here</h1>
+                        <Form.Input type="file" fluid required onChange={handleFileChange} />
+                        <Button disabled={!is_allowed_to_submit} type="submit" color='blue' fluid size='large'>
+                            Upload
+                        </Button>
+                        <br />
+                    </Segment>
+                    <Dimmer active={project_id === -1}>
+                        <Header as='h2' icon inverted>
+                            <Icon name='ban' />
+                            No active project
+                        </Header>
+                    </Dimmer>
                 </Dimmer.Dimmable>
-                {(() => {
-                    if(hasTbsEnabled){
-                        if(project_id !== -1 && !is_allowed_to_submit){
-                            return (<><Icon name="clock outline"></Icon><Countdown date={new Date(time_until_next_submission)} onComplete={onTimerFinish} /></>);
-                        } else {
-                            return (<></>)
-                        }
-                    }
-                    return (<></>);
-                })()}
             </Form>
-            <ErrorMessage message={error_message} isHidden={isErrorMessageHidden}></ErrorMessage>
-            {(() => {
-                if(hasScoreEnabled){
-                    return (<Button basic color='blue' content='Score on last assignment' icon='gem'
-                    label={{ as: 'a', basic: true, color: 'blue', pointing: 'left', content: points, }}/>);
-                }
-                return (<></>);
-            })()}
-            <br /> <br />
-            {(() => {
-                if(hasUnlockEnabled){
-                    return (<Button disabled={!canRedeem} type="submit" color='yellow' fluid size='small' onClick={handleRedeem}>
+            <div>
+                <Table definition>
+                    <Table.Header>
+                    <Table.Row>
+                        <Table.HeaderCell />
+                        <Table.HeaderCell>Day 1</Table.HeaderCell>
+                        <Table.HeaderCell>Day 2</Table.HeaderCell>
+                        <Table.HeaderCell>Day 3</Table.HeaderCell>
+                        <Table.HeaderCell>Day 4</Table.HeaderCell>
+                        <Table.HeaderCell>Day 5</Table.HeaderCell>
+                        <Table.HeaderCell>Day 6+</Table.HeaderCell>
+                    </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                    <Table.Row>
+                        <Table.Cell>normal TBS</Table.Cell>
+                        <Table.Cell>5</Table.Cell>
+                        <Table.Cell>15</Table.Cell>
+                        <Table.Cell>45</Table.Cell>
+                        <Table.Cell>60</Table.Cell>
+                        <Table.Cell>90</Table.Cell>
+                        <Table.Cell>120</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
+                        <Table.Cell>office hours TBS</Table.Cell>
+                        <Table.Cell>1.7</Table.Cell>
+                        <Table.Cell>5</Table.Cell>
+                        <Table.Cell>15</Table.Cell>
+                        <Table.Cell>20</Table.Cell>
+                        <Table.Cell>30</Table.Cell>
+                        <Table.Cell>40</Table.Cell>
+                    </Table.Row>
+                    </Table.Body>
+                </Table>
+                <p>You get instant test case feedback while in office hours! <br></br>
+                After you leave office hours, you will have the reduced TBS for 3 hours!</p>
+                </div>
+
+            {hasTbsEnabled && project_id !== -1 && !is_allowed_to_submit && (
+                <>
+                    <Icon name="clock outline" />
+                    <Countdown date={new Date(time_until_next_submission)} onComplete={onTimerFinish} />
+                </>
+            )}
+
+            <ErrorMessage message={error_message} isHidden={isErrorMessageHidden} />
+
+            {hasScoreEnabled && (
+                <Button basic color='blue' content='Score on last assignment' icon='gem'
+                    label={{ as: 'a', basic: true, color: 'blue', pointing: 'left', content: points }} />
+            )}
+
+            {hasUnlockEnabled && (
+                <Button disabled={!canRedeem} type="submit" color='yellow' fluid size='small' onClick={handleRedeem}>
                     Use Extra Day (Score must be above 75)
-                </Button>);
-                } else {
-                    return (<></>)
-                }
-            })()}
+                </Button>
+            )}
             <div>&nbsp;</div>
-            <div><Icon name="paper plane" color="red"></Icon><a href="https://docs.google.com/document/d/1Ig15zUygy85cNyPTg7_VYjW7WcgasvijmXGiNDjZssA/edit?usp=sharing" target="_blank">TA-Bot Patch Notes!</a></div>
-            </Grid.Column>
-            </Grid>
-        </div>
+            <div><Icon name="paper plane" color="red" /><a href="https://docs.google.com/document/d/1Ig15zUygy85cNyPTg7_VYjW7WcgasvijmXGiNDjZssA/edit?usp=sharing" target="_blank">TA-Bot Patch Notes!</a></div>
+        </Grid.Column>
+    </Grid>
+</div>
     );
 }
 

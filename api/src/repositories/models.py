@@ -20,6 +20,8 @@ class Projects(db.Model):
     Levels=relationship('Levels')
     StudentProgress=relationship('StudentProgress')
     StudentUnlocks=relationship('StudentUnlocks') 
+    solutionpath=Column(String)
+    AsnDescriptionPath = Column(String)
 
 class Users(db.Model):
     __tablename__ = "Users"
@@ -52,6 +54,7 @@ class Submissions(db.Model):
     SubmissionLevel =Column(String)
     Points = Column(Integer)
     StudentProgress=relationship('StudentProgress')
+    visible = Column(Integer)
 
 class LoginAttempts(db.Model):
     __tablename__ = "LoginAttempts"
@@ -64,9 +67,8 @@ class Classes(db.Model):
     __tablename__ = "Classes"
     Id = Column(Integer, primary_key=True)
     Name = Column(String)
-    Labs=relationship('Labs')
-    LectureSections=relationship('LectureSections')
-    ClassAssignments=relationship('ClassAssignments')
+    Tid = Column(String)
+    
 
 class Labs(db.Model):
     __tablename__ = "Labs"
@@ -115,22 +117,6 @@ class Levels(db.Model):
     Order=Column(Integer)
     Points=Column(Integer)
 
-class TeacherClassAssignments(db.Model):
-    __tablename__ = "TeacherClassAssignments"
-    UserId = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
-    ClassId = Column(Integer, ForeignKey('Classes.Id'), primary_key=True)
-    LectureId=Column(Integer, ForeignKey('LectureSections.Id'),primary_key=True)
-
-    Classes=relationship('Classes')
-
-class LectureSectionSettings(db.Model):
-    __tablename__ = "LectureSectionSettings"
-    LectureSectionId = Column(Integer, ForeignKey('LectureSections.Id'), primary_key=True)
-    HasUnlockEnabled = Column(Boolean)
-    HasScoreEnabled = Column(Boolean)
-    HasTBSEnabled = Column(Boolean)
-    HasLVLSYSEnabled = Column(Boolean)
-
 class Testcases(db.Model):
     __tablename__ = "Testcases"
     Id = Column(Integer, primary_key=True, autoincrement=True)
@@ -138,6 +124,31 @@ class Testcases(db.Model):
     LevelId = Column(Integer, ForeignKey("Levels.Id"))
     Name = Column(String)
     Description = Column(String)
-    Input = Column(String)
+    input = Column(String)
     Output = Column(String)
     IsHidden = Column(Boolean)
+class GPTLogs(db.Model):
+    __tablename__ = "GPTLogs"
+    Qid = Column(Integer, primary_key=True, autoincrement=True)
+    SubmissionId = Column(Integer, ForeignKey('Submissions.Id'))
+    GPTResponse = Column(String)
+    StudentFeedback = Column(Integer)
+    Type = Column(Integer)
+
+class ChatGPTkeys(db.Model):
+    __tablename__ = "ChatGPTkeys"
+    idChatGPTkeys = Column(Integer, primary_key=True, autoincrement=True)
+    ChatGPTkeyscol = Column(String)
+    LastUsed = Column(DateTime)
+
+class StudentQuestions(db.Model):
+    __tablename__ = "StudentQuestions"
+    Sqid = Column(Integer, primary_key=True, autoincrement=True)
+    StudentQuestionscol = Column(String)
+    ruling = Column(Integer)
+    dismissed = Column(Integer)
+    StudentId = Column(Integer, ForeignKey('Users.Id'))
+    TimeSubmitted = Column(DateTime)
+    projectId = Column(Integer, ForeignKey('Projects.Id'))
+    TimeAccepted = Column(DateTime)
+    TimeCompleted = Column(DateTime)

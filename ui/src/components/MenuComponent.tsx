@@ -10,7 +10,8 @@ interface MenuComponentProps {
     showHelp: boolean,
     showCreate: boolean,
     showLast:boolean,
-    showAdminUpload:boolean
+    showAdminUpload:boolean,
+    showReviewButton:boolean;
 }
 
 
@@ -34,10 +35,10 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
         .then(res => {    
             var role=parseInt(res.data);
             if (role === 0 ){
-                window.location.replace("/upload");
+                window.location.replace("/class/classes");
             } 
             if (role === 1){
-                window.location.replace("/admin/projects");
+                window.location.replace("/admin/classes");
             }   
         })
     }
@@ -55,7 +56,18 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 return (<></>);
                             } else {
                                 return (
-                                    <Menu.Item><a href="/upload">Upload</a></Menu.Item>
+                                    <Menu.Item><a href="/class/classes">Upload</a></Menu.Item>
+                                );
+                            }
+                        })()}               
+                    </div>
+                    <div>
+                        {(() => {
+                            if(!this.props.showUpload) {
+                                return (<></>);
+                            } else {
+                                return (
+                                    <Menu.Item><a href="/class/OfficeHours">Office Hours</a></Menu.Item>
                                 );
                             }
                         })()}               
@@ -73,11 +85,27 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                     </div>
                     <div>
                         {(() => {
-                            if(!this.props.showLast) {
+                            if(!this.props.showAdminUpload) {
                                 return (<></>);
                             } else {
                                 return (
-                                    <Menu.Item><a href="/code">Most Recent Submission</a></Menu.Item>
+                                    <Menu.Item><a href="/admin/TaLanding">Office Hours</a></Menu.Item>
+                                );
+                            }
+                        })()}               
+                    </div>
+                    <div>
+                        {(() => {
+                            if(!this.props.showLast) {
+                                return (<></>);
+                            } else {
+                                const args = window.location.href;
+                                const regex = /\/class\/(\d+)\/upload/;
+                                const match = args.match(regex);
+                                const extractedValue = match ? match[1] : null;
+                                const path = "/class/" + extractedValue +"/code";
+                                return (
+                                    <Menu.Item><a href={path}>Most Recent Tested Submission</a></Menu.Item>
                                 );
                             }
                         })()}               
@@ -88,7 +116,18 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 return (<></>);
                             } else {
                                 return (
-                                    <Menu.Item><a href="/past-submission">Previous Submissions</a></Menu.Item>
+                                    <Menu.Item><a href="/submissions">Previous Submissions</a></Menu.Item>
+                                );
+                            }
+                        })()}               
+                    </div>
+                    <div>
+                        {(() => {
+                            if(!this.props.showReviewButton) {
+                                return (<></>);
+                            } else {
+                                return (
+                                    <Menu.Item><a href="/class/1/codeHelp">Code Help</a></Menu.Item>
                                 );
                             }
                         })()}               
@@ -132,7 +171,8 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 return (<></>);
                             } else {
                                 return (
-                                    <Menu.Item><a href="/upload">Create New Assignment</a></Menu.Item>
+                                    //TODO: Move out of menu, add to projects page to allow multi-class
+                                    <Menu.Item><a href="/admin/project/edit/0">Create New Assignment</a></Menu.Item>
                                 );
                             }
                         })()}               

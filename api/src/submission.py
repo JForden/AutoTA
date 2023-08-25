@@ -1,4 +1,6 @@
 from datetime import timedelta
+import os
+import threading
 from src.repositories.config_repository import ConfigRepository
 from src.repositories.user_repository import UserRepository
 from flask import Blueprint
@@ -12,7 +14,7 @@ from src.repositories.submission_repository import SubmissionRepository
 from src.repositories.project_repository import ProjectRepository
 from src.repositories.config_repository import ConfigRepository
 from src.services.link_service import LinkService
-from src.constants import EMPTY, DELAY_CONFIG, REDEEM_BY_CONFIG, ADMIN_ROLE
+from src.constants import EMPTY, DELAY_CONFIG, REDEEM_BY_CONFIG, ADMIN_ROLE, TA_ROLE
 import json
 from tap.parser import Parser
 from flask import jsonify
@@ -27,17 +29,17 @@ def convert_tap_to_json(file_path, role, current_level, hasLVLSYSEnabled):
     parser = Parser()
     test=[]
     final={}
-    print(hasLVLSYSEnabled)
     for line in parser.parse_file(file_path):
         if line.category == "test":
             if role == ADMIN_ROLE or not hasLVLSYSEnabled:
-                new_yaml = line.yaml_block.copy()
-                new_yaml["hidden"] = "False"
-                test.append({
-                    'skipped': line.skip,
-                    'passed': line.ok,
-                    'test': new_yaml
-                })
+                if line.yaml_block is not None:
+                    new_yaml = line.yaml_block.copy()
+                    new_yaml["hidden"] = "False"
+                    test.append({
+                        'skipped': line.skip,
+                        'passed': line.ok,
+                        'test': new_yaml
+                    })
                 continue
             elif line.yaml_block["hidden"] == "True" and role != ADMIN_ROLE:
                 continue
@@ -59,59 +61,110 @@ def convert_tap_to_json(file_path, role, current_level, hasLVLSYSEnabled):
     final["results"]=test
     return json.dumps(final, sort_keys=True, indent=4)
 
-
 @submission_api.route('/testcaseerrors', methods=['GET'])
 @jwt_required()
 @inject
-def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Container.submission_repo], config_repo: ConfigRepository = Provide[Container.config_repo]):
-    submission_id = int(request.args.get("id"))
+def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Container.submission_repo], config_repo: ConfigRepository = Provide[Container.config_repo],project_repo:  ProjectRepository = Provide[Container.project_repo]):
     class_id = int(request.args.get("class_id"))
-    output_path = ""
-
-    if submission_id != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submission_id)):
-        output_path = submission_repo.get_json_path_by_submission_id(submission_id)
+    submission_id = int(request.args.get("id"))
+    projectid = -1
+    submission = None
+    if submission_id != -1:
+        projectid = submission_repo.get_project_by_submission_id(submission_id)
+        submission = submission_repo.get_submission_by_submission_id(submission_id)
+        current_level = submission_repo.get_current_level(submission_id, submission.User)
     else:
-        output_path = submission_repo.get_json_path_by_user_id(current_user.Id)
-        submission_id = submission_repo.get_submission_by_user_id(current_user.Id).Id
-
-    project_id = submission_repo.get_project_by_submission_id(submission_id)
-    current_level=submission_repo.get_current_level(project_id,current_user.Id)
-
-    config= config_repo.get_lecture_section_frm_userid_classid(class_id,current_user.Id)
-    output = convert_tap_to_json(output_path,current_user.Role,current_level, config["HasLVLSYSEnabled"])
+        projectid = project_repo.get_current_project_by_class(class_id).Id
+        submission = submission_repo.get_submission_by_user_and_projectid(current_user.Id,projectid)
+        current_level=submission_repo.get_current_level(submission.Id,current_user.Id)
+    output = convert_tap_to_json(submission.OutputFilepath,current_user.Role,current_level, False)
+    if(current_user.Role == ADMIN_ROLE or current_user.Role == TA_ROLE): #TODO: add official role for TA's
+        return make_response(output, HTTPStatus.OK)
+    else:
+        #call get-timout to see if user is in timeout
+        timeout = submission_repo.check_visibility(current_user.Id, projectid)
+        if timeout == True:
+            return make_response(output, HTTPStatus.OK)
+        else:
+            output = convert_tap_to_json(submission.OutputFilepath,current_user.Role,current_level, False)
+            output_dict = json.loads(output)    
+            for test_item in output_dict["results"]:
+                test_item["test"]["hidden"] = "True"
+            # Convert the modified dictionary back to a JSON string
+            output = json.dumps(output_dict, sort_keys=True, indent=4)
+        # If user is in timeout, go through output and   
     return make_response(output, HTTPStatus.OK)
 
-# TODO: Create new function to handle Java
-@submission_api.route('/pylintoutput', methods=['GET'])
+# TODO: Create new function to handle Java and C
+@submission_api.route('/lint_output', methods=['GET'])
 @jwt_required()
 @inject
-def pylintoutput(submission_repo: SubmissionRepository = Provide[Container.submission_repo], link_service: LinkService = Provide[Container.link_service]):
+def lint_output(submission_repo: SubmissionRepository = Provide[Container.submission_repo], link_service: LinkService = Provide[Container.link_service],project_repo:  ProjectRepository = Provide[Container.project_repo]):
     submissionid = int(request.args.get("id"))
-    pylint_output = ""
+    class_id = int(request.args.get("class_id"))
+    #TODO: Review if this {if statement} logic makes sense
+    project = project_repo.get_current_project_by_class(class_id)
     if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submissionid)):
-        pylint_output = submission_repo.get_pylint_path_by_submission_id(submissionid)
+        lint_file = submission_repo.get_pylint_path_by_submission_id(submissionid)
     else:
-        pylint_output = submission_repo.get_pylint_path_by_user_id(current_user.Id)
-    with open(pylint_output, 'r') as file:
-        output = file.read()
-        output = link_service.add_link_info_links(output)
-    return make_response(output, HTTPStatus.OK)
+        lint_file = submission_repo.get_pylint_path_by_user_and_project_id(current_user.Id,project.Id)
+
+    lint_dir = lint_file.replace(f"{current_user.Username}.out.lint", '')
+    lint_files = [lint_dir+filename for filename in os.listdir(lint_dir) if filename.endswith(".out.lint")]
+    outputs = []    
+    for lf in lint_files:
+        with open(lf, 'r') as file: # lint_file
+            output=""
+            output = file.read()
+            #TODO: Move this link service elsewhere
+            if output != "":
+                try:
+                    # Check if output is in JSON format
+                    json.loads(output)
+                except json.JSONDecodeError:
+                    # If output is not in JSON format, skip running link_service
+                    #json.loads(output)
+                    print("Output is not in JSON format, skipping link_service.")
+                else:
+                    # If output is in JSON format, run link_service
+                    if project.Language == "python":
+                        output = link_service.add_link_info_links(output)
+                outputs.append(output)
+    return make_response(outputs[0], HTTPStatus.OK)
 
 
 @submission_api.route('/codefinder', methods=['GET'])
 @jwt_required()
 @inject
-def codefinder(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+def codefinder(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
     submissionid = int(request.args.get("id"))
+    class_id = int(request.args.get("class_id"))
     code_output = ""
     if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submissionid)):
         code_output = submission_repo.get_code_path_by_submission_id(submissionid)
     else:
-        code_output = submission_repo.get_code_path_by_user_id(current_user.Id)
-    with open(code_output, 'r') as file:
-        output = file.read()
-        
-    return make_response(output, HTTPStatus.OK)
+        projectid = project_repo.get_current_project_by_class(class_id).Id
+        code_output = submission_repo.get_submission_by_user_and_projectid(current_user.Id,projectid).CodeFilepath
+    output = ""
+    outputs = []
+    if not os.path.isdir(code_output):
+        with open(code_output, 'r') as file:
+            output = file.read()
+            outputs.append(output)
+    else:
+        # these files are all files in submission directory
+        #files = [filename for filename in os.listdir(code_output)] #  if filename.endswith('.java') <-- why java?
+        files = [filename for filename in os.listdir(code_output) if filename.endswith(".java") or filename.endswith(".c")]
+        for f in files:
+            if "Main.java" in files:
+                with open(code_output + "/" + "Main.java") as file:
+                    output = file.read()
+            else:
+                with open(code_output + "/" + f) as file: # files[0]
+                    output = file.read()
+            outputs.append(output)
+
+    return make_response(outputs[0], HTTPStatus.OK)
 
 @submission_api.route('/submissioncounter', methods=['GET'])
 @jwt_required()
@@ -144,8 +197,8 @@ def get_submission_information(submission_repo: SubmissionRepository = Provide[C
     day_delays = [int(x) for x in day_delays_str.split(",")]
     day = curr_date - project.Start
 
-    delay_minutes = day_delays[day.days]
-
+    #delay_minutes = day_delays[day.days]
+    delay_minutes =0
     submissions = submission_repo.get_most_recent_submission_by_project(current_project,[current_user.Id])
     if current_user.Id not in submissions:
         return jsonify(submissions_remaining = 10, name = project.Name, end = project.End, Id = project.Id, max_submissions = 10, can_redeem = can_redeem, points=point, time_until_next_submission = "01 Jan 1970 00:00:00 GMT")
@@ -161,7 +214,7 @@ def get_submission_information(submission_repo: SubmissionRepository = Provide[C
 @submission_api.route('/recentsubproject', methods=['POST'])
 @jwt_required()
 @inject
-def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.submission_repo], user_repo: UserRepository = Provide[Container.user_repo]):
+def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.submission_repo], user_repo: UserRepository = Provide[Container.user_repo],project_repo: ProjectRepository = Provide[Container.project_repo] ):
     input_json = request.get_json()
     projectid = input_json['project_id']
     users = user_repo.get_all_users()
@@ -171,10 +224,12 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
         userids.append(user.Id)
     bucket = submission_repo.get_most_recent_submission_by_project(projectid, userids)    
     submission_counter_dict = submission_repo.submission_counter(projectid, userids)
-    user_lectures_dict =user_repo.get_user_lectures(userids)  
+    user_lectures_dict =user_repo.get_user_lectures(userids)
+    class_name = project_repo.get_className_by_projectId(projectid)
+    class_id = project_repo.get_class_id_by_name(class_name)
     for user in users:
         if user.Id in bucket:
-            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id]    
+            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id, str(class_id)]    
         else:
             studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
@@ -216,3 +271,97 @@ def extraday(submission_repo: SubmissionRepository = Provide[Container.submissio
             return make_response("", HTTPStatus.OK)
     return make_response("", HTTPStatus.NOT_ACCEPTABLE)
 
+
+@submission_api.route('/gptData', methods=['GET'])
+@jwt_required()
+@inject
+def gptData(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    print("In GPT call", flush=True)
+    question_description = str(request.args.get("description"))
+    output = str(request.args.get("output"))
+    code_data = str(request.args.get("code"))
+    submissionid = submission_repo.get_submission_by_user_id(current_user.Id).Id
+    return make_response(submission_repo.chatGPT_caller(submissionid,question_description, output, code_data), HTTPStatus.OK)
+
+
+
+@submission_api.route('/gptexplainer', methods=['GET'])
+@jwt_required()
+@inject
+def gptexplainer(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    question_description = str(request.args.get("description"))
+    output = str(request.args.get("output"))
+    submissionid = submission_repo.get_submission_by_user_id(current_user.Id).Id
+    return make_response(submission_repo.chatGPT_explainer(submissionid,question_description, output), HTTPStatus.OK)
+
+@submission_api.route('/ResearchGroup', methods=['GET'])
+@jwt_required()
+@inject
+def Researchgroup(user_repo: UserRepository = Provide[Container.user_repo]):
+    return make_response(user_repo.get_user_researchgroup(current_user.Id), HTTPStatus.OK)
+
+@submission_api.route('/updateGPTStudentFeedback', methods=['GET'])
+@jwt_required()
+@inject
+def update_GPT_Student_feedback(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    qid = str(request.args.get("questionId"))
+    student_feedback = str(request.args.get("student_feedback"))
+    return make_response(submission_repo.Update_GPT_Student_Feedback(qid,student_feedback), HTTPStatus.OK)
+
+
+@submission_api.route('/submitOHquestion', methods=['GET'])
+@jwt_required()
+@inject
+def Submit_OH_Question(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    question = str(request.args.get("question"))
+    project_id = str(request.args.get("projectId"))
+    return make_response(submission_repo.Submit_Student_OH_question(question,current_user.Id, project_id), HTTPStatus.OK)
+
+@submission_api.route('/getOHquestions', methods=['GET'])
+@jwt_required()
+@inject
+def Get_OH_Questions(submission_repo: SubmissionRepository = Provide[Container.submission_repo], user_repo: UserRepository = Provide[Container.user_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    questions = submission_repo.Get_all_OH_questions()
+    question_list = []
+    #Need class ID and submission ID
+    for question in questions:
+        user = user_repo.get_user(question.StudentId)
+        Student_name = user.Firstname + " " + user.Lastname
+        class_name = project_repo.get_className_by_projectId(question.projectId)
+        class_id = project_repo.get_class_id_by_name(class_name)
+        subs = submission_repo.get_most_recent_submission_by_project(question.projectId, [question.StudentId])
+        try:
+            question_list.append([question.Sqid,question.StudentQuestionscol, question.TimeSubmitted.strftime("%x %X"), Student_name, question.ruling, question.projectId, class_id, subs[question.StudentId].Id])
+        except:
+            question_list.append([question.Sqid,question.StudentQuestionscol, question.TimeSubmitted.strftime("%x %X"), Student_name, question.ruling, question.projectId, class_id, -1])
+    return make_response(json.dumps(question_list), HTTPStatus.OK)
+
+
+@submission_api.route('/submitOHQuestionRuling', methods=['GET'])
+@jwt_required()
+@inject
+def Submit_OH_Question_Ruling(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    question_id = str(request.args.get("question_id"))
+    ruling = str(request.args.get("ruling"))
+    return make_response(submission_repo.Submit_OH_ruling(question_id,ruling), HTTPStatus.OK)
+
+#dismiss question
+@submission_api.route('/dismissOHQuestion', methods=['GET'])
+@jwt_required()
+@inject
+def Dismiss_OH_Question(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    question_id = str(request.args.get("question_id"))
+    return make_response(submission_repo.Submit_OH_dismiss(question_id), HTTPStatus.OK)
+
+@submission_api.route('/getactivequestion', methods=['GET'])
+@jwt_required()
+@inject
+def get_active_Question(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    return make_response(str(submission_repo.get_active_question(current_user.Id)), HTTPStatus.OK)
+
+@submission_api.route('/getremaingOHTime', methods=['GET'])
+@jwt_required()
+@inject
+def get_remaining_OH_Time(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    projectId = str(request.args.get("projectId"))
+    return make_response(str(submission_repo.get_remaining_OH_Time(current_user.Id, projectId)), HTTPStatus.OK)

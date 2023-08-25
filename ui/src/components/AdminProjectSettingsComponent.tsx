@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { Button, Dropdown, Form, Input } from "semantic-ui-react";
 
 interface AdminProjectConfigProps {
-    id: number  
+    id: number
+    class_id: number  
 }
 
 const AdminProjectSettingsComponent = (props: AdminProjectConfigProps) => {

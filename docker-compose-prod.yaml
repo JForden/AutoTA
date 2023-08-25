@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+  backend:
+    container_name: backend
+    restart: unless-stopped
+    environment:
+      DB_USER: "user"
+      DB_PASSWORD: "password"
+      DB_HOST: "db"
+      DB_NAME: "autota"
+      FLASK_DEBUG: "False"
+      TABOT_DIR: "/ta-bot"
+    build:
+      context: api
+      dockerfile: Dockerfile.prod
+    ports:
+      - "5000:5000"
+    volumes:
+      - "./api:/app"
+      - "./ta-bot:/ta-bot"
+  frontend:
+    container_name: frontend
+    restart: unless-stopped
+    environment:
+      REACT_APP_BASE_API_URL: http://localhost:5000/api
+    build:
+      context: ui
+      dockerfile: Dockerfile.prod
+    volumes:
+      - "./ui:/app"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend

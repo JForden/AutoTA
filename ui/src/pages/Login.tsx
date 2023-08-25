@@ -72,10 +72,13 @@ class Login extends Component<{}, LoginPageState> {
 
   render() {
     if (this.state.isLoggedIn && this.state.role === 0 ){
-      return ( <Redirect to={{pathname: '/class'}}/> );
+      return ( <Redirect to={{pathname: '/class/classes'}}/> );
     }
     if (this.state.isLoggedIn && this.state.role === 1 ){
-      return ( <Redirect to={{pathname: '/admin/projects'}}/> );
+      return ( <Redirect to={{pathname: '/admin/classes'}}/> );
+    }
+    if (this.state.isLoggedIn && this.state.role === 2 ){
+      return ( <Redirect to={{pathname: '/admin/TaLanding'}}/> );
     }
     return (
     <div>    
@@ -100,7 +103,7 @@ class Login extends Component<{}, LoginPageState> {
             </Form>
             <ErrorMessage message={this.state.error_message} isHidden={this.state.isErrorMessageHidden} ></ErrorMessage>
             <Message>
-                Forgot your MSCSNet login? Click <a href='https://drive.google.com/file/d/1ajBMt9WF104gSbsNOPKJDI1OAGTfDEi8/view?usp=sharing' target="_blank" rel="noreferrer">here</a>.
+                Create an account <a href='https://drive.google.com/file/d/1ajBMt9WF104gSbsNOPKJDI1OAGTfDEi8/view?usp=sharing' target="_blank" rel="noreferrer">here</a>.
             </Message>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
                 <Image style={{ width: '100px' }} src={mscsimg} /> 

@@ -35,9 +35,8 @@ def moss_submissions(files: List[str], email: str):
     for file in files:
         m.addFile(file)
     url = m.send(lambda file_path, display_name: print('*', end='', flush=True))
-    
     gmail_user = 'autotabugreports@gmail.com'
-    gmail_password ='CKRp4h3tippctK'
+    gmail_password ='cgoafdqjabnwgxoa'
     receivers = [str(email)]
     sent_from = gmail_user
 

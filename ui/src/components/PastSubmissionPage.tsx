@@ -14,12 +14,16 @@ class Row {
         this.project_name = "";
         this.score = 0;
         this.date = "";
+        this.classname ="";
+        this.classid = "";
     }
     
     id: number;
     project_name: string;
     score: number;
     date: string;
+    classname: string;
+    classid: string;
 }
 
 interface ProjectsState {
@@ -52,6 +56,8 @@ class PastSubmissionPage extends Component<{}, ProjectsState> {
                 row.id = parseInt(test[0]);
                 row.score = parseInt(test[1]);
                 row.date = test[2];
+                row.classname = test[3];
+                row.classid = test[4];
                 rows.push(row);
                 
                 return row;
@@ -68,14 +74,14 @@ class PastSubmissionPage extends Component<{}, ProjectsState> {
         <Helmet>
             <title>Past Submissions | TA-Bot</title>
         </Helmet>
-        <MenuComponent showUpload={false} showAdminUpload={false} showHelp={false} showCreate={false} showLast={false}></MenuComponent>
+        <MenuComponent showUpload={false} showAdminUpload={false} showHelp={false} showCreate={false} showLast={false} showReviewButton={false}></MenuComponent>
         <Grid className="main-grid">
             <Table celled>
                 <Table.Header>
                 <Table.Row>
                     <Table.HeaderCell>Project Name</Table.HeaderCell>
                     <Table.HeaderCell>Submission Date</Table.HeaderCell>
-                    <Table.HeaderCell>Score</Table.HeaderCell>
+                    <Table.HeaderCell>Class Name</Table.HeaderCell>
                     <Table.HeaderCell>Link</Table.HeaderCell>
                 </Table.Row>
                 </Table.Header>
@@ -85,8 +91,8 @@ class PastSubmissionPage extends Component<{}, ProjectsState> {
                             <Table.Row>
                                 <Table.Cell>{row.project_name}</Table.Cell>
                                 <Table.Cell>{row.date}</Table.Cell>
-                                <Table.Cell>{row.score}</Table.Cell>
-                                <Table.Cell button><Link target="_blank" to={ "/code/" + row.id }><Label button >View</Label></Link></Table.Cell>
+                                <Table.Cell>{row.classname}</Table.Cell>
+                                <Table.Cell button><Link target="_blank" to={ "/class/"+row.classid+"/code/" + row.id }><Label button >View</Label></Link></Table.Cell>
                             </Table.Row>
                         )
                     })}

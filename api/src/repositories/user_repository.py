@@ -1,8 +1,10 @@
 import datetime
 from typing import Dict, List
 
+from sqlalchemy import asc, desc
+
 from src.repositories.database import db
-from .models import ClassAssignments, LectureSections, Users, LoginAttempts
+from .models import ClassAssignments, LectureSections, Users, LoginAttempts,  ChatGPTkeys
 from flask_jwt_extended import current_user
 
 
@@ -10,8 +12,17 @@ class UserRepository():
     def getUserByName(self, username: str) -> Users:
         user = Users.query.filter(Users.Username==username).one_or_none()
         return user
-    def get_user_by_id(self,user_id: int) -> int:
+    
+    def get_user(self, user_id: int) -> Users:
+        user = Users.query.filter(Users.Id == user_id).one_or_none()
+        return user
+
+    def get_user_by_id(self,user_id: int) -> str:
         user = Users.query.filter(Users.Id==user_id).one_or_none()
+        return user.Username
+    
+    def get_user_by_studentid(self, student_id: int):
+        user = Users.query.filter(Users.StudentNumber==student_id).one_or_none()
         return user.Username
 
     def doesUserExist(self, username: str) -> bool:
@@ -30,7 +41,12 @@ class UserRepository():
     def get_all_users(self) -> List[Users]:
         user = Users.query.all()
         return user
-
+    def get_all_users_by_cid(self, class_id) -> List[Users]:
+        users_in_class = ClassAssignments.query.filter(ClassAssignments.ClassId==class_id).all()
+        users = []
+        for temp in users_in_class:
+            users.append(Users.query.filter(Users.Id==temp.UserId).one_or_none() )
+        return users
     def send_attempt_data(self, username: str, ipadr: str, time: datetime):
         login_attempt = LoginAttempts(IPAddress=ipadr, Username=username, Time=time)
         db.session.add(login_attempt)
@@ -67,7 +83,23 @@ class UserRepository():
     def get_user_researchgroup(self,userId) -> int:
         query = Users.query.filter(Users.Id==userId).one()
         research_group = query.ResearchGroup
-        return research_group
+        return str(research_group)
+    def chatGPT_key(self):
+        query = ChatGPTkeys.query.order_by(asc(ChatGPTkeys.LastUsed)).first()
+        api_key = query.ChatGPTkeyscol
+        print(api_key)
+        now = datetime.datetime.now()
+        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+        query.LastUsed =dt_string
+        print(dt_string, flush=True)
+        db.session.commit()
+        return api_key
+
+
+
+
+        
+
 
 
         

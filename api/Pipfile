@@ -19,6 +19,7 @@ pytest-mock = "*"
 mosspy = "*"
 dependency-injector = "*"
 injector = "*"
+cryptography = "*"
 
 [dev-packages]
 pytest = "*"

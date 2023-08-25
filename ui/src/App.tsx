@@ -15,6 +15,14 @@ import AdminUpload from './AdminPages/AdminUpload';
 import AdminSettingsPage from './AdminPages/AdminSettingsPage';
 import ClassSelectionPage from './pages/ClassSelectionPage';
 import AdminProjectConfig from './AdminPages/AdminProjectConfig';
+import CodeHelpComponent from './components/CodeHelpComponent';
+import CodeHelpPage from './pages/CodeHelpPage';
+import AdminLandingComponent from './components/AdminLandingComponent';
+import AdminProject from './AdminPages/AdminProject';
+import AdminComponent from './components/AdminLandingComponent';
+import CreateAccountPage from './pages/AccountCreationPage';
+import TaLanding from './AdminPages/TaLanding';
+import OfficeHoursPage from './pages/OfficeHoursPage';
 
 class App extends Component {
 
@@ -40,15 +48,20 @@ class App extends Component {
                 <Route exact path="/">
                     <LandingPage></LandingPage>
                 </Route>
-                <ProtectedRoute exact path="/class" component={ClassSelectionPage} />
-                <ProtectedRoute exact path="/class/:class_id/submissions" component={PastSubmissionPage} />
+                <ProtectedRoute exact path="/submissions" component={PastSubmissionPage} />
                 <ProtectedRoute exact path="/class/:class_id/upload" component={UploadPage} />
                 <ProtectedRoute exact path="/class/:class_id/code/:id?" component={CodePage} />
-                <ProtectedRoute exact path="/admin/projects" component={AdminLanding} />
+                <ProtectedRoute exact path="/class/classes" component={ClassSelectionPage} />
+                <ProtectedRoute exact path="/admin/classes" component={AdminLanding} />
+                <ProtectedRoute exact path="/admin/TaLanding" component={TaLanding} />
+                <ProtectedRoute exact path="/admin/projects/:id" component={AdminProject} />
                 <ProtectedRoute exact path="/admin/project/:id" component={ProjectBreakdown} />
                 <ProtectedRoute exact path="/admin/upload" component={AdminUpload} />
                 <ProtectedRoute exact path="/admin/settings" component={AdminSettingsPage} />
-                <ProtectedRoute exact path="/admin/project/edit/:id" component={AdminProjectConfig} />
+                <ProtectedRoute exact path="/admin/project/edit/:class_id/:id" component={AdminProjectConfig} />
+                <ProtectedRoute exact path= "/class/:class_id/codeHelp" component={CodeHelpPage} />
+                <ProtectedRoute exact path= "/class/OfficeHours" component={OfficeHoursPage} />
+                <ProtectedRoute exact path= "/user/createAccount" component={CreateAccountPage} />
                 <Route>
                     <NotFoundComponent></NotFoundComponent>
                 </Route>

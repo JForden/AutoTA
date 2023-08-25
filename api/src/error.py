@@ -11,5 +11,4 @@ error_api = Blueprint('error_api', __name__)
 def log_error():
     error = request.get_json()
     error["user"] = current_user.Username
-    print(json.dumps(error))
     raise Exception(json.dumps(error))

@@ -47,27 +47,6 @@ class AdminSettingsPageComponent extends Component<{}, AdminSettingsPageState> {
             })
         });
     }
-    
-    handleClassChange(ev: FormEvent<HTMLSelectElement>, value: number) {
-        this.setState({ classId: value });
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/settings/config`,  {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            },
-            params: {
-                class_id: value
-            }
-        }).then(res => {
-            var data = res.data
-            console.log(data)
-            this.setState({
-                hasScoreEnabled: data.HasScoreEnabled,
-                hasUnlockEnabled: data.HasUnlockEnabled,
-                hasTbsEnabled: data.HasTBSEnabled,
-                hasLVLSYSEnabled: data.HasLVLSYSEnabled
-            });
-        });
-    }
 
     handleExtraDay(ev: FormEvent<HTMLInputElement>, data: CheckboxProps) {
         this.setState({hasUnlockEnabled: data.checked ?? false});
@@ -104,7 +83,6 @@ class AdminSettingsPageComponent extends Component<{}, AdminSettingsPageState> {
         return (
         <div>
             <Form>
-                <Dropdown placeholder='Lecture Section' selection options={this.state.classes} onChange={(e:any, {value}) => this.handleClassChange(e, value ? parseInt(value.toString()) : -1)}></Dropdown>
                 <Segment>
                     <Header as='h3'>Research Features</Header>
                     <div><Checkbox name='extraday' toggle label='Enable unlocking extra day' checked={this.state.hasUnlockEnabled} onChange={this.handleExtraDay} /></div>
