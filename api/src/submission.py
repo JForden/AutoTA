@@ -14,7 +14,7 @@ from src.repositories.submission_repository import SubmissionRepository
 from src.repositories.project_repository import ProjectRepository
 from src.repositories.config_repository import ConfigRepository
 from src.services.link_service import LinkService
-from src.constants import EMPTY, DELAY_CONFIG, REDEEM_BY_CONFIG, ADMIN_ROLE
+from src.constants import EMPTY, DELAY_CONFIG, REDEEM_BY_CONFIG, ADMIN_ROLE, TA_ROLE
 import json
 from tap.parser import Parser
 from flask import jsonify
@@ -61,13 +61,14 @@ def convert_tap_to_json(file_path, role, current_level, hasLVLSYSEnabled):
     final["results"]=test
     return json.dumps(final, sort_keys=True, indent=4)
 
-
 @submission_api.route('/testcaseerrors', methods=['GET'])
 @jwt_required()
 @inject
 def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Container.submission_repo], config_repo: ConfigRepository = Provide[Container.config_repo],project_repo:  ProjectRepository = Provide[Container.project_repo]):
     class_id = int(request.args.get("class_id"))
     submission_id = int(request.args.get("id"))
+    projectid = -1
+    submission = None
     if submission_id != -1:
         projectid = submission_repo.get_project_by_submission_id(submission_id)
         submission = submission_repo.get_submission_by_submission_id(submission_id)
@@ -76,10 +77,22 @@ def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Containe
         projectid = project_repo.get_current_project_by_class(class_id).Id
         submission = submission_repo.get_submission_by_user_and_projectid(current_user.Id,projectid)
         current_level=submission_repo.get_current_level(submission.Id,current_user.Id)
-    
-    print("Submission ID: ", submission.Id, "outfile", submission.OutputFilepath, "cur levl", current_level, flush=True)
     output = convert_tap_to_json(submission.OutputFilepath,current_user.Role,current_level, False)
-
+    if(current_user.Role == ADMIN_ROLE or current_user.Role == TA_ROLE): #TODO: add official role for TA's
+        return make_response(output, HTTPStatus.OK)
+    else:
+        #call get-timout to see if user is in timeout
+        timeout = submission_repo.check_timeout(current_user.Id, submission.Id, projectid)
+        if timeout == True:
+            return make_response(output, HTTPStatus.OK)
+        else:
+            output = convert_tap_to_json(submission.OutputFilepath,current_user.Role,current_level, False)
+            output_dict = json.loads(output)    
+            for test_item in output_dict["results"]:
+                test_item["test"]["hidden"] = "True"
+            # Convert the modified dictionary back to a JSON string
+            output = json.dumps(output_dict, sort_keys=True, indent=4)
+        # If user is in timeout, go through output and   
     return make_response(output, HTTPStatus.OK)
 
 # TODO: Create new function to handle Java and C
@@ -98,9 +111,6 @@ def lint_output(submission_repo: SubmissionRepository = Provide[Container.submis
 
     lint_dir = lint_file.replace(f"{current_user.Username}.out.lint", '')
     lint_files = [lint_dir+filename for filename in os.listdir(lint_dir) if filename.endswith(".out.lint")]
-    print("Lint dir ", lint_dir, flush=True)
-    print("Lint dir list ", lint_files, flush=True)
-
     outputs = []    
     for lf in lint_files:
         with open(lf, 'r') as file: # lint_file
@@ -350,3 +360,10 @@ def Dismiss_OH_Question(submission_repo: SubmissionRepository = Provide[Containe
 def get_active_Question(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
     return make_response(str(submission_repo.get_active_question(current_user.Id)), HTTPStatus.OK)
 
+@submission_api.route('/getStudentTimeout', methods=['GET'])
+@jwt_required()
+@inject
+def get_Student_Timeout(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    class_id = int(request.args.get("class_id"))
+    project = project_repo.get_current_project_by_class(class_id)
+    return make_response(json.dumps(submission_repo.get_timeout(current_user.Id, project.Id)), HTTPStatus.OK)

@@ -4,7 +4,7 @@ from .models import GPTLogs, StudentQuestions, StudentUnlocks, Submissions, Proj
 from sqlalchemy import desc, and_
 from typing import Dict, List, Tuple
 from src.repositories.config_repository import ConfigRepository
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class SubmissionRepository():
     def get_submission_by_user_id(self, user_id: int) -> Submissions:
@@ -267,7 +267,88 @@ class SubmissionRepository():
         if question == None:
             return -1
         return question.Sqid
-
+    def check_timeout(self, user_id, submission_id, project_id):
+        TBS_config = [5, 15, 45, 60, 90, 120, 120, 120]
+        project = Projects.query.filter(Projects.Id == project_id).first()
+        # get most recent submission using submission_id
+        submission = Submissions.query.filter(Submissions.Id == submission_id).first()
+        submission_time = submission.Time
+        start_date = project.Start
+        current_date = datetime.now()
+        time_difference = current_date - start_date
+        days_passed = time_difference.days
+        if days_passed > 7:
+            days_passed = 7
+        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.ruling == 1)).order_by(desc(StudentQuestions.TimeAccepted)).first()
+        if question != None:
+            if question.TimeCompleted != None:
+                time_difference = current_date - question.TimeCompleted
+                six_hours = timedelta(hours=6)
+                if time_difference <= six_hours:
+                    if submission_time + timedelta(minutes=(TBS_config[days_passed])/3) < current_date:
+                        return True
+                else:
+                    return False
+            else:
+                #if the TimeCompleted is None, the question is still active and a student should be allowed to submit
+                return True
+            new_submission_time = submission_time + timedelta(minutes=TBS_config[days_passed])
+            #if the current date time is less than the new submission time then return the time left until the next submission is allowed
+            if current_date < new_submission_time:
+                return False
+            else:
+                #return the next time a submission is allowed
+                return True
+    def get_timeout(self, user_id, project_id):
+        user_id = int(user_id)
+        project_id = int(project_id)
+        TBS_config = [5, 15, 45, 60, 90, 120, 120, 120]
+        project = Projects.query.filter(Projects.Id == project_id).first()
+        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.ruling == 1, StudentQuestions.projectId== project_id)).order_by(desc(StudentQuestions.TimeAccepted)).first()
+        #Given the userID and project, get the most recent submission
+        submission = Submissions.query.filter(and_(Submissions.User == user_id, Submissions.Project == project_id)).order_by(desc(Submissions.Time)).first()
+        submission_time = 0
+        remaining_submission_str = 0
+        current_date = datetime.now()
+        start_date = project.Start
+        time_difference = current_date - start_date
+        days_passed = time_difference.days
+        if days_passed > 7:
+            days_passed = 7
+        if submission != None:
+            submission_time = submission.Time
+            if(submission_time + timedelta(minutes=(TBS_config[days_passed])/3) > current_date):
+                time_difference = submission_time + timedelta(minutes=(TBS_config[days_passed])/3) - current_date
+                remaining_minutes = time_difference.seconds // 60
+                remaining_seconds = time_difference.seconds % 60
+                # Calculate hours from remaining minutes (if greater than 60)
+                remaining_hours = remaining_minutes // 60
+                remaining_minutes %= 60
+                remaining_submission_str = f"{remaining_hours:02}:{remaining_minutes:02}:{remaining_seconds:02}"
+        time_difference = current_date - start_date
+        if question != None:
+            if question.TimeCompleted != None:
+                #if the question has been completed, check if it has been more than 6 hours since it was completed
+                timeout = question.TimeCompleted + timedelta(hours=6)
+                if timeout > current_date:
+                    time_difference = timeout - current_date
+                    remaining_minutes = time_difference.seconds // 60
+                    remaining_seconds = time_difference.seconds % 60
+                    # Calculate hours from remaining minutes (if greater than 60)
+                    remaining_hours = remaining_minutes // 60
+                    remaining_minutes %= 60
+                    remaining_time_str = f"{remaining_hours:02}:{remaining_minutes:02}:{remaining_seconds:02}"  # e.g., "05:31:50"
+                    if remaining_submission_str != "":
+                    # if the submission time plus the timedelta(minutes=(TBS_config[days_passed])/3) is greater than the current date. Return how much time until timedelta(minutes=(TBS_config[days_passed])/3)
+                        return [remaining_time_str, TBS_config[days_passed], remaining_submission_str]
+                    else:
+                        return [remaining_time_str, TBS_config[days_passed], remaining_submission_str] # 
+                else:
+                    return [-1, TBS_config[days_passed], remaining_submission_str] #return 0 if the question has been completed and it has been more than 6 hours
+            else:
+                return [1, TBS_config[days_passed], remaining_submission_str] #return 1 if the question is still active
+        else:
+            return [-1, TBS_config[days_passed], remaining_submission_str]
 
 
 

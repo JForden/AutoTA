@@ -50,6 +50,10 @@ const UploadPage = () => {
     const [hasScoreEnabled, setHasScoreEnabled] = useState<boolean>(false);
     const [hasUnlockEnabled, setHasUnlockEnabled] = useState<boolean>(false);
     const [hasTbsEnabled, setHasTbsEnabled] = useState<boolean>(false);
+    const [tbstime, setTbsTime] = useState<string>("");
+    const [tbsMessage, setTbsMessage] = useState<string>("");
+    const [tbsUploadTime, setTbsUploadTime] = useState<string>("");
+
 
     useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/submissioncounter`, {
@@ -71,6 +75,23 @@ const UploadPage = () => {
             setIsErrorMessageHidden(false);
             setIsLoading(false);
         });
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/getStudentTimeout?class_id=${cid.toString()}`,  {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+          })
+        .then(res => {
+            setTbsTime(res.data[0]);
+            setTbsMessage(res.data[1]);
+            setTbsUploadTime(res.data[2]);
+            console.log(res.data[0]);
+            console.log(res.data[1]);
+            console.log(res.data[2]);
+        })
+        .catch(err => {
+            console.log(err);
+        }
+        );
     }, [])
 
     // On file select (from the pop up)
@@ -134,66 +155,105 @@ const UploadPage = () => {
             })
         }
     }
+
+    
+    /*
+    const [hoursStr, minutesStr, secondsStr] = tbstime.split(":");
+    const hours = parseInt(hoursStr, 10);
+    const minutes = parseInt(minutesStr, 10);
+    const seconds = parseInt(secondsStr, 10);
+
+    const countdownDate = new Date();
+    countdownDate.setHours(hours);
+    countdownDate.setMinutes(minutes);
+    countdownDate.setSeconds(seconds);
+    <h1>You have  <Icon name="clock outline"></Icon> <Countdown date={countdownDate} /> left of reduced rate limit submissions.</h1>
+    */
     
     return (
         <div>
-            <Helmet>
-                <title>Upload | TA-Bot</title>
-            </Helmet>
-            <MenuComponent showAdminUpload={false} showUpload={false} showHelp={false} showCreate={false} showLast={true} showReviewButton={false}></MenuComponent>
-            <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
-            <Grid.Column style={{ maxWidth: 400 }}>
+    <Helmet>
+        <title>Upload | TA-Bot</title>
+    </Helmet>
+    <MenuComponent showAdminUpload={false} showUpload={false} showHelp={false} showCreate={false} showLast={true} showReviewButton={false}></MenuComponent>
+    <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
+        <Grid.Column width={5}>
+            <Segment stacked>
+                    {tbstime === "1" ? (
+                        <div><h1>Currently at office hours: No rate limit!</h1></div>
+                    ) : (
+                        <div></div>
+                    )}
+                    {tbstime === "-1" ? (
+                        <div>
+                            <h1>You can upload to get test case results once every {tbsMessage} minutes <br></br> Attending office hours reduces this to {parseInt(tbsMessage)/3} minutes for 6 hours!</h1>
+                            <h1>Next upload is available in <Countdown date={new Date().setHours(parseInt(tbstime.split(":")[0], 10), parseInt(tbstime.split(":")[1], 10), parseInt(tbstime.split(":")[2], 10))} /></h1> </div>
+                    ) : (
+                        <><div>
+                                    <h1>Office Hours TBS reduction, you can get results once every {parseInt(tbsMessage) / 3} minutes 
+                                    This is in effect for 
+                                    <Countdown date={new Date().setHours(parseInt(tbstime.split(":")[0], 10), parseInt(tbstime.split(":")[1], 10), parseInt(tbstime.split(":")[2], 10))} /> more minutes! </h1> </div></> 
+                    )}
+            </Segment>
+                <div className="countdown-box">
+                <div className="countdown-info">
+                </div>
+            </div>
+        
+        </Grid.Column>
+        <Grid.Column width={5}>
+        {tbsUploadTime == "0" ? (
+                        <div><h1>You can upload for test case results!</h1></div>
+                    ) : (
+                        <div><h1>You will be able to upload for test case results in <Countdown date={new Date().setHours(parseInt(tbsUploadTime.split(":")[0], 10), parseInt(tbsUploadTime.split(":")[1], 10), parseInt(tbsUploadTime.split(":")[2], 10))} /> more minutes! </h1> </div>
+                    )}
+        </Grid.Column>
+
+        <Grid.Column width={4}>
             <Form loading={isLoading} size='large' onSubmit={handleSubmit} disabled={true}>
                 <Dimmer.Dimmable dimmed={true}>
-                <Segment stacked>
-                <h1>Upload Assignment Here</h1>
-                <Form.Input type="file" fluid required onChange={handleFileChange} />
-                <Button disabled={!is_allowed_to_submit} type="submit" color='blue' fluid size='large'>
-                    Upload
-                </Button>
-                <br></br>
-                </Segment>
-                <Dimmer active={project_id === -1}>
-                    <Header as='h2' icon inverted>
-                    <Icon name='ban' />
-                    No active project
-                    </Header>
-                </Dimmer>
+                    <Segment stacked>
+                        <h1>Upload Assignment Here</h1>
+                        <Form.Input type="file" fluid required onChange={handleFileChange} />
+                        <Button disabled={!is_allowed_to_submit} type="submit" color='blue' fluid size='large'>
+                            Upload
+                        </Button>
+                        <br />
+                    </Segment>
+                    <Dimmer active={project_id === -1}>
+                        <Header as='h2' icon inverted>
+                            <Icon name='ban' />
+                            No active project
+                        </Header>
+                    </Dimmer>
                 </Dimmer.Dimmable>
-                {(() => {
-                    if(hasTbsEnabled){
-                        if(project_id !== -1 && !is_allowed_to_submit){
-                            return (<><Icon name="clock outline"></Icon><Countdown date={new Date(time_until_next_submission)} onComplete={onTimerFinish} /></>);
-                        } else {
-                            return (<></>)
-                        }
-                    }
-                    return (<></>);
-                })()}
             </Form>
-            <ErrorMessage message={error_message} isHidden={isErrorMessageHidden}></ErrorMessage>
-            {(() => {
-                if(hasScoreEnabled){
-                    return (<Button basic color='blue' content='Score on last assignment' icon='gem'
-                    label={{ as: 'a', basic: true, color: 'blue', pointing: 'left', content: points, }}/>);
-                }
-                return (<></>);
-            })()}
-            <br /> <br />
-            {(() => {
-                if(hasUnlockEnabled){
-                    return (<Button disabled={!canRedeem} type="submit" color='yellow' fluid size='small' onClick={handleRedeem}>
+
+            {hasTbsEnabled && project_id !== -1 && !is_allowed_to_submit && (
+                <>
+                    <Icon name="clock outline" />
+                    <Countdown date={new Date(time_until_next_submission)} onComplete={onTimerFinish} />
+                </>
+            )}
+
+            <ErrorMessage message={error_message} isHidden={isErrorMessageHidden} />
+
+            {hasScoreEnabled && (
+                <Button basic color='blue' content='Score on last assignment' icon='gem'
+                    label={{ as: 'a', basic: true, color: 'blue', pointing: 'left', content: points }} />
+            )}
+
+            {hasUnlockEnabled && (
+                <Button disabled={!canRedeem} type="submit" color='yellow' fluid size='small' onClick={handleRedeem}>
                     Use Extra Day (Score must be above 75)
-                </Button>);
-                } else {
-                    return (<></>)
-                }
-            })()}
+                </Button>
+            )}
+
             <div>&nbsp;</div>
-            <div><Icon name="paper plane" color="red"></Icon><a href="https://docs.google.com/document/d/1Ig15zUygy85cNyPTg7_VYjW7WcgasvijmXGiNDjZssA/edit?usp=sharing" target="_blank">TA-Bot Patch Notes!</a></div>
-            </Grid.Column>
-            </Grid>
-        </div>
+            <div><Icon name="paper plane" color="red" /><a href="https://docs.google.com/document/d/1Ig15zUygy85cNyPTg7_VYjW7WcgasvijmXGiNDjZssA/edit?usp=sharing" target="_blank">TA-Bot Patch Notes!</a></div>
+        </Grid.Column>
+    </Grid>
+</div>
     );
 }
 
