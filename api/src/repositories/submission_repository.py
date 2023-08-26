@@ -285,24 +285,26 @@ class SubmissionRepository():
         print("current timeout time: ", tbs_settings[days_passed], flush=True)
         #given the student ID and project, query to see if there was a question asked for this project, get the most recent question
         question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == project_id)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
+        time_until_resubmission=""
+        tbs_threshold = tbs_settings[days_passed]
         if question == None:
-            if most_recent_submission + timedelta(minutes=tbs_settings[days_passed]) < current_time:
-                return 1
-        if question != None:
-            if question.ruling ==1:
-                if(question.dismissed == 0):
-                    return 1
-                if question.TimeSubmitted + timedelta(hours=3) > current_time:
-                    if most_recent_submission + timedelta(minutes=(tbs_settings[days_passed])/3) < current_time:
-                        return 1
-                    else:
-                        return 0
-                else:
-                    if most_recent_submission + timedelta(minutes=tbs_settings[days_passed]) < current_time:
-                        return 1
-                    else:
-                        return 0
-        return 0
+            if most_recent_submission + timedelta(minutes=tbs_threshold) < current_time:
+                return [1, "None"]
+            time_until_resubmission = most_recent_submission + timedelta(minutes=tbs_threshold) - current_time
+        if question is not None and question.ruling == 1:
+            if question.dismissed == 0:
+                return [1, "None"]
+            submission_time_limit = question.TimeSubmitted + timedelta(hours=3)
+            if submission_time_limit > current_time:
+                if most_recent_submission + timedelta(minutes=tbs_threshold / 3) < current_time:
+                    return [1, "None"]
+                time_until_resubmission = most_recent_submission + timedelta(minutes=tbs_threshold / 3) - current_time
+            else:
+                if most_recent_submission + timedelta(minutes=tbs_threshold) < current_time:
+                    return [1, "None"]
+                time_until_resubmission = most_recent_submission + timedelta(minutes=tbs_threshold) - current_time
+        return [0, time_until_resubmission]
+
     def check_visibility(self, user_id, project_id):
         # Get most recent submission given userId and projectID
         submission = Submissions.query.filter(and_(Submissions.User == user_id, Submissions.Project == project_id)).order_by(desc(Submissions.Time)).first()

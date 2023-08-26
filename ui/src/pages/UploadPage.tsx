@@ -52,6 +52,7 @@ const UploadPage = () => {
     const [hasTbsEnabled, setHasTbsEnabled] = useState<boolean>(false);
     const [tbstime, setTbsTime] = useState<string>("");
     const [DaysSinceProjectStarted, setDaysSinceProjectStarted] = useState<number>(0);
+    const [TimeUntilNextSubmission, setTimeUntilNextSubmission] = useState<string>("");
 
 
     useEffect(() => {
@@ -108,6 +109,8 @@ const UploadPage = () => {
         }).then(res => {
             setDaysSinceProjectStarted(parseInt(res.data[1]) + 1);
             setTbsTime(res.data[0]);
+            //setTimeUntilNextSubmission(res.data[2]);
+            setTimeUntilNextSubmission("None");
             console.log(res.data);
     })
     }
@@ -168,31 +171,46 @@ const UploadPage = () => {
                         </Button>
                         <br />
                     </Segment>
-                    <Segment stacked>
-                        <Table definition>
-                           {
-                                tbstime != "Expired" ?
+                    {tbstime != "Expired" || TimeUntilNextSubmission != "None" ? (
+                        <Segment stacked>
+                            <Table definition>
+                            {tbstime !== "Expired" && (
                                 <Table.Row>
                                 <Table.Cell>Reduced TBS:</Table.Cell>
                                 <Table.Cell textAlign="center">
                                     <Icon name="clock outline" />
                                     <Countdown
                                     date={new Date(new Date().getTime() + (parseInt(tbstime.split(' ')[0]) * 3600000) + (parseInt(tbstime.split(' ')[2]) * 60000))}
-                                    intervalDelay={1000} // 1 second interval
-                                    precision={2} // Display only hours and minutes
+                                    intervalDelay={1000}
+                                    precision={2}
                                     renderer={({ hours, minutes }) => `${hours} hours, ${minutes} minutes`}
                                     onComplete={() => {}}
                                     />
                                     &nbsp; remaining
                                 </Table.Cell>
                                 </Table.Row>
-                                :
-                                <div></div>
-                           }
-                        </Table>
-                            <p>Your additional content...</p>
+                            )}
+                            {TimeUntilNextSubmission !== "None" && (
+                                <Table.Row>
+                                <Table.Cell>Time Until next visible submission:</Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <Icon name="clock outline" />
+                                    <Countdown
+                                    date={new Date(new Date().getTime() + (parseInt(TimeUntilNextSubmission.split(' ')[0]) * 3600000) + (parseInt(TimeUntilNextSubmission.split(' ')[2]) * 60000))}
+                                    intervalDelay={1000}
+                                    precision={2}
+                                    renderer={({ hours, minutes }) => `${hours} hours, ${minutes} minutes`}
+                                    onComplete={() => {}}
+                                    />
+                                    &nbsp; remaining
+                                </Table.Cell>
+                                </Table.Row>
+                            )}
+                            </Table>
                         </Segment>
-                    
+                        ) : (
+                        <div></div>
+                        )}                    
                     <Dimmer active={project_id === -1}>
                         <Header as='h2' icon inverted>
                             <Icon name='ban' />

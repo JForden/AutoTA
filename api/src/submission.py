@@ -374,4 +374,10 @@ def get_remaining_OH_Time(submission_repo: SubmissionRepository = Provide[Contai
     #get days passed 
     days_passed = (current_time - start_date).days
     submission_details.append(str(days_passed))
+    time_until_next_submission = submission_repo.check_timeout(current_user.Id, projectId)[1]
+    if time_until_next_submission != "None":
+        hours = time_until_next_submission.seconds // 3600
+        minutes = (time_until_next_submission.seconds % 3600) // 60
+        time_until_next_submission = f"{hours} hours, {minutes} minutes" 
+    submission_details.append(str(time_until_next_submission))
     return make_response(submission_details, HTTPStatus.OK)
