@@ -106,7 +106,7 @@ const UploadPage = () => {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
             }
         }).then(res => {
-            setDaysSinceProjectStarted(parseInt(res.data[1]));
+            setDaysSinceProjectStarted(parseInt(res.data[1]) + 1);
             setTbsTime(res.data[0]);
             console.log(res.data);
     })
@@ -206,13 +206,13 @@ const UploadPage = () => {
                     <Table.Header>
                     <Table.Row>
                         <Table.HeaderCell />
-                        <Table.HeaderCell>Day 1</Table.HeaderCell>
-                        <Table.HeaderCell>Day 2</Table.HeaderCell>
-                        <Table.HeaderCell>Day 3</Table.HeaderCell>
-                        <Table.HeaderCell>Day 4</Table.HeaderCell>
-                        <Table.HeaderCell>Day 5</Table.HeaderCell>
-                        <Table.HeaderCell>Day 6+</Table.HeaderCell>
-                    </Table.Row>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 1 ? '#51f542' : 'white' }}>Day 1</Table.HeaderCell>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 2 ? '#66bb6a' : 'white' }}>Day 2</Table.HeaderCell>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 3 ? '#f5ce42' : 'white' }}>Day 3</Table.HeaderCell>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 4 ? '#f59e42' : 'white' }}>Day 4</Table.HeaderCell>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 5 ? '#f57842' : 'white' }}>Day 5</Table.HeaderCell>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted >= 6 ? '#f55442' : 'white' }}>Day 6+</Table.HeaderCell>
+                        </Table.Row>
                     </Table.Header>
                     <Table.Body>
                     <Table.Row>
