@@ -285,24 +285,26 @@ class SubmissionRepository():
         print("current timeout time: ", tbs_settings[days_passed], flush=True)
         #given the student ID and project, query to see if there was a question asked for this project, get the most recent question
         question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == project_id)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
+        time_until_resubmission=""
+        tbs_threshold = tbs_settings[days_passed]
         if question == None:
-            if most_recent_submission + timedelta(minutes=tbs_settings[days_passed]) < current_time:
-                return 1
-        if question != None:
-            if question.ruling ==1:
-                if(question.dismissed == 0):
-                    return 1
-                if question.TimeSubmitted + timedelta(hours=3) > current_time:
-                    if most_recent_submission + timedelta(minutes=(tbs_settings[days_passed])/3) < current_time:
-                        return 1
-                    else:
-                        return 0
-                else:
-                    if most_recent_submission + timedelta(minutes=tbs_settings[days_passed]) < current_time:
-                        return 1
-                    else:
-                        return 0
-        return 0
+            if most_recent_submission + timedelta(minutes=tbs_threshold) < current_time:
+                return [1, "None"]
+            time_until_resubmission = most_recent_submission + timedelta(minutes=tbs_threshold) - current_time
+        if question is not None and question.ruling == 1:
+            if question.dismissed == 0:
+                return [1, "None"]
+            submission_time_limit = question.TimeSubmitted + timedelta(hours=3)
+            if submission_time_limit > current_time:
+                if most_recent_submission + timedelta(minutes=tbs_threshold / 3) < current_time:
+                    return [1, "None"]
+                time_until_resubmission = most_recent_submission + timedelta(minutes=tbs_threshold / 3) - current_time
+            else:
+                if most_recent_submission + timedelta(minutes=tbs_threshold) < current_time:
+                    return [1, "None"]
+                time_until_resubmission = most_recent_submission + timedelta(minutes=tbs_threshold) - current_time
+        return [0, time_until_resubmission]
+
     def check_visibility(self, user_id, project_id):
         # Get most recent submission given userId and projectID
         submission = Submissions.query.filter(and_(Submissions.User == user_id, Submissions.Project == project_id)).order_by(desc(Submissions.Time)).first()
@@ -314,13 +316,19 @@ class SubmissionRepository():
     
     def get_remaining_OH_Time(self, user_id, project_id):
         #Get the most recent question asked by the student for the given project that is dismissed
-        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == project_id, StudentQuestions.dismissed == 1)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
+        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == int(project_id), StudentQuestions.dismissed == 1)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
         #Get how long until this time is the current time
         if question == None:
             return 0
         current_time = datetime.now()
         time_remaining = question.TimeCompleted + timedelta(hours=3) - current_time
-        return time_remaining.seconds/60
+        if time_remaining < timedelta(minutes=0):
+            formatted_time_remaining = "Expired"
+        else:
+            hours = time_remaining.seconds // 3600
+            minutes = (time_remaining.seconds % 3600) // 60
+            formatted_time_remaining = f"{hours} hours, {minutes} minutes" 
+        return formatted_time_remaining 
     
 
 

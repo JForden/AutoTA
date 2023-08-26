@@ -51,8 +51,8 @@ const UploadPage = () => {
     const [hasUnlockEnabled, setHasUnlockEnabled] = useState<boolean>(false);
     const [hasTbsEnabled, setHasTbsEnabled] = useState<boolean>(false);
     const [tbstime, setTbsTime] = useState<string>("");
-    const [tbsMessage, setTbsMessage] = useState<string>("");
-    const [tbsUploadTime, setTbsUploadTime] = useState<string>("");
+    const [DaysSinceProjectStarted, setDaysSinceProjectStarted] = useState<number>(0);
+    const [TimeUntilNextSubmission, setTimeUntilNextSubmission] = useState<string>("");
 
 
     useEffect(() => {
@@ -75,6 +75,7 @@ const UploadPage = () => {
             setIsErrorMessageHidden(false);
             setIsLoading(false);
         });
+        getSubmissionDetails();
     }, [])
 
     // On file select (from the pop up)
@@ -100,12 +101,16 @@ const UploadPage = () => {
             window.location.reload();
         })
     }
-    function getRemaingingTime(){
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/getremaingOHTime?project_id=${project_id}`, {
+    function getSubmissionDetails(){
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/GetSubmissionDetails?class_id=${class_id}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
             }
         }).then(res => {
+            setDaysSinceProjectStarted(parseInt(res.data[1]) + 1);
+            setTbsTime(res.data[0]);
+            //setTimeUntilNextSubmission(res.data[2]);
+            setTimeUntilNextSubmission("None");
             console.log(res.data);
     })
     }
@@ -166,6 +171,46 @@ const UploadPage = () => {
                         </Button>
                         <br />
                     </Segment>
+                    {tbstime != "Expired" || TimeUntilNextSubmission != "None" ? (
+                        <Segment stacked>
+                            <Table definition>
+                            {tbstime !== "Expired" && (
+                                <Table.Row>
+                                <Table.Cell>Reduced TBS:</Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <Icon name="clock outline" />
+                                    <Countdown
+                                    date={new Date(new Date().getTime() + (parseInt(tbstime.split(' ')[0]) * 3600000) + (parseInt(tbstime.split(' ')[2]) * 60000))}
+                                    intervalDelay={1000}
+                                    precision={2}
+                                    renderer={({ hours, minutes }) => `${hours} hours, ${minutes} minutes`}
+                                    onComplete={() => {}}
+                                    />
+                                    &nbsp; remaining
+                                </Table.Cell>
+                                </Table.Row>
+                            )}
+                            {TimeUntilNextSubmission !== "None" && (
+                                <Table.Row>
+                                <Table.Cell>Time Until next visible submission:</Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <Icon name="clock outline" />
+                                    <Countdown
+                                    date={new Date(new Date().getTime() + (parseInt(TimeUntilNextSubmission.split(' ')[0]) * 3600000) + (parseInt(TimeUntilNextSubmission.split(' ')[2]) * 60000))}
+                                    intervalDelay={1000}
+                                    precision={2}
+                                    renderer={({ hours, minutes }) => `${hours} hours, ${minutes} minutes`}
+                                    onComplete={() => {}}
+                                    />
+                                    &nbsp; remaining
+                                </Table.Cell>
+                                </Table.Row>
+                            )}
+                            </Table>
+                        </Segment>
+                        ) : (
+                        <div></div>
+                        )}                    
                     <Dimmer active={project_id === -1}>
                         <Header as='h2' icon inverted>
                             <Icon name='ban' />
@@ -179,13 +224,13 @@ const UploadPage = () => {
                     <Table.Header>
                     <Table.Row>
                         <Table.HeaderCell />
-                        <Table.HeaderCell>Day 1</Table.HeaderCell>
-                        <Table.HeaderCell>Day 2</Table.HeaderCell>
-                        <Table.HeaderCell>Day 3</Table.HeaderCell>
-                        <Table.HeaderCell>Day 4</Table.HeaderCell>
-                        <Table.HeaderCell>Day 5</Table.HeaderCell>
-                        <Table.HeaderCell>Day 6+</Table.HeaderCell>
-                    </Table.Row>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 1 ? '#51f542' : 'white' }}>Day 1</Table.HeaderCell>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 2 ? '#66bb6a' : 'white' }}>Day 2</Table.HeaderCell>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 3 ? '#f5ce42' : 'white' }}>Day 3</Table.HeaderCell>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 4 ? '#f59e42' : 'white' }}>Day 4</Table.HeaderCell>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 5 ? '#f57842' : 'white' }}>Day 5</Table.HeaderCell>
+                        <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted >= 6 ? '#f55442' : 'white' }}>Day 6+</Table.HeaderCell>
+                        </Table.Row>
                     </Table.Header>
                     <Table.Body>
                     <Table.Row>

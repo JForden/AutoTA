@@ -423,7 +423,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
             pylint_score = 40
         total_submission_score = student_submission_score+pylint_score
 
-        visible = submission_repo.check_timeout(user_id, project.Id)
+        visible = submission_repo.check_timeout(user_id, project.Id)[0]
         submissionId = submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score, visible)
         
         # Step 4 assign point totals for the submission 
