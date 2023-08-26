@@ -314,13 +314,19 @@ class SubmissionRepository():
     
     def get_remaining_OH_Time(self, user_id, project_id):
         #Get the most recent question asked by the student for the given project that is dismissed
-        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == project_id, StudentQuestions.dismissed == 1)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
+        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == int(project_id), StudentQuestions.dismissed == 1)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
         #Get how long until this time is the current time
         if question == None:
             return 0
         current_time = datetime.now()
         time_remaining = question.TimeCompleted + timedelta(hours=3) - current_time
-        return time_remaining.seconds/60
+        if time_remaining < timedelta(minutes=0):
+            formatted_time_remaining = "Expired"
+        else:
+            hours = time_remaining.seconds // 3600
+            minutes = (time_remaining.seconds % 3600) // 60
+            formatted_time_remaining = f"{hours} hours, {minutes} minutes" 
+        return formatted_time_remaining 
     
 
 

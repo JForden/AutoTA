@@ -359,9 +359,19 @@ def Dismiss_OH_Question(submission_repo: SubmissionRepository = Provide[Containe
 def get_active_Question(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
     return make_response(str(submission_repo.get_active_question(current_user.Id)), HTTPStatus.OK)
 
-@submission_api.route('/getremaingOHTime', methods=['GET'])
+@submission_api.route('/GetSubmissionDetails', methods=['GET'])
 @jwt_required()
 @inject
-def get_remaining_OH_Time(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
-    projectId = str(request.args.get("projectId"))
-    return make_response(str(submission_repo.get_remaining_OH_Time(current_user.Id, projectId)), HTTPStatus.OK)
+def get_remaining_OH_Time(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    classId = str(request.args.get("class_id"))
+    submission_details = []
+    projectId = project_repo.get_current_project_by_class(classId).Id
+    submission_details.append(str(submission_repo.get_remaining_OH_Time(current_user.Id, projectId)))
+    project = project_repo.get_project(projectId)
+    start_time = project.get(projectId)[1]
+    start_date = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+    current_time = datetime.now()
+    #get days passed 
+    days_passed = (current_time - start_date).days
+    submission_details.append(str(days_passed))
+    return make_response(submission_details, HTTPStatus.OK)
