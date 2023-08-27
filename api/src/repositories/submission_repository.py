@@ -273,7 +273,7 @@ class SubmissionRepository():
         submissions = Submissions.query.filter(and_(Submissions.Project == project_id, Submissions.User == user_id, Submissions.visible ==1)).order_by(desc(Submissions.Time)).first()
         #get the time of the most recent submission
         if submissions == None:
-            return 1
+            return [1, "None"]
         most_recent_submission = submissions.Time
         project_start_date = Projects.query.filter(Projects.Id == project_id).first().Start
         #Get how many days have passed since the project start date
@@ -282,7 +282,6 @@ class SubmissionRepository():
             days_passed = 7
         # get current time
         current_time = datetime.now()
-        print("current timeout time: ", tbs_settings[days_passed], flush=True)
         #given the student ID and project, query to see if there was a question asked for this project, get the most recent question
         question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == project_id)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
         time_until_resubmission=""
@@ -290,7 +289,7 @@ class SubmissionRepository():
         if question == None:
             if most_recent_submission + timedelta(minutes=tbs_threshold) < current_time:
                 return [1, "None"]
-            time_until_resubmission = most_recent_submission + timedelta(minutes=tbs_threshold) - current_time
+        time_until_resubmission = most_recent_submission + timedelta(minutes=tbs_threshold) - current_time
         if question is not None and question.ruling == 1:
             if question.dismissed == 0:
                 return [1, "None"]
@@ -302,7 +301,6 @@ class SubmissionRepository():
             else:
                 if most_recent_submission + timedelta(minutes=tbs_threshold) < current_time:
                     return [1, "None"]
-                time_until_resubmission = most_recent_submission + timedelta(minutes=tbs_threshold) - current_time
         return [0, time_until_resubmission]
 
     def check_visibility(self, user_id, project_id):
@@ -329,7 +327,8 @@ class SubmissionRepository():
             minutes = (time_remaining.seconds % 3600) // 60
             formatted_time_remaining = f"{hours} hours, {minutes} minutes" 
         return formatted_time_remaining 
-    
+    def get_number_of_questions_asked(self, user_id, project_id):
+        number_of_questions = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == int(project_id))).count()
 
 
 

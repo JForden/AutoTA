@@ -231,7 +231,7 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
         if user.Id in bucket:
             studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id, str(class_id)]    
         else:
-            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1]
+            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1, "N/A"]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
 
 
