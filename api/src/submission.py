@@ -86,7 +86,6 @@ def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Containe
         if timeout == True:
             return make_response(output, HTTPStatus.OK)
         else:
-            output = convert_tap_to_json(submission.OutputFilepath,current_user.Role,current_level, False)
             output_dict = json.loads(output)    
             for test_item in output_dict["results"]:
                 test_item["test"]["hidden"] = "True"
@@ -130,7 +129,11 @@ def lint_output(submission_repo: SubmissionRepository = Provide[Container.submis
                     if project.Language == "python":
                         output = link_service.add_link_info_links(output)
                 outputs.append(output)
-    return make_response(outputs[0], HTTPStatus.OK)
+    try:
+        outputs = outputs[0]
+    except IndexError:
+        outputs = ""
+    return make_response(outputs, HTTPStatus.OK)
 
 
 @submission_api.route('/codefinder', methods=['GET'])
