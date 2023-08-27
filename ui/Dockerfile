@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Install depenencies
 COPY package.json .
-COPY yarn.lock .
+#COPY yarn.lock .
 RUN yarn install 
 #RUN yarn global add react-scripts --silent
 
