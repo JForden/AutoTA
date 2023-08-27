@@ -94,6 +94,10 @@ class UserRepository():
         print(dt_string, flush=True)
         db.session.commit()
         return api_key
+    def get_StudentNumber(self, user_id):
+        query = Users.query.filter(Users.Id==user_id).one()
+        StudentNumber = query.StudentNumber
+        return StudentNumber
 
 
 

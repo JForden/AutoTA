@@ -152,3 +152,9 @@ class StudentQuestions(db.Model):
     projectId = Column(Integer, ForeignKey('Projects.Id'))
     TimeAccepted = Column(DateTime)
     TimeCompleted = Column(DateTime)
+
+class StudentGrades(db.Model):
+    __tablename__ = "StudentGrades"
+    Sid = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
+    Pid = Column(Integer, ForeignKey('Projects.Id'), primary_key=True)
+    Grade = Column(Integer)

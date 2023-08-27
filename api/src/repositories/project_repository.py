@@ -7,7 +7,7 @@ from typing import Optional, Dict
 from flask import send_file
 
 from sqlalchemy.sql.expression import asc
-from .models import Projects, Levels, StudentProgress, Submissions, Testcases, Classes
+from .models import Projects, Levels, StudentGrades, StudentProgress, Submissions, Testcases, Classes
 from src.repositories.database import db
 from sqlalchemy import desc, and_
 from datetime import datetime
@@ -204,7 +204,6 @@ class ProjectRepository():
         db.session.delete(project)
         db.session.commit()
     def get_className_by_projectId(self, project_id):
-        print("This is project ID", project_id, flush=True)
         project = Projects.query.filter(Projects.Id == project_id).first()
         class_obj = Classes.query.filter(Classes.Id ==project.ClassId).first()
         return class_obj.Name
@@ -218,12 +217,28 @@ class ProjectRepository():
         project = Projects.query.filter(Projects.Id==project_id).first()
         return project.AsnDescriptionPath
     def get_project_desc_file(self, project_id):
-        print("This is project ID", project_id, flush=True)
         project = Projects.query.filter(Projects.Id == project_id).first()
         filepath = project.AsnDescriptionPath
         with open(filepath, 'rb') as file:
             file_contents = file.read()
         return file_contents  # Return the contents of the PDF file
+    def get_student_grade(self, project_id, user_id):
+        student_progress = StudentGrades.query.filter(and_(StudentGrades.Sid==user_id, StudentGrades.Pid==project_id)).first()
+        if student_progress is None:
+            print("No grade found", flush=True)
+            return 0
+        return student_progress.Grade
+    def set_student_grade(self, project_id, user_id, grade):
+        student_grade = StudentGrades.query.filter(and_(StudentGrades.Sid==user_id, StudentGrades.Pid==project_id)).first()
+        if student_grade is not None:
+            student_grade.Grade = grade
+            db.session.commit()
+            return
+        studentGrade = StudentGrades(Sid=user_id, Pid=project_id, Grade=grade)
+        db.session.add(studentGrade)
+        db.session.commit()
+        return
+
 
         
 

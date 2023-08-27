@@ -24,6 +24,7 @@ class Row {
         this.hidden = false;
         this.classId= "";
         this.grade=0;
+        this.StudentNumber=0;
     }
     
     id: number;
@@ -38,6 +39,7 @@ class Row {
     hidden: boolean;
     classId: string;
     grade: number;
+    StudentNumber: number;
 }
 
 interface StudentListState {
@@ -88,8 +90,8 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                 row.subid=parseInt(student_output_data[7]);
                 row.hidden = false;
                 row.classId = student_output_data[8];
-                //row.grade = parseInt(student_output_data[9]);
-                row.grade = 0;
+                row.grade = parseInt(student_output_data[9]);
+                row.StudentNumber = parseInt(student_output_data[10]);
                 rows.push(row);    
                 
                 return row;
@@ -135,6 +137,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
         });
         this.setState({ rows: new_rows });
     }
+    
     handleGradeChange = (e: React.ChangeEvent<HTMLInputElement>, row: Row) => {
         const newValue = parseFloat(e.target.value);
         console.log(newValue);
@@ -148,7 +151,64 @@ class StudentList extends Component<StudentListProps, StudentListState> {
           });
         }
     };
-    
+    submitgrades(){
+        //loop through rows
+        this.setState({ isLoading: false });
+        let temp: {[key: string]: string} = {};
+        for(const value of this.state.rows){
+            temp[value.id.toString()] = value.grade.toString();
+        }
+        axios.post(process.env.REACT_APP_BASE_API_URL + `/submissions/submitgrades`, 
+            {studentgrades: temp, projectID: this.props.project_id},
+            {headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+        })
+        .then(res => {    
+            console.log(temp);
+            console.log(res.data);
+        }).catch( exc => {
+            window.alert("Error submitting grades, please fillout bug report form");
+            this.setState({ isLoading: false });
+        })
+    }
+    exportGrades(){
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/getprojectname?projectID=${this.props.project_id}`,
+        {headers: {
+            'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+        }
+        }).then(res => {
+            let projectname = res.data;
+            let csvContent = [] as String[][];
+            
+            csvContent.push(["OrgDefinedId", "Username", projectname]);
+
+            for(const value of this.state.rows){
+                csvContent.push([value.StudentNumber.toString(), value.Fname+"."+value.Lname, value.grade.toString()]);
+            }
+            const csvRows = csvContent.map(row => row.join(',')); // Convert each row to a string
+            const csvString = csvRows.join('\n'); // Join rows with newline character
+            const blob = new Blob([csvString], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.csv';
+            document.body.appendChild(a);
+            a.click();
+
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }).catch( exc => {
+            window.alert("Error exporting project grades, please fillout bug report form");
+        })
+
+
+        //Get project name
+        //format CSV
+        //
+    }
+
     
 
     render(){
@@ -165,7 +225,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                         <Table.HeaderCell>Number of pylint errors on most recent submission</Table.HeaderCell>
                         <Table.HeaderCell>State of Last Submission</Table.HeaderCell>
                         <Table.HeaderCell button > <Loader size='massive' active={this.state.isLoading}>Loading: This process might take several minutes, please do not refresh</Loader><Label button onClick={() => { this.handleClick() }}>Plagiarism Checker</Label></Table.HeaderCell>
-                        <Table.HeaderCell><Label button onClick={() => { this.handleClick() }}>Submit Grades</Label><Label button onClick={() => { this.handleClick() }}>Export Grades</Label></Table.HeaderCell>
+                        <Table.HeaderCell><Label button onClick={() => { this.submitgrades() }}>Submit Grades</Label><Label button onClick={() => { this.exportGrades() }}>Export Grades</Label></Table.HeaderCell>
                     </Table.Row>
                     </Table.Header>
                     <Table.Body>
