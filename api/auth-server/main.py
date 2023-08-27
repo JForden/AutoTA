@@ -4,6 +4,7 @@ from flask import Flask
 from flask import jsonify
 from flask import request
 import pam
+import json
  
 # Flask constructor takes the name of
 # current module (__name__) as argument.
@@ -19,10 +20,12 @@ def auth():
     dict = {'success': False}
     try:
         pam_module=pam.pam()
-        dict['success'] = bool(pam_module.authenticate(data['username'], data['password']))
+        username = data['username'].strip('"')
+        password = data['password'].strip('"')
+        dict['success'] = bool(pam_module.authenticate(username, password))
     except:
         pass
-
+    print(dict)
     return jsonify(dict), 200
  
 # main driver function
@@ -30,4 +33,4 @@ if __name__ == '__main__':
  
     # run() method of Flask class runs the application
     # on the local development server.
-    app.run()
+    app.run(host='0.0.0.0', port='4000')

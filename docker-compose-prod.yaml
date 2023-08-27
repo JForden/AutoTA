@@ -25,11 +25,14 @@ services:
       DB_NAME: "autota"
       FLASK_DEBUG: "False"
       TABOT_DIR: "/ta-bot"
+      AUTH_URL: "http://host.docker.internal:4000/"
     build:
       context: api
       dockerfile: Dockerfile.prod
     ports:
       - "127.0.0.1:8009:5000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - "./api:/app"
       - "./ta-bot:/ta-bot"
