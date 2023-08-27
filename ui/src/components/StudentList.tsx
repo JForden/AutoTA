@@ -3,7 +3,7 @@ import 'semantic-ui-css/semantic.min.css'
 import '../css/TestResultComponent.scss';
 import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
-import { Table, Label, Loader, Dropdown, DropdownItemProps, DropdownItem, DropdownProps } from 'semantic-ui-react';
+import { Table, Label, Loader, Dropdown, DropdownItemProps, DropdownItem, DropdownProps, Input } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
 interface StudentListProps {
@@ -23,6 +23,7 @@ class Row {
         this.lecture_number=0;
         this.hidden = false;
         this.classId= "";
+        this.grade=0;
     }
     
     id: number;
@@ -36,6 +37,7 @@ class Row {
     lecture_number:number;
     hidden: boolean;
     classId: string;
+    grade: number;
 }
 
 interface StudentListState {
@@ -86,6 +88,8 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                 row.subid=parseInt(student_output_data[7]);
                 row.hidden = false;
                 row.classId = student_output_data[8];
+                //row.grade = parseInt(student_output_data[9]);
+                row.grade = 0;
                 rows.push(row);    
                 
                 return row;
@@ -131,8 +135,21 @@ class StudentList extends Component<StudentListProps, StudentListState> {
         });
         this.setState({ rows: new_rows });
     }
+    handleGradeChange = (e: React.ChangeEvent<HTMLInputElement>, row: Row) => {
+        const newValue = parseFloat(e.target.value);
+        console.log(newValue);
+        if (!isNaN(newValue)) {
+          const updatedRows = this.state.rows.map((r) =>
+            r.id === row.id ? { ...r, grade: newValue } : r
+          );
     
-
+          this.setState({
+            rows: updatedRows,
+          });
+        }
+    };
+    
+    
 
     render(){
         return (
@@ -148,7 +165,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                         <Table.HeaderCell>Number of pylint errors on most recent submission</Table.HeaderCell>
                         <Table.HeaderCell>State of Last Submission</Table.HeaderCell>
                         <Table.HeaderCell button > <Loader size='massive' active={this.state.isLoading}>Loading: This process might take several minutes, please do not refresh</Loader><Label button onClick={() => { this.handleClick() }}>Plagiarism Checker</Label></Table.HeaderCell>
-                        
+                        <Table.HeaderCell><Label button onClick={() => { this.handleClick() }}>Submit Grades</Label><Label button onClick={() => { this.handleClick() }}>Export Grades</Label></Table.HeaderCell>
                     </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -166,7 +183,15 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                         <Table.Cell>N/A</Table.Cell>
                                         <Table.Cell>N/A</Table.Cell>
                                         <Table.Cell>N/A</Table.Cell>
-                                        <Table.Cell></Table.Cell>
+                                        <Table.Cell>N/A</Table.Cell>
+                                        <Table.Cell>
+                                        <Input
+                                            type="text"
+                                            placeholder="optional"
+                                            value={row.grade} // Set the initial value of the input to row.grade
+                                            onChange={(e) => this.handleGradeChange(e, row)} // Pass the row object to the function so we can update the state of the row
+                                        />
+                                        </Table.Cell>
                                     </Table.Row>
                                 )
                             }
@@ -179,6 +204,14 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                     <Table.Cell>{row.numberOfPylintErrors}</Table.Cell>
                                     <Table.Cell>{row.isPassing ? "PASSED" : "FAILED"}</Table.Cell>
                                     <Table.Cell button><Link target="_blank" to={ "/class/"+ row.classId +"/code/" + row.subid }><Label button >View</Label></Link></Table.Cell>
+                                    <Table.Cell>
+                                    <Input
+                                        type="text"
+                                        placeholder="optional"
+                                        value={row.grade} // Set the initial value of the input to row.grade
+                                        onChange={(e) => this.handleGradeChange(e, row)} // Pass the row object to the function so we can update the state of the row
+                                    />
+                                    </Table.Cell>
                                 </Table.Row>
                             )
                         })}
