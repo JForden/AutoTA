@@ -21,6 +21,7 @@ class PAMAuthenticationService(AuthenticationService):
     def login(self, username, password):
         if os.getenv('FLASK_DEBUG', False):
             return True
+        
         pam_module=pam.pam()
         return bool(pam_module.authenticate(username, password))
     def placeholder(self, username: str, password: str) -> bool:
