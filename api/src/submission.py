@@ -78,7 +78,7 @@ def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Containe
         submission = submission_repo.get_submission_by_user_and_projectid(current_user.Id,projectid)
         current_level=submission_repo.get_current_level(submission.Id,current_user.Id)
     output = convert_tap_to_json(submission.OutputFilepath,current_user.Role,current_level, False)
-    if(current_user.Role == ADMIN_ROLE or current_user.Role == TA_ROLE): #TODO: add official role for TA's
+    if(current_user.Role == ADMIN_ROLE or current_user.Role == TA_ROLE):
         return make_response(output, HTTPStatus.OK)
     else:
         #call get-timout to see if user is in timeout
