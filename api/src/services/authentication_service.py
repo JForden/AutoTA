@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 import pam
 import os
+import requests
+import json
 
 
 class AuthenticationService(ABC):
@@ -22,8 +24,13 @@ class PAMAuthenticationService(AuthenticationService):
         if os.getenv('FLASK_DEBUG', False):
             return True
         
-        pam_module=pam.pam()
-        return bool(pam_module.authenticate(username, password))
+        url =  os.getenv('AUTH_URL')
+        data = {'username': json.dumps(username),
+                 'password': json.dumps(password)}
+
+        response = requests.post(url, json = data)
+        response_json = response.json()
+        return response_json['success']
     def placeholder(self, username: str, password: str) -> bool:
         """this class exists so pylint isnt annoyed"""
         pass
