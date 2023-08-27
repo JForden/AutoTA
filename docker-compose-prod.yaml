@@ -9,7 +9,7 @@ services:
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
     ports:
-      - '3306:3306'
+      - '127.0.0.1:3306:3306'
     expose:
       - '3306'
     volumes:
@@ -29,7 +29,7 @@ services:
       context: api
       dockerfile: Dockerfile.prod
     ports:
-      - "5000:5000"
+      - "127.0.0.1:8009:5000"
     volumes:
       - "./api:/app"
       - "./ta-bot:/ta-bot"
@@ -41,13 +41,13 @@ services:
     container_name: frontend
     restart: unless-stopped
     environment:
-      REACT_APP_BASE_API_URL: http://localhost:5000/api
+      REACT_APP_BASE_API_URL: https://tabot.sh/api
     build:
       context: ui
       dockerfile: Dockerfile.prod
     volumes:
       - "./ui:/app"
     ports:
-      - "3000:3000"
+      - "127.0.0.1:8008:3000"
     depends_on:
       - backend

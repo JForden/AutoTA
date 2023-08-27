@@ -10,7 +10,7 @@ COPY package.json .
 RUN yarn install 
 RUN yarn global add react-scripts@4.0.3
 
-ENV REACT_APP_BASE_API_URL=http://localhost:5000/api
+ENV REACT_APP_BASE_API_URL=https://tabot.sh/api
 
 # Add app
 COPY . .
