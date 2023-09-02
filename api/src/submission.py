@@ -236,6 +236,8 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
             student_id = user_repo.get_StudentNumber(user.Id)
             studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id, str(class_id), student_grade, student_id]    
         else:
+            student_grade = "0"
+            student_id = user_repo.get_StudentNumber(user.Id)
             studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1, "N/A", student_grade, student_id]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
 

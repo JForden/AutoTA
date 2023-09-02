@@ -165,8 +165,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
             }
         })
         .then(res => {    
-            console.log(temp);
-            console.log(res.data);
+            window.alert("Grades submitted successfully");
         }).catch( exc => {
             window.alert("Error submitting grades, please fillout bug report form");
             this.setState({ isLoading: false });
