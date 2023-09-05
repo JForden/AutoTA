@@ -12,7 +12,7 @@ class SubmissionRepository():
         return submission
     def get_submission_by_user_and_projectid(self, user_id:int, project_id: int)-> Submissions:
         #get project id for class
-        submission = Submissions.query.filter(and_(Submissions.Project == project_id, Submissions.User == user_id)).order_by(desc("Time")).first()
+        submission = Submissions.query.filter(and_(Submissions.Project == project_id, Submissions.User == user_id, Submissions.visible== 1)).order_by(desc("Time")).first()
         return submission
 
     def get_submission_by_submission_id(self, submission_id: int) -> Submissions:
