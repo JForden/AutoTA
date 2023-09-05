@@ -109,8 +109,7 @@ const UploadPage = () => {
         }).then(res => {
             setDaysSinceProjectStarted(parseInt(res.data[1]) + 1);
             setTbsTime(res.data[0]);
-            //setTimeUntilNextSubmission(res.data[2]);
-            setTimeUntilNextSubmission("None");
+            setTimeUntilNextSubmission(res.data[2]);
             console.log(res.data);
     })
     }
@@ -192,18 +191,18 @@ const UploadPage = () => {
                             )}
                             {TimeUntilNextSubmission !== "None" && (
                                 <Table.Row>
-                                <Table.Cell>Time Until next visible submission:</Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Icon name="clock outline" />
-                                    <Countdown
-                                    date={new Date(new Date().getTime() + (parseInt(TimeUntilNextSubmission.split(' ')[0]) * 3600000) + (parseInt(TimeUntilNextSubmission.split(' ')[2]) * 60000))}
-                                    intervalDelay={1000}
-                                    precision={2}
-                                    renderer={({ hours, minutes }) => `${hours} hours, ${minutes} minutes`}
-                                    onComplete={() => {}}
-                                    />
-                                    &nbsp; remaining
-                                </Table.Cell>
+                                    <Table.Cell>Time Until next visible submission:</Table.Cell>
+                                    <Table.Cell textAlign="center">
+                                        <Icon name="clock outline" />
+                                        <Countdown
+                                            date={new Date(new Date().getTime() + (parseInt(TimeUntilNextSubmission.split(' ')[0]) * 3600000) + (parseInt(TimeUntilNextSubmission.split(' ')[2]) * 60000) + (parseInt(TimeUntilNextSubmission.split(' ')[4]) * 1000))}
+                                            intervalDelay={1000}
+                                            precision={2}
+                                            renderer={({ hours, minutes, seconds }) => `${hours} hours, ${minutes} minutes, ${seconds} seconds`}
+                                            onComplete={() => {}}
+                                        />
+                                        &nbsp; remaining
+                                    </Table.Cell>
                                 </Table.Row>
                             )}
                             </Table>
