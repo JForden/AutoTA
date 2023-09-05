@@ -232,9 +232,13 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
     class_id = project_repo.get_class_id_by_name(class_name)
     for user in users:
         if user.Id in bucket:
-            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id, str(class_id)]    
+            student_grade = project_repo.get_student_grade(projectid, user.Id)
+            student_id = user_repo.get_StudentNumber(user.Id)
+            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id, str(class_id), student_grade, student_id]    
         else:
-            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1, "N/A"]
+            student_grade = "0"
+            student_id = user_repo.get_StudentNumber(user.Id)
+            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1, "N/A", student_grade, student_id]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
 
 
@@ -384,3 +388,23 @@ def get_remaining_OH_Time(submission_repo: SubmissionRepository = Provide[Contai
         time_until_next_submission = f"{hours} hours, {minutes} minutes" 
     submission_details.append(str(time_until_next_submission))
     return make_response(submission_details, HTTPStatus.OK)
+
+@submission_api.route('/submitgrades', methods=['POST'])
+@jwt_required()
+@inject
+def submit_grades(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    data = request.get_json()
+    studentgrades = data['studentgrades']
+    project_id = data['projectID']
+    #convert json to dictionary
+    for key in studentgrades:
+        project_repo.set_student_grade(int(project_id), int(key), int(studentgrades[key]))
+    return make_response("StudentGrades Submitted", HTTPStatus.OK)
+
+
+@submission_api.route('/getprojectname', methods=['GET'])
+@jwt_required()
+@inject
+def get_project_name(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    project_id = str(request.args.get("projectID"))
+    return make_response(project_repo.get_selected_project(project_id).Name, HTTPStatus.OK)

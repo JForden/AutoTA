@@ -108,12 +108,11 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             .then((res) => {
                 console.log("Finished API request");
                 var response = res.data.toString();
-                console.log("This is response");
-                console.log(response)
                 this.setState({helpResponse: response});
                 this.setState({questionId:res.data[1].toString()});
                 this.setState({helpRequested: true});
                 this.setState({isLoading: false });
+
             })
             .catch((err) => {
               console.log(err);
@@ -155,6 +154,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             }
           })
             .then((res) => {
+              this.setState({helpRequested: false});
             })
             .catch((err) => {
               console.log(err);
@@ -171,6 +171,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             }
           })
             .then((res) => {
+              this.setState({helpRequested: false});
             })
             .catch((err) => {
               console.log(err);
