@@ -1,5 +1,20 @@
 version: "3.8"
 services:
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'autota'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '127.0.0.1:3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - ./database:/var/lib/mysql
+      - ./init-db:/docker-entrypoint-initdb.d
   backend:
     container_name: backend
     restart: unless-stopped
@@ -10,25 +25,32 @@ services:
       DB_NAME: "autota"
       FLASK_DEBUG: "False"
       TABOT_DIR: "/ta-bot"
+      AUTH_URL: "http://host.docker.internal:4000/"
     build:
       context: api
       dockerfile: Dockerfile.prod
     ports:
-      - "5000:5000"
+      - "127.0.0.1:8009:5000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - "./api:/app"
       - "./ta-bot:/ta-bot"
+    links:
+      - db
+    depends_on:
+      - db
   frontend:
     container_name: frontend
     restart: unless-stopped
     environment:
-      REACT_APP_BASE_API_URL: http://localhost:5000/api
+      REACT_APP_BASE_API_URL: https://tabot.sh/api
     build:
       context: ui
       dockerfile: Dockerfile.prod
     volumes:
       - "./ui:/app"
     ports:
-      - "3000:3000"
+      - "127.0.0.1:8008:3000"
     depends_on:
       - backend

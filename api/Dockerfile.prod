@@ -10,23 +10,21 @@ ENV TZ=America/Chicago
 COPY ./requirements.txt /app/requirements.txt
 
 # install the dependencies and packages in the requirements file
-
-RUN apt-get update && apt-get install -y default-jdk sssd
-
+RUN apt-get update && apt-get install -y
 
 RUN pip install -r requirements.txt
 RUN pip install requests
 RUN pip install pylint
 RUN pip install openai
 RUN pip install aiopyston
+RUN pip install gunicorn
 
 # copy every content from the local file to the image
 COPY . /app
 
 ENV FLASK_APP=app.py
-ENV FLASK_DEBUG=0
+ENV FLASK_DEBUG=False
 
 EXPOSE 5000
 
-# Start yarn dev server
-CMD ["flask", "run", "-h", "0.0.0.0"]
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:create_app()"]
