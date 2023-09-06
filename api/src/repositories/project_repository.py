@@ -122,9 +122,7 @@ class ProjectRepository():
         #TODO: see if we can get away from stdout
         result = subprocess.run(["python","../ta-bot/tabot.py", "ADMIN", str(-1), project.Language, input_data, filepath], stdout=subprocess.PIPE, text=True)
         if output == "":
-            output = result.stdout.strip()
-        print("THIS IS OUTPUT: ", output, flush=True)
-        
+            output = result.stdout.strip()        
         testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
         if testcase is None:
             level = Levels.query.filter(and_(Levels.ProjectId==project_id, Levels.Name==level_name)).first()
