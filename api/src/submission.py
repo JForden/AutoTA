@@ -387,7 +387,6 @@ def get_remaining_OH_Time(submission_repo: SubmissionRepository = Provide[Contai
         minutes = (time_until_next_submission.seconds % 3600) // 60
         seconds = time_until_next_submission.seconds % 60
         time_until_next_submission_str = f"{hours} hours, {minutes} minutes, {seconds} seconds"
-        print("This is the next submission time: ", time_until_next_submission_str, flush=True)
         submission_details.append(time_until_next_submission_str)
     else:
         submission_details.append("None")
