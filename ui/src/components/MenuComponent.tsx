@@ -105,7 +105,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                                 const extractedValue = match ? match[1] : null;
                                 const path = "/class/" + extractedValue +"/code";
                                 return (
-                                    <Menu.Item><a href={path}>Most Recent Tested Submission</a></Menu.Item>
+                                    <Menu.Item><a href={path}>Most Recent Submission</a></Menu.Item>
                                 );
                             }
                         })()}               

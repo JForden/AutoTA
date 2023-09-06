@@ -218,6 +218,8 @@ def get_submission_information(submission_repo: SubmissionRepository = Provide[C
 @jwt_required()
 @inject
 def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.submission_repo], user_repo: UserRepository = Provide[Container.user_repo],project_repo: ProjectRepository = Provide[Container.project_repo] ):
+    if(current_user.Role != ADMIN_ROLE):
+        return make_response("Not Authorized", HTTPStatus.UNAUTHORIZED)
     input_json = request.get_json()
     projectid = input_json['project_id']
     users = user_repo.get_all_users()
@@ -385,14 +387,20 @@ def get_remaining_OH_Time(submission_repo: SubmissionRepository = Provide[Contai
     if time_until_next_submission != "None":
         hours = time_until_next_submission.seconds // 3600
         minutes = (time_until_next_submission.seconds % 3600) // 60
-        time_until_next_submission = f"{hours} hours, {minutes} minutes" 
-    submission_details.append(str(time_until_next_submission))
+        seconds = time_until_next_submission.seconds % 60
+        time_until_next_submission_str = f"{hours} hours, {minutes} minutes, {seconds} seconds"
+        submission_details.append(time_until_next_submission_str)
+    else:
+        submission_details.append("None")
     return make_response(submission_details, HTTPStatus.OK)
 
 @submission_api.route('/submitgrades', methods=['POST'])
 @jwt_required()
 @inject
 def submit_grades(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    if(current_user.Role != ADMIN_ROLE):
+        return make_response("Not Authorized", HTTPStatus.UNAUTHORIZED)
+    #spacing issue
     data = request.get_json()
     studentgrades = data['studentgrades']
     project_id = data['projectID']

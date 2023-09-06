@@ -318,6 +318,9 @@ class SubmissionRepository():
         #Get how long until this time is the current time
         if question == None:
             return 0
+        elif question.TimeAccepted == None:
+            formatted_time_remaining = f"{3} hours, {0} minutes" 
+            return formatted_time_remaining 
         current_time = datetime.now()
         time_remaining = question.TimeCompleted + timedelta(hours=3) - current_time
         if time_remaining < timedelta(minutes=0):
