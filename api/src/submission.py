@@ -107,9 +107,10 @@ def lint_output(submission_repo: SubmissionRepository = Provide[Container.submis
         lint_file = submission_repo.get_pylint_path_by_submission_id(submissionid)
     else:
         lint_file = submission_repo.get_pylint_path_by_user_and_project_id(current_user.Id,project.Id)
-
-    lint_dir = lint_file.replace(f"{current_user.Username}.out.lint", '')
-    lint_files = [lint_dir+filename for filename in os.listdir(lint_dir) if filename.endswith(".out.lint")]
+    
+    lint_files=[lint_file]
+    #lint_dir = lint_file.replace(f"{current_user.Username}.out.lint", '')
+    #lint_files = [lint_dir+filename for filename in os.listdir(lint_dir) if filename.endswith(".out.lint")]
     outputs = []    
     for lf in lint_files:
         with open(lf, 'r') as file: # lint_file
