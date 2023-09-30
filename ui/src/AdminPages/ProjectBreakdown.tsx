@@ -19,7 +19,7 @@ const ProjectBreakdown = () => {
             <Helmet>
                 <title>[Admin] Students | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={false}></MenuComponent>
+            <MenuComponent showUpload={false} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={false}></MenuComponent>
             <Grid className="main-grid">
                 <StudentList project_id={project_id}></StudentList>
             </Grid>
