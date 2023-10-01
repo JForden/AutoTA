@@ -103,7 +103,7 @@ class Login extends Component<{}, LoginPageState> {
             </Form>
             <ErrorMessage message={this.state.error_message} isHidden={this.state.isErrorMessageHidden} ></ErrorMessage>
             <Message>
-                Create an account <a href='https://drive.google.com/file/d/1ajBMt9WF104gSbsNOPKJDI1OAGTfDEi8/view?usp=sharing' target="_blank" rel="noreferrer">here</a>.
+                Create an account <a href='https://drive.google.com/file/d/1VlA4wRcizy4VpFZuMQQ0V9Fnmq-l5vcm/view?usp=sharing' target="_blank" rel="noreferrer">here</a>.
             </Message>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px'}}>
                 <Image style={{ width: '100px' }} src={mscsimg} /> 
