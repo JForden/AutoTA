@@ -173,8 +173,7 @@ def total_students(user_repo: UserRepository = Provide[Container.user_repo]):
     users=user_repo.get_all_users_by_cid(class_id)
     list_of_user_info=[]
     for user in users:
-        if(user.Role != ADMIN_ROLE):
-            list_of_user_info.append({"name":user.Firstname +" "+ user.Lastname,"mscsnet":user.Username,"id":user.Id})
+        list_of_user_info.append({"name":user.Firstname +" "+ user.Lastname,"mscsnet":user.Username,"id":user.Id})
     return jsonify(list_of_user_info)
 
 # figure out a way to access this from tabot.py - it doesn't like it because of this error

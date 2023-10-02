@@ -223,7 +223,9 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
         return make_response("Not Authorized", HTTPStatus.UNAUTHORIZED)
     input_json = request.get_json()
     projectid = input_json['project_id']
-    users = user_repo.get_all_users()
+    class_name = project_repo.get_className_by_projectId(projectid)
+    class_id = project_repo.get_class_id_by_name(class_name)
+    users = user_repo.get_all_users_by_cid(class_id)
     studentattempts={}
     userids=[]
     for user in users:
@@ -231,17 +233,16 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
     bucket = submission_repo.get_most_recent_submission_by_project(projectid, userids)    
     submission_counter_dict = submission_repo.submission_counter(projectid, userids)
     user_lectures_dict =user_repo.get_user_lectures(userids)
-    class_name = project_repo.get_className_by_projectId(projectid)
-    class_id = project_repo.get_class_id_by_name(class_name)
     for user in users:
-        if user.Id in bucket:
-            student_grade = project_repo.get_student_grade(projectid, user.Id)
-            student_id = user_repo.get_StudentNumber(user.Id)
-            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id, str(class_id), student_grade, student_id]    
-        else:
-            student_grade = "0"
-            student_id = user_repo.get_StudentNumber(user.Id)
-            studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1, "N/A", student_grade, student_id]
+        if int(user.Role) == 0:
+            if user.Id in bucket:
+                student_grade = project_repo.get_student_grade(projectid, user.Id)
+                student_id = user_repo.get_StudentNumber(user.Id)
+                studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id, str(class_id), student_grade, student_id]    
+            else:
+                student_grade = "0"
+                student_id = user_repo.get_StudentNumber(user.Id)
+                studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1, "N/A", student_grade, student_id]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
 
 
