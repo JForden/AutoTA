@@ -27,3 +27,17 @@ The Development environment should now be up on localhost:3000
 
 Thanks,
 TA-Bot Team
+
+
+Pushing a new image:
+
+Get a github personal access token (PAT)
+export CR_PAT=<github personal access token>
+echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+cd into the frontend/backend directory
+docker build -f Dockerfile.prod -t ghcr.io/musyslab/tabot-<frontend/backend>:v<VERSION_NUMBER>-tbs-research .
+docker push ghcr.io/musyslab/tabot-backend:v<VERSION_NUMBER>-tbs-research
+
+edit docker.yaml
+sudo service ta-bot stop
+sudo service ta-bot start
