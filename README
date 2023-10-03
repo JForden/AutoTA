@@ -39,5 +39,5 @@ docker build -f Dockerfile.prod -t ghcr.io/musyslab/tabot-<frontend/backend>:v<V
 docker push ghcr.io/musyslab/tabot-backend:v<VERSION_NUMBER>-tbs-research
 
 edit docker.yaml
-sudo service ta-bot stop
-sudo service ta-bot start
+sudo service tabot stop
+sudo service tabot start
