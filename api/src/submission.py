@@ -144,7 +144,8 @@ def codefinder(submission_repo: SubmissionRepository = Provide[Container.submiss
     submissionid = int(request.args.get("id"))
     class_id = int(request.args.get("class_id"))
     code_output = ""
-    if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submissionid)):
+    print("This is submissionid: ", submissionid, flush=True)
+    if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or current_user.Role == TA_ROLE or submission_repo.submission_view_verification(current_user.Id,submissionid)):
         code_output = submission_repo.get_code_path_by_submission_id(submissionid)
     else:
         projectid = project_repo.get_current_project_by_class(class_id).Id
