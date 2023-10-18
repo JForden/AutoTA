@@ -127,6 +127,7 @@ class Testcases(db.Model):
     input = Column(String)
     Output = Column(String)
     IsHidden = Column(Boolean)
+    additionalfilepath = Column(String)
 class GPTLogs(db.Model):
     __tablename__ = "GPTLogs"
     Qid = Column(Integer, primary_key=True, autoincrement=True)

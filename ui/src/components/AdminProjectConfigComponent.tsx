@@ -1,5 +1,5 @@
 import { Component, useEffect, useState, useReducer } from 'react';
-import { Image, Grid, Tab, Dropdown, Form, Input, Radio, Button, Icon, TextArea, Label, Checkbox, Table, Header, Segment } from 'semantic-ui-react'
+import { Image, Grid, Tab, Dropdown, Form, Input, Radio, Button, Icon, TextArea, Label, Checkbox, Table, Header, Segment, Popup } from 'semantic-ui-react'
 import { Helmet } from 'react-helmet';
 import 'semantic-ui-css/semantic.min.css';
 import { DropdownItemProps, } from 'semantic-ui-react';
@@ -10,6 +10,7 @@ import { textSpanEnd } from 'typescript';
 import AdminProjectSettingsComponent from './AdminProjectSettingsComponent';
 import { useParams } from 'react-router-dom';
 import { StyledIcon } from '../styled-components/StyledIcon';
+import { render } from '@testing-library/react';
 
 interface AdminProjectConfigProps {
     id: number,
@@ -53,6 +54,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     const [File, setFile] = useState<File>();
     const [AssignmentDesc, setDesc] = useState<File>();
     const [edit, setEdit] =useState<boolean>(false);
+    const [selectedAddFile, setSelectedAddFile] = useState<File>();
 
    
     useEffect(() => {
@@ -377,6 +379,18 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         }
     };
 
+    function handleAdditionalFileChange(event : React.FormEvent) {
+        
+            const target = event.target as HTMLInputElement;
+            const files = target.files;
+    
+            if(files != null && files.length === 1){
+                // Update the state
+                setSelectedAddFile(files[0]);
+            } else {
+                setSelectedAddFile(undefined);
+            }
+        };
 
     function buttonhandleClick(testcase: number) {
         //loop through testcase and return the one with the id
@@ -398,7 +412,9 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         formData.append('output', test.output.toString());
         formData.append('isHidden', test.isHidden.toString());
         formData.append('description', test.description.toString());
-
+        if (selectedAddFile !== undefined){
+            formData.append('additionalFile', selectedAddFile!);
+        }
     
         if(test.name === "" || test.levelname === "" || test.input === "" ||  test.description === ""){
             window.alert("Please fill out all fields");
@@ -457,11 +473,21 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
             console.error(error);
           });
     }
+    function buttonhandleAdditionalFileClick(testcase: number, event: React.FormEvent) {
+        //Display a popup to prompt a user for a file
+        render(
+            <div>
+                <h1>Upload Additional File</h1>
+                <Form.Input type="file" fluid required={true} onChange={handleFileChange} />
+                <br></br>
+            </div>
+        )
+    }
     
     return (
     <div style={{ height: "80%" }}>
             <Tab
-                style={{ width: '100%', height: '100%' }}
+                style={{ width: '100%', height: '200%' }}
                 menu={{ vertical: true, secondary: true, tabular: true }}
                 grid={{ paneWidth: 14, tabWidth: 2 }}
                 menuPosition='left'
@@ -644,6 +670,19 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                                 onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(testcase.id, 'Level 3')}
                                             />
                                         </Form.Group>
+                                        <Popup
+                                           content={
+                                            <Form>
+                                              <Form.Field>
+                                                <label>The filename must align with the expected input for the solution code.</label>
+                                                <input type="file" required onChange={handleAdditionalFileChange} />
+                                              </Form.Field>
+                                            </Form>
+                                          }
+                                            on='click'
+                                            pinned
+                                            trigger={<Button icon='file' content="Select optional additional file" />}
+                                        />
                                         <Form.Button onClick={() => buttonhandleClick(testcase.id)}>Submit testcase</Form.Button>
                                         <Form.Button onClick={() => buttonhandleTrashClick(testcase.id)}>Remove Test Case</Form.Button>
                                     </Form.Group>
@@ -692,19 +731,8 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                     }
                 ]
             }
-                
-                
-
             />
         </div>
-        
-    
-    
-    
-
-    
-    
-    
     )
 }
 

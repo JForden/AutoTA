@@ -114,20 +114,20 @@ class ProjectRepository():
             testcase_info[test.Id] = testcase_data
         return testcase_info
     
-    def add_or_update_testcase(self, project_id:int, testcase_id:int, level_name:str, name:str, description:str, input_data:str, output:str, is_hidden:bool):
-        #TODO: run grading script and generate output for the testcases.
+    def add_or_update_testcase(self, project_id:int, testcase_id:int, level_name:str, name:str, description:str, input_data:str, output:str, is_hidden:bool, additional_file_path:str):
+        
         project = Projects.query.filter(Projects.Id == project_id).first()
         language = project.Language
         filepath = project.solutionpath
         #TODO: see if we can get away from stdout
-        result = subprocess.run(["python","../ta-bot/tabot.py", "ADMIN", str(-1), project.Language, input_data, filepath], stdout=subprocess.PIPE, text=True)
+        result = subprocess.run(["python","../ta-bot/tabot.py", "ADMIN", str(-1), project.Language, input_data, filepath, additional_file_path], stdout=subprocess.PIPE, text=True)
         if output == "":
             output = result.stdout.strip()        
         testcase = Testcases.query.filter(Testcases.Id == testcase_id).first()
         if testcase is None:
             level = Levels.query.filter(and_(Levels.ProjectId==project_id, Levels.Name==level_name)).first()
             level_id = level.Id 
-            testcase = Testcases(ProjectId = project_id, LevelId = level_id, Name = name, Description = description, input = input_data, Output = output, IsHidden = is_hidden)
+            testcase = Testcases(ProjectId = project_id, LevelId = level_id, Name = name, Description = description, input = input_data, Output = output, IsHidden = is_hidden, additionalfilepath = additional_file_path)
             db.session.add(testcase)
             db.session.commit()
         else:
@@ -140,6 +140,8 @@ class ProjectRepository():
             testcase.Input = input_data
             testcase.Output = output
             testcase.IsHidden = is_hidden
+            if additional_file_path != "":
+                testcase.additionalfilepath = additional_file_path
             db.session.commit()
 
     def remove_testcase(self, testcase_id:int):
@@ -174,7 +176,7 @@ class ProjectRepository():
             level  =  Levels.query.filter(Levels.Id == test.LevelId)
             print(level, flush=True)
             level_name=level[0].Name
-            testcase_holder[test.Id] = [test.Name,level_name,test.Description, test.input, test.Output, test.IsHidden]
+            testcase_holder[test.Id] = [test.Name,level_name,test.Description, test.input, test.Output, test.IsHidden, test.additionalfilepath]
         json_object = json.dumps(testcase_holder)
         print(json_object,flush=True) 
         return json_object

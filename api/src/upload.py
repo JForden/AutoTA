@@ -392,7 +392,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         research_group = user_repository.get_user_researchgroup(user_id)
        
         testcase_info_json =project_repo.testcases_to_json(project.Id)
-        result = subprocess.run(["python","../tabot.py", username, str(research_group), project.Language, str(testcase_info_json), path], cwd=outputpath) 
+        result = subprocess.run(["python","../tabot.py", username, str(research_group), project.Language, str(testcase_info_json), path, ""], cwd=outputpath) 
 
 
         if result.returncode != 0:
