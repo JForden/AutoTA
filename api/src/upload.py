@@ -1,5 +1,4 @@
 import shutil
-import sys
 from flask.json import jsonify
 from src.repositories.config_repository import ConfigRepository
 import json
