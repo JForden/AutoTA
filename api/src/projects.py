@@ -295,6 +295,7 @@ def json_add_testcases(project_repo: ProjectRepository = Provide[Container.proje
 @jwt_required()
 @inject   
 def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.project_repo]):
+    path =""
     if current_user.Role != ADMIN_ROLE:
         message = {
             'message': 'Access Denied'
@@ -317,6 +318,17 @@ def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.p
         isHidden = request.form['isHidden']
     if 'description' in request.form:
         description = request.form['description']
+    if 'additionalFile' in request.files:
+        additionalFile = request.files['additionalFile']
+        counter = 1
+        path = os.path.join("/ta-bot/project-files", f"duplicatenum({counter}){additionalFile.filename}")
+        while os.path.isfile(path):
+            path = os.path.join("/ta-bot/project-files", f"duplicatenum({counter}){additionalFile.filename}")
+            counter += 1
+        additionalFile.save(path)
+
+    else:
+        additionalFile = None
     
     if id_val == '' or name == '' or input_data == '' or project_id == '' or isHidden == '' or description == '':
         return make_response("Error in form", HTTPStatus.BAD_REQUEST)
@@ -325,7 +337,7 @@ def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.p
 
     isHidden = True if isHidden.lower() =="true" else False
     
-    project_repo.add_or_update_testcase(project_id, id_val, level_name, name, description, input_data, output, isHidden)
+    project_repo.add_or_update_testcase(project_id, id_val, level_name, name, description, input_data, output, isHidden, path)
     return make_response("Testcase Added", HTTPStatus.OK)
     
 
