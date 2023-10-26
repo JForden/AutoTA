@@ -87,6 +87,7 @@ def output_pass_or_fail(filepath):
     return True
 
 def level_counter(filepath):
+    
     parser = Parser()
     passed_levels={}
     total_tests={}
