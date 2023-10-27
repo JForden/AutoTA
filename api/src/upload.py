@@ -87,7 +87,16 @@ def output_pass_or_fail(filepath):
     return True
 
 def level_counter(filepath):
+    """
+    This function takes a filepath as input and returns the number of passed levels and total tests for each suite in the file.
     
+    Args:
+    - filepath (str): The path of the file to be parsed.
+    
+    Returns:
+    - passed_levels (dict): A dictionary containing the number of passed tests for each suite.
+    - total_tests (dict): A dictionary containing the total number of tests for each suite.
+    """
     parser = Parser()
     passed_levels={}
     total_tests={}
@@ -106,22 +115,40 @@ def level_counter(filepath):
     return passed_levels, total_tests
 
 
-def score_finder(project_repository: ProjectRepository, passed_levels,total_tests,project_id) -> str:
+def score_finder(project_repository: ProjectRepository, passed_levels, total_tests, project_id) -> str:
+    """
+    Calculates the total score of a project based on the levels passed and their individual scores.
 
-    levels=project_repository.get_levels(project_id)
+    Args:
+        project_repository (ProjectRepository): An instance of the ProjectRepository class.
+        passed_levels (dict): A dictionary containing the levels passed by the student and their corresponding scores.
+        total_tests (int): The total number of tests for the project.
+        project_id (int): The ID of the project.
+
+    Returns:
+        str: The total score of the project.
+    """
+    levels = project_repository.get_levels(project_id)
     print(levels)
-    score_total=0
+    score_total = 0
     for item in levels:
-        #individual_score=levels[item]/total_tests[item]
-        individual_score=0
+        individual_score = 0
         if item in passed_levels:
-            score_total=score_total+(individual_score*passed_levels[item])
-
-    
+            individual_score = total_tests / len(levels[item])
+            score_total = score_total + (individual_score * passed_levels[item])
     return score_total
 
-
 def parse_tap_file_for_levels(file_path: str, levels: List[Levels]) -> str:
+    """
+    Parses a TAP file and returns the level(s) that were passed or failed.
+
+    Args:
+        file_path (str): The path to the TAP file to parse.
+        levels (List[Levels]): A list of levels to check for pass/fail.
+
+    Returns:
+        str: The highest level a student reaches (max 3)
+    """
     parser = Parser()
     failed_levels=[]
     passed_levels=[]
@@ -138,6 +165,17 @@ def parse_tap_file_for_levels(file_path: str, levels: List[Levels]) -> str:
 
 
 def find_level(pass_levels: List[str], failed_levels: List[str], levels: List[Levels]) -> str:
+    """
+    Finds the level of a submission based on the passed and failed tests.
+
+    Args:
+        pass_levels (List[str]): A list of levels that passed the tests.
+        failed_levels (List[str]): A list of levels that failed the tests.
+        levels (List[Levels]): A list of all the levels.
+
+    Returns:
+        str: The name of the max level a student has reached.
+    """
     # If no tests are failing, return the highest level.  Assumes levels are sorted by order
     if len(failed_levels) == 0:
         return levels[-1].Name
@@ -257,7 +295,6 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     #Check to see if student is able to upload or still on timeout
     if(current_user.Role != ADMIN_ROLE):
         class_id = request.form['class_id']
-        #TODO: Static 5 minute timeout
 
     # check if the post request has the file part
     if 'file' not in request.files:

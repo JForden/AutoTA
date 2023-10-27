@@ -160,9 +160,6 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         file = request.files['assignmentdesc']
         assignmentdesc_path = os.path.join("/ta-bot/project-files", f"{name}.pdf")
         file.save(assignmentdesc_path)
-        
-    #TODO: Add class ID and path
-
     project_repo.create_project(name, start_date, end_date, language,class_id,path, assignmentdesc_path)
 
     new_project_id = project_repo.get_project_id_by_name(name)

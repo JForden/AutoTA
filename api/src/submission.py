@@ -101,7 +101,6 @@ def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Containe
 def lint_output(submission_repo: SubmissionRepository = Provide[Container.submission_repo], link_service: LinkService = Provide[Container.link_service],project_repo:  ProjectRepository = Provide[Container.project_repo]):
     submissionid = int(request.args.get("id"))
     class_id = int(request.args.get("class_id"))
-    #TODO: Review if this {if statement} logic makes sense
     project = project_repo.get_current_project_by_class(class_id)
     if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submissionid)):
         lint_file = submission_repo.get_pylint_path_by_submission_id(submissionid)
@@ -116,7 +115,6 @@ def lint_output(submission_repo: SubmissionRepository = Provide[Container.submis
         with open(lf, 'r') as file: # lint_file
             output=""
             output = file.read()
-            #TODO: Move this link service elsewhere
             if output != "":
                 try:
                     # Check if output is in JSON format
@@ -171,6 +169,7 @@ def codefinder(submission_repo: SubmissionRepository = Provide[Container.submiss
 
     return make_response(outputs[0], HTTPStatus.OK)
 
+#TODO: This entire API call can probably be removed
 @submission_api.route('/submissioncounter', methods=['GET'])
 @jwt_required()
 @inject
@@ -261,6 +260,7 @@ def get_score(submission_repo: SubmissionRepository = Provide[Container.submissi
     return make_response(str(score), HTTPStatus.OK)
 
 
+#TODO: This API call can probably be removed
 @submission_api.route('/extraday', methods=['GET'])
 @jwt_required()
 @inject

@@ -19,6 +19,7 @@ import json
 
 class ProjectRepository():
 
+    #TODO: Remove
     def get_current_project(self) -> Optional[Projects]:
         """[Identifies the current project based on the start and end date]
         Returns:
@@ -29,20 +30,25 @@ class ProjectRepository():
         return project
 
     def get_current_project_by_class(self, class_id: int) -> Optional[Projects]:
-        """[Identifies the current project based on the start and end date]
+        """Identifies the current project based on the start and end date.
+
+        Args:
+            class_id (int): The ID of the class.
+
         Returns:
-            Project: [this should be the currently assigned project object]
+            Optional[Projects]: The currently assigned project object.
         """
         now = datetime.now()
         project = Projects.query.filter(Projects.ClassId==class_id,Projects.End >= now, Projects.Start < now).first()
         #Start and end time format: 2023-05-31 14:33:00
         return project
 
+    #TODO: Remove
     def get_all_projects(self) -> Projects:
-        """[a method to get all the projects from the mySQL database]
+        """Get all projects from the mySQL database and return a project object sorted by end date.
 
         Returns:
-            Projects: [a project object ]
+            Projects: A project object sorted by end date.
         """
         project = Projects.query.order_by(asc(Projects.End)).all()
         return project
@@ -60,10 +66,28 @@ class ProjectRepository():
 
 
     def get_projects_by_class_id(self,class_id: int) -> int:
-        temp = Projects.query.filter(Projects.ClassId==class_id)
-        return temp
+        """
+        Returns a list of projects associated with a given class ID.
+
+        Args:
+        class_id (int): The ID of the class to retrieve projects for.
+
+        Returns:
+        A list of project objects associated with the given class ID.
+        """
+        class_projects = Projects.query.filter(Projects.ClassId==class_id)
+        return class_projects
     
     def get_levels(self, project_id: int) -> Dict[str, int]:
+        """
+        Returns a dictionary of level names and their corresponding points for a given project.
+
+        Args:
+            project_id (int): The ID of the project to retrieve levels for.
+
+        Returns:
+            Dict[str, int]: A dictionary where the keys are level names and the values are the corresponding points.
+        """
         levels = Levels.query.filter(Levels.ProjectId == project_id).all()
         level_score = {}
         for level in levels:

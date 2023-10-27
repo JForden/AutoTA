@@ -35,6 +35,7 @@ class UserRepository():
         user = Users.query.filter(Users.Id == user_id).one_or_none()
         return user
 
+    #TODO: Remove in favor of calling get_user
     def get_user_by_id(self,user_id: int) -> str:
         """
         Returns the username of a user given their ID.
@@ -47,20 +48,6 @@ class UserRepository():
         """
         user = Users.query.filter(Users.Id==user_id).one_or_none()
         return user.Username
-    
-    def get_user_by_studentid(self, student_id: int):
-        """
-        Returns the username of a user with the given student ID.
-        
-        Args:
-            student_id (int): The student ID of the user to retrieve.
-        
-        Returns:
-            str: The username of the user with the given student ID, or None if no such user exists.
-        """
-        user = Users.query.filter(Users.StudentNumber==student_id).one_or_none()
-        return user.Username
-
     def doesUserExist(self, username: str) -> bool:
         """Checks if a user with the given username exists in the database.
 
@@ -90,11 +77,6 @@ class UserRepository():
         user = Users(Username=username,Firstname=first_name,Lastname=last_name,Email=email,StudentNumber=student_number,Role = 0,IsLocked=False,ResearchGroup=0)
         db.session.add(user)
         db.session.commit()
-        
-    def get_user_status(self) -> str:
-        """Returns the role of the current user as a string."""
-        return str(current_user.Role)
-
     def get_all_users(self) -> List[Users]:
         """Retrieves all users from the database.
 
@@ -181,7 +163,7 @@ class UserRepository():
             Dict[int, ClassAssignments]: A dictionary where the keys are user IDs and the values are the names of the lectures
             assigned to each user.
         """
-        ##TODO: Do we still use this? seems to only work for single class submissions.
+        #TODO: Do we still use this? seems to only work for single class submissions.
         class_assignments = ClassAssignments.query.filter(ClassAssignments.UserId.in_(userIds)).all()
         
         user_lectures_dict={}
@@ -191,24 +173,41 @@ class UserRepository():
         return user_lectures_dict
         
     def get_user_email(self, userId) -> str:
+        """
+        Retrieves the email of a user with the given userId.
+
+        Args:
+            userId (int): The ID of the user to retrieve the email for.
+
+        Returns:
+            str: The email of the user with the given userId.
+        """
         query = Users.query.filter(Users.Id==userId).one()
         email = query.Email
         return email
-    def get_user_researchgroup(self,userId) -> int:
+    def get_user_researchgroup(self, userId) -> int:
+        """
+        Retrieves the research group of a user with the given ID.
+
+        Args:
+            userId (int): The ID of the user to retrieve the research group for.
+
+        Returns:
+            str: The research group of the user as a string.
+        """
         query = Users.query.filter(Users.Id==userId).one()
         research_group = query.ResearchGroup
         return str(research_group)
-    def chatGPT_key(self):
-        query = ChatGPTkeys.query.order_by(asc(ChatGPTkeys.LastUsed)).first()
-        api_key = query.ChatGPTkeyscol
-        print(api_key)
-        now = datetime.datetime.now()
-        dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
-        query.LastUsed =dt_string
-        print(dt_string, flush=True)
-        db.session.commit()
-        return api_key
     def get_StudentNumber(self, user_id):
+        """
+        Returns the student number of a user with the given user_id.
+
+        Args:
+        - user_id: int, the id of the user whose student number is to be retrieved.
+
+        Returns:
+        - StudentNumber: str, the student number of the user with the given user_id.
+        """
         query = Users.query.filter(Users.Id==user_id).one()
         StudentNumber = query.StudentNumber
         return StudentNumber

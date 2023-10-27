@@ -24,11 +24,6 @@ auth_api = Blueprint('auth_api', __name__)
 def user_identity_lookup(user):
     return user.Id
 
-@auth_api.route('/get-role', methods=['GET'])
-@jwt_required()
-@inject
-def get_user_role(user_repo: UserRepository = Provide[Container.user_repo]):
-    return user_repo.get_user_status()
 
 
 # Register a callback function that loades a user from your database whenever
@@ -146,7 +141,7 @@ def create_user(auth_service: PAMAuthenticationService = Provide[Container.auth_
 
 
 
-
+#TODO: Remove? Called in NewUserModal...but why?
 @auth_api.route('/create_newclass', methods=['POST'])
 @jwt_required()
 @inject
@@ -157,12 +152,12 @@ def add_class(auth_service: PAMAuthenticationService = Provide[Container.auth_se
     lecture_name = get_value_or_empty(input_json, 'lectureid')
     class_id = class_repo.get_class_id(class_name)
     lab_id = class_repo.get_lab_id_withName(lab_name)
-    lecture_Id = class_repo.get_lecture_id_withName
+    lecture_Id = class_repo.get_lecture_id_withName(lecture_name)
     user_id = current_user.Id
 
     user = user_repo.get_user_by_id(user_id)    
     #Create ClassAssignment
-    class_repo.add_class_assignment(class_id, int(lab_id), int(user.Id), int(lecture_id))
+    class_repo.add_class_assignment(class_id, int(lab_id), int(user.Id), int(lecture_Id))
 
     access_token = create_access_token(identity=user)
 
