@@ -7,7 +7,6 @@ import subprocess
 import os.path
 from typing import List
 import zipfile
-import stat
 from subprocess import Popen
 
 from flask_jwt_extended import jwt_required
@@ -189,6 +188,15 @@ def find_level(pass_levels: List[str], failed_levels: List[str], levels: List[Le
 
 
 def pylint_score_finder(error_count):
+    """
+    Calculates a pylint score based on the number of errors found in the code.
+
+    Args:
+        error_count (int): The number of errors found in the code.
+
+    Returns:
+        int: The pylint score calculated based on the number of errors found.
+    """
     if error_count <= 10 and error_count > 7:
         return 25
     if error_count <= 7 and error_count > 5:
@@ -230,32 +238,6 @@ def find_line_by_char(c_file: str, target_char_count: int) -> int:
             return line_count
         char_count += 1
     return -1
-
-
-def parse_clang_tidy_output(yaml_file: str, c_file: str):
-    warnings = []
-    with open(yaml_file, "r") as file:
-        lines = file.readlines()
-
-
-    data = {' '.join(line.replace("'", '').split()[1:]): [find_line_by_char(c_file, int(''.join(lines[idx + 2].split()[1]))), int(''.join(lines[idx + 2].split()[1])), lines[1].split()[1].replace("'", ''), lines[idx - 2].split()[-1]] for idx, line in enumerate(lines) if line.split()[0] == "Message:"}
-    for msg, line_num in data.items():
-        warning = {
-            'column': line_num[1],
-            'endColumn': None,
-            'endLine': None,
-            'line': line_num[0],
-            'message': msg,
-            'message-id': line_num[3],
-            'module': None,
-            'obj': "",
-            'path': line_num[2],
-            'reflink': None,
-            'symbol': None,
-            'type': 'convention' # assuming all warnings are of type convention
-        }
-        warnings.append(warning)
-    return json.dumps(warnings, ensure_ascii=False, default=str)
 
 
 @upload_api.route('/', methods=['POST'])
