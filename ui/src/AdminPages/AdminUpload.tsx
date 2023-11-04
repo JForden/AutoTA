@@ -15,7 +15,7 @@ class AdminUpload extends Component<{}, {}> {
             <Helmet>
                 <title>[Admin] Student Upload | TA-Bot</title>
             </Helmet>
-            <MenuComponent showUpload={true} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={false}></MenuComponent>
+            <MenuComponent showUpload={false} showAdminUpload={true} showHelp={false} showCreate={false} showLast={false} showReviewButton={false}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle' className="main-grid">
                 <AdminUploadPage></AdminUploadPage> 
             </Grid>
