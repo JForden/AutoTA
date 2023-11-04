@@ -80,18 +80,6 @@ const CodePage = () => {
         .catch(err => {
             console.log(err);
         });
- 
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/get-score?id=${submissionId}`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            }
-        })
-        .then(res => {    
-            setScore(res.data)
-        })
-        .catch(err => {
-            console.log(err);
-        });
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/lint_output?id=${submissionId}&class_id=${cid}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 

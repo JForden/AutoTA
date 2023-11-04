@@ -1,6 +1,6 @@
 import React, { Component, PureComponent } from 'react';
 import 'semantic-ui-css/semantic.min.css'
-import { Button, Dimmer, Header, Icon, Loader, Tab } from 'semantic-ui-react'
+import { Button, Container, Dimmer, Header, Icon, Loader, Message, Tab } from 'semantic-ui-react'
 import '../css/TestResultComponent.scss';
 import { StyledIcon } from '../styled-components/StyledIcon';
 import Split from 'react-split';
@@ -196,9 +196,14 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                         }    
                         if(x.passed){  
                             return (
-                            <span className="testcase" onClick={() => this.handleClick(x.test.suite, x.test.name, x.skipped, x.passed, x.test.description, x.test.output)}>
-                                <StyledIcon name='check' className="PASSED" />
-                            </span>);
+                              <Button
+                                color='green'
+                                icon
+                                className="testcase"
+                                onClick={() => this.handleClick(x.test.suite, x.test.name, x.skipped, x.passed, x.test.description, x.test.output)}
+                                >
+                                <Icon name='check' />
+                             </Button>);
                         } else {
                             if(x.skipped){
                                 var holder=["(╯°□°）╯︵ ┻━┻ ", "This test was skipped due to a configuration error!!!", "Please contact a human TA or professor"];
@@ -209,9 +214,14 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                                     </span>);
                             }
                             return (
-                            <span className="testcase" onClick={() => this.handleClick(x.test.suite, x.test.name, x.skipped, x.passed, x.test.description, x.test.output)}>
-                                <StyledIcon name='close' className="FAILED" />
-                            </span>);
+                              <Button 
+                              color='red' 
+                              icon 
+                              className="testcase" 
+                              onClick={() => this.handleClick(x.test.suite, x.test.name, x.skipped, x.passed, x.test.description, x.test.output)}
+                          >
+                              <Icon name='close' />
+                          </Button>);
                         }
                     }
 
@@ -233,8 +243,16 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                                 <p className="center"><i>Note: The score of your submission is not the same as the final grade for the assignment. The score is based 60% on test cases and 40% on Pylint results</i></p>
                                 </div>);
                             } else {
-                                return (<div><h1 id="blank-testcase-message"> Please click on <StyledIcon name='check' className="PASSED" /> or <StyledIcon name='close' className="FAILED" /> to see the test case results </h1></div>)
-                            }
+                              return (
+                                  <Container textAlign='center'>
+                                    <Message compact>
+                                      <Header as='h1' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                        Please click on <Icon name='check' color='green' /> or <Icon name='close' color='red' /> to see the test case results
+                                      </Header>
+                                    </Message>
+                                  </Container>
+                              );
+                          }
                         }
                         if(this.state.helpRequested){
                             return (
@@ -283,14 +301,20 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                               
                                       {/* Conditional buttons */}
                                       <Button.Group>
-                                        <Button onClick={this.handlehelpbuttonclick}>test case help</Button>
+                                        <Button color='blue' onClick={this.handlehelpbuttonclick}>
+                                          <Icon name='help circle' />
+                                          Test Case Help
+                                        </Button>
                                         <Button.Or />
-                                        <Button onClick={this.handleexplinationbuttonclick}>Output explination</Button>
+                                        <Button color='green' onClick={this.handleexplinationbuttonclick}>
+                                          <Icon name='lightbulb' />
+                                          Output Explanation
+                                        </Button>
                                       </Button.Group>
                               
                                       <br />
                                       <strong>Test Description: </strong>{this.state.description}<br />
-                                      <pre style={{ backgroundColor: 'lightgrey' }}>{this.state.output}</pre>
+                                      <ReactDiffViewer compareMethod={DiffMethod.WORDS} disableWordDiff={false} showDiffOnly={false} oldValue={this.state.output.split("~~~diff~~~")[0]} newValue={this.state.output.split("~~~diff~~~")[1]} splitView={false} />
                                     </div>
                                   );
                               }
