@@ -1,5 +1,5 @@
 import { Component, useEffect, useState, useReducer } from 'react';
-import { Image, Grid, Tab, Dropdown, Form, Input, Radio, Button, Icon, TextArea, Label, Checkbox, Table, Header, Segment, Popup } from 'semantic-ui-react'
+import { Image, Grid, Tab, Dropdown, Form, Input, Radio, Button, Icon, TextArea, Label, Checkbox, Table, Header, Segment, Popup, DropdownProps, List } from 'semantic-ui-react'
 import { Helmet } from 'react-helmet';
 import 'semantic-ui-css/semantic.min.css';
 import { DropdownItemProps, } from 'semantic-ui-react';
@@ -493,7 +493,22 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                 menuPosition='left'
                 panes={[
                     {
-                        menuItem: { key: 'psettings', icon: 'pencil alternate', content: 'Project Settings', }, render: () =>
+                        menuItem: { 
+                            key: 'psettings', 
+                            icon: 'pencil alternate', 
+                            content: 'Project Settings',
+                            style: { 
+                                color: '#007bff', 
+                                fontWeight: 'bold', 
+                                fontSize: '1.2em', 
+                                padding: '10px 20px',
+                                borderRadius: '5px',
+                                transition: 'background-color 0.3s ease',
+                                ':hover': {
+                                    backgroundColor: '#f5f5f5'
+                                }
+                            }
+                        }, render: () =>
                             <Tab.Pane>
                                 <Form>
                                 <Segment stacked>
@@ -503,90 +518,91 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                     <h1>Create Assignment</h1>
                                     }
                                 <Form.Field
-                                control={Input}
-                                label='Project Name'
-                                value={ProjectName}
-                                onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectName(ev.target.value)}
-                                >
-                                </Form.Field>
-                                <Form.Group widths={'equal'}>
-                                    <Form.Field
                                     control={Input}
-                                    label='Start Date'
-                                    type='string'
-                                    placeholder= "2022-08-25 08:01:00"
-                                    value={ProjectStartDate}
-                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectStartDate(ev.target.value)}
-                                    >
-                                    </Form.Field>
+                                    label='Project Name'
+                                    value={ProjectName}
+                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectName(ev.target.value)}
+                                    style={{
+                                        fontSize: '1.2em',
+                                        padding: '10px',
+                                        borderRadius: '5px',
+                                        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)'
+                                    }}
+                                />
+                                <Form.Group widths='equal'>
                                     <Form.Field
-                                    control={Input}
-                                    label='End Date'
-                                    placeholder = "2022-08-25 08:01:00"
-                                    type='string'
-                                    value={ProjectEndDate}
-                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectEndDate(ev.target.value)}
-                                    >
-                                    </Form.Field>
+                                        control={Input}
+                                        label='Start Date'
+                                        type='date'
+                                        value={ProjectStartDate}
+                                        onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectStartDate(ev.target.value)}
+                                        style={{
+                                            fontSize: '1.2em',
+                                            padding: '10px',
+                                            borderRadius: '5px',
+                                            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)'
+                                        }}
+                                    />
+                                    <Form.Field
+                                        control={Input}
+                                        label='End Date'
+                                        type='date'
+                                        value={ProjectEndDate}
+                                        onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectEndDate(ev.target.value)}
+                                        style={{
+                                            fontSize: '1.2em',
+                                            padding: '10px',
+                                            borderRadius: '5px',
+                                            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)'
+                                        }}
+                                    />
                                 </Form.Group>
                                 <Form.Group inline>
-                                <label>Language</label>
                                 <Form.Field
-                                    label='Python'
-                                    control='input'
-                                    type='radio'
-                                    name='htmlRadios'
-                                    value='python'
-                                    checked={ProjectLanguage === 'python'}
-                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
-                                />
-                                <Form.Field
-                                    label='Java'
-                                    control='input'
-                                    type='radio'
-                                    name='htmlRadios'
-                                    value='java'
-                                    checked={ProjectLanguage === 'java'}
-                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
-                                />
-                                <Form.Field
-                                    label='Racket'
-                                    control='input'
-                                    type='radio'
-                                    name='htmlRadios'
-                                    value='racket'
-                                    checked={ProjectLanguage === 'racket'}
-                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
-                                />
-                                <Form.Field
-                                    label='C'
-                                    control='input'
-                                    type='radio'
-                                    name='htmlRadios'
-                                    value='c'
-                                    checked={ProjectLanguage === 'c'}
-                                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectLanguage(ev.target.value)}
+                                    control={Dropdown}
+                                    label='Language'
+                                    selection
+                                    search
+                                    options={[
+                                        { key: 'java', text: 'Java', value: 'java' },
+                                        { key: 'racket', text: 'Racket', value: 'racket' },
+                                        { key: 'c', text: 'C', value: 'c' },
+                                        { key: 'python', text: 'Python', value: 'python' } // Added Python
+                                    ]}
+                                    value={ProjectLanguage}
+                                    onChange={(ev: React.SyntheticEvent<HTMLElement, Event>, data: DropdownProps) => setProjectLanguage(data.value as string)}
                                 />
                                 </Form.Group>
                                     {
                                         edit ?
                                         <div>
-                                        <h1>change solution files</h1>
-                                        <Form.Input type="file" fluid onChange={handleFileChange} />
-                                        <br></br>
-                                        <h1>change assignment description file</h1>
-                                        <Form.Input type="file" fluid onChange={handleDescFileChange} />
-                                        <br></br>
+                                            <h1>Change solution files</h1>
+                                            <Button as="label" htmlFor="file" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
+                                                Select File
+                                                <input id="file" type="file" hidden onChange={handleFileChange} />
+                                            </Button>
+                                            <br></br>
+                                            <h1>Change assignment description file</h1>
+                                            <Button as="label" htmlFor="descFile" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
+                                                Select File
+                                                <input id="descFile" type="file" hidden onChange={handleDescFileChange} />
+                                            </Button>
+                                            <br></br>
                                         </div>
                                         :
                                         <div>
-                                            <h1>upload solution files</h1>
-                                            <Form.Input type="file" fluid onChange={handleFileChange} />
+                                            <h1>Upload solution files</h1>
+                                            <Button as="label" htmlFor="file" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
+                                                Select File
+                                                <input id="file" type="file" hidden onChange={handleFileChange} />
+                                            </Button>
                                             <br></br>
-                                            <h1>upload assignment description</h1>
-                                            <Form.Input type="file" fluid onChange={handleDescFileChange} />
+                                            <h1>Upload assignment description</h1>
+                                            <Button as="label" htmlFor="descFile" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
+                                                Select File
+                                                <input id="descFile" type="file" hidden onChange={handleDescFileChange} />
+                                            </Button>
                                             <br></br>
-
                                         </div>
                                     }
                                 </Segment>
@@ -595,7 +611,22 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                             </Tab.Pane>
                     },
                     {
-                        menuItem: { key: 'testcases', icon: 'clipboard check', content: 'Test Cases' }, render: () => 
+                        menuItem: { 
+                            key: 'testcases', 
+                            icon: 'clipboard check', 
+                            content: 'Test Cases',
+                            style: { 
+                                color: '#007bff', 
+                                fontWeight: 'bold', 
+                                fontSize: '1.2em', 
+                                padding: '10px 20px',
+                                borderRadius: '5px',
+                                transition: 'background-color 0.3s ease',
+                                ':hover': {
+                                    backgroundColor: '#f5f5f5'
+                                }
+                            }
+                        }, render: () => 
                         <Tab.Pane>
                             <Form>
                             {testcases.map(testcase => {
@@ -607,27 +638,59 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                             placeholder="Please Enter Name"
                                             value={testcase.name}
                                             onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleNameChange(testcase.id, ev.target.value)}
-                                        >
-                                        </Form.Field>
+                                            style={{
+                                                borderRadius: '15px',
+                                                border: 'none',
+                                                boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
+                                                padding: '10px',
+                                                outline: 'none',
+                                                resize: 'both'
+                                            }}
+                                        />
                                         {/*<h5 style={{ height: '3.5vh' }}>Input:  </h5>*/}
                                         <Form.Field
                                             control={TextArea}
                                             label='Input'
-                                            rows={1}
+                                            autoHeight
+                                            autoWidth
                                             placeholder="Please Enter Input"
                                             value={testcase.input}
                                             onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleInputChange(testcase.id, ev.target.value)}
-                                        >
-                                        </Form.Field>
+                                            style={{
+                                                borderRadius: '15px',
+                                                border: 'none',
+                                                boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
+                                                padding: '10px',
+                                                resize: 'both'
+                                            }}
+                                        />
                                         <Form.Field
-                                            control={TextArea}
-                                            label='Output'
-                                            rows={1}
-                                            placeholder="Add test case to see output"
-                                            value={testcase.output}
-                                            style={testcase.output === "" ? {backgroundColor: "lightgray"} : {}}
-                                            readOnly={true}
-                                            //onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleOutputChange(testcase.id, ev.target.value)}
+                                                control={TextArea}
+                                                label='Output'
+                                                rows={1}
+                                                placeholder="Add test case to see output"
+                                                autoHeight
+                                                autoWidth
+                                                value={testcase.output}
+                                                style={
+                                                        testcase.output === "" 
+                                                        ? {
+                                                                backgroundColor: "lightgray",
+                                                                borderRadius: '15px',
+                                                                border: 'none',
+                                                                boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
+                                                                padding: '10px',
+                                                                resize: 'both'
+                                                            }
+                                                        : {
+                                                                borderRadius: '15px',
+                                                                border: 'none',
+                                                                boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
+                                                                padding: '10px',
+                                                                resize: 'both'
+                                                            }
+                                                }
+                                                readOnly={true}
                                         >
                                         </Form.Field>
                                         <Form.Field
@@ -636,38 +699,84 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                             placeholder="Please Enter Description"
                                             value={testcase.description}
                                             onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleDescriptionChange(testcase.id, ev.target.value)}
+                                            style={{
+                                                borderRadius: '15px',
+                                                border: 'none',
+                                                boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
+                                                padding: '10px',
+                                                resize: 'both'
+                                            }}
                                         />
                                         <Form.Field
-                                        control={Checkbox}
-                                        name= {testcase.id  + "RadioGroup4"}
-                                        label='Hidden'
-                                        checked={testcase.isHidden}
-                                        onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleHiddenChange(testcase.id, true)}
+                                            control={Checkbox}
+                                            name={testcase.id + "RadioGroup4"}
+                                            label='Hidden'
+                                            checked={testcase.isHidden}
+                                            onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleHiddenChange(testcase.id, true)}
+                                            style={{
+                                                padding: '10px',
+                                                borderRadius: '15px',
+                                                border: '1px solid lightgray',
+                                                margin: '5px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
                                         />
                                         <Form.Group inline>
                                             <Form.Field
                                                 control={Radio}
                                                 label='Level 1'
-                                                name= {testcase.id  + "RadioGroup"}
+                                                name={testcase.id + "RadioGroup"}
                                                 value='Level 1'
                                                 checked={testcase.levelname === "Level 1"}
                                                 onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(testcase.id, 'Level 1')}
+                                                style={{
+                                                    padding: '10px',
+                                                    borderRadius: '15px',
+                                                    border: '1px solid lightgray',
+                                                    margin: '5px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    width: '100px'
+                                                }}
                                             />
                                             <Form.Field
                                                 control={Radio}
                                                 label='Level 2'
-                                                name={testcase.id  + "RadioGroup2"}
+                                                name={testcase.id + "RadioGroup2"}
                                                 value='Level 2'
-                                                checked={testcase.levelname === 'Level 2'}                                             
+                                                checked={testcase.levelname === 'Level 2'}
                                                 onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(testcase.id, 'Level 2')}
+                                                style={{
+                                                    padding: '10px',
+                                                    borderRadius: '15px',
+                                                    border: '1px solid lightgray',
+                                                    margin: '5px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    width: '100px'
+                                                }}
                                             />
                                             <Form.Field
                                                 control={Radio}
                                                 label='Level 3'
-                                                name={testcase.id  + "RadioGroup3"}
+                                                name={testcase.id + "RadioGroup3"}
                                                 value='Level 3'
-                                                checked={testcase.levelname === 'Level 3'}                                              
+                                                checked={testcase.levelname === 'Level 3'}
                                                 onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(testcase.id, 'Level 3')}
+                                                style={{
+                                                    padding: '10px',
+                                                    borderRadius: '15px',
+                                                    border: '1px solid lightgray',
+                                                    margin: '5px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    width: '100px'
+                                                }}
                                             />
                                         </Form.Group>
                                         <Popup
@@ -684,49 +793,91 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                             trigger={<Button icon='file' content="Select optional additional file" />}
                                         />
                                         <Form.Button onClick={() => buttonhandleClick(testcase.id)}>Submit testcase</Form.Button>
-                                        <Form.Button onClick={() => buttonhandleTrashClick(testcase.id)}>Remove Test Case</Form.Button>
+                                        <Form.Button 
+                                            onClick={() => buttonhandleTrashClick(testcase.id)}
+                                            style={{
+                                                backgroundColor: '#ff4d4f', // Change this to your preferred color
+                                                color: 'white',
+                                                borderRadius: '5px',
+                                                padding: '10px 20px',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                fontSize: '1rem',
+                                                transition: 'all 0.3s ease'
+                                            }}
+                                            onMouseOver={(e: { currentTarget: { style: { backgroundColor: string; }; }; }) => {
+                                                e.currentTarget.style.backgroundColor = '#cc0000'; // Change this to your preferred hover color
+                                            }}
+                                            onMouseOut={(e: { currentTarget: { style: { backgroundColor: string; }; }; }) => {
+                                                e.currentTarget.style.backgroundColor = '#ff4d4f'; // Change this back to the original color
+                                            }}
+                                        >
+                                            Remove Test Case
+                                        </Form.Button>
                                     </Form.Group>
                                 );  
                             })}
                             </Form>
-                            <Segment stacked>
-                                    <h1>Upload Test Cases</h1>
-                                    <Form.Input type="file" fluid required={true} onChange={handleFileChange} />
-                                    <br></br>
+                            <Segment stacked style={{ padding: '20px', borderRadius: '10px', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)' }}>
+                                <h1 style={{ marginBottom: '20px' }}>Upload Test Cases</h1>
+                                <Button as="label" htmlFor="file" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
+                                    Select File
+                                    <input id="file" type="file" hidden required={true} onChange={handleFileChange} />
+                                </Button>
                             </Segment>
                             <Button.Group>
                             <Form.Button onClick={handleJsonSubmit}>{SubmitJSON}</Form.Button>
                             <div style={{ marginLeft: '10px', marginRight: '10px' }}></div>
                             <Form.Button color={'green'} onClick={get_testcase_json}>{getJSON}</Form.Button>
                             </Button.Group>
-                            <Grid>
-                            <Grid.Row>
-                            <Grid.Column width={8}>
-                                <h2>Level 1: Base Cases (Simple Cases)</h2>
-                                <ul>
-                                <li>Test basic functionality with simple inputs.</li>
-                                </ul>
-                                <h2>Level 2: Main Functionality Cases</h2>
-                                <ul>
-                                <li>Test core features and main tasks.</li>
-                                <li>Use a variety of inputs, positive/negative scenarios.</li>
-                                </ul>
-                            </Grid.Column>
+                            <Grid style={{ marginTop: '20px' }}>
+                                <Grid.Row>
+                                    <Grid.Column width={8}>
+                                        <Segment>
+                                            <Grid>
+                                                <Grid.Row>
+                                                    <Grid.Column width={8}>
+                                                        <h2>Level 1: Base Cases (Simple Cases)</h2>
+                                                        <List bulleted>
+                                                            <List.Item>Test basic functionality with simple inputs.</List.Item>
+                                                        </List>
+                                                    </Grid.Column>
+                                                    <Grid.Column width={8}>
+                                                        <h2>Level 3: Edge Cases (Boundary and Extreme Cases)</h2>
+                                                        <List bulleted>
+                                                            <List.Item>Test less common or extreme situations.</List.Item>
+                                                        </List>
+                                                    </Grid.Column>
+                                                </Grid.Row>
+                                            </Grid>
+                                        </Segment>
+                                    </Grid.Column>
 
-                            <Grid.Column width={8}>
-                                <h2>Level 3: Edge Cases (Boundary and Extreme Cases)</h2>
-                                <ul>
-                                <li>Test less common or extreme situations.</li>
-                                </ul>
-                                <h2>General Best Practices for Test Cases:</h2>
-                                <ul>
-                                <li>Clear and descriptive names.</li>
-                                <li>Complete coverage with representative cases.</li>
-                                <li>Descriptions are robust for students</li>
-                                </ul>
-                            </Grid.Column>
-                            </Grid.Row>
-                        </Grid>
+                                    <Grid.Column width={8}>
+                                        <Segment>
+                                            <Grid>
+                                                <Grid.Row>
+                                                    <Grid.Column width={8}>
+                                                        <h2>Level 2: Main Functionality Cases</h2>
+                                                        <List bulleted>
+                                                            <List.Item>Test core features and main tasks.</List.Item>
+                                                            <List.Item>Use a variety of inputs, positive/negative scenarios.</List.Item>
+                                                        </List>
+                                                    </Grid.Column>
+                                                    <Grid.Column width={8}>
+                                                        <h2>General Best Practices for Test Cases:</h2>
+                                                        <List bulleted>
+                                                            <List.Item>Clear and descriptive names.</List.Item>
+                                                            <List.Item>Complete coverage with representative cases.</List.Item>
+                                                            <List.Item>Descriptions are robust for students</List.Item>
+                                                        </List>
+                                                    </Grid.Column>
+                                                </Grid.Row>
+                                            </Grid>
+                                        </Segment>
+                                    </Grid.Column>
+                                </Grid.Row>
+                            </Grid>
                         </Tab.Pane>
                     }
                 ]

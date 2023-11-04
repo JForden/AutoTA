@@ -261,7 +261,9 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                     <Table.Cell>{row.numberOfSubmissions}</Table.Cell>
                                     <Table.Cell>{row.date}</Table.Cell>
                                     <Table.Cell>{row.numberOfPylintErrors}</Table.Cell>
-                                    <Table.Cell>{row.isPassing ? "PASSED" : "FAILED"}</Table.Cell>
+                                    <Table.Cell style={{ color: row.isPassing ? 'green' : 'red' }}>
+                                        {row.isPassing ? "PASSED" : "FAILED"}
+                                    </Table.Cell>
                                     <Table.Cell button><Link target="_blank" to={ "/class/"+ row.classId +"/code/" + row.subid }><Label button >View</Label></Link></Table.Cell>
                                     <Table.Cell>
                                     <Input

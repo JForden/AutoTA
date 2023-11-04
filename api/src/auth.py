@@ -24,6 +24,11 @@ auth_api = Blueprint('auth_api', __name__)
 def user_identity_lookup(user):
     return user.Id
 
+@auth_api.route('/get-role', methods=['GET'])
+@jwt_required()
+@inject
+def get_user_role(user_repo: UserRepository = Provide[Container.user_repo]):
+    return user_repo.get_user_status()
 
 
 # Register a callback function that loades a user from your database whenever

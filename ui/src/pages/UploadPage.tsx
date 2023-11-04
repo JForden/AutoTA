@@ -56,25 +56,6 @@ const UploadPage = () => {
 
 
     useEffect(() => {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/submissioncounter`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
-            }
-        })
-        .then(res => {
-            setProject_Name(res.data.name);
-            setEnd(res.data.end);
-            setProject_id(res.data.Id);
-            setCanRedeem(res.data.can_redeem);
-            setPoints(res.data.points);
-            setTime_Until_Next_Submission(res.data.time_until_next_submission);
-            setIs_Allowed_To_Submit(!hasTbsEnabled || new Date() > new Date(res.data.time_until_next_submission));
-        })
-        .catch(err => {
-            setError_Message(err.response.data.message);
-            setIsErrorMessageHidden(false);
-            setIsLoading(false);
-        });
         getSubmissionDetails();
     }, [])
 

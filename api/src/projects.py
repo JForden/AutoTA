@@ -25,6 +25,7 @@ from flask import jsonify
 from flask import request
 from dependency_injector.wiring import inject, Provide
 from container import Container
+from datetime import datetime
 
 projects_api = Blueprint('projects_api', __name__)
 
@@ -119,9 +120,11 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
     if 'name' in request.form:
         name = request.form['name']
     if 'start_date' in request.form:
-        start_date = request.form['start_date']
+        start_date = datetime.strptime(request.form['start_date'], "%Y-%m-%d")
+        start_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
     if  'end_date' in request.form:
-        end_date= request.form['end_date']
+        end_date = datetime.strptime(request.form['end_date'], "%Y-%m-%d")
+        end_date = end_date.strftime("%Y-%m-%d %H:%M:%S")
     if 'language' in request.form:
         language = request.form['language']
     if  'class_id'  in request.form:
@@ -181,9 +184,11 @@ def edit_project(project_repo: ProjectRepository = Provide[Container.project_rep
     if 'name' in request.form:
         name = request.form['name']
     if 'start_date' in request.form:
-        start_date = request.form['start_date']
+        start_date = datetime.strptime(request.form['start_date'], "%Y-%m-%d")
+        start_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
     if  'end_date' in request.form:
-        end_date= request.form['end_date']
+        end_date = datetime.strptime(request.form['end_date'], "%Y-%m-%d")
+        end_date = end_date.strftime("%Y-%m-%d %H:%M:%S")
     if 'language' in request.form:
         language = request.form['language']
     path = project_repo.get_project_path(pid)
@@ -284,7 +289,6 @@ def json_add_testcases(project_repo: ProjectRepository = Provide[Container.proje
     else:
         for testcase in json_obj:
             project_repo.add_or_update_testcase(project_id, -1, testcase["levelname"], testcase["name"], testcase["description"], testcase["input"], testcase["output"], bool(testcase["isHidden"]))
-        print("hi")
     return make_response("Testcase Added", HTTPStatus.OK)
 
 

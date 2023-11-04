@@ -69,6 +69,16 @@ class SubmissionRepository():
         submission = self.get_submission_by_submission_id(submission_id)
         return submission.CodeFilepath
     def get_pylint_path_by_user_and_project_id(self,user_id:int, project_id:int):
+        """
+        Returns the file path of the Pylint report for a given user and project ID.
+
+        Args:
+        user_id (int): The ID of the user.
+        project_id (int): The ID of the project.
+
+        Returns:
+        str: The file path of the Pylint report.
+        """
         submission = self.get_submission_by_user_and_projectid(user_id,project_id)
         return submission.PylintFilepath
     
@@ -152,6 +162,18 @@ class SubmissionRepository():
         return highest_level.LatestLevel
 
     def modifying_level(self, project_id: int, user_id: int, submission_id: str, current_level: str) -> bool:
+        """
+        Modifies the level of a student's progress in a project.
+
+        Args:
+            project_id (int): The ID of the project.
+            user_id (int): The ID of the user.
+            submission_id (str): The ID of the submission.
+            current_level (str): The current level of the student's progress.
+
+        Returns:
+            bool: True if the level was successfully modified
+        """
         level = StudentProgress.query.filter(and_(StudentProgress.ProjectId == project_id, StudentProgress.UserId == user_id)).first()
 
         if level == None:
@@ -164,38 +186,17 @@ class SubmissionRepository():
         db.session.commit()
         return True
 
-    def get_project_by_submission_id(self,submission_id: int) -> int:
+    def get_project_by_submission_id(self, submission_id: int) -> int:
+        """Returns the project ID associated with a given submission ID.
+
+        Args:
+            submission_id (int): The ID of the submission.
+
+        Returns:
+            int: The ID of the project associated with the submission.
+        """
         submission = Submissions.query.filter(Submissions.Id == submission_id).first()
         return submission.Project
-
-    def get_can_redeemed(self, Config_Repository: ConfigRepository,  user_id: int, previous_project_id: int, project_id: int) -> Tuple[bool, int]:
-        if previous_project_id == -1:
-            return (False, 0)
-        
-        submission = self.get_most_recent_submission_by_project(previous_project_id,[user_id])
-        if user_id in submission:
-            score=submission[user_id].Points
-        else:
-            score=0
-
-        unlocked=StudentUnlocks.query.filter(and_(StudentUnlocks.ProjectId == project_id, StudentUnlocks.UserId == user_id)).first()
-        if not unlocked == None:
-            return (False,score)
-        
-        RedeemNumber=int(Config_Repository.get_config_setting("RedeemValue"))
-        if score < RedeemNumber:
-            return (False, score)
-        return (True,score)
-    
-    def redeem_score(self,user_id: int, project_id: int,dt_string:str) -> bool:
-        entry = StudentUnlocks(UserId=user_id,ProjectId=project_id,Time=dt_string)
-        db.session.add(entry)
-        db.session.commit()
-        return True
-
-    def get_score(self,submission_id:int)->int:
-        submission = Submissions.query.filter(Submissions.Id==submission_id).one()
-        return submission.Points
 
     def submission_view_verification(self, submission_id, user_id) -> bool:
         submission = Submissions.query.filter(and_(Submissions.Id==submission_id,Submissions.User==user_id)).first()
@@ -294,9 +295,6 @@ class SubmissionRepository():
         except openai.error.ServiceUnavailableError as e:
             # Handle the error
             message = "The server is overloaded or not ready yet."
-    def getGPTResponse(self, submission_number) -> str:
-        tempdata= GPTLogs.query.filter(GPTLogs.SubmissionId ==submission_number).first()
-        return tempdata.GPTResponse
     def Update_GPT_Student_Feedback(self,question_id, student_feedback):
         question = GPTLogs.query.filter(GPTLogs.Qid == question_id).first()
         question.StudentFeedback =int(student_feedback)

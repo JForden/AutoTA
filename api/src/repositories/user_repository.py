@@ -9,6 +9,10 @@ from flask_jwt_extended import current_user
 
 
 class UserRepository():
+
+    def get_user_status(self) -> str:
+        return str(current_user.Role)
+
     def getUserByName(self, username: str) -> Users:
         """
         Returns a user object from the database based on the given username.
