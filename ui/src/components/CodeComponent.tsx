@@ -1,9 +1,10 @@
 import { Component } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { vs } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { vs, dark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import 'semantic-ui-css/semantic.min.css';
 import Split from 'react-split';
 import { Button, Icon } from  'semantic-ui-react';
+
 
 interface PylintObject {
     type: string,
@@ -62,8 +63,31 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
     return (
         <div className="full-height">
             <Split className="split">
-                <div id="code-container">
-                    <SyntaxHighlighter language="python" style={vs} showLineNumbers={true} lineNumberStyle={this.stylelinenumbers} >
+                <div id="code-container" style={{ 
+                    border: '1px solid rgba(0, 0, 0, 0.8)', 
+                    borderRadius: '5px', 
+                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)', 
+                    backgroundColor: '#808080', // Changed to darker gray
+                    padding: '10px',
+                    fontFamily: 'Courier New, monospace',
+                    fontSize: '16px',
+                    lineHeight: '1.6',
+                    color: '#333',
+                    overflow: 'auto',
+                    marginTop: '20px'
+                }}>
+                    <SyntaxHighlighter 
+                        language="python" 
+                        style={{
+                            vs,
+                            border: '2px solid rgba(0, 0, 0, 1)', 
+                            borderRadius: '5px', 
+                            padding: '10px',
+                            color: '#ff0000' // Changed color to red
+                        }} 
+                        showLineNumbers={true} 
+                        lineNumberStyle={this.stylelinenumbers}
+                    >
                         {this.props.codedata}
                     </SyntaxHighlighter>
                 </div>
@@ -82,9 +106,10 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                     <div style={{ 
                                         padding: '10px', 
                                         borderRadius: '5px', 
-                                        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', 
+                                        boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.2)', // Increased shadow
                                         backgroundColor: '#f9f9f9', 
-                                        marginBottom: '20px'
+                                        marginBottom: '20px',
+                                        border: '1px solid rgba(0, 0, 0, 0.2)' // Darkened border
                                     }}>
                                         <div style={{ 
                                             display: 'flex',
@@ -97,7 +122,28 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                         </div>
                                         <div>
                                             <p style={{ color: '#333', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
-                                            <iframe src={error.reflink} title="Error Details" style={{ width: '100%', height: '200px', border: 'none' }}></iframe>
+                                            <div 
+                                                style={{ 
+                                                    resize: 'both',
+                                                    overflow: 'auto',
+                                                    border: '2px solid #444',
+                                                    borderRadius: '5px',
+                                                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)',
+                                                    margin: '10px 0',
+                                                    width: '100%',
+                                                    height: '200px'
+                                                }}
+                                            >
+                                                <iframe 
+                                                    src={error.reflink} 
+                                                    title="Error Details" 
+                                                    style={{ 
+                                                        width: '100%', 
+                                                        height: '100%', 
+                                                        border: 'none'
+                                                    }}
+                                                ></iframe>
+                                            </div>
                                         </div>
                                     </div>
                                 );
@@ -113,7 +159,28 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                         <Icon color="blue" name='cogs' />
                                         <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                         <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
-                                        <iframe src={error.reflink} title="Error Details" style={{ width: '100%', height: '200px', border: 'none' }}></iframe>
+                                        <div 
+                                                style={{ 
+                                                    resize: 'both',
+                                                    overflow: 'auto',
+                                                    border: '2px solid #444',
+                                                    borderRadius: '5px',
+                                                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)',
+                                                    margin: '10px 0',
+                                                    width: '100%',
+                                                    height: '200px'
+                                                }}
+                                            >
+                                                <iframe 
+                                                    src={error.reflink} 
+                                                    title="Error Details" 
+                                                    style={{ 
+                                                        width: '100%', 
+                                                        height: '100%', 
+                                                        border: 'none'
+                                                    }}
+                                                ></iframe>
+                                            </div>
                                     </div>
                                 );
                             } else if(error.type === "error") {
@@ -128,7 +195,28 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                     <Icon color="orange" name='minus circle' />
                                     <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                     <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
-                                    <iframe src={error.reflink} title="Error Details" style={{ width: '100%', height: '200px', border: 'none' }}></iframe>
+                                    <div 
+                                                style={{ 
+                                                    resize: 'both',
+                                                    overflow: 'auto',
+                                                    border: '2px solid #444',
+                                                    borderRadius: '5px',
+                                                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)',
+                                                    margin: '10px 0',
+                                                    width: '100%',
+                                                    height: '200px'
+                                                }}
+                                            >
+                                                <iframe 
+                                                    src={error.reflink} 
+                                                    title="Error Details" 
+                                                    style={{ 
+                                                        width: '100%', 
+                                                        height: '100%', 
+                                                        border: 'none'
+                                                    }}
+                                                ></iframe>
+                                            </div>
                                 </div>
                             );
                         }
@@ -144,7 +232,28 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                     <Icon color="red" name='stop' />
                                     <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                     <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
-                                    <iframe src={error.reflink} title="Error Details" style={{ width: '100%', height: '200px', border: 'none' }}></iframe>
+                                    <div 
+                                                style={{ 
+                                                    resize: 'both',
+                                                    overflow: 'auto',
+                                                    border: '2px solid #444',
+                                                    borderRadius: '5px',
+                                                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)',
+                                                    margin: '10px 0',
+                                                    width: '100%',
+                                                    height: '200px'
+                                                }}
+                                            >
+                                                <iframe 
+                                                    src={error.reflink} 
+                                                    title="Error Details" 
+                                                    style={{ 
+                                                        width: '100%', 
+                                                        height: '100%', 
+                                                        border: 'none'
+                                                    }}
+                                                ></iframe>
+                                            </div>
                                 </div>
                             );
                         }
@@ -160,7 +269,28 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                     <Icon color="yellow" name='exclamation triangle' />
                                     <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                     <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
-                                    <iframe src={error.reflink} title="Error Details" style={{ width: '100%', height: '200px', border: 'none' }}></iframe>
+                                    <div 
+                                                style={{ 
+                                                    resize: 'both',
+                                                    overflow: 'auto',
+                                                    border: '2px solid #444',
+                                                    borderRadius: '5px',
+                                                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)',
+                                                    margin: '10px 0',
+                                                    width: '100%',
+                                                    height: '200px'
+                                                }}
+                                            >
+                                                <iframe 
+                                                    src={error.reflink} 
+                                                    title="Error Details" 
+                                                    style={{ 
+                                                        width: '100%', 
+                                                        height: '100%', 
+                                                        border: 'none'
+                                                    }}
+                                                ></iframe>
+                                            </div>
                                 </div>
                             );
                         } else {
@@ -174,7 +304,28 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                         }}>
                             <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                             <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
-                            <iframe src={error.reflink} title="Error Details" style={{ width: '100%', height: '200px', border: 'none' }}></iframe>
+                            <div 
+                                                style={{ 
+                                                    resize: 'both',
+                                                    overflow: 'auto',
+                                                    border: '2px solid #444',
+                                                    borderRadius: '5px',
+                                                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)',
+                                                    margin: '10px 0',
+                                                    width: '100%',
+                                                    height: '200px'
+                                                }}
+                                            >
+                                                <iframe 
+                                                    src={error.reflink} 
+                                                    title="Error Details" 
+                                                    style={{ 
+                                                        width: '100%', 
+                                                        height: '100%', 
+                                                        border: 'none'
+                                                    }}
+                                                ></iframe>
+                                            </div>
                         </div>
                     );
                 }

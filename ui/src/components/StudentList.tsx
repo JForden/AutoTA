@@ -3,7 +3,7 @@ import 'semantic-ui-css/semantic.min.css'
 import '../css/TestResultComponent.scss';
 import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
-import { Table, Label, Loader, Dropdown, DropdownItemProps, DropdownItem, DropdownProps, Input } from 'semantic-ui-react';
+import { Table, Label, Loader, Dropdown, DropdownItemProps, DropdownItem, DropdownProps, Input, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
 interface StudentListProps {
@@ -214,7 +214,10 @@ class StudentList extends Component<StudentListProps, StudentListState> {
         return (
             <>
                 <Dropdown placeholder='Lecture Section' selection options={this.state.lecture_numbers} onChange={this.handleFilterChange} />
-                <Table celled>
+                <Table celled style={{ 
+                    borderRadius: '10px', 
+                    boxShadow: '0 10px 20px rgba(0, 0, 0, 0.4)' // Kept only the darkest shadow
+                    }}>
                     <Table.Header>
                     <Table.Row>
                         <Table.HeaderCell>Student Name</Table.HeaderCell>
@@ -223,8 +226,46 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                         <Table.HeaderCell>Date of most recent submission</Table.HeaderCell>
                         <Table.HeaderCell>Number of pylint errors on most recent submission</Table.HeaderCell>
                         <Table.HeaderCell>State of Last Submission</Table.HeaderCell>
-                        <Table.HeaderCell button > <Loader size='massive' active={this.state.isLoading}>Loading: This process might take several minutes, please do not refresh</Loader><Label button onClick={() => { this.handleClick() }}>Plagiarism Checker</Label></Table.HeaderCell>
-                        <Table.HeaderCell><Label button onClick={() => { this.submitgrades() }}>Submit Grades</Label><Label button onClick={() => { this.exportGrades() }}>Export Grades</Label></Table.HeaderCell>
+                        <Table.HeaderCell>
+                            <Button 
+                                onClick={() => { this.handleClick() }} 
+                                style={{ 
+                                    backgroundColor: 'red', 
+                                    color: 'white', 
+                                    borderRadius: '5px', 
+                                    padding: '10px', 
+                                    margin: '5px'
+                                }}
+                            >
+                                Plagiarism Checker
+                            </Button>
+                        </Table.HeaderCell>
+                        <Table.HeaderCell>
+                            <Button 
+                                onClick={() => { this.submitgrades() }} 
+                                style={{ 
+                                    backgroundColor: 'green', 
+                                    color: 'white', 
+                                    borderRadius: '5px', 
+                                    padding: '10px', 
+                                    margin: '5px'
+                                }}
+                            >
+                                Submit Grades
+                            </Button>
+                            <Button 
+                                onClick={() => { this.exportGrades() }} 
+                                style={{ 
+                                    backgroundColor: 'blue', 
+                                    color: 'white', 
+                                    borderRadius: '5px', 
+                                    padding: '10px', 
+                                    margin: '5px'
+                                }}
+                            >
+                                Export Grades
+                            </Button>
+                        </Table.HeaderCell>
                     </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -244,13 +285,18 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                         <Table.Cell>N/A</Table.Cell>
                                         <Table.Cell>N/A</Table.Cell>
                                         <Table.Cell>
-                                        <Input
-                                            type="text"
-                                            placeholder="optional"
-                                            value={row.grade} // Set the initial value of the input to row.grade
-                                            onChange={(e) => this.handleGradeChange(e, row)} // Pass the row object to the function so we can update the state of the row
-                                        />
-                                        </Table.Cell>
+                                       <Input
+                                        type="text"
+                                        placeholder="optional"
+                                        value={row.grade} // Set the initial value of the input to row.grade
+                                        onChange={(e) => this.handleGradeChange(e, row)} // Pass the row object to the function so we can update the state of the row
+                                        style={{ 
+                                            borderRadius: '5px', 
+                                            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)', 
+                                            padding: '10px'
+                                        }}
+                                    />
+                                    </Table.Cell>
                                     </Table.Row>
                                 )
                             }
@@ -264,13 +310,34 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                     <Table.Cell style={{ color: row.isPassing ? 'green' : 'red' }}>
                                         {row.isPassing ? "PASSED" : "FAILED"}
                                     </Table.Cell>
-                                    <Table.Cell button><Link target="_blank" to={ "/class/"+ row.classId +"/code/" + row.subid }><Label button >View</Label></Link></Table.Cell>
+                                    <Table.Cell style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                        <Button 
+                                            as={Link} 
+                                            target="_blank" 
+                                            to={"/class/"+ row.classId +"/code/" + row.subid} 
+                                            style={{ 
+                                                backgroundColor: 'orange', 
+                                                color: 'white', 
+                                                borderRadius: '5px', 
+                                                padding: '10px', 
+                                                margin: '5px',
+                                                width: '150px' // Added width
+                                            }}
+                                        >
+                                            View
+                                        </Button>
+                                    </Table.Cell>
                                     <Table.Cell>
                                     <Input
                                         type="text"
                                         placeholder="optional"
                                         value={row.grade} // Set the initial value of the input to row.grade
                                         onChange={(e) => this.handleGradeChange(e, row)} // Pass the row object to the function so we can update the state of the row
+                                        style={{ 
+                                            borderRadius: '5px', 
+                                            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)', 
+                                            padding: '10px'
+                                        }}
                                     />
                                     </Table.Cell>
                                 </Table.Row>

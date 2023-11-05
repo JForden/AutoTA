@@ -146,7 +146,10 @@ class TaComponent extends Component<{}, OfficeHoursState> {
 
     render() {
         return (
-            <Table celled>
+            <Table celled style={{ 
+                borderRadius: '10px', 
+                boxShadow: '0 10px 20px rgba(0, 0, 0, 0.4)' // Kept only the darkest shadow
+                }}>
             <Table.Header>
             <Table.Row>
                 <Table.HeaderCell>Question Queue</Table.HeaderCell>

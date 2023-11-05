@@ -87,45 +87,47 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
     render(){
         return (
             <>
-            
-            <Table celled>
-                <Table.Header>
+            <Table celled style={{ 
+              borderRadius: '10px', 
+              boxShadow: '0 10px 20px rgba(0, 0, 0, 0.4)' // Kept only the darkest shadow
+            }}>
+              <Table.Header>
                 <Table.Row>
-                    <Table.HeaderCell>Project Name</Table.HeaderCell>
-                    <Table.HeaderCell>Project Start Date</Table.HeaderCell>
-                    <Table.HeaderCell>Project End Date</Table.HeaderCell>
-                    <Table.HeaderCell>Total Submissions</Table.HeaderCell>
-                    <Table.HeaderCell>Project View</Table.HeaderCell>
-                    <Table.HeaderCell>Project Modification</Table.HeaderCell>
-
+                  <Table.HeaderCell>Project Name</Table.HeaderCell>
+                  <Table.HeaderCell>Project Start Date</Table.HeaderCell>
+                  <Table.HeaderCell>Project End Date</Table.HeaderCell>
+                  <Table.HeaderCell>Total Submissions</Table.HeaderCell>
+                  <Table.HeaderCell>Project View</Table.HeaderCell>
+                  <Table.HeaderCell style={{ width: '13%' }}>Project Modification</Table.HeaderCell>
                 </Table.Row>
-                </Table.Header>
-                <Table.Body>
+              </Table.Header>
+              <Table.Body>
                 {(() => {
-                    const holder = [];
-                    for (let index = this.state.projects.length-1; index >= 0; index--) {
-                        holder[index] = ( 
-                                <Table.Row>
-                                    <Table.Cell>{this.state.projects[index].Name}</Table.Cell>
-                                    <Table.Cell>{this.state.projects[index].Start}</Table.Cell>
-                                    <Table.Cell>{this.state.projects[index].End}</Table.Cell>
-                                    <Table.Cell>{this.state.projects[index].TotalSubmissions}</Table.Cell>
-                                    <Table.Cell><Button as={Link} to={"/admin/project/"+this.state.projects[index].Id}>View</Button></Table.Cell>
-                                    <Table.Cell><Button icon='edit' as={Link} to={"/admin/project/edit/" + this.state.classId + "/" + this.state.projects[index].Id}  />
-                                    <Button icon='refresh' disabled={true} onClick={() => this.handleRefresh(this.state.projects[index].Id)} />
-                                    <Popup trigger={<Button disabled={true}>delete project</Button>} flowing hoverable>
-                                    <Grid centered divided columns={1}>
-                                      <Grid.Column textAlign='center'>
-                                        <Header as='h4'>confirm delete project</Header>
-                                        <Button icon='trash' onClick={() => this.handleDelete(this.state.projects[index].Id)}>delete</Button>
-                                      </Grid.Column>
-                                    </Grid>
-                                  </Popup>
-                                    </Table.Cell>
-                                </Table.Row>
-                                );
-                    }
-                    return holder;
+                  const holder = [];
+                  for (let index = this.state.projects.length-1; index >= 0; index--) {
+                    holder[index] = ( 
+                      <Table.Row>
+                        <Table.Cell style={{ width: '15%' }}>{this.state.projects[index].Name}</Table.Cell>
+                        <Table.Cell style={{ width: '15%' }}>{this.state.projects[index].Start}</Table.Cell>
+                        <Table.Cell style={{ width: '15%' }}>{this.state.projects[index].End}</Table.Cell>
+                        <Table.Cell style={{ width: '15%' }}>{this.state.projects[index].TotalSubmissions}</Table.Cell>
+                        <Table.Cell style={{ width: '10%' }}><Button as={Link} to={"/admin/project/"+this.state.projects[index].Id}>View</Button></Table.Cell>
+                        <Table.Cell style={{ width: '30%' }}>
+                          <Button icon='edit' as={Link} to={"/admin/project/edit/" + this.state.classId + "/" + this.state.projects[index].Id}  />
+                          <Button icon='refresh' disabled={true} onClick={() => this.handleRefresh(this.state.projects[index].Id)} />
+                          <Popup trigger={<Button disabled={true}>delete project</Button>} flowing hoverable>
+                            <Grid centered divided columns={1}>
+                              <Grid.Column textAlign='center'>
+                                <Header as='h4'>confirm delete project</Header>
+                                <Button icon='trash' onClick={() => this.handleDelete(this.state.projects[index].Id)}>delete</Button>
+                              </Grid.Column>
+                            </Grid>
+                          </Popup>
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  }
+                  return holder;
                 })()}
                 
                 </Table.Body>

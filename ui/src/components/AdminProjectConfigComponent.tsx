@@ -606,7 +606,21 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                         </div>
                                     }
                                 </Segment>
-                                <Form.Button onClick={edit ?  handleEditSubmit  : handleNewSubmit}>{SubmitButton}</Form.Button>
+                                <Form.Button 
+                                    onClick={edit ?  handleEditSubmit  : handleNewSubmit} 
+                                    style={{ 
+                                        backgroundColor: '#4CAF50', // Green
+                                        color: 'white',
+                                        padding: '14px 20px',
+                                        margin: '8px 0',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        width: '100%',
+                                        opacity: '0.9'
+                                    }}
+                                >
+                                    {SubmitButton}
+                                </Form.Button>
                             </Form>
                             </Tab.Pane>
                     },
@@ -821,7 +835,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                             <Segment stacked style={{ padding: '20px', borderRadius: '10px', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)' }}>
                                 <h1 style={{ marginBottom: '20px' }}>Upload Test Cases</h1>
                                 <Button as="label" htmlFor="file" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
-                                    Select File
+                                    Select Json File
                                     <input id="file" type="file" hidden required={true} onChange={handleFileChange} />
                                 </Button>
                             </Segment>
