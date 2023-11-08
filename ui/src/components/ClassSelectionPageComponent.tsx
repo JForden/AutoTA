@@ -33,7 +33,6 @@ const ClassSelectionPageComponent = () => {
         setaddClass(true);
       };
     const handleClassSubmit = () => {
-      console.log(ClassId,LectureId,LabId);
       const formData = new FormData();
       formData.append("class_name", ClassId.toString());
       formData.append("lecture_name", LectureId.toString());

@@ -71,7 +71,6 @@ class TaComponent extends Component<{}, OfficeHoursState> {
 
 
     handleComplete = (id: number) => (e: any) => {
-        console.log("In handle complete");
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/dismissOHQuestion?question_id=${id}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 

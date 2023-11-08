@@ -106,7 +106,6 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             }
           })
             .then((res) => {
-                console.log("Finished API request");
                 var response = res.data.toString();
                 this.setState({helpResponse: response});
                 this.setState({questionId:res.data[1].toString()});
@@ -130,9 +129,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
             }
           })
             .then((res) => {
-                console.log("Finished API request");
                 var response = res.data[0].toString();
-                console.log("This is QID");
                 console.log(res.data[1].toString());
                 this.setState({helpResponse: response});
                 this.setState({questionId:res.data[1].toString()});

@@ -140,7 +140,6 @@ class StudentList extends Component<StudentListProps, StudentListState> {
     
     handleGradeChange = (e: React.ChangeEvent<HTMLInputElement>, row: Row) => {
         const newValue = parseFloat(e.target.value);
-        console.log(newValue);
         if (!isNaN(newValue)) {
           const updatedRows = this.state.rows.map((r) =>
             r.id === row.id ? { ...r, grade: newValue } : r
