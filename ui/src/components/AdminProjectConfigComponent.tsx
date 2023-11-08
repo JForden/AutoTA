@@ -112,7 +112,6 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
             })
             .then(res => {
                 var data = res.data
-                console.log(data);
                 if(!CreateNewState){
                 setProjectName(data[props.id][0]);
                 setProjectStartDate(data[props.id][1]);
@@ -230,12 +229,6 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
             console.log(error);
         });
     }
-
-    function handlesubmit(){
-        console.log(ProjectStartDate);
-        console.log(ProjectEndDate);
-    }
-
     function reloadtests(){
         axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_testcases?id=${props.id}`, {
             headers: {
@@ -300,7 +293,6 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     }
 
     function handleNewSubmit(){
-        console.log("in new submit");
         const formData = new FormData();
         formData.append("file",File!);
         formData.append("assignmentdesc", AssignmentDesc!);
@@ -320,8 +312,6 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         })
         .then(res => {
             var data = res.data;
-            console.log(data[0]);
-            console.log("/admin/project/edit/"+data);
             window.location.href ="/admin/project/edit/"+props.class_id+"/"+data;
         }).catch(function (error) {
             console.log(error);

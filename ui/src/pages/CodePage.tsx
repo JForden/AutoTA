@@ -87,19 +87,13 @@ const CodePage = () => {
         })
         .then(res => {    
             var x = res.data as Array<PylintObject>;
-            console.log("THIS IS X");
-            console.log("X:",x);
             if (Array.isArray(x)) {
                 x = x.sort((a, b) => (a.line < b.line ? -1 : 1));
-                console.log("X WAS ABLE TO CAST TO PYLINTOBJEC");
               } else {
                 console.error("x is not an array. Skipping the sorting step.");
               }
             //x = x.sort((a, b) => (a.line < b.line ? -1 : 1));
-            setPylint(x);    
-            console.log(pylint);
-            console.log("wack");
-            console.log(x);
+            setPylint(x);   
         })
         .catch(err => {
             console.log(err);
@@ -124,7 +118,6 @@ const CodePage = () => {
             
         }).then(res => {
             setResearchGroup(res.data);
-            console.log(res.data);
         }).catch(err => {
             console.log(err);
         });

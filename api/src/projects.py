@@ -238,7 +238,6 @@ def get_project(project_repo: ProjectRepository = Provide[Container.project_repo
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
     project_info=project_repo.get_project(request.args.get('id'))
-    print(project_info,flush=True)
     return make_response(json.dumps(project_info), HTTPStatus.OK)
     
 @projects_api.route('/get_testcases', methods=['GET'])

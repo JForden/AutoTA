@@ -91,7 +91,6 @@ const UploadPage = () => {
             setDaysSinceProjectStarted(parseInt(res.data[1]) + 1);
             setTbsTime(res.data[0]);
             setTimeUntilNextSubmission(res.data[2]);
-            console.log(res.data);
     })
     }
 
