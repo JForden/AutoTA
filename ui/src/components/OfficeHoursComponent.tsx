@@ -134,7 +134,6 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
     }
 
     handleQuestionSubmit() {
-      console.log("In handleQuestionSubmit");
       if (this.state.question === "") {
         window.alert("Please enter a question");
         return;
