@@ -159,6 +159,7 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                         <Icon color="blue" name='cogs' />
                                         <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                         <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
+                                        <Button onClick={() => this.handleDismiss(index)}>Dismiss</Button>
                                         <div 
                                                 style={{ 
                                                     resize: 'both',
@@ -195,6 +196,7 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                     <Icon color="orange" name='minus circle' />
                                     <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                     <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
+                                    <Button onClick={() => this.handleDismiss(index)}>Dismiss</Button>
                                     <div 
                                                 style={{ 
                                                     resize: 'both',
@@ -232,6 +234,7 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                     <Icon color="red" name='stop' />
                                     <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                     <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
+                                    <Button onClick={() => this.handleDismiss(index)}>Dismiss</Button>
                                     <div 
                                                 style={{ 
                                                     resize: 'both',
@@ -269,6 +272,7 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                     <Icon color="yellow" name='exclamation triangle' />
                                     <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                     <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
+                                    <Button onClick={() => this.handleDismiss(index)}>Dismiss</Button>
                                     <div 
                                                 style={{ 
                                                     resize: 'both',
@@ -304,6 +308,7 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                         }}>
                             <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                             <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
+                            <Button onClick={() => this.handleDismiss(index)}>Dismiss</Button>
                             <div 
                                                 style={{ 
                                                     resize: 'both',

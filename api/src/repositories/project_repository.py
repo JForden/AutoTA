@@ -108,9 +108,9 @@ class ProjectRepository():
         project_data = Projects.query.filter(Projects.Id == project_id).first()
         project ={}
         now=project_data.Start
-        start_string = now.strftime("%Y-%m-%d")
+        start_string = now.strftime("%Y-%m-%dT%H:%M:%S")
         now = project_data.End
-        end_string = now.strftime("%Y-%m-%d")
+        end_string = now.strftime("%Y-%m-%dT%H:%M:%S")
         project[project_data.Id] = [str(project_data.Name),str(start_string),str(end_string), str(project_data.Language)]
         return project
 

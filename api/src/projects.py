@@ -120,11 +120,9 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
     if 'name' in request.form:
         name = request.form['name']
     if 'start_date' in request.form:
-        start_date = datetime.strptime(request.form['start_date'], "%Y-%m-%d")
-        start_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
+        start_date = request.form['start_date'].replace("T", " ")
     if  'end_date' in request.form:
-        end_date = datetime.strptime(request.form['end_date'], "%Y-%m-%d")
-        end_date = end_date.strftime("%Y-%m-%d %H:%M:%S")
+        end_date = request.form['end_date'].replace("T", " ")
     if 'language' in request.form:
         language = request.form['language']
     if  'class_id'  in request.form:
@@ -184,11 +182,9 @@ def edit_project(project_repo: ProjectRepository = Provide[Container.project_rep
     if 'name' in request.form:
         name = request.form['name']
     if 'start_date' in request.form:
-        start_date = datetime.strptime(request.form['start_date'], "%Y-%m-%d")
-        start_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
+        start_date = request.form['start_date'].replace("T", " ")
     if  'end_date' in request.form:
-        end_date = datetime.strptime(request.form['end_date'], "%Y-%m-%d")
-        end_date = end_date.strftime("%Y-%m-%d %H:%M:%S")
+        end_date = request.form['end_date'].replace("T", " ")
     if 'language' in request.form:
         language = request.form['language']
     path = project_repo.get_project_path(pid)

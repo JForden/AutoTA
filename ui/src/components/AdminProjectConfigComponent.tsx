@@ -533,7 +533,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                     <Form.Field
                                         control={Input}
                                         label='Start Date'
-                                        type='date'
+                                        type='datetime-local'
                                         value={ProjectStartDate}
                                         onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectStartDate(ev.target.value)}
                                         style={{
@@ -546,7 +546,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                     <Form.Field
                                         control={Input}
                                         label='End Date'
-                                        type='date'
+                                        type='datetime-local'
                                         value={ProjectEndDate}
                                         onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setProjectEndDate(ev.target.value)}
                                         style={{
