@@ -111,7 +111,7 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
                         <Table.Cell style={{ width: '15%' }}>{this.state.projects[index].Start}</Table.Cell>
                         <Table.Cell style={{ width: '15%' }}>{this.state.projects[index].End}</Table.Cell>
                         <Table.Cell style={{ width: '15%' }}>{this.state.projects[index].TotalSubmissions}</Table.Cell>
-                        <Table.Cell style={{ width: '10%' }}><Button as={Link} to={"/admin/project/"+this.state.projects[index].Id}>View</Button></Table.Cell>
+                        <Table.Cell style={{ width: '10%' }}><Button color='orange' as={Link} to={"/admin/project/"+this.state.projects[index].Id}>View</Button></Table.Cell>
                         <Table.Cell style={{ width: '30%' }}>
                           <Button icon='edit' as={Link} to={"/admin/project/edit/" + this.state.classId + "/" + this.state.projects[index].Id}  />
                           <Button icon='refresh' disabled={true} onClick={() => this.handleRefresh(this.state.projects[index].Id)} />

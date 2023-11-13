@@ -200,14 +200,10 @@ class StudentList extends Component<StudentListProps, StudentListState> {
         }).catch( exc => {
             window.alert("Error exporting project grades, please fillout bug report form");
         })
-
-
         //Get project name
         //format CSV
         //
     }
-
-    
 
     render(){
         return (
