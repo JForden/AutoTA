@@ -198,7 +198,7 @@ class SubmissionRepository():
         submission = Submissions.query.filter(Submissions.Id == submission_id).first()
         return submission.Project
 
-    def submission_view_verification(self, submission_id, user_id) -> bool:
+    def submission_view_verification(self, user_id, submission_id) -> bool:
         submission = Submissions.query.filter(and_(Submissions.Id==submission_id,Submissions.User==user_id)).first()
         return submission is not None
         
