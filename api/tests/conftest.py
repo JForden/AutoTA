@@ -11,6 +11,7 @@ class TestContext:
 @pytest.fixture
 def testcontext():
     testapp = app.create_app()
+    testapp.debug = True
     testapp.config['TESTING'] = True
     testapp.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
 

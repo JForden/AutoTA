@@ -125,7 +125,7 @@ class AdminUploadPage extends Component<{}, UploadPageState> {
     }
 
     componentDidMount() {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/all_classes_and_ids`, {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/all`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }

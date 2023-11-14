@@ -24,15 +24,20 @@ class AdminComponent extends Component<{}, ClassState> {
         }
     }
     componentDidMount() {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/classes_by_Tid`, {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/all?filter=true`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
         })
         .then(res => {
-            const classes = Object.entries(res.data).map(([id, name]) => {
-                return { Id: parseInt(id), Name: name as string };
+            const classes = res.data.map((obj : {id: number, name: string}) => {
+                return { Id: obj.id, Name: obj.name };
             });
+
+            classes.sort(function(a : ClassObject, b : ClassObject) { 
+                return a.Name > b.Name;
+            });
+            
             this.setState({classes: classes});
         })
         .catch(err => {

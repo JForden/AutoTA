@@ -20,6 +20,9 @@ mosspy = "*"
 dependency-injector = "*"
 injector = "*"
 cryptography = "*"
+requests = "*"
+aiopyston = "*"
+openai = "*"
 
 [dev-packages]
 pytest = "*"

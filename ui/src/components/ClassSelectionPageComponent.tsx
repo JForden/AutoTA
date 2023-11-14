@@ -22,7 +22,6 @@ const ClassSelectionPageComponent = () => {
 
     const [studentClassNames,setstudentClassNames] = useState<Array<string>>([]);
     const [studentClassNumbers,setstudentClassNumbers] = useState<Array<string>>([]);
-    const [studentNewClassNumber, setStudentNewClassNumber] = useState<number>(0);
     const [addClass,setaddClass] = useState<boolean>(false);
     const [ClassId, setClassId] = useState<String>("");
     const [LectureId, setLectureId] = useState<String>("");
@@ -64,20 +63,16 @@ const ClassSelectionPageComponent = () => {
     };
 
     useEffect(() => {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/get_student_class_by_id`, {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/all?filter=true`, {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
         }).then(res => {
             setstudentClassNames([]);
             setstudentClassNumbers([]);
-            var data = res.data
-            Object.entries(data).map(([key, value]) => {
-                console.log(key);
-                console.log(value);
-                setstudentClassNumbers(oldArray => [...oldArray, key]);
-                setstudentClassNames(oldArray => [...oldArray, value as string]);
-
+            res.data.map((obj : {id: number, name: string}) => {
+                setstudentClassNumbers(oldArray => [...oldArray, obj.id + ""]);
+                setstudentClassNames(oldArray => [...oldArray, obj.name]);
             });
         });
     }, []);

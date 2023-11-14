@@ -86,7 +86,7 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
     }
 
     fetchClasses() {
-      axios.get(process.env.REACT_APP_BASE_API_URL + '/class/all_classes_and_ids_for_student', {
+      axios.get(process.env.REACT_APP_BASE_API_URL + '/class/all?filter=true', {
           headers: {
               'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
           }

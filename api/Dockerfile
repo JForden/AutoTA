@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.10-slim-bookworm
 
 # Set working directory
 WORKDIR /app
@@ -8,14 +8,6 @@ ENV TZ=America/Chicago
 
 # Copy the requirements file into the image
 COPY ./requirements.txt /app/requirements.txt
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    clang
-
-# Install Clang tools via pip
-RUN pip install clang-tools
-RUN clang-tools --install 13
 
 # Install Python dependencies
 RUN pip install -r requirements.txt \

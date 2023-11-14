@@ -27,14 +27,6 @@ class ClassRepository():
         classes = Classes.query.order_by(desc(Classes.Name)).all()
         return classes
     
-    def get_assigned_courses(self, user_id):
-        classes = Classes.query.all()
-        classDict = {}
-        for c in classes:
-            if str(user_id) in c.Tid:
-                classDict[c.Id] = c.Name
-        return classDict
-    
     def create_assignments(self, class_id: int, lab_id:int, user_id: int, lecture_id: int):
         """[Creates a new entry in the ClassAssignments table]"""
         class_assignment = ClassAssignments(ClassId=class_id,LabId=lab_id,UserId=user_id,LectureId=lecture_id)
@@ -42,12 +34,12 @@ class ClassRepository():
         db.session.commit()
 
         
-    def get_student_class_by_id(self, user_id: int) -> Dict[int, str]:
+    def get_assigned_student_classes(self, user_id: int) -> [Classes]:
         classList= ClassAssignments.query.filter(ClassAssignments.UserId==user_id).all()
-        classDict = {}
+        classes = []
         for item in classList:
-            classDict[item.ClassId] = Classes.query.filter(Classes.Id==item.ClassId).first().Name
-        return classDict
+            classes.append(Classes.query.filter(Classes.Id==item.ClassId))
+        return classes
 
 
     def get_labs(self) -> Dict[int, List[LabJson]]:
