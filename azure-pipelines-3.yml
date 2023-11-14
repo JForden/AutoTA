@@ -28,9 +28,6 @@ steps:
     cd api/
     pip install --user pipenv
     pipenv install
-  displayName: 'Install dependencies'
-
-- script: |
     pipenv install pytest pytest-azurepipelines
     pipenv run pytest
-  displayName: 'pytest'
+  displayName: 'Install dependencies'
