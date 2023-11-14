@@ -114,28 +114,46 @@ def level_counter(filepath):
     return passed_levels, total_tests
 
 
-def score_finder(project_repository: ProjectRepository, passed_levels, total_tests, project_id) -> str:
-    """
-    Calculates the total score of a project based on the levels passed and their individual scores.
+def score_finder(project_repository: ProjectRepository, passed_levels,total_tests,project_id) -> str:
 
-    Args:
-        project_repository (ProjectRepository): An instance of the ProjectRepository class.
-        passed_levels (dict): A dictionary containing the levels passed by the student and their corresponding scores.
-        total_tests (int): The total number of tests for the project.
-        project_id (int): The ID of the project.
-
-    Returns:
-        str: The total score of the project.
-    """
-    levels = project_repository.get_levels(project_id)
-    print(levels)
-    score_total = 0
+    levels=project_repository.get_levels(project_id)
+    score_total=0
     for item in levels:
-        individual_score = 0
+        #individual_score=levels[item]/total_tests[item]
+        individual_score=0
         if item in passed_levels:
-            individual_score = total_tests / len(levels[item])
-            score_total = score_total + (individual_score * passed_levels[item])
+            score_total=score_total+(individual_score*passed_levels[item])    
     return score_total
+
+def test_case_result_finder(filepath):
+    pass
+    results = {"Passed": [], "Failed": []}
+    with open(filepath, "r") as file:
+        for line in file:
+            temp={}
+            name=""
+            suite=""
+            if "not ok" in line:
+                while("..." not in line):
+                    if("name" in line):
+                        name=line.split(":")[1].strip()
+                    if("suite" in line):
+                        suite=line.split(":")[1].strip()
+                    line=next(file)
+                temp[name]=suite
+                results["Failed"].append(temp)
+            elif "ok" in line:
+                while("..." not in line):
+                    if("name" in line):
+                        name=line.split(":")[1].strip()
+                    if("suite" in line):
+                        suite=line.split(":")[1].strip()
+                    line=next(file)
+                temp[name]=suite
+                results["Passed"].append(temp)
+    print(results)
+    return results
+
 
 def parse_tap_file_for_levels(file_path: str, levels: List[Levels]) -> str:
     """
@@ -336,6 +354,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         tap_path = outputpath+"/"+username+".out"
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         status=output_pass_or_fail(tap_path)
+        TestCaseResults=test_case_result_finder(tap_path)
         if project.Language == "python":
             error_count=python_error_count(outputpath+"/"+username)
         else:
@@ -353,7 +372,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         total_submission_score = student_submission_score+pylint_score
 
         visible = submission_repo.check_timeout(user_id, project.Id)[0]
-        submissionId = submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score, visible)
+        submissionId = submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score, visible, TestCaseResults)
         
         # Step 4 assign point totals for the submission 
         current_level = submission_repo.get_current_level(project.Id,user_id)

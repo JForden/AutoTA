@@ -101,6 +101,7 @@ def get_testcase_errors(submission_repo: SubmissionRepository = Provide[Containe
 def lint_output(submission_repo: SubmissionRepository = Provide[Container.submission_repo], link_service: LinkService = Provide[Container.link_service],project_repo:  ProjectRepository = Provide[Container.project_repo]):
     submissionid = int(request.args.get("id"))
     class_id = int(request.args.get("class_id"))
+    project = project_repo.get_current_project_by_class(class_id)
     if submissionid != EMPTY and (current_user.Role == ADMIN_ROLE or submission_repo.submission_view_verification(current_user.Id,submissionid)):
         lint_file = submission_repo.get_pylint_path_by_submission_id(submissionid)
     else:

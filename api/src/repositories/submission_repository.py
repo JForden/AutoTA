@@ -82,7 +82,7 @@ class SubmissionRepository():
         submission = self.get_submission_by_user_and_projectid(user_id,project_id)
         return submission.PylintFilepath
     
-    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str, score: int, is_visible: int):
+    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str, score: int, is_visible: int, testcase_results: str):
         """Creates a new submission record in the database.
 
         Args:
@@ -101,7 +101,7 @@ class SubmissionRepository():
         Returns:
             int: The ID of the newly created submission record.
         """
-        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=score, visible=is_visible)
+        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=score, visible=is_visible, TestCaseResults=str(testcase_results))
         db.session.add(submission)
         db.session.commit()
         created_id = submission.Id  # Assuming the auto-incremented ID field is named "ID"
