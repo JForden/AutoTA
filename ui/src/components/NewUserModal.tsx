@@ -136,7 +136,7 @@ class NewUserModal extends Component<NewUserModalProps, NewUserModalState> {
     }
 
     componentDidMount() {
-        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/get_classes_labs`, {
+        axios.get(process.env.REACT_APP_BASE_API_URL + `/class/sections`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
             }
