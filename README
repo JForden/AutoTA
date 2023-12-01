@@ -28,6 +28,11 @@ The Development environment should now be up on localhost:3000
 Thanks,
 TA-Bot Team
 
+Adding a language to the running piston env:
+cli/index.js ppman install java --piston-url "http://127.0.0.1:9000"0.1:9000"
+
+cli/index.js run gcc hello.c --piston-url "http://127.0.0.1:9000"
+
 
 Pushing a new image:
 
