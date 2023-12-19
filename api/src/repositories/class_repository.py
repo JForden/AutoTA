@@ -38,7 +38,8 @@ class ClassRepository():
         classList= ClassAssignments.query.filter(ClassAssignments.UserId==user_id).all()
         classes = []
         for item in classList:
-            classes.append(Classes.query.filter(Classes.Id==item.ClassId))
+            class_item = Classes.query.filter(Classes.Id==item.ClassId).first()
+            classes.append(class_item)
         return classes
 
 

@@ -8,11 +8,13 @@ class ClassService:
         classes_list = []
         
         if current_user.Role == STUDENT_ROLE:
-            classes_list = class_repo.get_assigned_student_classes(current_user.Id)
+            classes = class_repo.get_assigned_student_classes(current_user.Id)
+            for c in classes:
+                classes_list.append({"name":c.Name, "id": c.Id}) 
         elif current_user.Role == ADMIN_ROLE:
             classes = class_repo.get_classes()
+            print("This is classes", classes,flush=True)
             for c in classes:
-                if str(current_user.Id) == str(c.Tid):
-                    classes_list.append(c)
-
+                if str(current_user.Id) in str(c.Tid):
+                    classes_list.append({"name":c.Name, "id": c.Id}) 
         return classes_list
