@@ -13,7 +13,6 @@ class ClassService:
                 classes_list.append({"name":c.Name, "id": c.Id}) 
         elif current_user.Role == ADMIN_ROLE:
             classes = class_repo.get_classes()
-            print("This is classes", classes,flush=True)
             for c in classes:
                 if str(current_user.Id) in str(c.Tid):
                     classes_list.append({"name":c.Name, "id": c.Id}) 
