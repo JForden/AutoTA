@@ -64,33 +64,32 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
         <div className="full-height">
             <Split className="split">
                 <div id="code-container" style={{ 
-                    border: '1px solid rgba(0, 0, 0, 0.8)', 
-                    borderRadius: '5px', 
-                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)', 
-                    backgroundColor: '#808080', // Changed to darker gray
-                    padding: '10px',
-                    fontFamily: 'Courier New, monospace',
-                    fontSize: '16px',
-                    lineHeight: '1.6',
-                    color: '#333',
-                    overflow: 'auto',
-                    marginTop: '20px'
-                }}>
-                    <SyntaxHighlighter 
-                        language="python" 
-                        style={{
-                            vs,
-                            border: '2px solid rgba(0, 0, 0, 1)', 
-                            borderRadius: '5px', 
-                            padding: '10px',
-                            color: '#ff0000' // Changed color to red
-                        }} 
-                        showLineNumbers={true} 
-                        lineNumberStyle={this.stylelinenumbers}
-                    >
-                        {this.props.codedata}
-                    </SyntaxHighlighter>
-                </div>
+                                    borderRadius: '5px', 
+                                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)', 
+                                    backgroundColor: '#f5f5f5', // Lighter gray
+                                    padding: '20px',
+                                    fontFamily: 'Courier New, monospace',
+                                    fontSize: '16px',
+                                    lineHeight: '1.6',
+                                    color: '#333',
+                                    overflow: 'auto',
+                                    marginTop: '20px',
+                                    border: 'none' // Remove border
+                                }}>
+                                    <SyntaxHighlighter 
+                                        language="python" 
+                                        style={{
+                                            vs,
+                                            borderRadius: '5px', 
+                                            padding: '10px',
+                                            color: '#ff0000' // Changed color to red
+                                        }} 
+                                        showLineNumbers={true} 
+                                        lineNumberStyle={this.stylelinenumbers}
+                                    >
+                                        {this.props.codedata}
+                                    </SyntaxHighlighter>
+                                </div>
                 <div id="lint-output">
                 {(() => {
                     const holder = [];
@@ -118,7 +117,6 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                         }}>
                                             <Icon color="black" name='pencil' />
                                             <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
-                                            <Button onClick={() => this.handleDismiss(index)}>Dismiss</Button>
                                         </div>
                                         <div>
                                             <p style={{ color: '#333', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
@@ -159,7 +157,6 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                         <Icon color="blue" name='cogs' />
                                         <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                         <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
-                                        <Button onClick={() => this.handleDismiss(index)}>Dismiss</Button>
                                         <div 
                                                 style={{ 
                                                     resize: 'both',
@@ -196,7 +193,6 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                     <Icon color="orange" name='minus circle' />
                                     <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                     <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
-                                    <Button onClick={() => this.handleDismiss(index)}>Dismiss</Button>
                                     <div 
                                                 style={{ 
                                                     resize: 'both',
@@ -234,7 +230,6 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                     <Icon color="red" name='stop' />
                                     <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                     <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
-                                    <Button onClick={() => this.handleDismiss(index)}>Dismiss</Button>
                                     <div 
                                                 style={{ 
                                                     resize: 'both',
@@ -272,7 +267,6 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                                     <Icon color="yellow" name='exclamation triangle' />
                                     <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                                     <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
-                                    <Button onClick={() => this.handleDismiss(index)}>Dismiss</Button>
                                     <div 
                                                 style={{ 
                                                     resize: 'both',
@@ -308,7 +302,6 @@ class CodeComponent extends Component<CodeComponentProps, CodeComponentState, {}
                         }}>
                             <strong style={{ fontSize: '1.2em', color: '#333', marginRight: '10px' }}>{error.line} : </strong>  
                             <p style={{ color: '#666', fontSize: '1.2em', fontWeight: 'bold' }}>{error.message}</p>
-                            <Button onClick={() => this.handleDismiss(index)}>Dismiss</Button>
                             <div 
                                                 style={{ 
                                                     resize: 'both',

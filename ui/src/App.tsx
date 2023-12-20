@@ -23,6 +23,7 @@ import AdminComponent from './components/AdminLandingComponent';
 import CreateAccountPage from './pages/AccountCreationPage';
 import TaLanding from './AdminPages/TaLanding';
 import OfficeHoursPage from './pages/OfficeHoursPage';
+import AdminAnalyticsComponent from './components/AdminAnalyticsComponent';
 
 class App extends Component {
 
@@ -62,6 +63,8 @@ class App extends Component {
                 <ProtectedRoute exact path= "/class/:class_id/codeHelp" component={CodeHelpPage} />
                 <ProtectedRoute exact path= "/class/OfficeHours" component={OfficeHoursPage} />
                 <ProtectedRoute exact path= "/user/createAccount" component={CreateAccountPage} />
+                <ProtectedRoute exact path= "/admin/AdminAnalytics/:id" component={AdminAnalyticsComponent} />
+
                 <Route>
                     <NotFoundComponent></NotFoundComponent>
                 </Route>

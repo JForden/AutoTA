@@ -1,5 +1,5 @@
 import { Component, useEffect, useState, useReducer } from 'react';
-import { Image, Grid, Tab, Dropdown, Form, Input, Radio, Button, Icon, TextArea, Label, Checkbox, Table, Header, Segment, Popup, DropdownProps, List } from 'semantic-ui-react'
+import { Image, Grid, Tab, Dropdown, Form, Input, Radio, Button, Icon, TextArea, Label, Checkbox, Table, Header, Segment, Popup, DropdownProps, List, Modal } from 'semantic-ui-react'
 import { Helmet } from 'react-helmet';
 import 'semantic-ui-css/semantic.min.css';
 import { DropdownItemProps, } from 'semantic-ui-react';
@@ -55,7 +55,8 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     const [AssignmentDesc, setDesc] = useState<File>();
     const [edit, setEdit] =useState<boolean>(false);
     const [selectedAddFile, setSelectedAddFile] = useState<File>();
-
+    const [modalOpen, setModalOpen] = useState<boolean>(false);
+    const [selectedTestCaseId, setSelectedTestCaseId] = useState<number>(-4);
    
     useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_testcases?id=${props.id}`, {
@@ -228,6 +229,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         }).catch(function (error) {
             console.log(error);
         });
+        setModalOpen(false);
     }
     function reloadtests(){
         axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_testcases?id=${props.id}`, {
@@ -341,6 +343,17 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         });
     }
 
+    function handleOpenModal(TestCaseId: number) {
+        setModalOpen(true);
+        setSelectedTestCaseId(TestCaseId);
+    }
+    function handleCloseModal() {
+        setModalOpen(false);
+        setSelectedTestCaseId(-4);
+    }
+
+    
+
 
 
     function handleFileChange(event : React.FormEvent) {
@@ -394,7 +407,6 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         
         const formData = new FormData();
         formData.append('id', test.id.toString());
-        
         formData.append('name', test.name);
         formData.append('levelName', test.levelname.toString());
         formData.append('project_id', props.id.toString());
@@ -410,6 +422,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
             window.alert("Please fill out all fields");
             return;
         } 
+        console.log(formData);
         axios.post(process.env.REACT_APP_BASE_API_URL + '/projects/add_or_update_testcase', formData, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
@@ -419,6 +432,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         }).catch(function (error) {
             console.log(error);
         });
+        setModalOpen(false);
     }
 
     function get_testcase_json() {
@@ -473,7 +487,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
             </div>
         )
     }
-    
+    const selectedTestCase = testcases.find(testcase => testcase.id === selectedTestCaseId);
     return (
     <div style={{ height: "80%" }}>
             <Tab
@@ -632,196 +646,206 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                             }
                         }, render: () => 
                         <Tab.Pane>
-                            <Form>
+                        <Form 
+                            style={{ 
+                                fontFamily: 'Arial, sans-serif', 
+                                backgroundColor: '#f4f4f4', 
+                                borderRadius: '10px', 
+                                padding: '20px', 
+                                boxShadow: '0px 0px 10px 2px rgba(0,0,0,0.1)' 
+                            }}
+                        >
+                            <h1 style={{ borderBottom: '1px solid #ddd', fontSize: '1.5em', padding: '15px' }}>Level 1:</h1>
                             {testcases.map(testcase => {
-                                return (
-                                    <Form.Group inline>
-                                        <Form.Field
-                                            control={Input}
-                                            label='Test Case Name'
-                                            placeholder="Please Enter Name"
-                                            value={testcase.name}
-                                            onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleNameChange(testcase.id, ev.target.value)}
-                                            style={{
-                                                borderRadius: '15px',
-                                                border: 'none',
-                                                boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
-                                                padding: '10px',
-                                                outline: 'none',
-                                                resize: 'both'
-                                            }}
+                                if (testcase.levelname === 'Level 1') {
+                                    return (
+                                        <Button 
+                                            content={testcase.name} 
+                                            onClick={() => handleOpenModal(testcase.id)}
+                                            style={{ marginRight: '10px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px' }}
                                         />
-                                        {/*<h5 style={{ height: '3.5vh' }}>Input:  </h5>*/}
-                                        <Form.Field
-                                            control={TextArea}
-                                            label='Input'
-                                            autoHeight
-                                            autoWidth
-                                            placeholder="Please Enter Input"
-                                            value={testcase.input}
-                                            onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleInputChange(testcase.id, ev.target.value)}
-                                            style={{
-                                                borderRadius: '15px',
-                                                border: 'none',
-                                                boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
-                                                padding: '10px',
-                                                resize: 'both'
-                                            }}
+                                    );
+                                }
+                            })}
+                            <Button 
+                                color='green' 
+                                icon='plus square' 
+                                onClick={() => handleOpenModal(-1)} 
+                                style={{ backgroundColor: '#28a745', color: 'white', borderRadius: '5px' }}
+                            />
+
+                            <h1 style={{ borderBottom: '1px solid #ddd', fontSize: '1.5em', padding: '15px' }}>Level 2:</h1>
+                            {testcases.map(testcase => {
+                                if (testcase.levelname === 'Level 2') {
+                                    return (
+                                        <Button 
+                                            content={testcase.name} 
+                                            onClick={() => handleOpenModal(testcase.id)}
+                                            style={{ marginRight: '10px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px' }}
                                         />
-                                        <Form.Field
-                                                control={TextArea}
-                                                label='Output'
-                                                rows={1}
-                                                placeholder="Add test case to see output"
-                                                autoHeight
-                                                autoWidth
-                                                value={testcase.output}
-                                                style={
-                                                        testcase.output === "" 
-                                                        ? {
-                                                                backgroundColor: "lightgray",
-                                                                borderRadius: '15px',
-                                                                border: 'none',
-                                                                boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
-                                                                padding: '10px',
-                                                                resize: 'both'
-                                                            }
-                                                        : {
-                                                                borderRadius: '15px',
-                                                                border: 'none',
-                                                                boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
-                                                                padding: '10px',
-                                                                resize: 'both'
-                                                            }
-                                                }
-                                                readOnly={true}
-                                        >
-                                        </Form.Field>
-                                        <Form.Field
-                                            control={Input}
-                                            label='Description'
-                                            placeholder="Please Enter Description"
-                                            value={testcase.description}
-                                            onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleDescriptionChange(testcase.id, ev.target.value)}
-                                            style={{
-                                                borderRadius: '15px',
-                                                border: 'none',
-                                                boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
-                                                padding: '10px',
-                                                resize: 'both'
-                                            }}
+                                    );
+                                }
+                            })}
+                            <Button 
+                                color='green' 
+                                icon='plus square' 
+                                onClick={() => handleOpenModal(-1)} 
+                                style={{ backgroundColor: '#28a745', color: 'white', borderRadius: '5px' }}
+                            />
+
+                            <h1 style={{ borderBottom: '1px solid #ddd', fontSize: '1.5em', padding: '15px' }}>Level 3:</h1>
+                            {testcases.map(testcase => {
+                                if (testcase.levelname === 'Level 3') {
+                                    return (
+                                        <Button 
+                                            content={testcase.name} 
+                                            onClick={() => handleOpenModal(testcase.id)}
+                                            style={{ marginRight: '10px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px' }}
                                         />
-                                        <Form.Field
-                                            control={Checkbox}
-                                            name={testcase.id + "RadioGroup4"}
+                                    );
+                                }
+                            })}
+                            <Button 
+                                color='green' 
+                                icon='plus square' 
+                                onClick={() => handleOpenModal(-1)} 
+                                style={{ backgroundColor: '#28a745', color: 'white', borderRadius: '5px' }}
+                            />
+                            <br />
+                            <br />
+                        </Form>
+                            <Form>
+                                
+                            <Modal
+                                open={modalOpen}
+                                onClose={handleCloseModal}
+                                size="small"
+                                style={{
+                                    fontFamily: 'Arial, sans-serif',
+                                    backgroundColor: '#f4f4f4',
+                                    boxShadow: '0px 0px 10px 2px rgba(0,0,0,0.1)',
+                                    borderRadius: '10px',
+                                }}
+                            >
+                                <Modal.Header style={{ borderBottom: '1px solid #ddd', fontSize: '1.5em', padding: '15px' }}>Test Case Information</Modal.Header>
+                                <Modal.Content style={{ padding: '20px' }}>
+                                    <Form>
+                                        <Form.Input 
+                                            label='Test Case Name' 
+                                            value={selectedTestCase ? selectedTestCase.name : ''} 
+                                            onChange={(e) => handleNameChange(selectedTestCaseId, e.target.value)}
+                                        />
+                                        <Form.TextArea 
+                                            label='Input' 
+                                            value={selectedTestCase ? selectedTestCase.input : ''} 
+                                            onChange={(e) => handleInputChange(selectedTestCaseId, e.target.value)}
+                                        />
+                                        <Form.TextArea 
+                                            label='Output' 
+                                            value={selectedTestCase ? selectedTestCase.output : ''}
+                                            onChange={(e) => handleOutputChange(selectedTestCaseId, e.target.value)}
+                                        />
+                                        <Form.TextArea 
+                                            label='Description' 
+                                            value={selectedTestCase ? selectedTestCase.description : ''}
+                                            onChange={(e) => handleDescriptionChange(selectedTestCaseId, e.target.value)}
+                                        />
+                                        <Form.Checkbox 
                                             label='Hidden'
-                                            checked={testcase.isHidden}
-                                            onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleHiddenChange(testcase.id, true)}
-                                            style={{
-                                                padding: '10px',
-                                                borderRadius: '15px',
-                                                border: '1px solid lightgray',
-                                                margin: '5px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}
+                                            checked={selectedTestCase ? selectedTestCase.isHidden : false} 
+                                            onChange={(e) => handleHiddenChange(selectedTestCaseId, true)}
                                         />
                                         <Form.Group inline>
                                             <Form.Field
                                                 control={Radio}
                                                 label='Level 1'
-                                                name={testcase.id + "RadioGroup"}
+                                                name={selectedTestCaseId + "RadioGroup"}
                                                 value='Level 1'
-                                                checked={testcase.levelname === "Level 1"}
-                                                onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(testcase.id, 'Level 1')}
-                                                style={{
-                                                    padding: '10px',
-                                                    borderRadius: '15px',
-                                                    border: '1px solid lightgray',
-                                                    margin: '5px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    width: '100px'
-                                                }}
+                                                checked={selectedTestCase ? selectedTestCase.levelname === "Level 1" : false}
+                                                onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(selectedTestCaseId, 'Level 1')}
                                             />
                                             <Form.Field
                                                 control={Radio}
                                                 label='Level 2'
-                                                name={testcase.id + "RadioGroup2"}
+                                                name={selectedTestCaseId + "RadioGroup2"}
                                                 value='Level 2'
-                                                checked={testcase.levelname === 'Level 2'}
-                                                onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(testcase.id, 'Level 2')}
-                                                style={{
-                                                    padding: '10px',
-                                                    borderRadius: '15px',
-                                                    border: '1px solid lightgray',
-                                                    margin: '5px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    width: '100px'
-                                                }}
+                                                checked={selectedTestCase ? selectedTestCase.levelname === 'Level 2' : false}
+                                                onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(selectedTestCaseId, 'Level 2')}
                                             />
                                             <Form.Field
                                                 control={Radio}
                                                 label='Level 3'
-                                                name={testcase.id + "RadioGroup3"}
+                                                name={selectedTestCaseId + "RadioGroup3"}
                                                 value='Level 3'
-                                                checked={testcase.levelname === 'Level 3'}
-                                                onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(testcase.id, 'Level 3')}
-                                                style={{
-                                                    padding: '10px',
-                                                    borderRadius: '15px',
-                                                    border: '1px solid lightgray',
-                                                    margin: '5px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    width: '100px'
-                                                }}
+                                                checked={selectedTestCase ? selectedTestCase.levelname === 'Level 3' : false}
+                                                onChange={(ev: React.ChangeEvent<HTMLInputElement>) => handleLevelChange(selectedTestCaseId, 'Level 3')}
                                             />
                                         </Form.Group>
-                                        <Popup
-                                           content={
-                                            <Form>
-                                              <Form.Field>
-                                                <label>The filename must align with the expected input for the solution code.</label>
-                                                <input type="file" required onChange={handleAdditionalFileChange} />
-                                              </Form.Field>
-                                            </Form>
-                                          }
-                                            on='click'
-                                            pinned
-                                            trigger={<Button icon='file' content="Select optional additional file" />}
-                                        />
-                                        <Form.Button onClick={() => buttonhandleClick(testcase.id)}>Submit testcase</Form.Button>
-                                        <Form.Button 
-                                            onClick={() => buttonhandleTrashClick(testcase.id)}
-                                            style={{
-                                                backgroundColor: '#ff4d4f', // Change this to your preferred color
-                                                color: 'white',
-                                                borderRadius: '5px',
-                                                padding: '10px 20px',
-                                                border: 'none',
-                                                cursor: 'pointer',
-                                                fontSize: '1rem',
-                                                transition: 'all 0.3s ease'
-                                            }}
-                                            onMouseOver={(e: { currentTarget: { style: { backgroundColor: string; }; }; }) => {
-                                                e.currentTarget.style.backgroundColor = '#cc0000'; // Change this to your preferred hover color
-                                            }}
-                                            onMouseOut={(e: { currentTarget: { style: { backgroundColor: string; }; }; }) => {
-                                                e.currentTarget.style.backgroundColor = '#ff4d4f'; // Change this back to the original color
-                                            }}
-                                        >
-                                            Remove Test Case
-                                        </Form.Button>
-                                    </Form.Group>
-                                );  
-                            })}
+                                        <Form.Field>
+                                            <Popup
+                                                content={
+                                                    <Form>
+                                                        <Form.Field>
+                                                            <label>The filename must align with the expected input for the solution code.</label>
+                                                            <input type="file" required onChange={handleAdditionalFileChange} />
+                                                        </Form.Field>
+                                                    </Form>
+                                                }
+                                                on='click'
+                                                pinned
+                                                trigger={<Button icon='file' content="Select optional additional file" />}
+                                            />
+                                        </Form.Field>
+                                        <Form.Field style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <Form.Button 
+                                                color='green' 
+                                                onClick={() => buttonhandleClick(selectedTestCaseId)}
+                                                style={{
+                                                    backgroundColor: '#34D399', // Tailwind CSS Green 400
+                                                    color: 'white',
+                                                    borderRadius: '8px', // Increased border radius
+                                                    padding: '10px 20px',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    fontSize: '1rem',
+                                                    transition: 'all 0.3s ease',
+                                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' // Added box shadow
+                                                }}
+                                            >
+                                                {selectedTestCaseId === -1 ? 'Submit new testcase' : 'Submit changes'}
+                                            </Form.Button>
+                                            {selectedTestCaseId !== -1 && (
+                                                <Form.Button 
+                                                    onClick={() => buttonhandleTrashClick(selectedTestCaseId)}
+                                                    style={{
+                                                        backgroundColor: '#EF4444', // Tailwind CSS Red 500
+                                                        color: 'white',
+                                                        borderRadius: '8px', // Increased border radius
+                                                        padding: '10px 20px',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        fontSize: '1rem',
+                                                        transition: 'all 0.3s ease',
+                                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', // Added box shadow
+                                                        marginLeft: '10px' // Added margin to separate the buttons
+                                                    }}
+                                                    onMouseOver={(e: { currentTarget: { style: { backgroundColor: string; }; }; }) => {
+                                                        e.currentTarget.style.backgroundColor = '#DC2626'; // Tailwind CSS Red 600
+                                                    }}
+                                                    onMouseOut={(e: { currentTarget: { style: { backgroundColor: string; }; }; }) => {
+                                                        e.currentTarget.style.backgroundColor = '#EF4444'; // Tailwind CSS Red 500
+                                                    }}
+                                                >
+                                                    Remove Test Case
+                                                </Form.Button>
+                                            )}
+                                        </Form.Field>
+
+                                    </Form>
+                                </Modal.Content>
+                            </Modal>
                             </Form>
+                            {/*
                             <Segment stacked style={{ padding: '20px', borderRadius: '10px', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)' }}>
                                 <h1 style={{ marginBottom: '20px' }}>Upload Test Cases</h1>
                                 <Button as="label" htmlFor="file" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
@@ -830,10 +854,11 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                 </Button>
                             </Segment>
                             <Button.Group>
-                            <Form.Button onClick={handleJsonSubmit}>{SubmitJSON}</Form.Button>
-                            <div style={{ marginLeft: '10px', marginRight: '10px' }}></div>
-                            <Form.Button color={'green'} onClick={get_testcase_json}>{getJSON}</Form.Button>
+                                <Form.Button onClick={handleJsonSubmit}>{SubmitJSON}</Form.Button>
+                                <div style={{ marginLeft: '10px', marginRight: '10px' }}></div>
+                                <Form.Button color={'orange'} onClick={get_testcase_json}>{getJSON}</Form.Button>
                             </Button.Group>
+                            */}
                             <Grid style={{ marginTop: '20px' }}>
                                 <Grid.Row>
                                     <Grid.Column width={8}>

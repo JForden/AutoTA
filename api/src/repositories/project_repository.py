@@ -139,9 +139,7 @@ class ProjectRepository():
         return testcase_info
     
     def add_or_update_testcase(self, project_id:int, testcase_id:int, level_name:str, name:str, description:str, input_data:str, output:str, is_hidden:bool, additional_file_path:str):
-        
         project = Projects.query.filter(Projects.Id == project_id).first()
-        language = project.Language
         filepath = project.solutionpath
         #TODO: see if we can get away from stdout
         result = subprocess.run(["python","../ta-bot/tabot.py", "ADMIN", str(-1), project.Language, input_data, filepath, additional_file_path], stdout=subprocess.PIPE, text=True)
@@ -161,7 +159,7 @@ class ProjectRepository():
             testcase.LevelId = level_id
             testcase.Name = name
             testcase.Description = description
-            testcase.Input = input_data
+            testcase.input = input_data
             testcase.Output = output
             testcase.IsHidden = is_hidden
             if additional_file_path != "":
