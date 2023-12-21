@@ -83,5 +83,18 @@ class ClassRepository():
         db.session.add(class_assignment)
         db.session.commit()
         return "ok"
+    def get_studentcount(self, class_id: int) -> int:
+        """
+        Retrieves the count of students assigned to a specific class.
+
+        :param class_id: The unique identifier of the class.
+        :return: The count of students assigned to the class.
+        """
+        # Query the ClassAssignments table where the ClassId matches the provided class_id
+        # The count() function is used to get the number of records that match the filter
+        student_count = ClassAssignments.query.filter(ClassAssignments.ClassId == class_id).count()
+
+        # Return the count of students
+        return student_count
 
 

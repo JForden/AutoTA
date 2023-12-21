@@ -215,6 +215,8 @@ class UserRepository():
         query = Users.query.filter(Users.Id==user_id).one()
         StudentNumber = query.StudentNumber
         return StudentNumber
+    
+    
 
 
 

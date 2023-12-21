@@ -395,6 +395,9 @@ class SubmissionRepository():
         return formatted_time_remaining 
     def get_number_of_questions_asked(self, user_id, project_id):
         number_of_questions = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == int(project_id))).count()
+    def get_unique_submissions(self, project_id):
+        unique_submissions = Submissions.query.filter(Submissions.Project == project_id).distinct(Submissions.User).count()
+        return unique_submissions
 
 
 

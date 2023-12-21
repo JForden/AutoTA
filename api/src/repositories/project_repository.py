@@ -231,6 +231,7 @@ class ProjectRepository():
         project = Projects.query.filter(Projects.Id == project_id).first()
         class_obj = Classes.query.filter(Classes.Id ==project.ClassId).first()
         return class_obj.Name
+    #TODO: Move this call to class repository
     def get_class_id_by_name(self, class_name):
         class_id = Classes.query.filter(Classes.Name==class_name).first().Id
         return class_id

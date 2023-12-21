@@ -9,6 +9,7 @@ import zipfile
 import stat
 import sys
 from subprocess import Popen
+from src.repositories.class_repository import ClassRepository
 from src.repositories.user_repository import UserRepository
 from src.repositories.submission_repository import SubmissionRepository
 from flask import Blueprint, Response, send_file
@@ -417,4 +418,35 @@ def getAssignmentDescription(project_repo: ProjectRepository = Provide[Container
         content_type='application/pdf',
         headers={'Content-Disposition': 'inline; filename=assignment_description.pdf'}
     )
+
+
+@projects_api.route('/getUniqueSubmissions', methods=['GET'])
+@jwt_required()
+@inject
+def getUniqueSubmissions(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], class_repo: ClassRepository = Provide[Container.class_repo]):
+    """
+    Endpoint to fetch unique submissions for a specific project.
+    The returned object is a list where the first element is the number of total unique submissions 
+    and the second element is the total number of students in the course.
+
+    :param submission_repo: SubmissionRepository instance provided by Dependency Injector
+    :return: JSON response containing the list of unique submissions and HTTPStatus.OK
+    """
+    # Extract 'project_id' from the request arguments
+    project_id = request.args.get('id')
+
+
     
+
+    # Fetch unique submissions for the project from the repository
+
+    submissions = submission_repo.get_unique_submissions(project_id)
+    class_Name = project_repo.get_className_by_projectId(project_id)
+    class_Id = project_repo.get_class_id_by_name(class_Name)
+    total_students = class_repo.get_studentcount(class_Id)
+
+
+    # Append the total number of students to the list of submissions
+    holder=[submissions, total_students]
+    # Return the submissions as a JSON response with HTTP status code 200
+    return make_response(json.dumps({"data": holder}), HTTPStatus.OK)
