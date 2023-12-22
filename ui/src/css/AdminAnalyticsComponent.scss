@@ -1,0 +1,100 @@
+.analytics-container {
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f7f6; /* Soft background color */
+}
+
+.analytics-card {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.05);
+    transition: 0.3s;
+    border-radius: 10px; /* Smoother borders */
+    border: 1px solid #e6e9ed; /* Subtle border */
+    background-color: #ffffff; /* Clean white background */
+}
+
+.analytics-card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.1);
+}
+
+.analytics-progress {
+    margin-top: 20px;
+    border-radius: 10px;
+    background-color: #eff3f4; /* Light progress bar background */
+}
+
+.analytics-table {
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%; /* Full width for responsiveness */
+}
+
+.analytics-table th, .analytics-table td {
+    border-bottom: 1px solid #e6e9ed; /* Subtle borders for cells */
+    padding: 12px 15px; /* Comfortable padding */
+    text-align: left; /* Align text to the left */
+    font-size: 0.9em; /* Slightly smaller font size */
+}
+
+.analytics-table th {
+    background-color: #f9fafb; /* Light header background */
+    color: #333333; /* Darker text for contrast */
+    font-weight: 600; /* Bold header text */
+}
+
+.analytics-table tr:nth-child(odd) {
+    background-color: #ffffff; /* Alternate row coloring */
+}
+
+.analytics-table tr:hover {
+    background-color: #f2f4f5; /* Hover effect for rows */
+}
+
+/* Bar Chart Styles */
+.analytics-bar-chart {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.05);
+    border-radius: 10px;
+    background-color: #ffffff;
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #e6e9ed;
+}
+
+/* Cartesian Grid styles within the Bar Chart */
+.analytics-bar-chart .recharts-cartesian-grid {
+    stroke-dasharray: 3; /* Dotted grid lines for a softer look */
+    stroke: #e6e9ed; /* Light color for the grid lines */
+}
+
+/* XAxis and YAxis styles */
+.analytics-bar-chart .recharts-x-axis line,
+.analytics-bar-chart .recharts-y-axis line {
+    stroke: #e6e9ed;
+}
+
+.analytics-bar-chart .recharts-x-axis text,
+.analytics-bar-chart .recharts-y-axis text {
+    font-size: 0.85em; /* Slightly smaller font for axis labels */
+    fill: #333333; /* Dark text for better readability */
+}
+
+/* Tooltip styles */
+.analytics-bar-chart .recharts-tooltip-wrapper {
+    background-color: #ffffff; /* Tooltip background */
+    border-radius: 8px; /* Rounded corners for tooltip */
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    border: 1px solid #e6e9ed;
+    padding: 10px;
+}
+
+/* Bar styles */
+.analytics-bar-chart .recharts-bar-rectangle {
+    fill-opacity: 0.85; /* Slightly transparent bars for a modern look */
+}
+
+/* Hover effect on bars */
+.analytics-bar-chart .recharts-bar-rectangle:hover {
+    fill-opacity: 1; /* Solid color on hover */
+}

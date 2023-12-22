@@ -3,8 +3,9 @@ import 'semantic-ui-css/semantic.min.css'
 import '../css/TestResultComponent.scss';
 import 'semantic-ui-css/semantic.min.css';
 import axios from 'axios';
-import { Table, Label, Loader, Dropdown, DropdownItemProps, DropdownItem, DropdownProps, Input, Button } from 'semantic-ui-react';
+import { Table, Label, Loader, Dropdown, DropdownItemProps, DropdownItem, DropdownProps, Input, Button, Icon } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import { parse } from 'path';
 
 interface StudentListProps {
     project_id: number
@@ -25,6 +26,7 @@ class Row {
         this.classId= "";
         this.grade=0;
         this.StudentNumber=0;
+        this.IsLocked=false;
     }
     
     id: number;
@@ -40,6 +42,7 @@ class Row {
     classId: string;
     grade: number;
     StudentNumber: number;
+    IsLocked: boolean;
 }
 
 interface StudentListState {
@@ -60,6 +63,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
         }
         this.handleClick = this.handleClick.bind(this);
         this.handleFilterChange = this.handleFilterChange.bind(this);
+        this.handleUnlockClick = this.handleUnlockClick.bind(this);
     }
 
     componentDidMount() {
@@ -92,7 +96,9 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                 row.classId = student_output_data[8];
                 row.grade = parseInt(student_output_data[9]);
                 row.StudentNumber = parseInt(student_output_data[10]);
+                row.IsLocked = Boolean(student_output_data[11]);
                 rows.push(row);    
+
                 
                 return row;
             });
@@ -150,6 +156,19 @@ class StudentList extends Component<StudentListProps, StudentListState> {
           });
         }
     };
+
+    handleUnlockClick = (UserId: number) => {
+        console.log(UserId);
+        axios.post(process.env.REACT_APP_BASE_API_URL + `/projects/unlockStudentAccount`, { UserId: UserId }, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
+            }
+          })
+        .then(res => {
+            window.location.reload();
+        })
+    };
+
     submitgrades(){
         //loop through rows
         this.setState({ isLoading: false });
@@ -272,7 +291,14 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                             if(row.subid === -1 && row.hidden == false){
                                 return (
                                     <Table.Row>
-                                        <Table.Cell>{row.Fname + " " + row.Lname}</Table.Cell>
+                                        <Table.Cell>
+                                            {row.Fname + " " + row.Lname}
+                                            {row.IsLocked === true && (
+                                                <Button color='blue' icon size='mini' style={{ marginLeft: '10px' }} onClick={() => this.handleUnlockClick(row.id)}>
+                                                    <Icon name='unlock' />
+                                                </Button>
+                                            )}
+                                        </Table.Cell>
                                         <Table.Cell className="table-width">{row.lecture_number}</Table.Cell>
                                         <Table.Cell>N/A</Table.Cell>
                                         <Table.Cell>N/A</Table.Cell>
@@ -297,7 +323,14 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                             }
                             return (
                                 <Table.Row>
-                                    <Table.Cell>{row.Fname + " " + row.Lname}</Table.Cell>
+                                    <Table.Cell>
+                                            {row.Fname + " " + row.Lname}
+                                            {row.IsLocked === true && (
+                                                <Button color='blue' icon size='mini' style={{ marginLeft: '10px' }} onClick={() => this.handleUnlockClick(row.id)}>
+                                                    <Icon name='unlock' />
+                                                </Button>
+                                            )}
+                                        </Table.Cell>
                                     <Table.Cell>{row.lecture_number}</Table.Cell>
                                     <Table.Cell>{row.numberOfSubmissions}</Table.Cell>
                                     <Table.Cell>{row.date}</Table.Cell>

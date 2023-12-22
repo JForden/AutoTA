@@ -15,6 +15,7 @@ from src.api_utils import get_value_or_empty
 from datetime import datetime
 from dependency_injector.wiring import inject, Provide
 from container import Container
+from src.constants import ADMIN_ROLE
 
 auth_api = Blueprint('auth_api', __name__)
 
@@ -172,6 +173,5 @@ def add_class(auth_service: PAMAuthenticationService = Provide[Container.auth_se
         'role': 0
     }
     return make_response(message, HTTPStatus.OK)
-
 
 

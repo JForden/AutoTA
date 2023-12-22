@@ -215,6 +215,23 @@ class UserRepository():
         query = Users.query.filter(Users.Id==user_id).one()
         StudentNumber = query.StudentNumber
         return StudentNumber
+    def unlock_student_account(self, user_id):
+        """
+        Unlocks the account of a student with the given user_id. A user's account can be locked if they fail to login 5 times in a row.
+
+        Args:
+        - user_id: int, the id of the user whose account is to be unlocked.
+
+        Returns:
+        - None
+        """
+        query = Users.query.filter(Users.Id==user_id).one()
+        query.IsLocked = 0
+        db.session.commit()
+        query = LoginAttempts.query.filter(LoginAttempts.Username==query.Username).all()
+        for attempt in query:
+            db.session.delete(attempt)
+        db.session.commit()
     
     
 

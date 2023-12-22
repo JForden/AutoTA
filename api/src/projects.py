@@ -1,3 +1,5 @@
+import ast
+from collections import defaultdict
 from io import BytesIO
 import json
 import os
@@ -27,6 +29,7 @@ from flask import request
 from dependency_injector.wiring import inject, Provide
 from container import Container
 from datetime import datetime
+from src.services.link_service import LinkService
 
 projects_api = Blueprint('projects_api', __name__)
 
@@ -387,7 +390,6 @@ def reset_project(project_repo: ProjectRepository = Provide[Container.project_re
 @jwt_required()
 @inject
 def delete_project(project_repo: ProjectRepository = Provide[Container.project_repo], submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
-    print(current_user.Role, flush=True)
     if current_user.Role != ADMIN_ROLE:
         message = {
             'message': 'Access Denied'
@@ -420,10 +422,16 @@ def getAssignmentDescription(project_repo: ProjectRepository = Provide[Container
     )
 
 
-@projects_api.route('/getUniqueSubmissions', methods=['GET'])
+#TODO: Complete this call
+@projects_api.route('/getSubmissionSummary', methods=['GET'])
 @jwt_required()
 @inject
-def getUniqueSubmissions(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], class_repo: ClassRepository = Provide[Container.class_repo]):
+def getSubmissionSummary(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], class_repo: ClassRepository = Provide[Container.class_repo], user_repo: UserRepository = Provide[Container.user_repo], link_service: LinkService = Provide[Container.link_service]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
     """
     Endpoint to fetch unique submissions for a specific project.
     The returned object is a list where the first element is the number of total unique submissions 
@@ -436,17 +444,65 @@ def getUniqueSubmissions(submission_repo: SubmissionRepository = Provide[Contain
     project_id = request.args.get('id')
 
 
-    
+    # Get list of users in the course
 
-    # Fetch unique submissions for the project from the repository
-
-    submissions = submission_repo.get_unique_submissions(project_id)
     class_Name = project_repo.get_className_by_projectId(project_id)
     class_Id = project_repo.get_class_id_by_name(class_Name)
+    users=user_repo.get_all_users_by_cid(class_Id)
+    user_ids = []
+    for user in users:
+        user_ids.append(user.Id)
+    # Fetch unique submissions for the project from the repository
+    user_submissions = submission_repo.get_most_recent_submission_by_project(project_id, user_ids)
     total_students = class_repo.get_studentcount(class_Id)
+    holder = [len(user_submissions), total_students]
 
 
-    # Append the total number of students to the list of submissions
-    holder=[submissions, total_students]
-    # Return the submissions as a JSON response with HTTP status code 200
-    return make_response(json.dumps({"data": holder}), HTTPStatus.OK)
+    testcase_results = {"Passed": {}, "Failed": {}}
+    testcase_links = {}
+    linting_results = {}
+
+    # Get the Linting results for each submission, aggregate them, and return them as a dictionary with the key being the linting error and the value being the number of times it occurred
+    for user in user_submissions:
+        user = user_submissions[user]
+        linting_results_user = ast.literal_eval(user.LintingResults)
+        for key in linting_results_user:
+            if key not in linting_results:
+                linting_results[key] = linting_results_user[key]
+            else:
+                linting_results[key] += linting_results_user[key]
+    # Get the Testcase Results for each submission, aggregate them, with the key being "passed" or "failed" and the value being a dictionary with the key being the testcase name and the value being the number of times it occurred
+        testcase_results_user = ast.literal_eval(user.TestCaseResults)
+        for status in ['Passed', 'Failed']:
+            if status in testcase_results_user:
+                for test_case in testcase_results_user[status]:
+                    for test_name, level in test_case.items():
+                        if test_name not in testcase_results[status]:
+                            testcase_results[status][test_name] = 1
+                        else:
+                            testcase_results[status][test_name] += 1
+    
+    # Get the number of submissions per day, plus the times of each submission
+
+    submission_days, submission_times =  submission_repo.get_all_submission_times(project_id)
+    submission_days = dict(sorted(submission_days.items()))
+    submission_days_list = [{"name": f"Day {day}", "submissions": count} for day, count in submission_days.items()]
+
+    return make_response(json.dumps({"LintData":linting_results, "UniqueSubmissions": holder, "TestCaseResults": testcase_results, "SubmissionDays": submission_days_list, "SubmissionTimes": submission_times}), HTTPStatus.OK)
+
+@projects_api.route('/unlockStudentAccount', methods=['POST'])
+@jwt_required()
+@inject
+def unlockStudentAccount(user_repo: UserRepository = Provide[Container.user_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'You do not have permission to do this!'
+        }
+        return make_response(message, HTTPStatus.FORBIDDEN)
+    input_json = request.get_json()
+    user_Id = input_json['UserId']
+    user_repo.unlock_student_account(user_Id)
+    message = {
+        'message': 'Success'
+    }
+    return make_response(message, HTTPStatus.OK)

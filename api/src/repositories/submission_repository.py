@@ -1,3 +1,4 @@
+from collections import defaultdict
 import openai
 from src.repositories.database import db
 from .models import GPTLogs, StudentQuestions, StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
@@ -82,7 +83,7 @@ class SubmissionRepository():
         submission = self.get_submission_by_user_and_projectid(user_id,project_id)
         return submission.PylintFilepath
     
-    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str, score: int, is_visible: int, testcase_results: str):
+    def create_submission(self, user_id: int, output: str, codepath: str, pylintpath: str, time: str, project_id: int,status: bool, errorcount: int, level: str, score: int, is_visible: int, testcase_results: str, linting_results: str):
         """Creates a new submission record in the database.
 
         Args:
@@ -101,7 +102,7 @@ class SubmissionRepository():
         Returns:
             int: The ID of the newly created submission record.
         """
-        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=score, visible=is_visible, TestCaseResults=str(testcase_results))
+        submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=score, visible=is_visible, TestCaseResults=str(testcase_results), LintingResults=str(linting_results))
         db.session.add(submission)
         db.session.commit()
         created_id = submission.Id  # Assuming the auto-incremented ID field is named "ID"
@@ -395,9 +396,39 @@ class SubmissionRepository():
         return formatted_time_remaining 
     def get_number_of_questions_asked(self, user_id, project_id):
         number_of_questions = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == int(project_id))).count()
-    def get_unique_submissions(self, project_id):
-        unique_submissions = Submissions.query.filter(Submissions.Project == project_id).distinct(Submissions.User).count()
-        return unique_submissions
+        return number_of_questions
 
+    def get_all_submission_times(self, project_id):
+        project = Projects.query.filter(Projects.Id == project_id).first()
+        project_start_date = project.Start
+
+        submissions = Submissions.query.filter(Submissions.Project == project_id).all()
+        submission_days = {}
+        submission_times = []
+        submission_times_dict = defaultdict(lambda: defaultdict(int))
+
+        for submission in submissions:
+            # Split this into day and time, for days make it the number of days since the start of the project
+            submission_time = submission.Time
+            days_since_start = (submission_time.date() - project_start_date.date()).days
+            time_of_day = submission_time.time()
+            if days_since_start < 0:
+                continue
+            if days_since_start not in submission_days:
+                submission_days[days_since_start] = 1
+            else:
+                submission_days[days_since_start] += 1
+            
+            hour = time_of_day.hour
+            submission_times_dict[days_since_start][hour] += 1
+            
+        submission_times = [
+            {"hour": f"{hour if hour != 0 else 12}{('a' if hour < 12 else 'p') if hour != 24 else 'a'}", "index": day, "value": count}
+            for day, hours in submission_times_dict.items()
+            for hour, count in hours.items()
+        ]
+           
+            
+        return [submission_days, submission_times]
 
 

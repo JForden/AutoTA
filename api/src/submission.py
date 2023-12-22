@@ -236,11 +236,11 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
             if user.Id in bucket:
                 student_grade = project_repo.get_student_grade(projectid, user.Id)
                 student_id = user_repo.get_StudentNumber(user.Id)
-                studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id, str(class_id), student_grade, student_id]    
+                studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id],submission_counter_dict[user.Id],bucket[user.Id].Time.strftime("%x %X"),bucket[user.Id].IsPassing,bucket[user.Id].NumberOfPylintErrors,bucket[user.Id].Id, str(class_id), student_grade, student_id, user.IsLocked]    
             else:
                 student_grade = "0"
                 student_id = user_repo.get_StudentNumber(user.Id)
-                studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1, "N/A", student_grade, student_id]
+                studentattempts[user.Id]=[user.Lastname,user.Firstname,user_lectures_dict[user.Id], "N/A", "N/A", "N/A",  "N/A", -1, "N/A", student_grade, student_id, user.IsLocked]
     return make_response(json.dumps(studentattempts), HTTPStatus.OK)
 
 

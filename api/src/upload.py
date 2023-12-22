@@ -69,6 +69,22 @@ def python_error_count(filepath):
             else:
                 error_count = error_count + 1
         return error_count
+    
+def LintErrorLogger(filepath, language):
+    if language == "python":
+        """A function that saves all the Linting errors into a dictionary"""
+        with open(filepath+".out.lint", "r") as file:
+            parsed_json = json.load(file)
+            error_dict = {}
+            for line in parsed_json:
+                message = line["symbol"]
+                if message in error_dict:
+                    error_dict[message] += 1
+                else:
+                    error_dict[message] = 1
+            return error_dict
+    else:
+        return {}
 
 def output_pass_or_fail(filepath):
     """[a function that looks at all results from a students test run]
@@ -126,32 +142,28 @@ def score_finder(project_repository: ProjectRepository, passed_levels,total_test
     return score_total
 
 def test_case_result_finder(filepath):
-    pass
-    results = {"Passed": [], "Failed": []}
+    results = {'Passed': [], 'Failed': []}
+    current_test = {'name': None, 'level': None}
+
     with open(filepath, "r") as file:
         for line in file:
-            temp={}
-            name=""
-            suite=""
-            if "not ok" in line:
-                while("..." not in line):
-                    if("name" in line):
-                        name=line.split(":")[1].strip()
-                    if("suite" in line):
-                        suite=line.split(":")[1].strip()
-                    line=next(file)
-                temp[name]=suite
-                results["Failed"].append(temp)
-            elif "ok" in line:
-                while("..." not in line):
-                    if("name" in line):
-                        name=line.split(":")[1].strip()
-                    if("suite" in line):
-                        suite=line.split(":")[1].strip()
-                    line=next(file)
-                temp[name]=suite
-                results["Passed"].append(temp)
-    print(results)
+            line = line.strip()
+            if line.startswith('not ok'):
+                current_test = {'name': None, 'level': None}
+                is_passing = False
+            elif line.startswith('ok'):
+                current_test = {'name': None, 'level': None}
+                is_passing = True
+            elif line.startswith('name:'):
+                current_test['name'] = line.split('\'')[1]
+            elif line.startswith('suite:'):
+                current_test['level'] = line.split('\'')[1]
+            elif line.startswith('...') and current_test['name']:
+                if is_passing:
+                    results['Passed'].append({current_test['name']: current_test['level']})
+                else:
+                    results['Failed'].append({current_test['name']: current_test['level']})
+
     return results
 
 
@@ -371,8 +383,10 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
             pylint_score = 40
         total_submission_score = student_submission_score+pylint_score
 
+        Linting_results=LintErrorLogger(outputpath+"/"+username, project.Language)
+
         visible = submission_repo.check_timeout(user_id, project.Id)[0]
-        submissionId = submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score, visible, TestCaseResults)
+        submissionId = submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score, visible, TestCaseResults, Linting_results)
         
         # Step 4 assign point totals for the submission 
         current_level = submission_repo.get_current_level(project.Id,user_id)

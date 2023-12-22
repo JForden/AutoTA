@@ -250,7 +250,6 @@ class ProjectRepository():
     def get_student_grade(self, project_id, user_id):
         student_progress = StudentGrades.query.filter(and_(StudentGrades.Sid==user_id, StudentGrades.Pid==project_id)).first()
         if student_progress is None:
-            print("No grade found", flush=True)
             return 0
         return student_progress.Grade
     def set_student_grade(self, project_id, user_id, grade):

@@ -96,5 +96,6 @@ class ClassRepository():
 
         # Return the count of students
         return student_count
+    
 
 

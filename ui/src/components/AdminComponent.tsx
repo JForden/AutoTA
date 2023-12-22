@@ -20,8 +20,6 @@ interface ProjectsState {
   open: boolean;
 }
 
-
-
 interface AdminComponentProps extends RouteComponentProps<{ id: string }> {}
 
 class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
@@ -139,6 +137,13 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
                 to={"/admin/project/edit/" + this.state.classId + "/0"}
                 content="Create new assignment"
                 primary
+            />
+            <Button
+              as={Link}
+              color='purple'
+              to={"/admin/project/edit/" + this.state.classId + "/0"}
+              content="Administrate Class"
+              disabled={true}
             />
             </>);
     }
