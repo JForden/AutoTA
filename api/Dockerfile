@@ -14,7 +14,8 @@ RUN pip install -r requirements.txt \
     requests \
     pylint \
     openai \
-    aiopyston
+    aiopyston \
+    pandas 
 
 # Copy the entire content from the local directory to the image
 COPY . /app

@@ -138,13 +138,6 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
                 content="Create new assignment"
                 primary
             />
-            <Button
-              as={Link}
-              color='purple'
-              to={"/admin/project/edit/" + this.state.classId + "/0"}
-              content="Administrate Class"
-              disabled={true}
-            />
             </>);
     }
 }

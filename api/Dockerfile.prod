@@ -12,7 +12,7 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 RUN pip install requests
 RUN pip install pylint
-RUN pip install openai
+RUN pip install --upgrade openai
 RUN pip install aiopyston
 RUN pip install gunicorn
 

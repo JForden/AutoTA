@@ -3,6 +3,7 @@ from collections import defaultdict
 from io import BytesIO
 import json
 import os
+import re
 import shutil
 import subprocess
 import os.path
@@ -30,6 +31,7 @@ from dependency_injector.wiring import inject, Provide
 from container import Container
 from datetime import datetime
 from src.services.link_service import LinkService
+import itertools
 
 projects_api = Blueprint('projects_api', __name__)
 
@@ -454,6 +456,9 @@ def getSubmissionSummary(submission_repo: SubmissionRepository = Provide[Contain
         user_ids.append(user.Id)
     # Fetch unique submissions for the project from the repository
     user_submissions = submission_repo.get_most_recent_submission_by_project(project_id, user_ids)
+
+
+
     total_students = class_repo.get_studentcount(class_Id)
     holder = [len(user_submissions), total_students]
 
@@ -481,14 +486,270 @@ def getSubmissionSummary(submission_repo: SubmissionRepository = Provide[Contain
                             testcase_results[status][test_name] = 1
                         else:
                             testcase_results[status][test_name] += 1
+    pass_averages = {}
+
+    # Generates pass averages for each test case
+    for test_case in set(testcase_results['Passed'].keys()).union(testcase_results['Failed'].keys()):
+        pass_count = testcase_results['Passed'].get(test_case, 0)
+        fail_count = testcase_results['Failed'].get(test_case, 0)
+        total = pass_count + fail_count
+        pass_averages[test_case] = (pass_count / total) * 100 if total != 0 else 0
+
+    dates, passed, failed, no_submission = submission_repo.day_to_day_visualizer(project_id, user_ids)
+    submission_heatmap, potential_students_list = submission_repo.get_all_submission_times(project_id)
+
+    ## Sort Linting results based on the number of times they occurred, only send top 6 most common linting errors
+    linting_results = {k: v for k, v in itertools.islice(sorted(linting_results.items(), key=lambda item: item[1], reverse=True), 6)}
+
+    # Sort Testcase results based on the number of times they occurred, only send the worst 6 averages
+    pass_averages = {k: v for k, v in itertools.islice(sorted(pass_averages.items(), key=lambda item: item[1], reverse=False), 6)}
+    return make_response(json.dumps({"LintData":linting_results, "UniqueSubmissions": holder, "TestCaseResults": pass_averages, "dates": dates, "passed": passed, "failed": failed, "noSubmission": no_submission, "submissionHeatmap": submission_heatmap, "PotentialAtRisk": potential_students_list }), HTTPStatus.OK)
+
+@projects_api.route('/AtRiskStudents', methods=['GET'])
+@jwt_required()
+@inject
+def AtRiskStudents(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], class_repo: ClassRepository = Provide[Container.class_repo], user_repo: UserRepository = Provide[Container.user_repo], link_service: LinkService = Provide[Container.link_service]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'You do not have permission to do this!'
+        }
+        return make_response(message, HTTPStatus.FORBIDDEN)
+    project_id = request.args.get('id')
+    no_submission_prior_assignment = []
+    failing_two_out_of_three = []
+    high_failing_rate = []
+
+    class_Name = project_repo.get_className_by_projectId(project_id)
+    class_Id = project_repo.get_class_id_by_name(class_Name)
+    users=user_repo.get_all_users_by_cid(class_Id)
+    user_ids = [user.Id for user in users]
+
+    projects = project_repo.get_projects_by_class_id(class_Id)
+    projects = sorted(projects, key=lambda project: project.End)
     
-    # Get the number of submissions per day, plus the times of each submission
+    if len(projects) == 0 or len(projects)==1:
+        return make_response(json.dumps({"noSubmission": no_submission_prior_assignment, "TwoOutThree": failing_two_out_of_three, "HighFailRate" : high_failing_rate}), HTTPStatus.OK) 
+    no_submission_prior_assignment = list(user_ids)
+    
+    current_asn_index = 0
+    for project in projects:
+        if project.Id == int(project_id):
+            break
+        current_asn_index += 1
+    """
+    These next two parts of this function identifies students who may be at risk based on two criteria:
 
-    submission_days, submission_times =  submission_repo.get_all_submission_times(project_id)
-    submission_days = dict(sorted(submission_days.items()))
-    submission_days_list = [{"name": f"Day {day}", "submissions": count} for day, count in submission_days.items()]
+    1. Students who did not submit anything for the previous assignment.
+    2. Students who submitted more than 10 times for the previous assignment but did not achieve a passing grade.
 
-    return make_response(json.dumps({"LintData":linting_results, "UniqueSubmissions": holder, "TestCaseResults": testcase_results, "SubmissionDays": submission_days_list, "SubmissionTimes": submission_times}), HTTPStatus.OK)
+    This is considered the first level of risk assessment for students.
+    """
+    # Get students who did not submit anything for the previous assignment
+    try:
+        holder = submission_repo.get_most_recent_submission_by_project(projects[current_asn_index - 1].Id, user_ids) # TODO: get all submissions for the previous assignment
+        for key in holder:
+            if key in no_submission_prior_assignment:
+                no_submission_prior_assignment.remove(key)
+    except Exception as e:
+        no_submission_prior_assignment = []
+        print("An error occurred or no prior submissions: ", str(e), flush=True)
+
+    # Get students who submitted more than 10 times for the previous assignment but did not achieve a passing result
+    try:
+        high_subs_failing={}
+        holder = submission_repo.get_all_submissions_for_project(projects[current_asn_index - 1].Id) #TODO: get all submissions for the previous assignment
+        temp = {}
+        for submission in holder:
+            if submission.User not in temp:
+                temp[submission.User] = [1, submission.IsPassing]
+            else:
+                if submission.IsPassing==1:
+                    temp[submission.User][0] += 1
+                    temp[submission.User][1] = submission.IsPassing
+                else:
+                    temp[submission.User][0] += 1
+                    if temp[submission.User][1] == 0:
+                        temp[submission.User][1] = submission.IsPassing
+        for key in temp:
+            if temp[key][1] == 0 and temp[key][0] >= 10:
+                high_subs_failing[key] = [temp[key][0], project.Id]
+    except Exception as e:
+        high_subs_failing = {}
+        print("An error occurred or no prior asn High_subs_failing: ", str(e), flush=True)
+
+    # Go through the prior assignments and get users who have failed two out of three most recent assignments
+    failing_two_out_of_three = {}
+
+    if current_asn_index >=3 and projects[current_asn_index-1] is not None and projects[current_asn_index-2] is not None and projects[current_asn_index-3] is not None:
+        temp = [projects[current_asn_index-1].Id, projects[current_asn_index-2].Id, projects[current_asn_index-3].Id]
+        for project_id in temp:
+            submissions  = submission_repo.get_most_recent_submission_by_project(project_id, user_ids)
+            for user_id in user_ids:
+                passed_flag = False
+                made_submission = False
+                for submission in submissions:
+                    if submissions[submission].User == user_id:
+                        made_submission = True
+                        if submissions[submission].IsPassing == 1:
+                            passed_flag = True
+                if not passed_flag or not made_submission:
+                    if user_id not in failing_two_out_of_three:
+                        failing_two_out_of_three[user_id] = 1
+                    else:
+                        failing_two_out_of_three[user_id] += 1
+    """
+    The next portion of this function identifies the severity of a student's risk based on the following criteria:
+    1. Students who have failed two out of three most recent assignments.
+    2. Students who have not made a submission for the previous assignment.
+    3. Students who have submitted more than 10 times for the previous assignment but did not achieve a passing grade.
+    
+    No prior submission = 1
+    More than 10 submissions without passing = 2
+    failing two out of three = 3
+    No prior submission + failing two out of three = 4
+    More than 10 submissions without passing + failing two out of three = 5    
+    
+    """
+    NO_PRIOR_ONLY = 1
+    HIGH_SUBS_FAIL_ONLY = 2
+    FAIL_TWO_OUT_OF_THREE_ONLY = 3
+    NO_PRIOR_PLUS_FAIL_TWO_OUT_OF_THREE = 4
+    HIGH_SUBS_FAIL_PLUS_FAIL_TWO_OUT_OF_THREE = 5
+
+    at_riskstudents ={}
+
+    for value in no_submission_prior_assignment:
+        if value not in failing_two_out_of_three:
+            at_riskstudents[value] = NO_PRIOR_ONLY
+        if value in failing_two_out_of_three:
+            at_riskstudents[value] = NO_PRIOR_PLUS_FAIL_TWO_OUT_OF_THREE
+    for value in high_subs_failing:
+        if value not in failing_two_out_of_three:
+            at_riskstudents[value] = HIGH_SUBS_FAIL_ONLY 
+        if value in failing_two_out_of_three:
+            at_riskstudents[value] = HIGH_SUBS_FAIL_PLUS_FAIL_TWO_OUT_OF_THREE
+    for value in failing_two_out_of_three:
+        if value not in at_riskstudents:
+            at_riskstudents[value] = FAIL_TWO_OUT_OF_THREE_ONLY
+    
+    for key in at_riskstudents:
+        user = user_repo.get_user(key)
+        counter = 0
+        for project in projects:
+            counter += submission_repo.get_number_of_questions_asked(project.Id, key)
+        at_riskstudents[key] = [at_riskstudents[key], user.Firstname + " " + user.Lastname, counter, user.Email]
+    
+    message = {
+        'message': 'Success'
+    }
+    return make_response(json.dumps({"AtRiskStudents": at_riskstudents}), HTTPStatus.OK)
+
+
+
+@projects_api.route('/ProjectGrading', methods=['POST'])
+@jwt_required()
+@inject
+def ProjectGrading(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], class_repo: ClassRepository = Provide[Container.class_repo], user_repo: UserRepository = Provide[Container.user_repo], link_service: LinkService = Provide[Container.link_service]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'You do not have permission to do this!'
+        }
+        return make_response(message, HTTPStatus.FORBIDDEN)
+    input_json = request.get_json()
+    project_id = input_json['ProjectId']
+    user_id = input_json['userID']
+    submissions = submission_repo.get_most_recent_submission_by_project(project_id, [user_id])
+    
+    grading_data ={}
+    if user_id in submissions:
+        student_code = submission_repo.read_code_file(submissions[user_id].CodeFilepath)
+        student_output = submission_repo.read_output_file(submissions[user_id].OutputFilepath)
+        not_ok_tests = []
+        current_test = {}
+        current_test = {'name': None, 'level': None, 'output': None}
+        in_test = False
+        in_output = False
+        for line in student_output.split('\n'):
+            if line.startswith('not ok'):
+                in_test = True
+                current_test = {'name': None, 'level': None}
+            elif "name:" in line and in_test and not in_output:
+                current_test['name'] = line.split('\'')[1] 
+            elif "suite:" in line and in_test and not in_output:
+                current_test['level'] = line.split('\'')[1]
+            elif "output" in line and in_test and not in_output:
+                in_output = True
+                output = ""
+            elif "..." in line and in_test and in_output:
+                current_test['output'] = output                    
+                not_ok_tests.append(current_test)
+                in_test = False
+                in_output = False
+            elif in_output and in_test:
+                    output += line
+        grading_data[user_id] = [student_code, not_ok_tests]
+    else:
+        grading_data[user_id] = ["", ""]
+    message = {
+        'message': 'Success'
+    }
+    return make_response(json.dumps({"GradingData": grading_data}), HTTPStatus.OK)
+
+
+
+
+
+
+
+
+@projects_api.route('/AtRiskStudentDetail', methods=['GET'])
+@jwt_required()
+@inject
+def AtRiskStudentDetail(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], class_repo: ClassRepository = Provide[Container.class_repo], user_repo: UserRepository = Provide[Container.user_repo], link_service: LinkService = Provide[Container.link_service]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'You do not have permission to do this!'
+        }
+        return make_response(message, HTTPStatus.FORBIDDEN)
+    user_id = request.args.get('id')
+    project_id = request.args.get('project_id')
+    class_Name = project_repo.get_className_by_projectId(project_id)
+    class_Id = project_repo.get_class_id_by_name(class_Name)
+    projects = project_repo.get_projects_by_class_id(class_Id)
+    projects = sorted(projects, key=lambda project: project.End, reverse=True)
+
+    submissions = submission_repo.get_all_submissions_for_user(user_id)
+    count = {}
+    for submission in submissions:
+        if submission.Project not in count:
+            count[submission.Project] = 1
+        else:
+            count[submission.Project] += 1
+    
+    data = {}
+    total_OH_questions = 0
+    current_OH_questions = 0
+    student_questions =[]
+    for project in projects:
+        questions = submission_repo.get_student_questions_asked(user_id, project.Id)
+        if len(questions) > 0:
+            questions = [question.StudentQuestionscol for question in questions]
+            for question in questions:
+                if project.Id == int(project_id):
+                    total_OH_questions += 1
+                    current_OH_questions += 1
+                else:
+                    total_OH_questions += 1
+                student_questions.append([project.Name, question])
+    for project in projects:
+        if project.Id in count:
+            data[project.Name] = count[project.Id]
+        else:
+            data[project.Name] = 0
+
+    return make_response(json.dumps({"StudentData": data, "currentOHQCount": current_OH_questions, "AllOHQCount": total_OH_questions, "OHQuestionsDetails": student_questions}), HTTPStatus.OK)
+
+
 
 @projects_api.route('/unlockStudentAccount', methods=['POST'])
 @jwt_required()
@@ -506,3 +767,7 @@ def unlockStudentAccount(user_repo: UserRepository = Provide[Container.user_repo
         'message': 'Success'
     }
     return make_response(message, HTTPStatus.OK)
+
+
+
+

@@ -230,7 +230,7 @@ def recentsubproject(submission_repo: SubmissionRepository = Provide[Container.s
         userids.append(user.Id)
     bucket = submission_repo.get_most_recent_submission_by_project(projectid, userids)    
     submission_counter_dict = submission_repo.submission_counter(projectid, userids)
-    user_lectures_dict =user_repo.get_user_lectures(userids)
+    user_lectures_dict =user_repo.get_user_lectures(userids, class_id)
     for user in users:
         if int(user.Role) == 0:
             if user.Id in bucket:

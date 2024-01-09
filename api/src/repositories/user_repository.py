@@ -1,4 +1,5 @@
 import datetime
+from operator import and_
 from typing import Dict, List
 
 from sqlalchemy import asc, desc
@@ -157,7 +158,7 @@ class UserRepository():
         query.IsLocked=True
         db.session.commit()
     
-    def get_user_lectures(self, userIds: List[int]) -> Dict[int, ClassAssignments]:
+    def get_user_lectures(self, userIds: List[int], class_id) -> Dict[int, ClassAssignments]:
         """Returns a dictionary of lecture names for each user in the given list of user IDs.
         
         Args:
@@ -168,7 +169,7 @@ class UserRepository():
             assigned to each user.
         """
         #TODO: Do we still use this? seems to only work for single class submissions.
-        class_assignments = ClassAssignments.query.filter(ClassAssignments.UserId.in_(userIds)).all()
+        class_assignments = ClassAssignments.query.filter(and_(ClassAssignments.UserId.in_(userIds), ClassAssignments.ClassId == class_id)).all()
         
         user_lectures_dict={}
         for class_assignment in class_assignments:

@@ -1,4 +1,7 @@
 from collections import defaultdict
+import os
+
+from pandas import date_range
 import openai
 from src.repositories.database import db
 from .models import GPTLogs, StudentQuestions, StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
@@ -6,6 +9,7 @@ from sqlalchemy import desc, and_
 from typing import Dict, List, Tuple
 from src.repositories.config_repository import ConfigRepository
 from datetime import datetime, timedelta
+from openai import AsyncOpenAI
 
 class SubmissionRepository():
     def get_submission_by_user_id(self, user_id: int) -> Submissions:
@@ -69,6 +73,41 @@ class SubmissionRepository():
         """
         submission = self.get_submission_by_submission_id(submission_id)
         return submission.CodeFilepath
+
+    def read_code_file(self, code_path) -> str:
+        """Returns the contents of the code file associated with a given submission.
+
+        Args:
+            submission_id (int): The ID of the submission.
+
+        Returns:
+            str: The contents of the code file associated with the submission.
+        """
+        student_file = ""
+        #TODO: Make More Robust for Multiple Files, this simply grabs the first file in the directory
+        if os.path.isdir(code_path):
+            for filename in os.listdir(code_path):
+                with open(filename, "r") as f:
+                    student_file = f.read()
+                break
+        else:
+            with open(code_path, "r") as f:
+                student_file = f.read()
+        return student_file
+    def read_output_file(self, output_path) -> str:
+        """Returns the contents of the output file associated with a given submission.
+
+        Args:
+            submission_id (int): The ID of the submission.
+
+        Returns:
+            str: The contents of the output file associated with the submission.
+        """
+        student_output_file = ""
+        with open(output_path, "r") as f:
+            student_output_file = f.read()
+        return student_output_file
+
     def get_pylint_path_by_user_and_project_id(self,user_id:int, project_id:int):
         """
         Returns the file path of the Pylint report for a given user and project ID.
@@ -219,7 +258,6 @@ class SubmissionRepository():
                 submission_counter_dict[sub.User] = 1
         return submission_counter_dict
 
-
     def chatGPT_caller(self, submission_id, question_description, student_output, student_code) -> str:
         openai.api_key = "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"
         # https://beta.openai.com/docs/models
@@ -229,8 +267,14 @@ class SubmissionRepository():
         max_line_number_width = len(str(len(lines)))
         lines_with_numbers = [f"{i:>{max_line_number_width}} {line}" for i, line in enumerate(lines, start=1)]
         lined_code = '\n'.join(lines_with_numbers)
+        
+        # Remove all comment lines from the code
+        lines = lined_code.split('\n')
+        lines = [line for line in lines if not line.strip().startswith('#')]
+        lined_code = '\n'.join(lines)
+
         assignment_prompt = f"""
-        I failed a test case, give me a single bulletpoint on why this might have happened.
+        I failed a test case, give me a single succinct bulletpoint on why this might have happened.
 
         The Linux diff is: {student_output}  
         A description of the test case is: {question_description}  
@@ -238,7 +282,7 @@ class SubmissionRepository():
         Here is my code
         {lined_code}"""
         try:
-            completions = openai.ChatCompletion.create(
+            completions = openai.chat.completions.create(
                 model=model_engine,
                 messages=[
                     {"role": "system", "content": assignment_prompt},
@@ -248,7 +292,7 @@ class SubmissionRepository():
             )
 
             # Get the generated response from completions
-            generated_response = completions['choices'][0]['message']['content']
+            generated_response = completions.choices[0].message.content
 
             # Save the generated response into the database
             log = GPTLogs(SubmissionId=submission_id, GPTResponse=generated_response, StudentFeedback=-1, Type=0)
@@ -261,6 +305,7 @@ class SubmissionRepository():
         except openai.error.ServiceUnavailableError as e:
             # Handle the error
             message = "The server is overloaded or not ready yet."
+            return message
 
     def chatGPT_explainer(self, submission_id, question_description, student_output) -> str:
         openai.api_key = "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"
@@ -273,7 +318,7 @@ class SubmissionRepository():
 
         Write me a sentance on what the diff is telling me, be specific"""
         try:
-            completions = openai.ChatCompletion.create(
+            completions = openai.chat.completions.create(
                 model=model_engine,
                 messages=[
                     {"role": "system", "content": assignment_prompt},
@@ -283,8 +328,7 @@ class SubmissionRepository():
             )
 
             # Get the generated response from completions
-            generated_response = completions['choices'][0]['message']['content']
-
+            generated_response = completions.choices[0].message.content
             # Save the generated response into the database
             log = GPTLogs(SubmissionId=submission_id, GPTResponse=generated_response, StudentFeedback=-1,Type=1)
             db.session.add(log)
@@ -296,6 +340,7 @@ class SubmissionRepository():
         except openai.error.ServiceUnavailableError as e:
             # Handle the error
             message = "The server is overloaded or not ready yet."
+            return message
     def Update_GPT_Student_Feedback(self,question_id, student_feedback):
         question = GPTLogs.query.filter(GPTLogs.Qid == question_id).first()
         question.StudentFeedback =int(student_feedback)
@@ -394,41 +439,137 @@ class SubmissionRepository():
             minutes = (time_remaining.seconds % 3600) // 60
             formatted_time_remaining = f"{hours} hours, {minutes} minutes" 
         return formatted_time_remaining 
+    
     def get_number_of_questions_asked(self, user_id, project_id):
         number_of_questions = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == int(project_id))).count()
         return number_of_questions
+    
+    def get_student_questions_asked(self, user_id, project_id):
+        questions = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == int(project_id))).all()
+        return questions
+    
+    def get_all_submissions_for_project(self, project_id):
+        submissions = Submissions.query.filter(Submissions.Project == project_id).all()
+        return submissions
 
     def get_all_submission_times(self, project_id):
         project = Projects.query.filter(Projects.Id == project_id).first()
         project_start_date = project.Start
+        project_end_date = project.End
+
+        blocks = [
+            '12:00 AM - 2:00 AM',
+            '2:00 AM - 4:00 AM',
+            '4:00 AM - 6:00 AM',
+            '6:00 AM - 8:00 AM',
+            '8:00 AM - 10:00 AM',
+            '10:00 AM - 12:00 PM',
+            '12:00 PM - 2:00 PM',
+            '2:00 PM - 4:00 PM',
+            '4:00 PM - 6:00 PM',
+            '6:00 PM - 8:00 PM',
+            '8:00 PM - 10:00 PM',
+            '10:00 PM - 12:00 AM'
+        ]
+        submissions_dict = {(project_start_date + timedelta(days=i)).strftime('%A %b %d'): {block: 0 for block in blocks} for i in range(8)}
 
         submissions = Submissions.query.filter(Submissions.Project == project_id).all()
-        submission_days = {}
-        submission_times = []
-        submission_times_dict = defaultdict(lambda: defaultdict(int))
 
+        students ={}
         for submission in submissions:
-            # Split this into day and time, for days make it the number of days since the start of the project
-            submission_time = submission.Time
-            days_since_start = (submission_time.date() - project_start_date.date()).days
-            time_of_day = submission_time.time()
-            if days_since_start < 0:
-                continue
-            if days_since_start not in submission_days:
-                submission_days[days_since_start] = 1
+            
+            if submission.User not in students:
+                if submission.IsPassing == 1:
+                    students[submission.User] = -1
+                else:
+                    students[submission.User] = 1
             else:
-                submission_days[days_since_start] += 1
-            
-            hour = time_of_day.hour
-            submission_times_dict[days_since_start][hour] += 1
-            
-        submission_times = [
-            {"hour": f"{hour if hour != 0 else 12}{('a' if hour < 12 else 'p') if hour != 24 else 'a'}", "index": day, "value": count}
-            for day, hours in submission_times_dict.items()
-            for hour, count in hours.items()
-        ]
-           
-            
-        return [submission_days, submission_times]
+                if submission.IsPassing == 1:
+                    students[submission.User] = -1
+                else:
+                    if students[submission.User] != -1:
+                        students[submission.User] += 1
+            date = submission.Time.date()
+            weekday_date = date.strftime('%A %b %d')
+            hour = submission.Time.hour
+            if (date < project_start_date.date()) or (date > (project_start_date.date() + timedelta(days=7))):
+                continue
+
+            if weekday_date not in submissions_dict:
+                submissions_dict[weekday_date] = {block: 0 for block in blocks}
+
+            block_index = hour // 2
+            block = blocks[block_index]
+
+            submissions_dict[weekday_date][block] += 1
+
+        students = {student: value for student, value in students.items() if value != -1}
+        students = dict(sorted(students.items(), key=lambda item: item[1], reverse=True)[:10])
+        
+        students_list = []
+        for student_id in students:
+            student = Users.query.filter(Users.Id == student_id).first()
+            students_list.append([student_id,  students[student_id],student.Firstname, student.Lastname, student.Email])
+
+        # Create a list of weekdays starting from start_weekday and ending on the day before start_weekday in the next week
+        weekdays = []
+        for i in range(8):
+            date = project_start_date + timedelta(days=i)
+            weekdays.append(date.strftime('%A %b %d'))
+
+        submission_heatmap = []
+        for weekday_date in weekdays:
+            blocks = submissions_dict.get(weekday_date)
+            if blocks:
+                data = list(blocks.values())
+                submission_heatmap.append({
+                    'name': weekday_date,
+                    'data': data
+                })
+        #reverse the list so that the days are in order
+        submission_heatmap.reverse()
+
+        return submission_heatmap, students_list
+    
+    def day_to_day_visualizer(self, project_id, user_ids):
+
+        project = Projects.query.filter(Projects.Id == project_id).first()
+        project_start_date = project.Start
+        project_end_date = project.End
+
+        dates = []
+        for date in date_range(start=project_start_date, end=project_end_date)[:8]:
+                # Format date and add to list
+                dates.append(date.strftime('%Y/%m/%d'))
+
+        passed =[0,0,0,0,0,0,0,0]
+        failed =[0,0,0,0,0,0,0,0]
+        no_submission =[0,0,0,0,0,0,0,0]
+
+        submissions = Submissions.query.filter(Submissions.Project == project_id).all()
+        for user_Id in user_ids:
+            passed_flag = False # flag to check if the user has passed the project for a given date
+            submission_flag = False # flag to check if the user has submitted for a given date
+            for date in dates:
+                for submission in submissions:
+                    if submission.Time.strftime('%Y/%m/%d') == date and submission.User == user_Id:
+                        submission_flag = True
+                        if submission.IsPassing:
+                            passed_flag = True
+                            break
+                if not submission_flag:
+                    no_submission[dates.index(date)] += 1
+                else:
+                    if passed_flag:
+                        passed[dates.index(date)] += 1
+                    else:
+                        failed[dates.index(date)] += 1
+    
+        return dates, passed, failed, no_submission
+    def get_all_submissions_for_user(self, user_id):
+        submissions = Submissions.query.filter(Submissions.User == user_id).all()
+        return submissions
+    
+
 
 
