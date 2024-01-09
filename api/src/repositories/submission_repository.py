@@ -1,7 +1,5 @@
 from collections import defaultdict
 import os
-
-from pandas import date_range
 import openai
 from src.repositories.database import db
 from .models import GPTLogs, StudentQuestions, StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
@@ -538,9 +536,11 @@ class SubmissionRepository():
         project_end_date = project.End
 
         dates = []
-        for date in date_range(start=project_start_date, end=project_end_date)[:8]:
-                # Format date and add to list
-                dates.append(date.strftime('%Y/%m/%d'))
+        date = project_start_date
+
+        while date <= project_end_date and len(dates) < 8:
+            dates.append(date.strftime('%Y/%m/%d'))
+            date += timedelta(days=1)
 
         passed =[0,0,0,0,0,0,0,0]
         failed =[0,0,0,0,0,0,0,0]
