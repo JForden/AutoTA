@@ -51,9 +51,6 @@ interface StudentListState {
     rows: Array<Row>
     isLoading: boolean;
     lecture_numbers: Array<DropdownItemProps>;
-    gradingModalIsOpen: boolean;
-    StudentSubmissionInfo: Record<number, any[]>;
-    selectedStudent: number;
 }
 
 class StudentList extends Component<StudentListProps, StudentListState> {
@@ -65,14 +62,11 @@ class StudentList extends Component<StudentListProps, StudentListState> {
             rows: [],
             lecture_numbers: [{ key: 1, text: "None", value: 1 }],
             isLoading: false,
-            gradingModalIsOpen: false,
-            StudentSubmissionInfo: {},
-            selectedStudent: 0,
+
         }
         this.handleClick = this.handleClick.bind(this);
         this.handleFilterChange = this.handleFilterChange.bind(this);
         this.handleUnlockClick = this.handleUnlockClick.bind(this);
-        this.handleGradingModalOpen = this.handleGradingModalOpen.bind(this);
     }
 
     componentDidMount() {
@@ -177,26 +171,6 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                 window.location.reload();
             })
     };
-
-    handleGradingModalOpen = (UserId: number) => {
-        axios.post(process.env.REACT_APP_BASE_API_URL + `/projects/ProjectGrading`, { ProjectId: this.props.project_id, userID: UserId }, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
-            }
-        })
-            .then(res => {
-                console.log(res.data);
-                this.setState({ selectedStudent: UserId })
-                this.setState({ StudentSubmissionInfo: res.data.GradingData });
-                this.setState({ gradingModalIsOpen: true });
-                console.log(this.state.StudentSubmissionInfo);
-            })
-            .catch(exc => {
-                window.alert("Error grading project, please fillout bug report form");
-                this.setState({ gradingModalIsOpen: false });
-            })
-    }
-
     submitgrades() {
         //loop through rows
         this.setState({ isLoading: false });
@@ -256,7 +230,6 @@ class StudentList extends Component<StudentListProps, StudentListState> {
     }
 
     render() {
-        const modalOpen = this.state.gradingModalIsOpen;
         return (
             <>
                 <Dropdown placeholder='Lecture Section' selection options={this.state.lecture_numbers} onChange={this.handleFilterChange} />
@@ -264,41 +237,6 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                     borderRadius: '10px',
                     boxShadow: '0 10px 20px rgba(0, 0, 0, 0.4)' // Kept only the darkest shadow
                 }}>
-                    <Modal
-                        open={this.state.gradingModalIsOpen}
-                        onClose={() => this.setState({ gradingModalIsOpen: false })}
-                        size='small'
-                        dimmer='blurring'
-                    >
-                        <div>
-                            <p>{this.state.StudentSubmissionInfo[this.state.selectedStudent]}</p>
-                            <div id="code-container" style={{
-                                borderRadius: '5px',
-                                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-                                backgroundColor: '#f5f5f5', // Lighter gray
-                                padding: '20px',
-                                fontFamily: 'Courier New, monospace',
-                                fontSize: '16px',
-                                lineHeight: '1.6',
-                                color: '#333',
-                                overflow: 'auto',
-                                marginTop: '20px',
-                                border: 'none' // Remove border
-                            }}>
-                                <SyntaxHighlighter
-                                    language="python"
-                                    style={{
-                                        vs,
-                                        borderRadius: '5px',
-                                        padding: '10px',
-                                        color: '#ff0000' // Changed color to red
-                                    }}
-                                    showLineNumbers={true}
-                                >
-                                </SyntaxHighlighter>
-                            </div>
-                        </div>
-                    </Modal>
                     <Table.Header>
                         <Table.Row>
                             <Table.HeaderCell>Student Name</Table.HeaderCell>
@@ -429,22 +367,6 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                             value={row.grade} // Set the initial value of the input to row.grade
                                             onChange={(e) => this.handleGradeChange(e, row)} // Pass the row object to the function so we can update the state of the row
                                         />
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <Button
-                                            onClick={(e) => this.handleGradingModalOpen(row.id)}
-                                            disabled
-                                            style={{
-                                                backgroundColor: 'orange',
-                                                color: 'white',
-                                                borderRadius: '5px',
-                                                padding: '10px',
-                                                margin: '5px',
-                                                width: '150px' // Added width
-                                            }}
-                                        >
-                                            Grade
-                                        </Button>
                                     </Table.Cell>
                                 </Table.Row>
                             )

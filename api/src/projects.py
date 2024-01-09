@@ -289,7 +289,7 @@ def json_add_testcases(project_repo: ProjectRepository = Provide[Container.proje
          return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
     else:
         for testcase in json_obj:
-            project_repo.add_or_update_testcase(project_id, -1, testcase["levelname"], testcase["name"], testcase["description"], testcase["input"], testcase["output"], bool(testcase["isHidden"]))
+            project_repo.add_or_update_testcase(project_id, -1, testcase["levelname"], testcase["name"], testcase["description"], testcase["input"], testcase["output"], bool(testcase["isHidden"]), testcase["additionalfilepath"])
     return make_response("Testcase Added", HTTPStatus.OK)
 
 
@@ -320,6 +320,8 @@ def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.p
         isHidden = request.form['isHidden']
     if 'description' in request.form:
         description = request.form['description']
+    if 'additionalfilepath' in request.form:
+        path = request.form['additionalfilepath']
     if 'additionalFile' in request.files:
         additionalFile = request.files['additionalFile']
         counter = 1
@@ -328,14 +330,12 @@ def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.p
             path = os.path.join("/ta-bot/project-files", f"duplicatenum({counter}){additionalFile.filename}")
             counter += 1
         additionalFile.save(path)
-
     else:
         additionalFile = None
     
     if id_val == '' or name == '' or input_data == '' or project_id == '' or isHidden == '' or description == '':
         return make_response("Error in form", HTTPStatus.BAD_REQUEST)
     
-
 
     isHidden = True if isHidden.lower() =="true" else False
     
