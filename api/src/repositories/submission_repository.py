@@ -490,7 +490,7 @@ class SubmissionRepository():
             date = submission.Time.date()
             weekday_date = date.strftime('%A %b %d')
             hour = submission.Time.hour
-            if (date < project_start_date.date()) or (date > (project_start_date.date() + timedelta(days=7))):
+            if (date < project_start_date.date()) or (date > (project_start_date.date() + timedelta(days=9))):
                 continue
 
             if weekday_date not in submissions_dict:
@@ -511,10 +511,9 @@ class SubmissionRepository():
 
         # Create a list of weekdays starting from start_weekday and ending on the day before start_weekday in the next week
         weekdays = []
-        for i in range(8):
+        for i in range(9):
             date = project_start_date + timedelta(days=i)
             weekdays.append(date.strftime('%A %b %d'))
-
         submission_heatmap = []
         for weekday_date in weekdays:
             blocks = submissions_dict.get(weekday_date)
@@ -523,6 +522,11 @@ class SubmissionRepository():
                 submission_heatmap.append({
                     'name': weekday_date,
                     'data': data
+                })
+            else:
+                submission_heatmap.append({
+                    'name': weekday_date,
+                    'data': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 })
         #reverse the list so that the days are in order
         submission_heatmap.reverse()
@@ -538,15 +542,18 @@ class SubmissionRepository():
         dates = []
         date = project_start_date
 
-        while date <= project_end_date and len(dates) < 8:
+        days_live = (project_end_date - project_start_date).days
+        for i in range(days_live + 1):
             dates.append(date.strftime('%Y/%m/%d'))
             date += timedelta(days=1)
+        
 
-        passed =[0,0,0,0,0,0,0,0]
-        failed =[0,0,0,0,0,0,0,0]
-        no_submission =[0,0,0,0,0,0,0,0]
+        passed =[0 for i in range(days_live + 1)]
+        failed =[0 for i in range(days_live + 1)]
+        no_submission =[0 for i in range(days_live + 1)]
 
         submissions = Submissions.query.filter(Submissions.Project == project_id).all()
+        
         for user_Id in user_ids:
             passed_flag = False # flag to check if the user has passed the project for a given date
             submission_flag = False # flag to check if the user has submitted for a given date

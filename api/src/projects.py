@@ -470,18 +470,28 @@ def getSubmissionSummary(submission_repo: SubmissionRepository = Provide[Contain
     # Get the Linting results for each submission, aggregate them, and return them as a dictionary with the key being the linting error and the value being the number of times it occurred
     for user in user_submissions:
         user = user_submissions[user]
+        linting_results_user =""
         if user.LintingResults is None:
             continue
-        linting_results_user = ast.literal_eval(user.LintingResults)
+        try:
+            linting_results_user = ast.literal_eval(user.LintingResults)
+        except Exception as e:
+            print("Error parsing linting results: ", str(e), flush=True)
+            continue
         for key in linting_results_user:
             if key not in linting_results:
                 linting_results[key] = linting_results_user[key]
             else:
                 linting_results[key] += linting_results_user[key]
     # Get the Testcase Results for each submission, aggregate them, with the key being "passed" or "failed" and the value being a dictionary with the key being the testcase name and the value being the number of times it occurred
+        testcase_results_user =""
         if user.TestCaseResults is None:
             continue
-        testcase_results_user = ast.literal_eval(user.TestCaseResults)
+        try:
+            testcase_results_user = ast.literal_eval(user.TestCaseResults)
+        except Exception as e:
+            print("Error parsing testcase results: ", str(e), flush=True)
+            continue
         for status in ['Passed', 'Failed']:
             if status in testcase_results_user:
                 for test_case in testcase_results_user[status]:
