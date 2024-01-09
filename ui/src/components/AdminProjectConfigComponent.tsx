@@ -750,6 +750,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                                 />
                                                 <Form.TextArea
                                                     label='Output'
+                                                    disabled={true}
                                                     value={selectedTestCase ? selectedTestCase.output : ''}
                                                     onChange={(e) => handleOutputChange(selectedTestCaseId, e.target.value)}
                                                 />
