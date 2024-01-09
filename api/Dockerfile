@@ -15,10 +15,9 @@ RUN pip install -r requirements.txt \
     pylint \
     openai \
     aiopyston \
-    pandas 
 
-# Copy the entire content from the local directory to the image
-COPY . /app
+    # Copy the entire content from the local directory to the image
+    COPY . /app
 
 # Set Flask environment variables
 ENV FLASK_APP=app.py
