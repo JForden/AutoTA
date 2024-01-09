@@ -730,7 +730,7 @@ def AtRiskStudentDetail(submission_repo: SubmissionRepository = Provide[Containe
     class_Name = project_repo.get_className_by_projectId(project_id)
     class_Id = project_repo.get_class_id_by_name(class_Name)
     projects = project_repo.get_projects_by_class_id(class_Id)
-    projects = sorted(projects, key=lambda project: project.End, reverse=True)
+    projects = sorted(projects, key=lambda project: project.End, reverse=False)
 
     submissions = submission_repo.get_all_submissions_for_user(user_id)
     count = {}
