@@ -403,17 +403,31 @@ def submit_grades(project_repo: ProjectRepository = Provide[Container.project_re
         return make_response("Not Authorized", HTTPStatus.UNAUTHORIZED)
     #spacing issue
     data = request.get_json()
-    studentgrades = data['studentgrades']
     project_id = data['projectID']
-    #convert json to dictionary
-    for key in studentgrades:
-        project_repo.set_student_grade(int(project_id), int(key), int(studentgrades[key]))
+    userId = data['userId']
+    grade = data['grade']
+    project_repo.set_student_grade(int(project_id), int(userId), int(grade))
     return make_response("StudentGrades Submitted", HTTPStatus.OK)
 
+
+
+@submission_api.route('/getprojectscores', methods=['GET'])
+@jwt_required()
+@inject
+def getprojectscores(project_repo: ProjectRepository = Provide[Container.project_repo], submission_repo: SubmissionRepository = Provide[Container.submission_repo], user_repo: UserRepository = Provide[Container.user_repo]):
+    project_id = str(request.args.get("projectID"))
+    data = []
+    student_scores = submission_repo.get_project_scores(project_id)
+    projectname = project_repo.get_selected_project(project_id).Name
+    for score in student_scores:
+        user_info = user_repo.get_user(score[0])
+        data.append([user_info.StudentNumber, score[1], user_info.Id])
+    return make_response(json.dumps({"studentData": data, "projectName": projectname}), HTTPStatus.OK)
 
 @submission_api.route('/getprojectname', methods=['GET'])
 @jwt_required()
 @inject
 def get_project_name(project_repo: ProjectRepository = Provide[Container.project_repo]):
     project_id = str(request.args.get("projectID"))
+    print("project id", project_id, flush=True)
     return make_response(project_repo.get_selected_project(project_id).Name, HTTPStatus.OK)

@@ -2,7 +2,7 @@ from collections import defaultdict
 import os
 import openai
 from src.repositories.database import db
-from .models import GPTLogs, StudentQuestions, StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
+from .models import GPTLogs, StudentGrades, StudentQuestions, StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
 from sqlalchemy import desc, and_
 from typing import Dict, List, Tuple
 from src.repositories.config_repository import ConfigRepository
@@ -576,6 +576,12 @@ class SubmissionRepository():
     def get_all_submissions_for_user(self, user_id):
         submissions = Submissions.query.filter(Submissions.User == user_id).all()
         return submissions
+    def get_project_scores(self, project_id):
+        scores = StudentGrades.query.filter(StudentGrades.Pid == project_id).all()
+        student_list = []
+        for score in scores:
+            student_list.append([score.Sid, score.Grade])
+        return student_list
     
 
 

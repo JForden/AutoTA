@@ -675,18 +675,22 @@ def ProjectGrading(submission_repo: SubmissionRepository = Provide[Container.sub
     submissions = submission_repo.get_most_recent_submission_by_project(project_id, [user_id])
     
     grading_data ={}
+    student_code = ""
+    student_pylint = None
     if user_id in submissions:
         student_code = submission_repo.read_code_file(submissions[user_id].CodeFilepath)
         student_output = submission_repo.read_output_file(submissions[user_id].OutputFilepath)
-        not_ok_tests = []
+        test_info = []
         current_test = {}
         current_test = {'name': None, 'level': None, 'output': None}
         in_test = False
         in_output = False
+        Passed=False
         for line in student_output.split('\n'):
-            if line.startswith('not ok'):
+            if line.startswith(('not ok', 'ok')):
+                Passed = line.startswith('ok')
                 in_test = True
-                current_test = {'name': None, 'level': None}
+                current_test = {'name': None, 'level': None, "State": Passed, 'output': None}
             elif "name:" in line and in_test and not in_output:
                 current_test['name'] = line.split('\'')[1] 
             elif "suite:" in line and in_test and not in_output:
@@ -696,18 +700,18 @@ def ProjectGrading(submission_repo: SubmissionRepository = Provide[Container.sub
                 output = ""
             elif "..." in line and in_test and in_output:
                 current_test['output'] = output                    
-                not_ok_tests.append(current_test)
+                test_info.append(current_test)
                 in_test = False
                 in_output = False
             elif in_output and in_test:
                     output += line
-        grading_data[user_id] = [student_code, not_ok_tests]
+        grading_data[user_id] = [student_code, test_info]
     else:
         grading_data[user_id] = ["", ""]
     message = {
         'message': 'Success'
     }
-    return make_response(json.dumps({"GradingData": grading_data}), HTTPStatus.OK)
+    return make_response(json.dumps({ "Code": student_code, "TestResults": test_info}), HTTPStatus.OK)
 
 
 
