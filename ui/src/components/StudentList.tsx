@@ -6,9 +6,9 @@ import axios from 'axios';
 import { Table, Label, Loader, Dropdown, DropdownItemProps, DropdownItem, DropdownProps, Input, Button, Icon, Modal, Accordion, Tab } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { parse } from 'path';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { vs } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import { createImportSpecifier } from 'typescript';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+// If you're using highlight.js, import from 'react-syntax-highlighter/dist/esm/styles/hljs'
+import { vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface StudentListProps {
     project_id: number
@@ -62,6 +62,7 @@ interface StudentListState {
     selectedStudentGrade: number;
     exportModalIsOpen: boolean;
     selectedLecture: number;
+    projectLanguage: string;
 }
 
 class StudentList extends Component<StudentListProps, StudentListState> {
@@ -82,7 +83,8 @@ class StudentList extends Component<StudentListProps, StudentListState> {
             selectedStudentName: "",
             selectedStudentGrade: 0,
             exportModalIsOpen: false,
-            selectedLecture: -1
+            selectedLecture: -1,
+            projectLanguage: ""
 
         }
         this.handleClick = this.handleClick.bind(this);
@@ -273,8 +275,8 @@ class StudentList extends Component<StudentListProps, StudentListState> {
         else {
             const selectedRow = this.state.rows.find(row => row.id === UserId);
             if (selectedRow == undefined) {
-                window.alert("Error opening grading module, please fillout bug report form");
-                this.setState({ modalIsLoading: false });
+                this.setState({ modalIsOpen: false });
+                window.alert("No more Students to grade!");
                 return;
             }
             this.setState({ selectedStudentName: selectedRow.Fname + " " + selectedRow.Lname });
@@ -291,7 +293,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                 this.setState({ selectedStudentData: res.data.GradingData, modalIsLoading: false, modalIsOpen: true });
                 this.setState({ selectedStudentCode: res.data.Code });
                 this.setState({ selectedStudentTestResults: res.data.TestResults });
-                console.log(res.data.TestResults);
+                this.setState({ projectLanguage: res.data.Language });
             }).catch(exc => {
                 window.alert("Error opening grading module, please fillout bug report form");
                 this.setState({ modalIsLoading: false });
@@ -301,6 +303,12 @@ class StudentList extends Component<StudentListProps, StudentListState> {
 
     render() {
         const levels = ['Level 1', 'Level 2', 'Level 3'];
+        const customStyle = {
+            ...vs, // Spread the vs style
+            borderRadius: '5px',
+            padding: '10px',
+            color: '#ff0000', // Custom color
+        };
         const panels = levels.map(level => ({
             menuItem: level,
             render: () => (
@@ -333,6 +341,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
             ),
         }));
         return (
+
             <>
                 <Modal
                     open={this.state.exportModalIsOpen}
@@ -383,13 +392,8 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                             flex: 1, // Take up half the space
                         }}>
                             <SyntaxHighlighter
-                                language="python"
-                                style={{
-                                    vs,
-                                    borderRadius: '5px',
-                                    padding: '10px',
-                                    color: '#ff0000' // Changed color to red
-                                }}
+                                language={this.state.projectLanguage}
+                                style={customStyle}
                                 showLineNumbers={true}
                             >
                                 {this.state.selectedStudentCode}
@@ -525,12 +529,20 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                                 placeholder="optional"
                                                 value={row.grade} // Set the initial value of the input to row.grade
                                                 onChange={(e) => this.handleGradeChange(e, row)} // Pass the row object to the function so we can update the state of the row
-                                                style={{
-                                                    borderRadius: '5px',
-                                                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-                                                    padding: '10px'
-                                                }}
+                                                disabled
                                             />
+                                            <Button
+                                                onClick={() => { this.openGradingModule(row.id) }}
+                                                style={{
+                                                    backgroundColor: 'blue',
+                                                    color: 'white',
+                                                    borderRadius: '5px',
+                                                    padding: '10px',
+                                                    margin: '5px'
+                                                }}
+                                            >
+                                                Grade
+                                            </Button>
                                         </Table.Cell>
                                     </Table.Row>
                                 )
@@ -575,6 +587,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                             placeholder="optional"
                                             value={row.grade} // Set the initial value of the input to row.grade
                                             onChange={(e) => this.handleGradeChange(e, row)} // Pass the row object to the function so we can update the state of the row
+                                            disabled
                                         />
                                         <Button
                                             onClick={() => { this.openGradingModule(row.id) }}

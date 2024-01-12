@@ -673,14 +673,14 @@ def ProjectGrading(submission_repo: SubmissionRepository = Provide[Container.sub
     project_id = input_json['ProjectId']
     user_id = input_json['userID']
     submissions = submission_repo.get_most_recent_submission_by_project(project_id, [user_id])
-    
+    test_info = []
     grading_data ={}
     student_code = ""
+    project_language = project_repo.get_selected_project(project_id).Language
     student_pylint = None
     if user_id in submissions:
         student_code = submission_repo.read_code_file(submissions[user_id].CodeFilepath)
         student_output = submission_repo.read_output_file(submissions[user_id].OutputFilepath)
-        test_info = []
         current_test = {}
         current_test = {'name': None, 'level': None, 'output': None}
         in_test = False
@@ -711,7 +711,7 @@ def ProjectGrading(submission_repo: SubmissionRepository = Provide[Container.sub
     message = {
         'message': 'Success'
     }
-    return make_response(json.dumps({ "Code": student_code, "TestResults": test_info}), HTTPStatus.OK)
+    return make_response(json.dumps({ "Code": student_code, "TestResults": test_info, "Language": project_language}), HTTPStatus.OK)
 
 
 
