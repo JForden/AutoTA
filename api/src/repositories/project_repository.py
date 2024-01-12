@@ -111,7 +111,12 @@ class ProjectRepository():
         start_string = now.strftime("%Y-%m-%dT%H:%M:%S")
         now = project_data.End
         end_string = now.strftime("%Y-%m-%dT%H:%M:%S")
-        project[project_data.Id] = [str(project_data.Name),str(start_string),str(end_string), str(project_data.Language)]
+        project_solutionFile = project_data.solutionpath
+        #Strip just the file name from the path
+        project_solutionFile = project_solutionFile.split("/")[-1]
+        project_descriptionfile = project_data.AsnDescriptionPath
+        project_descriptionfile = project_descriptionfile.split("/")[-1]
+        project[project_data.Id] = [str(project_data.Name),str(start_string),str(end_string), str(project_data.Language), str(project_solutionFile), str(project_descriptionfile)]
         return project
 
     def edit_project(self, name: str, start: datetime, end: datetime, language:str, project_id:int, path:str, description_path:str):

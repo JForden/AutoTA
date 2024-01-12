@@ -59,6 +59,8 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     const [selectedAddFile, setSelectedAddFile] = useState<File>();
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [selectedTestCaseId, setSelectedTestCaseId] = useState<number>(-4);
+    const [solutionfileName, setSolutionFileName] = useState<string>("");
+    const [descfileName, setDescFileName] = useState<string>("");
 
     useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_testcases?id=${props.id}`, {
@@ -124,6 +126,8 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                         setProjectStartDate(data[props.id][1]);
                         setProjectEndDate(data[props.id][2]);
                         setProjectLanguage(data[props.id][3]);
+                        setSolutionFileName(data[props.id][4]);
+                        setDescFileName(data[props.id][5]);
                         setEdit(true);
                         setSubmitButton("Submit changes");
                     }
@@ -372,6 +376,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         if (files != null && files.length === 1) {
             // Update the state
             setFile(files[0]);
+            setSolutionFileName(files[0].name);
         } else {
             setFile(undefined);
         }
@@ -385,6 +390,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
         if (files != null && files.length === 1) {
             // Update the state
             setDesc(files[0]);
+            setDescFileName(files[0].name);
         } else {
             setDesc(undefined);
         }
@@ -588,33 +594,41 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                         {
                                             edit ?
                                                 <div>
-                                                    <h1>Change solution files</h1>
-                                                    <Button as="label" htmlFor="file" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
-                                                        Select File
-                                                        <input id="file" type="file" hidden onChange={handleFileChange} />
-                                                    </Button>
-                                                    <br></br>
-                                                    <h1>Change assignment description file</h1>
-                                                    <Button as="label" htmlFor="descFile" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
-                                                        Select File
-                                                        <input id="descFile" type="file" hidden onChange={handleDescFileChange} />
-                                                    </Button>
-                                                    <br></br>
+                                                    <Segment>
+                                                        <Header as='h2'>Change solution files</Header>
+                                                        <Button as="label" htmlFor="file" primary>
+                                                            Select File
+                                                            <input id="file" type="file" hidden onChange={handleFileChange} />
+                                                        </Button>
+                                                        {solutionfileName !== "" && <Label as='a' color='blue' tag>{"Current file: " + solutionfileName}</Label>}
+                                                    </Segment>
+                                                    <Segment>
+                                                        <Header as='h2'>Change assignment description file</Header>
+                                                        <Button as="label" htmlFor="descFile" primary>
+                                                            Select File
+                                                            <input id="descFile" type="file" hidden onChange={handleDescFileChange} />
+                                                        </Button>
+                                                        {descfileName !== "" && <Label as='a' color='blue' tag>{"Current file: " + descfileName}</Label>}
+                                                    </Segment>
                                                 </div>
                                                 :
                                                 <div>
-                                                    <h1>Upload solution files</h1>
-                                                    <Button as="label" htmlFor="file" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
-                                                        Select File
-                                                        <input id="file" type="file" hidden onChange={handleFileChange} />
-                                                    </Button>
-                                                    <br></br>
-                                                    <h1>Upload assignment description</h1>
-                                                    <Button as="label" htmlFor="descFile" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
-                                                        Select File
-                                                        <input id="descFile" type="file" hidden onChange={handleDescFileChange} />
-                                                    </Button>
-                                                    <br></br>
+                                                    <Segment>
+                                                        <Header as='h2'>Upload solution files</Header>
+                                                        <Button as="label" htmlFor="file" primary>
+                                                            Select File
+                                                            <input id="file" type="file" hidden onChange={handleFileChange} />
+                                                        </Button>
+                                                        {solutionfileName !== "" && <Label as='a' color='blue' tag>{"Current file: " + solutionfileName}</Label>}
+                                                    </Segment>
+                                                    <Segment>
+                                                        <Header as='h2'>Upload assignment description</Header>
+                                                        <Button as="label" htmlFor="descFile" primary>
+                                                            Select File
+                                                            <input id="descFile" type="file" hidden onChange={handleDescFileChange} />
+                                                        </Button>
+                                                        {descfileName !== "" && <Label as='a' color='blue' tag>{"Current file: " + descfileName}</Label>}
+                                                    </Segment>
                                                 </div>
                                         }
                                     </Segment>
