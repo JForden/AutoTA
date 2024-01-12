@@ -286,11 +286,10 @@ def extraday(submission_repo: SubmissionRepository = Provide[Container.submissio
 @jwt_required()
 @inject
 def gptData(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
-    print("In GPT call", flush=True)
     question_description = str(request.args.get("description"))
     output = str(request.args.get("output"))
     code_data = str(request.args.get("code"))
-    submissionid = submission_repo.get_submission_by_user_id(current_user.Id).Id
+    submissionid = int(request.args.get("submissionId"))
     return make_response(submission_repo.chatGPT_caller(submissionid,question_description, output, code_data), HTTPStatus.OK)
 
 
@@ -301,7 +300,7 @@ def gptData(submission_repo: SubmissionRepository = Provide[Container.submission
 def gptexplainer(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
     question_description = str(request.args.get("description"))
     output = str(request.args.get("output"))
-    submissionid = submission_repo.get_submission_by_user_id(current_user.Id).Id
+    submissionid = int(request.args.get("submissionId"))
     return make_response(submission_repo.chatGPT_explainer(submissionid,question_description, output), HTTPStatus.OK)
 
 @submission_api.route('/ResearchGroup', methods=['GET'])

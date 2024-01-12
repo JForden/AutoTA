@@ -13,7 +13,8 @@ interface TestResultComponentProps {
   testcase: JsonResponse,
   score: number,
   showScore: boolean,
-  researchGroup: number
+  researchGroup: number,
+  submissionId: number,
 }
 
 interface TestState {
@@ -100,6 +101,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
         code: this.props.codedata,
         description: this.state.description,
         output: this.state.output,
+        submissionId: this.props.submissionId,
       },
       headers: {
         'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
@@ -123,6 +125,7 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
       params: {
         description: this.state.description,
         output: this.state.output,
+        submissionId: this.props.submissionId,
       },
       headers: {
         'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
