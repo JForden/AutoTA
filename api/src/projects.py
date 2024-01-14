@@ -398,23 +398,22 @@ def delete_project(project_repo: ProjectRepository = Provide[Container.project_r
         }
         return make_response(message, HTTPStatus.UNAUTHORIZED)
     project_id = request.args.get('id')
-    print("ProjectID: ", project_id)
     
     project_repo.wipe_submissions(project_id)
-    print("MADE IT HERE", flush=True)
+    
     project_repo.delete_project(project_id)
-    print("Finished", flush=True)
+    
     return make_response("Project reset", HTTPStatus.OK)
 
 @projects_api.route('/getAssignmentDescription', methods=['GET'])
 @jwt_required()
 @inject
 def getAssignmentDescription(project_repo: ProjectRepository = Provide[Container.project_repo]):
-    print("MADE IT HERE1", flush=True)
+    
     project_id = request.args.get('project_id')
     assignmentdesc_contents = project_repo.get_project_desc_file(project_id)
     file_stream = BytesIO(assignmentdesc_contents)
-    print("MADE IT HERE", flush=True)
+    
     
     # Use send_file to send the PDF contents as a response
     return Response(

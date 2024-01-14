@@ -292,8 +292,6 @@ def gptData(submission_repo: SubmissionRepository = Provide[Container.submission
     submissionid = int(request.args.get("submissionId"))
     return make_response(submission_repo.chatGPT_caller(submissionid,question_description, output, code_data), HTTPStatus.OK)
 
-
-
 @submission_api.route('/gptexplainer', methods=['GET'])
 @jwt_required()
 @inject
@@ -302,6 +300,21 @@ def gptexplainer(submission_repo: SubmissionRepository = Provide[Container.submi
     output = str(request.args.get("output"))
     submissionid = int(request.args.get("submissionId"))
     return make_response(submission_repo.chatGPT_explainer(submissionid,question_description, output), HTTPStatus.OK)
+
+@submission_api.route('/gptDescription', methods=['GET'])
+@jwt_required()
+@inject
+def gptDescription(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+    input = str(request.args.get("input"))
+    project_id = int(request.args.get("projectId"))
+    project = project_repo.get_selected_project(project_id)
+    return make_response(json.dumps({ "description": submission_repo.descriptionGPT_caller(project.solutionpath,input, project_id)}), HTTPStatus.OK)
+
 
 @submission_api.route('/ResearchGroup', methods=['GET'])
 @jwt_required()

@@ -339,6 +339,51 @@ class SubmissionRepository():
             # Handle the error
             message = "The server is overloaded or not ready yet."
             return message
+        
+    def descriptionGPT_caller(self, solutionpath, input, project_id):
+        openai.api_key = "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"
+        solution_code = ""
+        if os.path.isdir(solutionpath):
+            for filename in os.listdir(solutionpath):
+                with open(filename, "r") as f:
+                    solution_code = f.read()
+                break
+        else:
+            with open(solutionpath, 'r') as file:
+                solution_code = file.read()
+        print("solution code is: ", solution_code, flush=True)
+        # https://beta.openai.com/docs/models
+        # to find average tokens OpenAI's tiktoken Python library.
+        model_engine = "gpt-3.5-turbo"  # fastest model
+        assignment_prompt = f"""
+        Please provide a brief, conversational description of what this test case aims to achieve without disclosing the specific input or solution code.
+        Here is the testcase input: {input} and here is the solution code: {solution_code}"""
+        try:
+            completions = openai.chat.completions.create(
+                model=model_engine,
+                messages=[
+                    {"role": "system", "content": assignment_prompt},
+                ],
+                max_tokens=500,  # Reduce the number of tokens in the response
+                temperature=0.5,
+            )
+
+            # Get the generated response from completions
+            generated_response = completions.choices[0].message.content
+            # Save the generated response into the database
+
+            # Return the generated response if needed (optional)
+            log = GPTLogs(SubmissionId=project_id, GPTResponse=generated_response, StudentFeedback=-2,Type=-2)
+            db.session.add(log)
+            db.session.commit()
+
+            return [generated_response]
+
+        except openai.error.ServiceUnavailableError as e:
+            # Handle the error
+            message = "The server is overloaded or not ready yet."
+            return message
+
     def Update_GPT_Student_Feedback(self,question_id, student_feedback):
         question = GPTLogs.query.filter(GPTLogs.Qid == question_id).first()
         question.StudentFeedback =int(student_feedback)
