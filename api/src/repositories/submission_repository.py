@@ -469,7 +469,7 @@ class SubmissionRepository():
         question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == int(project_id), StudentQuestions.dismissed == 1)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
         #Get how long until this time is the current time
         if question == None:
-            return 0
+            return "Expired"
         elif question.TimeAccepted == None:
             formatted_time_remaining = f"{3} hours, {0} minutes" 
             return formatted_time_remaining 

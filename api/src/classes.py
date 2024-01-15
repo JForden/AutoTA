@@ -14,11 +14,11 @@ class_api = Blueprint('class_api', __name__)
 def get_classes_and_ids(class_repo: ClassRepository = Provide[Container.class_repo],
                         class_service: class_service = Provide[Container.class_service]):
     classes_list = []
-    is_filtered = request.args.get('filter').lower() == "true"
+    is_filtered = request.args.get('filter') == "true"
     if is_filtered:
         classes_list = class_service.get_assigned_classes(current_user, class_repo)
     else:
-        classes_list = class_service.get_assigned_classes()
+        classes_list = class_service.get_assigned_classes(current_user, class_repo)
     return jsonify(classes_list)
 
 @class_api.route('/sections', methods=['GET'])

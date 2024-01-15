@@ -391,7 +391,7 @@ def get_remaining_OH_Time(submission_repo: SubmissionRepository = Provide[Contai
     submission_details.append(str(submission_repo.get_remaining_OH_Time(current_user.Id, projectId)))
     project = project_repo.get_project(projectId)
     start_time = project.get(projectId)[1]
-    start_date = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+    start_date = datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%S")
     current_time = datetime.now()
     #get days passed 
     days_passed = (current_time - start_date).days
