@@ -1,6 +1,6 @@
 from typing import Dict, List
 from src.repositories.database import db
-from .models import ClassAssignments, Classes, Labs, LectureSections
+from .models import ClassAssignments, Classes, Labs, LectureSections, Users
 from sqlalchemy import desc, and_
 
 from ..models.LabJson import LabJson
@@ -92,10 +92,10 @@ class ClassRepository():
         """
         # Query the ClassAssignments table where the ClassId matches the provided class_id
         # The count() function is used to get the number of records that match the filter
-        student_count = ClassAssignments.query.filter(ClassAssignments.ClassId == class_id).count()
-
-        # Return the count of students
-        return student_count
+        total = db.session.query(ClassAssignments).join(Users, ClassAssignments.UserId == Users.Id).filter(
+            and_(ClassAssignments.ClassId == class_id, Users.Role != 1)
+        ).count()
+        return total
     
 
 

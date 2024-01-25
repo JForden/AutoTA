@@ -99,10 +99,12 @@ class UserRepository():
         Returns:
             List[Users]: A list of all users associated with the given class ID.
         """
-        users_in_class = ClassAssignments.query.filter(ClassAssignments.ClassId==class_id).all()
+        users_in_class = db.session.query(ClassAssignments).join(Users, ClassAssignments.UserId == Users.Id).filter(
+            and_(ClassAssignments.ClassId == class_id, Users.Role != 1)
+        ).all()
         users = []
-        for temp in users_in_class:
-            users.append(Users.query.filter(Users.Id==temp.UserId).one_or_none() )
+        for user in users_in_class:
+            users.append(Users.query.filter(Users.Id==user.UserId).one_or_none())
         return users
     def send_attempt_data(self, username: str, ipadr: str, time: datetime):
         """Adds a new login attempt to the database. This is only triggered should a user fail to sign in, used to prevent brute force attacks

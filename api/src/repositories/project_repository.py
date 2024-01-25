@@ -143,7 +143,7 @@ class ProjectRepository():
             if test.additionalfilepath != "":
                 testcase_data.append(test.additionalfilepath)
             else:
-                testcase_data.append("None")
+                testcase_data.append("")
             testcase_info[test.Id] = testcase_data
         return testcase_info
     
