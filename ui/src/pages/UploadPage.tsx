@@ -53,6 +53,7 @@ const UploadPage = () => {
     const [tbstime, setTbsTime] = useState<string>("");
     const [DaysSinceProjectStarted, setDaysSinceProjectStarted] = useState<number>(0);
     const [TimeUntilNextSubmission, setTimeUntilNextSubmission] = useState<string>("");
+    const [suggestions, setSuggestions] = useState<string>("");
 
 
     useEffect(() => {
@@ -94,6 +95,23 @@ const UploadPage = () => {
             setTimeUntilNextSubmission(res.data[2]);
         })
     }
+    function submitSuggestions() {
+        axios.post(process.env.REACT_APP_BASE_API_URL + `/submissions/submit_suggestion`,
+            {
+                "suggestion": suggestions
+            },
+            {
+                headers:
+                {
+                    'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+                }
+            }
+        ).then(res => {
+            alert("Thank you for your constructive feedback, if you have any other suggestions please feel free to submit them.");
+        }, (error) => {
+            alert("There was an error submitting your feedback. Please try again later.");
+        })
+    }
 
     function onTimerFinish() {
         window.location.reload();
@@ -132,6 +150,7 @@ const UploadPage = () => {
                 })
         }
     }
+
 
     return (
         <div>
@@ -233,8 +252,10 @@ const UploadPage = () => {
                                 </Table.Row>
                             </Table.Body>
                         </Table>
-                        <p>You get instant test case feedback while in office hours! <br></br>
-                            After you leave office hours, you will have the reduced TBS for 3 hours!</p>
+                        <p style={{ color: 'red', fontSize: '20px', fontWeight: 'bold' }}>
+                            You get instant test case feedback while in office hours! <br></br>
+                            After you leave office hours, you will have the reduced TBS for 3 hours!
+                        </p>
                     </div>
 
                     {hasTbsEnabled && project_id !== -1 && !is_allowed_to_submit && (
@@ -257,7 +278,15 @@ const UploadPage = () => {
                         </Button>
                     )}
                     <div>&nbsp;</div>
-                    <div><Icon name="paper plane" color="red" /><a href="https://docs.google.com/document/d/1Ig15zUygy85cNyPTg7_VYjW7WcgasvijmXGiNDjZssA/edit?usp=sharing" target="_blank">TA-Bot Patch Notes!</a></div>
+                </Grid.Column>
+                <Grid.Column width={2}>
+                    <Form>
+                        <label>
+                            TA-Bot is an assessment system developed by Marquette students. We welcome constructive feedback throughout the semester. The TA-Bot team will strive to implement your suggestions.
+                        </label>
+                        <Form.TextArea placeholder={"example: TA-Bot struggles when dealing with small issues in Test cases"} value={suggestions} onChange={(e, { value }) => setSuggestions(value as string)} />
+                        <Button style={{ backgroundColor: 'purple', color: 'white', marginTop: '10px' }} onClick={submitSuggestions} type='submit'>Submit Feedback</Button>
+                    </Form>
                 </Grid.Column>
             </Grid>
         </div>

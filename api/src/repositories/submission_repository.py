@@ -2,7 +2,7 @@ from collections import defaultdict
 import os
 import openai
 from src.repositories.database import db
-from .models import GPTLogs, StudentGrades, StudentQuestions, StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
+from .models import GPTLogs, StudentGrades, StudentQuestions, StudentSuggestions, StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
 from sqlalchemy import desc, and_
 from typing import Dict, List, Tuple
 from src.repositories.config_repository import ConfigRepository
@@ -627,6 +627,13 @@ class SubmissionRepository():
         for score in scores:
             student_list.append([score.Sid, score.Grade])
         return student_list
+    def submitSuggestion(self, user_id, suggestion):
+        dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        suggestion = StudentSuggestions(UserId=user_id, StudentSuggestionscol=suggestion, TimeSubmitted=dt_string)
+        db.session.add(suggestion)
+        db.session.commit()
+        return "ok"
+
     
 
 

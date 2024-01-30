@@ -14,6 +14,10 @@ class ClassRepository():
         class_id = Classes.query.filter(Classes.Name==class_name).first().Id
         
         return class_id
+    def get_class_name_withId(self, class_id):
+        class_name = Classes.query.filter(Classes.Id==class_id).first().Name
+        return class_name
+
     def get_lecture_id_withName(self,lectureName):
         # changed LectureSections.Name to Id
         lecture_id = LectureSections.query.filter(LectureSections.Id==lectureName).first().Id

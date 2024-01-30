@@ -61,6 +61,7 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     const [selectedTestCaseId, setSelectedTestCaseId] = useState<number>(-4);
     const [solutionfileName, setSolutionFileName] = useState<string>("");
     const [descfileName, setDescFileName] = useState<string>("");
+    const [jsonfilename, setjsonfilename] = useState<string>("");
 
     useEffect(() => {
         axios.get(process.env.REACT_APP_BASE_API_URL + `/projects/get_testcases?id=${props.id}`, {
@@ -392,9 +393,6 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     }
 
 
-
-
-
     function handleFileChange(event: React.FormEvent) {
 
         const target = event.target as HTMLInputElement;
@@ -404,6 +402,20 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
             // Update the state
             setFile(files[0]);
             setSolutionFileName(files[0].name);
+        } else {
+            setFile(undefined);
+        }
+    };
+
+    function handleJsonFileChange(event: React.FormEvent) {
+
+        const target = event.target as HTMLInputElement;
+        const files = target.files;
+
+        if (files != null && files.length === 1) {
+            // Update the state
+            setFile(files[0]);
+            setjsonfilename(files[0].name);
         } else {
             setFile(undefined);
         }
@@ -913,8 +925,9 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
                                     <h1 style={{ marginBottom: '20px' }}>Upload Test Cases</h1>
                                     <Button as="label" htmlFor="file" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', cursor: 'pointer' }}>
                                         Select Json File
-                                        <input id="file" type="file" hidden required={true} onChange={handleFileChange} />
+                                        <input id="file" type="file" hidden required={true} onChange={handleJsonFileChange} />
                                     </Button>
+                                    {jsonfilename !== "" && <Label as='a' color='blue' tag>{"Current file: " + jsonfilename}</Label>}
                                 </Segment>
                                 <Button.Group>
                                     <Form.Button onClick={handleJsonSubmit}>{SubmitJSON}</Form.Button>

@@ -161,3 +161,9 @@ class StudentGrades(db.Model):
     Sid = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
     Pid = Column(Integer, ForeignKey('Projects.Id'), primary_key=True)
     Grade = Column(Integer)
+class StudentSuggestions(db.Model):
+    __tablename__ = "StudentSuggestions"
+    idStudentSuggestions = Column(Integer, primary_key=True, autoincrement=True)
+    UserId = Column(Integer)
+    StudentSuggestionscol = Column(String)
+    TimeSubmitted = Column(DateTime)

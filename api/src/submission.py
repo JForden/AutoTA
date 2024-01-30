@@ -387,7 +387,10 @@ def get_active_Question(submission_repo: SubmissionRepository = Provide[Containe
 def get_remaining_OH_Time(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
     classId = str(request.args.get("class_id"))
     submission_details = []
-    projectId = project_repo.get_current_project_by_class(classId).Id
+    try:
+        projectId = project_repo.get_current_project_by_class(classId).Id
+    except Exception as e:
+        return make_response({"error": str(e)}, 500)
     submission_details.append(str(submission_repo.get_remaining_OH_Time(current_user.Id, projectId)))
     project = project_repo.get_project(projectId)
     start_time = project.get(projectId)[1]
@@ -443,3 +446,12 @@ def get_project_name(project_repo: ProjectRepository = Provide[Container.project
     project_id = str(request.args.get("projectID"))
     print("project id", project_id, flush=True)
     return make_response(project_repo.get_selected_project(project_id).Name, HTTPStatus.OK)
+
+@submission_api.route('/submit_suggestion', methods=['POST'])
+@jwt_required()
+@inject
+def submit_Suggestion(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    data = request.get_json()
+    suggestion = data['suggestion']
+    submission_repo.submitSuggestion(current_user.Id ,suggestion)
+    return make_response("Suggestion Submitted", HTTPStatus.OK)

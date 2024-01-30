@@ -101,7 +101,7 @@ def get_submission_by_user_most_recent_project(project_repo: ProjectRepository =
 @projects_api.route('/create_project', methods=['POST'])
 @jwt_required()
 @inject
-def create_project(project_repo: ProjectRepository = Provide[Container.project_repo]):
+def create_project(project_repo: ProjectRepository = Provide[Container.project_repo], class_repo: ClassRepository = Provide[Container.class_repo], user_repo: UserRepository = Provide[Container.user_repo]):
     if 'file' not in request.files:
         print("NO FILE")
         message = {
@@ -148,24 +148,33 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
 
     filename =file.filename
     extension = os.path.splitext(filename)[1]
+    classname = class_repo.get_class_name_withId(class_id)
+    now = datetime.now()
+    filename_datetime = now.strftime("%Y_%m_%d_%H_%M")
+
     print("Extension in projects: ", extension, flush=True)
     if extension != ".zip":
-        path = os.path.join("/ta-bot/project-files", f"{name}{extension}")
-        os.mkdir(os.path.join("/ta-bot", f"{name}-out"))
+        name = re.sub(r'[^\w\-_\. ]', '_', name)
+        name = name.replace(' ', '_')
+        path = os.path.join("/ta-bot/project-files", f"{name}_{classname}_{filename_datetime}{extension}")
+        filename = f"{classname}_{name}_{filename_datetime}-out"
+        os.mkdir(os.path.join("/ta-bot", filename))
         file.save(path)
         file = request.files['assignmentdesc']
-        assignmentdesc_path = os.path.join("/ta-bot/project-files", f"{name}.pdf")
+        assignmentdesc_path = os.path.join("/ta-bot/project-files", f"{classname}_{filename_datetime}_{name}.pdf")
         file.save(assignmentdesc_path)
     else:
         print("In file save else", flush=True)
-        path = os.path.join("/ta-bot/project-files", f"{name}")
+        name = re.sub(r'[^\w\-_\. ]', '_', name)
+        name = name.replace(' ', '_')
+        path = os.path.join("/ta-bot/project-files", f"{name}_{classname}_{filename_datetime}{extension}")
         if os.path.isdir(path):
             shutil.rmtree(path)
         os.mkdir(path)
         with zipfile.ZipFile(file, "r") as zip_ref:
             zip_ref.extractall(path) 
         file = request.files['assignmentdesc']
-        assignmentdesc_path = os.path.join("/ta-bot/project-files", f"{name}.pdf")
+        assignmentdesc_path = os.path.join("/ta-bot/project-files", f"{classname}_{filename_datetime}_{name}.pdf")
         file.save(assignmentdesc_path)
     project_repo.create_project(name, start_date, end_date, language,class_id,path, assignmentdesc_path)
 
