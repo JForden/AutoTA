@@ -301,18 +301,10 @@ class TestResultsComponent extends Component<TestResultComponentProps, TestState
                         <strong>For additional help, please select a button: </strong>
 
                         {/* Conditional buttons */}
-                        <Button.Group>
-                          <Button color='blue' onClick={this.handlehelpbuttonclick}>
-                            <Icon name='help circle' />
-                            Test Case Help
-                          </Button>
-                          <Button.Or />
-                          <Button color='green' onClick={this.handleexplinationbuttonclick}>
-                            <Icon name='lightbulb' />
-                            Output Explanation
-                          </Button>
-                        </Button.Group>
-
+                        <Button color='green' onClick={this.handleexplinationbuttonclick}>
+                          <Icon name='lightbulb' />
+                          Output Explanation
+                        </Button>
                         <br />
                         <strong>Test Description: </strong>{this.state.description}<br />
                         <pre style={{ backgroundColor: 'lightgrey' }}>{this.state.output}</pre>

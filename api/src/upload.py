@@ -324,6 +324,12 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         }
         return make_response(message, HTTPStatus.BAD_REQUEST)
     filedata=file.read()
+    classname = class_repo.get_class_name_withId(class_id)
+    submission_path = "/ta-bot/" + project.solutionpath.split("/")[3].split(".")[0] + "-out"
+    print(project.solutionpath.split("/")[3], flush=True)
+    print(submission_path, flush=True)
+
+
     if file and allowed_file(file.filename):
         language = file.filename.rsplit('.', 1)[1].lower()
 
@@ -332,8 +338,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         #check to see if file is a zip file, if so extract the files
         if file.filename.endswith(".zip"):
             with zipfile.ZipFile(file, 'r') as zip_ref:
-                path = os.path.join("/ta-bot", project.Name + "-out")
-                extract_dir = os.path.join(path) 
+                extract_dir = os.path.join(submission_path) 
                 if os.path.isdir(extract_dir):
                     shutil.rmtree(extract_dir)
                 os.mkdir(extract_dir)
@@ -342,7 +347,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
                 path=extract_dir                
         else:
             file.seek(0)
-            path = os.path.join("/ta-bot",project.Name+"-out")
+            path = os.path.join(submission_path)
             outputpath = path
             language = project.Language.lower()
             path = os.path.join(path, f"{username}{ext[language][0]}") 

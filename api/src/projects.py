@@ -157,7 +157,7 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         name = re.sub(r'[^\w\-_\. ]', '_', name)
         name = name.replace(' ', '_')
         path = os.path.join("/ta-bot/project-files", f"{name}_{classname}_{filename_datetime}{extension}")
-        filename = f"{classname}_{name}_{filename_datetime}-out"
+        filename = f"{name}_{classname}_{filename_datetime}-out"
         os.mkdir(os.path.join("/ta-bot", filename))
         file.save(path)
         file = request.files['assignmentdesc']
@@ -176,12 +176,12 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         file = request.files['assignmentdesc']
         assignmentdesc_path = os.path.join("/ta-bot/project-files", f"{classname}_{filename_datetime}_{name}.pdf")
         file.save(assignmentdesc_path)
-    project_repo.create_project(name, start_date, end_date, language,class_id,path, assignmentdesc_path)
+    #TODO: This is braindead, fix it
+    project_id=project_repo.create_project(name, start_date, end_date, language,class_id,path, assignmentdesc_path)
 
-    new_project_id = project_repo.get_project_id_by_name(name)
-    project_repo.levels_creator(new_project_id)
+    project_repo.levels_creator(project_id)
 
-    return make_response(str(new_project_id), HTTPStatus.OK)
+    return make_response(str(project_id), HTTPStatus.OK)
 
 @projects_api.route('/edit_project', methods=['POST'])
 @jwt_required()

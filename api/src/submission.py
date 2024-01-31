@@ -299,6 +299,8 @@ def gptexplainer(submission_repo: SubmissionRepository = Provide[Container.submi
     question_description = str(request.args.get("description"))
     output = str(request.args.get("output"))
     submissionid = int(request.args.get("submissionId"))
+    if submissionid == -1 and current_user.Role != ADMIN_ROLE:
+        submissionid = submission_repo.get_submission_by_user_id(current_user.Id).Id
     return make_response(submission_repo.chatGPT_explainer(submissionid,question_description, output), HTTPStatus.OK)
 
 @submission_api.route('/gptDescription', methods=['GET'])

@@ -325,7 +325,8 @@ class AdminAnalyticsComponent extends Component<AdminAnalyticsProps, AdminAnalyt
                                   </div>
                                 )}
                               </Card>
-                              <ReactApexChart options={chartOptions} series={chartSeries} type="line" height={350} />
+
+                              {/* <ReactApexChart options={chartOptions} series={chartSeries} type="line" height={350} /> */}
                             </Modal.Description>
                           </Modal.Content>
                         </Modal>
@@ -637,7 +638,7 @@ class AdminAnalyticsComponent extends Component<AdminAnalyticsProps, AdminAnalyt
             {/* Test Case Results */}
             <Grid.Column>
               <Card fluid className="analytics-card">
-                <ReactApexChart
+                {/* <ReactApexChart
                   options={{
                     chart: {
                       type: 'bar',
@@ -692,7 +693,7 @@ class AdminAnalyticsComponent extends Component<AdminAnalyticsProps, AdminAnalyt
                   series={[{ name: 'Pass Rate', data: testAverages }]} // Ensure this is an array of pass rates
                   type="bar"
                   height={350}
-                />
+                /> */}
               </Card>
             </Grid.Column>
           </Grid.Row>

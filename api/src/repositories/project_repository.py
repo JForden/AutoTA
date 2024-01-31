@@ -104,6 +104,7 @@ class ProjectRepository():
         project = Projects(Name = name, Start = start, End = end, Language = language,ClassId=class_id,solutionpath=file_path, AsnDescriptionPath = description_path)
         db.session.add(project)
         db.session.commit()
+        return project.Id
     def get_project(self, project_id:int) -> Projects:
         project_data = Projects.query.filter(Projects.Id == project_id).first()
         project ={}
