@@ -282,7 +282,7 @@ const UploadPage = () => {
                 <Grid.Column width={2}>
                     <Form>
                         <label>
-                            TA-Bot is an assessment system developed by Marquette students. We welcome constructive feedback throughout the semester. The TA-Bot team will strive to implement your suggestions.
+                            TA-Bot is an assessment system developed by Marquette students. We welcome constructive feedback throughout the semester. The TA-Bot team will strive to implement your suggestions. For more information, please see our <a href="https://docs.google.com/document/d/1af1NU6K24drPaiJXFFo4gLD4dqNVivKQ9ZijDMAWyd4/edit?usp=sharing">FAQ's</a>.
                         </label>
                         <Form.TextArea placeholder={"example: TA-Bot struggles when dealing with small issues in Test cases"} value={suggestions} onChange={(e, { value }) => setSuggestions(value as string)} />
                         <Button style={{ backgroundColor: 'purple', color: 'white', marginTop: '10px' }} onClick={submitSuggestions} type='submit'>Submit Feedback</Button>

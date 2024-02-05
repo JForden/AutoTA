@@ -210,28 +210,21 @@ def edit_project(project_repo: ProjectRepository = Provide[Container.project_rep
         extension = os.path.splitext(filename)[1]
         if os.path.isfile(path):
             try:
-                os.remove(path)
+                file.save(path)
             except OSError as e:
                 print("Error deleting file:", e)
                 return make_response("Error deleting file", HTTPStatus.INTERNAL_SERVER_ERROR) 
-        elif os.path.isdir(path):
+        else: 
             try:
-                shutil.rmtree(path)
-                
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
+                os.mkdir(path)
+                with zipfile.ZipFile(file, "r") as zip_ref:
+                    zip_ref.extractall(path)
             except OSError as e:
                 print("Error deleting directory:", e)  
                 return make_response("Error deleting directory", HTTPStatus.INTERNAL_SERVER_ERROR)      
-        if extension != ".zip":
-            path = os.path.join("/ta-bot/project-files", f"{name}{extension}")
-            os.mkdir(os.path.join("/ta-bot", f"{name}-out"))
-            file.save(path)
-        else:
-            path = os.path.join("/ta-bot/project-files", f"{name}")
-            if os.path.isdir(path):
-                shutil.rmtree(path)
-            os.mkdir(path)
-            with zipfile.ZipFile(file, "r") as zip_ref:
-                zip_ref.extractall(path) 
+            
     
     file = request.files.get('assignmentdesc')
     if file is not None:
