@@ -390,9 +390,10 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
 
         Linting_results=LintErrorLogger(outputpath+"/"+username, project.Language)
 
-        visible = submission_repo.check_timeout(user_id, project.Id)[0]
-        submissionId = submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score, visible, TestCaseResults, Linting_results)
+        submissionId = submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score, 0, TestCaseResults, Linting_results)
         
+        submission_repo.consume_charge(user_id, class_id,  project.Id, submissionId)
+
         # Step 4 assign point totals for the submission 
         current_level = submission_repo.get_current_level(project.Id,user_id)
         if current_level != "":

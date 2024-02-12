@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import os
+import random
 import shutil
 import subprocess
 from typing import Optional, Dict
@@ -7,7 +8,7 @@ from typing import Optional, Dict
 from flask import send_file
 
 from sqlalchemy.sql.expression import asc
-from .models import Projects, Levels, StudentGrades, StudentProgress, Submissions, Testcases, Classes
+from .models import ChatLogs, Projects, Levels, StudentGrades, StudentProgress, Submissions, Testcases, Classes
 from src.repositories.database import db
 from sqlalchemy import desc, and_
 from datetime import datetime
@@ -272,6 +273,37 @@ class ProjectRepository():
         db.session.add(studentGrade)
         db.session.commit()
         return
+    def submit_student_chat(self, user_id, class_id, project_id, user_message, user_code, language, response_to):
+        dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        #Get User UserPseudonym
+        UserPseudonym = ChatLogs.query.filter(ChatLogs.UserId==user_id).first().UserPseudonym
+        new_flag = True
+        if UserPseudonym is None:
+            while new_flag:
+                adjectives = ['Agile', 'Brave', 'Calm', 'Diligent', 'Eager', 'Fierce', 'Gentle', 'Heroic', 'Inventive', 'Jovial', 'Keen', 'Lively', 'Mighty', 'Noble', 'Optimistic', 'Proud', 'Quick', 'Resilient', 'Strong', 'Tenacious', 'Unique', 'Vibrant', 'Wise', 'Xenial', 'Youthful', 'Zealous']
+                nouns = ['Lion', 'Eagle', 'Tiger', 'Leopard', 'Elephant', 'Bear', 'Fox', 'Wolf', 'Hawk', 'Shark', 'Dolphin', 'Cheetah', 'Panther', 'Falcon', 'Gazelle', 'Hippopotamus', 'Iguana', 'Jaguar', 'Kangaroo', 'Lemur', 'Mongoose', 'Narwhal', 'Octopus', 'Penguin', 'Quail', 'Raccoon', 'Squirrel', 'Tortoise', 'Urchin', 'Vulture', 'Walrus', 'Xerus', 'Yak', 'Zebra']
+                colors = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange', 'Pink', 'Brown', 'Black', 'White', 'Gray', 'Crimson', 'Cyan', 'Magenta', 'Lime', 'Maroon', 'Navy', 'Olive', 'Teal', 'Violet', 'Indigo', 'Gold', 'Silver', 'Bronze', 'Ruby', 'Emerald', 'Sapphire', 'Amethyst', 'Quartz', 'Onyx', 'Jade', 'Pearl', 'Topaz', 'Opal', 'Turquoise', 'Amber', 'Coral', 'Garnet', 'Jasper', 'Malachite', 'Peridot', 'Tourmaline', 'Zircon']
+                UserPseudonym = random.choice(colors) + random.choice(adjectives) + random.choice(nouns)
+                unique = ChatLogs.query.filter(ChatLogs.UserPseudonym==UserPseudonym).first()
+                if unique is None:
+                    new_flag = False
+        
+        chat = ChatLogs(UserId=user_id, 
+                        ClassId=class_id,
+                        project_id=project_id, 
+                        ResponseTo=response_to,
+                        UserPseudonym=UserPseudonym,
+                        UserImage="",
+                        Response=user_message, 
+                        Code=user_code, 
+                        Language=language, 
+                        TimeSubmitted=dt_string,
+                        MessageFlag=0,
+                        AcceptedFlag=0,
+                        Likes=0)
+        db.session.add(chat)
+        db.session.commit()
+        return "ok"
 
 
         

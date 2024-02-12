@@ -2,7 +2,7 @@ from collections import defaultdict
 import os
 import openai
 from src.repositories.database import db
-from .models import GPTLogs, StudentGrades, StudentQuestions, StudentSuggestions, StudentUnlocks, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
+from .models import GPTLogs, SnippetRuns, StudentGrades, StudentQuestions, StudentSuggestions, StudentUnlocks, SubmissionChargeRedeptions, SubmissionCharges, Submissions, Projects, StudentProgress, Users, ChatGPTkeys
 from sqlalchemy import desc, and_
 from typing import Dict, List, Tuple
 from src.repositories.config_repository import ConfigRepository
@@ -406,10 +406,13 @@ class SubmissionRepository():
         return "ok"
     def Submit_OH_dismiss(self, question_id):
         question = StudentQuestions.query.filter(StudentQuestions.Sqid == question_id).first()
+        #Get classId based on the projectID
+        project = Projects.query.filter(Projects.Id == question.projectId).first()
+        classId = project.ClassId
         question.dismissed = int(1)
         question.TimeCompleted = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         db.session.commit()
-        return "ok"
+        return [question.StudentId, classId]
     def Get_all_OH_questions(self):
         #get all questions that have not been dismissed
         questions = StudentQuestions.query.filter(StudentQuestions.dismissed == 0).all()
@@ -633,6 +636,135 @@ class SubmissionRepository():
         db.session.add(suggestion)
         db.session.commit()
         return "ok"
+    def log_code_snippet(self, user_id, code, language, input, result ):
+        dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        # Don't need to sanitize code input as using an ORM (Object-Relational Mapping) library aka SQLAlchemy automatically parameterizes queries to prevent SQL injection
+        snippet = SnippetRuns(UserId=user_id, Code=code, Language=language, TestCaseInput=input, Result=result, TimeSubmitted=dt_string)
+        db.session.add(snippet)
+        db.session.commit()
+        return "ok"
+    def get_charges(self, user_id, class_id, project_id):
+        tbs_settings = [5, 15, 45, 60, 90, 120, 120, 120]
+        project_start_date = Projects.query.filter(Projects.Id == project_id).first().Start
+        charges = SubmissionCharges.query.filter(and_(SubmissionCharges.UserId == user_id, SubmissionCharges.ClassId == class_id)).first()
+        try:
+            charges = SubmissionCharges.query.filter(and_(SubmissionCharges.UserId == user_id, SubmissionCharges.ClassId == class_id)).first()
+
+            # If the charges are less than 3, pull most recent Charge Redemptions and award charges.
+            if charges.BaseCharge < 3:
+                # Get the 3 most recent charge redemptions for the student
+                
+                charge_redemptions = SubmissionChargeRedeptions.query.filter(and_(SubmissionChargeRedeptions.UserId == int(user_id), SubmissionChargeRedeptions.ClassId == int(class_id), SubmissionChargeRedeptions.projectId == int(project_id), SubmissionChargeRedeptions.Type=="base", SubmissionChargeRedeptions.Recouped==0)).order_by(desc(SubmissionChargeRedeptions.RedeemedTime)).all()
+                
+                for charge in charge_redemptions:
+                    #Idenify on what date the charge was redeemed
+                    charge_date = charge.RedeemedTime
+                    #Identify how many days have passed since the project start date
+                    days_passed = (charge_date - project_start_date).days
+                    #If more than 7 days have passed, set the days passed to 7
+                    if days_passed > 7:
+                        days_passed = 7
+                    #Get the TBS threshold for the given day
+                    tbs_threshold = tbs_settings[days_passed]
+                    #Identify the current time, and see if it's greater than the time the charge was redeemed + the TBS threshold for the given day
+                    if datetime.now() > charge.RedeemedTime + timedelta(minutes=tbs_threshold):
+                        #Award the student a charge
+                        charges.BaseCharge += 1
+                        #Recoup the charge
+                        charge.Recouped = 1
+                        db.session.commit()
+        except  Exception as e:
+            return [0, 0]
+        return [charges.BaseCharge, charges.RewardCharge]
+    def get_time_until_recharge(self, user_id, class_id, project_id):
+        project_start_date = Projects.query.filter(Projects.Id == project_id).first().Start
+        #Get how many days have passed since the project start date
+        tbs_settings = [5, 15, 45, 60, 90, 120, 120, 120]
+        charge_redemptions = SubmissionChargeRedeptions.query.filter(
+            and_(
+                SubmissionChargeRedeptions.UserId == user_id, 
+                SubmissionChargeRedeptions.ClassId == class_id, 
+                SubmissionChargeRedeptions.projectId == project_id, 
+                SubmissionChargeRedeptions.Recouped == 0,
+                SubmissionChargeRedeptions.Type=="base"
+            )
+        ).order_by(SubmissionChargeRedeptions.RedeemedTime).first()
+        #Idenify on what date the charge was redeemed
+        charge_date = charge_redemptions.RedeemedTime
+        #Identify how many days have passed since the project start date
+        days_passed = (charge_date - project_start_date).days
+        if days_passed > 7:
+            days_passed = 7
+        #Get the TBS threshold for the given day
+        tbs_threshold = tbs_settings[days_passed]
+         
+        # Get the time until the next recharge
+        time_until_resubmission = charge_redemptions.RedeemedTime + timedelta(minutes=tbs_threshold) - datetime.now()
+
+        return time_until_resubmission
+    def consume_charge(self, user_id, class_id, project_id, submission_id):
+        dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        charge = SubmissionCharges.query.filter(and_(SubmissionCharges.UserId == user_id, SubmissionCharges.ClassId == class_id)).first()
+        submission_charge = None
+
+        visible = 0 
+        #Determine if a user is in an active office hour session, if so, do not charge a student
+
+        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == project_id)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
+        time_until_resubmission=""
+        if question is not None and question.ruling == 1:
+            if question.dismissed == 0:
+                visible= 1
+        #Determine if a user has redeemed a reward charge for the given project
+        reward_charge = SubmissionChargeRedeptions.query.filter(and_(SubmissionChargeRedeptions.UserId == user_id, SubmissionChargeRedeptions.ClassId == class_id, SubmissionChargeRedeptions.projectId == project_id, SubmissionChargeRedeptions.Type=="reward")).all()
+        if len(reward_charge) > 0:
+            for reward in reward_charge:
+                if reward.RedeemedTime == None:
+                    reward.RedeemedTime = dt_string
+                    reward.submissionId = submission_id
+                    db.session.commit()
+                    visible= 1
+        if charge.BaseCharge > 0:
+            charge.BaseCharge -= 1
+            submission_charge = SubmissionChargeRedeptions(UserId=user_id, ClassId=class_id, projectId=project_id, Type="base", ClaimedTime=dt_string, RedeemedTime=dt_string, SubmissionId=submission_id,  Recouped=0)
+            db.session.add(submission_charge)
+            db.session.commit()
+            visible= 1
+        #Update the visibility of the submission
+        submission = Submissions.query.filter(Submissions.Id == submission_id).first()
+        submission.visible = visible
+        db.session.commit()
+        return "ok"
+
+    def Charge_use_accounting(self, submission_id, charge_id):
+        dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        charge = SubmissionChargeRedeptions.query.filter(SubmissionChargeRedeptions.Id == charge_id).first()
+        charge.submissionId = submission_id
+        charge.RedeemedTime = dt_string
+        db.session.commit()
+        return "ok"
+    def add_reward_charge(self, user_id, class_id, rewardAmount):
+        charge = SubmissionCharges.query.filter(and_(SubmissionCharges.UserId == user_id, SubmissionCharges.ClassId == class_id)).first()
+        charge.RewardCharge += rewardAmount
+        db.session.commit()
+    def consume_reward_charge(self, user_id, class_id, project):
+        dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        try:
+            student_submissionCharges = SubmissionCharges.query.filter(and_(SubmissionCharges.UserId == user_id, SubmissionCharges.ClassId == class_id)).first()
+            if student_submissionCharges.RewardCharge < 1:
+                return 0
+            student_submissionCharges.RewardCharge -= 1
+
+            reward_charge = SubmissionChargeRedeptions(UserId=user_id, ClassId=class_id, projectId=project, Type="reward", ClaimedTime=dt_string, Recouped=1)
+            db.session.add(reward_charge)
+            db.session.commit()
+            
+            return 1
+        except Exception as e:
+            print("An error occurred while handling the database operation", e)
+            db.session.rollback()
+            return 0
+
 
     
 
