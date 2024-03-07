@@ -526,8 +526,6 @@ def GetCharges(submission_repo: SubmissionRepository = Provide[Container.submiss
         # Convert time_until_recharge to hours, minutes, and seconds
         hours_until_recharge, remainder = divmod(time_until_recharge.total_seconds(), 3600)
         minutes_until_recharge, seconds_until_recharge = divmod(remainder, 60)
-    
-    print("Hours until recharge: ", hours_until_recharge, "Minutes until recharge: ", minutes_until_recharge, "Seconds until recharge: ", seconds_until_recharge, flush=True)
 
     return make_response(json.dumps({"baseCharge": base_charge, "rewardCharge": reward_charge, "HoursUntilRecharge": str(hours_until_recharge), "MinutesUntilRecharge": str(minutes_until_recharge), "SecondsUntilRecharge": str(seconds_until_recharge)}) , HTTPStatus.OK)
     

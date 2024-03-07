@@ -691,7 +691,12 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
             }} onClick={this.handleOpenQueueModal}>View Active Queue</Button>
           }
         </div>
-        <div style={{
+      </div>
+
+    );
+  }
+}
+{/* <div style={{
           margin: '20px',
           marginTop: '20px', // Adjusted for consistency in spacing
           padding: '30px',
@@ -701,8 +706,8 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
           overflow: 'auto',
           backgroundColor: '#ffffff',
           maxHeight: '700px' // Ensuring the container does not grow beyond a certain height
-        }}>
-          <h2 style={{
+        }}> */}
+{/* <h2 style={{
             marginBottom: '20px',
             color: '#333',
             fontSize: '24px',
@@ -713,9 +718,9 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
             height: '2px',
             backgroundColor: '#e0e0e0',
             marginBottom: '20px'
-          }} />
-          {/* Chat items container */}
-          <div style={{
+          }} /> */}
+{/* Chat items container */ }
+{/* <div style={{
             overflowY: 'scroll',
             maxHeight: '600px', // Adjusted to maintain overall maxHeight
             paddingRight: '5px' // Compensate for scroll bar space
@@ -753,10 +758,9 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
                   {event.extraText}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-        <Form style={{
+            ))} */}
+
+{/* <Form style={{
           marginTop: '40px',
           padding: '30px',
           border: '2px solid #e0e0e0',
@@ -837,10 +841,7 @@ class OfficeHoursComponent extends Component<OfficeHoursProps, OfficeHoursState>
           >
             Run Code Snippet!
           </Button>
-        </Form>
-      </div >
-    );
-  }
-}
+        </Form> */}
 
 export default OfficeHoursComponent;
+

@@ -645,8 +645,14 @@ class SubmissionRepository():
         return "ok"
     def get_charges(self, user_id, class_id, project_id):
         tbs_settings = [5, 15, 45, 60, 90, 120, 120, 120]
+        tbs_settings = [i * 3 for i in tbs_settings]
         project_start_date = Projects.query.filter(Projects.Id == project_id).first().Start
         charges = SubmissionCharges.query.filter(and_(SubmissionCharges.UserId == user_id, SubmissionCharges.ClassId == class_id)).first()
+        if charges is None:
+            charge = SubmissionCharges(UserId=user_id, ClassId=class_id, BaseCharge=3, RewardCharge=0)
+            db.session.add(charge)
+            db.session.commit()
+            return [3, 0]
         try:
             charges = SubmissionCharges.query.filter(and_(SubmissionCharges.UserId == user_id, SubmissionCharges.ClassId == class_id)).first()
 
@@ -680,6 +686,7 @@ class SubmissionRepository():
         project_start_date = Projects.query.filter(Projects.Id == project_id).first().Start
         #Get how many days have passed since the project start date
         tbs_settings = [5, 15, 45, 60, 90, 120, 120, 120]
+        tbs_settings = [i * 3 for i in tbs_settings]
         charge_redemptions = SubmissionChargeRedeptions.query.filter(
             and_(
                 SubmissionChargeRedeptions.UserId == user_id, 
@@ -690,7 +697,10 @@ class SubmissionRepository():
             )
         ).order_by(SubmissionChargeRedeptions.RedeemedTime).first()
         #Idenify on what date the charge was redeemed
+
         charge_date = charge_redemptions.RedeemedTime
+
+
         #Identify how many days have passed since the project start date
         days_passed = (charge_date - project_start_date).days
         if days_passed > 7:
@@ -705,16 +715,23 @@ class SubmissionRepository():
     def consume_charge(self, user_id, class_id, project_id, submission_id):
         dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         charge = SubmissionCharges.query.filter(and_(SubmissionCharges.UserId == user_id, SubmissionCharges.ClassId == class_id)).first()
+        
+        
+        
         submission_charge = None
 
         visible = 0 
         #Determine if a user is in an active office hour session, if so, do not charge a student
 
-        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.projectId == project_id)).order_by(desc(StudentQuestions.TimeSubmitted)).first()
+        question = StudentQuestions.query.filter(and_(StudentQuestions.StudentId == user_id, StudentQuestions.dismissed == 0)).first()
+        print("Question is: ", question, flush=True)
         time_until_resubmission=""
         if question is not None and question.ruling == 1:
-            if question.dismissed == 0:
-                visible= 1
+            visible= 1
+            submission = Submissions.query.filter(Submissions.Id == submission_id).first()
+            submission.visible = visible
+            db.session.commit()
+            return "ok"
         #Determine if a user has redeemed a reward charge for the given project
         reward_charge = SubmissionChargeRedeptions.query.filter(and_(SubmissionChargeRedeptions.UserId == user_id, SubmissionChargeRedeptions.ClassId == class_id, SubmissionChargeRedeptions.projectId == project_id, SubmissionChargeRedeptions.Type=="reward")).all()
         if len(reward_charge) > 0:
@@ -724,6 +741,10 @@ class SubmissionRepository():
                     reward.submissionId = submission_id
                     db.session.commit()
                     visible= 1
+                    submission = Submissions.query.filter(Submissions.Id == submission_id).first()
+                    submission.visible = visible
+                    db.session.commit()
+                    return "ok"
         if charge.BaseCharge > 0:
             charge.BaseCharge -= 1
             submission_charge = SubmissionChargeRedeptions(UserId=user_id, ClassId=class_id, projectId=project_id, Type="base", ClaimedTime=dt_string, RedeemedTime=dt_string, SubmissionId=submission_id,  Recouped=0)
@@ -746,6 +767,8 @@ class SubmissionRepository():
     def add_reward_charge(self, user_id, class_id, rewardAmount):
         charge = SubmissionCharges.query.filter(and_(SubmissionCharges.UserId == user_id, SubmissionCharges.ClassId == class_id)).first()
         charge.RewardCharge += rewardAmount
+        if charge.RewardCharge > 5:
+            charge.RewardCharge = 5
         db.session.commit()
     def consume_reward_charge(self, user_id, class_id, project):
         dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
@@ -764,6 +787,7 @@ class SubmissionRepository():
             print("An error occurred while handling the database operation", e)
             db.session.rollback()
             return 0
+        
 
 
     

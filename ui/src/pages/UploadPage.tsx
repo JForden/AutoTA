@@ -261,49 +261,69 @@ const UploadPage = () => {
                                         boxShadow: baseCharge == 2 ? '0 0 8px rgba(0, 191, 255, 0.5)' : 'none' // Simulate breathing for charge 3
                                     }}></div>
                                 </div>
+                                <Segment stacked style={{
+                                    padding: '20px',
+                                    borderRadius: '10px',
+                                    backgroundColor: '#f4f4f4',
+                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                                }}>
+                                    <h1 style={{
+                                        fontSize: '24px',
+                                        fontWeight: 'bold',
+                                        marginBottom: '20px',
+                                        fontFamily: 'Arial, sans-serif'
+                                    }}>Upload Assignment Here</h1>
+                                    <Form.Input type="file" fluid required onChange={handleFileChange} style={{
+                                        marginBottom: '20px',
+                                        borderRadius: '5px',
+                                        borderColor: '#ddd',
+                                        fontFamily: 'Arial, sans-serif'
+                                    }} />
+                                    <style>{pulseAnimation}</style>
+                                    <Button
+                                        disabled={!is_allowed_to_submit}
+                                        type="submit"
+                                        style={{
+                                            background: RewardState ? 'purple' : '#00BFFF',
+                                            color: 'white',
+                                            borderRadius: '30px',
+                                            padding: '10px 20px',
+                                            border: 'none',
+                                            cursor: !is_allowed_to_submit ? 'default' : 'pointer',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                            transition: 'transform 0.2s ease-in-out',
+                                            fontFamily: 'Arial, sans-serif',
+                                            animation: RewardState ? 'pulse 2s infinite' : 'none',
+                                        }}
+                                        fluid size='large'
+                                        onMouseOver={(e: { currentTarget: { style: { transform: string; }; }; }) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                        onMouseOut={(e: { currentTarget: { style: { transform: string; }; }; }) => e.currentTarget.style.transform = 'scale(1)'}
+                                    >
+                                        Upload
+                                    </Button>
 
+                                    <button onClick={consumeRewardCharge} disabled={RewardCharge <= 0} style={{
+                                        marginTop: '20px',
+                                        width: '200px',
+                                        height: '40px',
+                                        borderRadius: '20px',
+                                        backgroundColor: '#9C27B0',
+                                        color: '#fff',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontFamily: 'Arial, sans-serif',
+                                        display: 'block',
+                                        marginLeft: 'auto',
+                                        marginRight: 'auto',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                        transition: 'background-color 0.2s ease-in-out',
+                                        filter: RewardCharge <= 0 ? 'grayscale(100%)' : 'none'
+                                    }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#AB47BC'}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#9C27B0'}
+                                    >Use FastPass Charge</button>
+
+                                </Segment>
                                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                                    <Segment stacked style={{
-                                        padding: '20px',
-                                        borderRadius: '10px',
-                                        backgroundColor: '#f4f4f4',
-                                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-                                    }}>
-                                        <h1 style={{
-                                            fontSize: '24px',
-                                            fontWeight: 'bold',
-                                            marginBottom: '20px',
-                                            fontFamily: 'Arial, sans-serif' // Modern, readable font
-                                        }}>Office Hours Portal</h1>
-                                        <p style={{
-                                            fontSize: '16px',
-                                            marginBottom: '20px',
-                                            fontFamily: 'Arial, sans-serif' // Consistent font usage
-                                        }}>Connect with TAs and peers to discuss the current assignment anonymously.</p>
-                                        <Button
-                                            disabled={!is_allowed_to_submit}
-                                            type="submit"
-                                            style={{
-                                                background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)', // Updated gradient for a modern look
-                                                color: 'white',
-                                                borderRadius: '30px',
-                                                padding: '10px 20px',
-                                                border: 'none',
-                                                cursor: !is_allowed_to_submit ? 'default' : 'pointer',
-                                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                                                transition: 'transform 0.2s ease-in-out',
-                                                fontFamily: 'Arial, sans-serif' // Ensure consistency in typography
-                                            }}
-                                            fluid
-                                            size='large'
-                                            onClick={officeHoursPage}
-                                            onMouseOver={(e: { currentTarget: { style: { transform: string; }; }; }) => e.currentTarget.style.transform = 'scale(1.05)'}
-                                            onMouseOut={(e: { currentTarget: { style: { transform: string; }; }; }) => e.currentTarget.style.transform = 'scale(1)'}
-                                        >
-                                            Enter Office Hours
-                                        </Button>
-                                    </Segment>
-
                                 </div>
                                 <div style={{
                                     height: '220px',
@@ -348,68 +368,6 @@ const UploadPage = () => {
                                         marginBottom: '10px'
                                     }}></div>
                                 </div>
-
-                            </Segment>
-                            <Segment stacked style={{
-                                padding: '20px',
-                                borderRadius: '10px',
-                                backgroundColor: '#f4f4f4',
-                                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-                            }}>
-                                <h1 style={{
-                                    fontSize: '24px',
-                                    fontWeight: 'bold',
-                                    marginBottom: '20px',
-                                    fontFamily: 'Arial, sans-serif'
-                                }}>Upload Assignment Here</h1>
-                                <Form.Input type="file" fluid required onChange={handleFileChange} style={{
-                                    marginBottom: '20px',
-                                    borderRadius: '5px',
-                                    borderColor: '#ddd',
-                                    fontFamily: 'Arial, sans-serif'
-                                }} />
-                                <style>{pulseAnimation}</style>
-                                <Button
-                                    disabled={!is_allowed_to_submit}
-                                    type="submit"
-                                    style={{
-                                        background: RewardState ? 'purple' : 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
-                                        color: 'white',
-                                        borderRadius: '30px',
-                                        padding: '10px 20px',
-                                        border: 'none',
-                                        cursor: !is_allowed_to_submit ? 'default' : 'pointer',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                                        transition: 'transform 0.2s ease-in-out',
-                                        fontFamily: 'Arial, sans-serif',
-                                        animation: RewardState ? 'pulse 2s infinite' : 'none',
-                                    }}
-                                    fluid size='large'
-                                    onMouseOver={(e: { currentTarget: { style: { transform: string; }; }; }) => e.currentTarget.style.transform = 'scale(1.05)'}
-                                    onMouseOut={(e: { currentTarget: { style: { transform: string; }; }; }) => e.currentTarget.style.transform = 'scale(1)'}
-                                >
-                                    Upload
-                                </Button>
-                                {RewardCharge > 0 ?
-                                    <button onClick={consumeRewardCharge} style={{
-                                        marginTop: '20px',
-                                        width: '100px',
-                                        height: '40px',
-                                        borderRadius: '20px',
-                                        backgroundColor: '#9C27B0',
-                                        color: '#fff',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        fontFamily: 'Arial, sans-serif',
-                                        display: 'block',
-                                        marginLeft: 'auto',
-                                        marginRight: 'auto',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                                        transition: 'background-color 0.2s ease-in-out'
-                                    }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#AB47BC'}
-                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#9C27B0'}
-                                    >Redeem Reward</button>
-                                    : null}
                             </Segment>
                             <Dimmer active={project_id === -1}>
                                 <Header as='h2' icon inverted>
@@ -449,17 +407,51 @@ const UploadPage = () => {
                                                 marginRight: '5px',
                                                 verticalAlign: 'middle'
                                             }}></span>
-                                            recharge
+                                            next charge
                                         </div>
                                     );
                                 }}
                                 onComplete={() => { }}
                             />
                         )}
+                        <Segment stacked style={{
+                            padding: '20px',
+                            borderRadius: '10px',
+                            backgroundColor: '#f4f4f4',
+                            boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                        }}>
+                            <Button
+                                disabled={!is_allowed_to_submit}
+                                type="submit"
+                                style={{
+                                    background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+                                    color: 'white',
+                                    borderRadius: '30px',
+                                    padding: '10px 20px',
+                                    border: 'none',
+                                    cursor: !is_allowed_to_submit ? 'default' : 'pointer',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                    transition: 'transform 0.2s ease-in-out',
+                                    fontFamily: 'Arial, sans-serif'
+                                }}
+                                fluid
+                                size='large'
+                                onClick={officeHoursPage}
+                                onMouseOver={(e: { currentTarget: { style: { transform: string; }; }; }) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                onMouseOut={(e: { currentTarget: { style: { transform: string; }; }; }) => e.currentTarget.style.transform = 'scale(1)'}
+                            >
+                                Enter Office Hours
+                            </Button>
+                        </Segment>
                         <Table definition>
                             <Table.Header>
                                 <Table.Row>
-                                    <Table.HeaderCell />
+
+                                    <Table.Cell>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <div style={{ marginLeft: '10px' }}>Days Since Project Start</div>
+                                        </div>
+                                    </Table.Cell>
                                     <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 1 ? '#51f542' : 'white' }}>Day 1</Table.HeaderCell>
                                     <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 2 ? '#66bb6a' : 'white' }}>Day 2</Table.HeaderCell>
                                     <Table.HeaderCell style={{ backgroundColor: DaysSinceProjectStarted === 3 ? '#f5ce42' : 'white' }}>Day 3</Table.HeaderCell>
@@ -479,15 +471,15 @@ const UploadPage = () => {
                                                 borderRadius: '50%',
                                                 backgroundColor: '#00BFFF',
                                             }}></div>
-                                            <div style={{ marginLeft: '10px' }}>Regeneration Time</div>
+                                            <div style={{ marginLeft: '10px' }}>Recharge Time</div>
                                         </div>
                                     </Table.Cell>
-                                    <Table.Cell style={{ fontWeight: 'bold' }}>5 mins</Table.Cell>
                                     <Table.Cell style={{ fontWeight: 'bold' }}>15 mins</Table.Cell>
                                     <Table.Cell style={{ fontWeight: 'bold' }}>45 mins</Table.Cell>
-                                    <Table.Cell style={{ fontWeight: 'bold' }}>1 hr</Table.Cell>
-                                    <Table.Cell style={{ fontWeight: 'bold' }}>1.5 hrs</Table.Cell>
-                                    <Table.Cell style={{ fontWeight: 'bold' }}>2 hrs</Table.Cell>
+                                    <Table.Cell style={{ fontWeight: 'bold' }}>2.25 hrs</Table.Cell>
+                                    <Table.Cell style={{ fontWeight: 'bold' }}>3 hrs</Table.Cell>
+                                    <Table.Cell style={{ fontWeight: 'bold' }}>4.5 hrs</Table.Cell>
+                                    <Table.Cell style={{ fontWeight: 'bold' }}>6 hrs</Table.Cell>
                                 </Table.Row>
                             </Table.Body>
                         </Table>
@@ -514,7 +506,7 @@ const UploadPage = () => {
                                 , these will regenerate over time, as shown in the table above.
                             </span>
                             <span>
-                                Attending office hours or answering peer questions will award you "TimeSkip Charges"
+                                <span style={{ color: "red" }}>Attending office hours</span> will award you <span style={{ color: "red" }} >two</span> "FastPass" charges
                                 <span style={{
                                     display: 'inline-block',
                                     width: '20px',
@@ -531,6 +523,7 @@ const UploadPage = () => {
 
 
                     </div>
+
 
                     {hasTbsEnabled && project_id !== -1 && !is_allowed_to_submit && (
                         <>
