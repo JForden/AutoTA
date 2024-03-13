@@ -331,6 +331,7 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
 
 
     if file and allowed_file(file.filename):
+        zipfile_bool = False  #Horrible, redesign this TODO
         language = file.filename.rsplit('.', 1)[1].lower()
 
         # Step 1: Run TA-Bot to generate grading folder
@@ -338,19 +339,32 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         #check to see if file is a zip file, if so extract the files
         if file.filename.endswith(".zip"):
             with zipfile.ZipFile(file, 'r') as zip_ref:
-                extract_dir = os.path.join(submission_path) 
-                if os.path.isdir(extract_dir):
-                    shutil.rmtree(extract_dir)
-                os.mkdir(extract_dir)
-                zip_ref.extractall(extract_dir)
-                outputpath=path
-                path=extract_dir                
+                zipfile_bool = True
+                outputpath = os.path.join(submission_path)
+                path = os.path.join(submission_path, f"{username}") 
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
+                os.mkdir(path)
+                if project.Language.lower() == "python":
+                    message = {
+                        'message': 'Python projects do not support zip files!'
+                    }
+                    return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
+                if project.Language.lower() == "java":
+                    for file_info in zip_ref.infolist():
+                        if file_info.filename.endswith('.java'):
+                            with zip_ref.open(file_info) as f:
+                                file_content = f.read()
+                            save_path = os.path.join(path, os.path.basename(file_info.filename))
+                            with open(save_path, 'wb') as f:
+                                f.write(file_content)           
         else:
             file.seek(0)
             path = os.path.join(submission_path)
             outputpath = path
             language = project.Language.lower()
             path = os.path.join(path, f"{username}{ext[language][0]}") 
+            print(path, flush=True)
             file.save(path)
 
         # Step 2: Run grade.sh
@@ -368,6 +382,9 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         
         # Step 3: Save submission in submission table
         now = datetime.now()
+        if zipfile_bool:
+            outputpath = path = os.path.join(submission_path, f"{username}") 
+
         tap_path = outputpath+"/"+username+".out"
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         status=output_pass_or_fail(tap_path)
