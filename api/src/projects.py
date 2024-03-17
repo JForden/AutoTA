@@ -164,7 +164,6 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         assignmentdesc_path = os.path.join("/ta-bot/project-files", f"{classname}_{filename_datetime}_{name}.pdf")
         file.save(assignmentdesc_path)
     else:
-        print("In file save else", flush=True)
         name = re.sub(r'[^\w\-_\. ]', '_', name)
         name = name.replace(' ', '_')
         path = os.path.join("/ta-bot/project-files", f"{name}_{classname}_{filename_datetime}")
@@ -178,6 +177,7 @@ def create_project(project_repo: ProjectRepository = Provide[Container.project_r
         filename = f"{name}_{classname}_{filename_datetime}-out"
         os.mkdir(os.path.join("/ta-bot", filename))
         file.save(assignmentdesc_path)
+        
     #TODO: This is braindead, fix it
     project_id=project_repo.create_project(name, start_date, end_date, language,class_id,path, assignmentdesc_path)
 

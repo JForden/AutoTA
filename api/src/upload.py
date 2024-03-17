@@ -117,15 +117,18 @@ def level_counter(filepath):
     total_tests={}
     for test in parser.parse_file(filepath):
         if test.category == "test":
-            if test.yaml_block["suite"] in total_tests:
-                total_tests[test.yaml_block["suite"]]=total_tests[test.yaml_block["suite"]]+1
-            else:
-                total_tests[test.yaml_block["suite"]]=1
-            if test.ok:
-                if test.yaml_block["suite"] in passed_levels:
-                    passed_levels[test.yaml_block["suite"]]=passed_levels[test.yaml_block["suite"]]+1
+            if test.yaml_block is not None and test.yaml_block["suite"] == None:
+                continue
+            if test.yaml_block is not None and test.yaml_block["suite"] in total_tests:
+                if test.yaml_block["suite"] in total_tests:
+                    total_tests[test.yaml_block["suite"]]=total_tests[test.yaml_block["suite"]]+1
                 else:
-                    passed_levels[test.yaml_block["suite"]]=1
+                    total_tests[test.yaml_block["suite"]]=1
+                if test.ok:
+                    if test.yaml_block["suite"] in passed_levels:
+                        passed_levels[test.yaml_block["suite"]]=passed_levels[test.yaml_block["suite"]]+1
+                    else:
+                        passed_levels[test.yaml_block["suite"]]=1
     
     return passed_levels, total_tests
 
@@ -183,10 +186,13 @@ def parse_tap_file_for_levels(file_path: str, levels: List[Levels]) -> str:
     passed_levels=[]
     for test in parser.parse_file(file_path):
         if test.category == "test":
-            if test.ok:
+            if test.ok and test.yaml_block is not None and test.yaml_block["suite"] is not None:
                 passed_levels.append(test.yaml_block["suite"])
             else:
-                failed_levels.append(test.yaml_block["suite"])
+                if test.yaml_block is not None and test.yaml_block["suite"] is not None:
+                    failed_levels.append(test.yaml_block["suite"])
+                else:
+                    print("No suite", flush=True)
     failed_levels.sort()
     passed_levels.sort()
 
