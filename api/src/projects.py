@@ -392,6 +392,22 @@ def reset_project(project_repo: ProjectRepository = Provide[Container.project_re
     return make_response("Project reset", HTTPStatus.OK)
 
 
+@projects_api.route('/export_project_submissions', methods=['GET'])
+@jwt_required()
+@inject
+def export_project_submissions(project_repo: ProjectRepository = Provide[Container.project_repo], submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    if current_user.Role != ADMIN_ROLE:
+        message = {
+            'message': 'Access Denied'
+        }
+        return make_response(message, HTTPStatus.UNAUTHORIZED)
+    project_id = request.args.get('id')
+    project = project_repo.get_selected_project(int(project_id))
+    submission_path = "/ta-bot/" + project.solutionpath.split("/")[3].split(".")[0] + "-out"
+    #For every submission, zip all files and folders in this path.
+    zip_path = shutil.make_archive(submission_path, 'zip', submission_path)
+    return send_file(zip_path, as_attachment=True)
+
 @projects_api.route('/delete_project', methods=['POST', 'DELETE'])
 @jwt_required()
 @inject

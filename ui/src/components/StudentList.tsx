@@ -471,6 +471,7 @@ class StudentList extends Component<StudentListProps, StudentListState> {
                                 >
                                     Plagiarism Checker
                                 </Button>
+
                             </Table.HeaderCell>
                             <Table.HeaderCell>
                                 <Button
