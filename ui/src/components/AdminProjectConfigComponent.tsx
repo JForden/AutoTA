@@ -11,6 +11,7 @@ import AdminProjectSettingsComponent from './AdminProjectSettingsComponent';
 import { useParams } from 'react-router-dom';
 import { StyledIcon } from '../styled-components/StyledIcon';
 import { render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 
 interface AdminProjectConfigProps {
     id: number,
@@ -393,40 +394,25 @@ const AdminProjectConfigComponent = (props: AdminProjectConfigProps) => {
     }
 
 
-    function handleFileChange(event: React.FormEvent) {
-
+    function handleFileChange(event : React.FormEvent) {
+    
         const target = event.target as HTMLInputElement;
         const files = target.files;
 
         if (files != null && files.length === 1) {
             // Update the state
             setFile(files[0]);
-            setSolutionFileName(files[0].name);
         } else {
             setFile(undefined);
         }
     };
 
-    function handleJsonFileChange(event: React.FormEvent) {
-
+    function handleDescFileChange(event : React.FormEvent) {
+    
         const target = event.target as HTMLInputElement;
         const files = target.files;
 
-        if (files != null && files.length === 1) {
-            // Update the state
-            setFile(files[0]);
-            setjsonfilename(files[0].name);
-        } else {
-            setFile(undefined);
-        }
-    };
-
-    function handleDescFileChange(event: React.FormEvent) {
-
-        const target = event.target as HTMLInputElement;
-        const files = target.files;
-
-        if (files != null && files.length === 1) {
+        if(files != null && files.length === 1){
             // Update the state
             setDesc(files[0]);
             setDescFileName(files[0].name);

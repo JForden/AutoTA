@@ -302,6 +302,7 @@ def json_add_testcases(project_repo: ProjectRepository = Provide[Container.proje
 @inject   
 def add_or_update_testcase(project_repo: ProjectRepository = Provide[Container.project_repo]):
     path =""
+    path =""
     if current_user.Role != ADMIN_ROLE:
         message = {
             'message': 'Access Denied'
