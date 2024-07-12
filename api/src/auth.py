@@ -19,6 +19,7 @@ from src.constants import ADMIN_ROLE
 
 auth_api = Blueprint('auth_api', __name__)
 
+
 # Register a callback function that takes whatever object is passed in as the
 # identity when creating JWTs and converts it to a JSON serializable format.
 @jwt.user_identity_loader
