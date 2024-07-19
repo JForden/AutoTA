@@ -69,6 +69,26 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
         console.log(err);
       });
   }
+  private handleExport(projectId: number) {
+    const classId = this.props.match.params.id;
+    axios.get(`${process.env.REACT_APP_BASE_API_URL}/projects/export_project_submissions?id=${projectId}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+      },
+      responseType: 'blob' 
+    })
+      .then((res) => {
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'StudentSubmissions.zip'); 
+        document.body.appendChild(link);
+        link.click();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
   private handleRefresh(projectId: number) {
     axios.delete(`${process.env.REACT_APP_BASE_API_URL}/projects/reset_project?id=${projectId}`, {
       headers: {
@@ -115,6 +135,7 @@ class AdminComponent extends Component<AdminComponentProps, ProjectsState> {
                     <Table.Cell style={{ width: '30%' }}>
                       <Button icon='edit' color="blue" as={Link} to={"/admin/project/edit/" + this.state.classId + "/" + this.state.projects[index].Id} />
                       <Button icon='refresh' disabled={true} onClick={() => this.handleRefresh(this.state.projects[index].Id)} />
+                      <Button icon='file archive' color="purple" disabled={false} onClick={() => this.handleExport(this.state.projects[index].Id)} />
                       <Popup trigger={<Button color='red' disabled={true}>delete project</Button>} flowing hoverable>
                         <Grid centered divided columns={1}>
                           <Grid.Column textAlign='center'>
