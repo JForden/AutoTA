@@ -1,6 +1,9 @@
 from datetime import timedelta
 import os
 import threading
+
+import requests
+import urllib3
 from src.repositories.config_repository import ConfigRepository
 from src.repositories.user_repository import UserRepository
 from flask import Blueprint
@@ -21,6 +24,7 @@ from flask import jsonify
 from datetime import datetime
 from dependency_injector.wiring import inject, Provide
 from container import Container
+from urllib.parse import unquote
 
 submission_api = Blueprint('submission_api', __name__)
 
@@ -375,7 +379,10 @@ def Submit_OH_Question_Ruling(submission_repo: SubmissionRepository = Provide[Co
 @inject
 def Dismiss_OH_Question(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
     question_id = str(request.args.get("question_id"))
-    return make_response(submission_repo.Submit_OH_dismiss(question_id), HTTPStatus.OK)
+    user_id, class_id = submission_repo.Submit_OH_dismiss(question_id)
+    reward_amount = 2
+    submission_repo.add_reward_charge(user_id, class_id, reward_amount)
+    return make_response("ok", HTTPStatus.OK)
 
 @submission_api.route('/getactivequestion', methods=['GET'])
 @jwt_required()
@@ -457,3 +464,101 @@ def submit_Suggestion(submission_repo: SubmissionRepository = Provide[Container.
     suggestion = data['suggestion']
     submission_repo.submitSuggestion(current_user.Id ,suggestion)
     return make_response("Suggestion Submitted", HTTPStatus.OK)
+
+
+
+@submission_api.route('/run_code_snippet', methods=['GET'])
+@jwt_required()
+@inject
+def run_code_snippet(submission_repo: SubmissionRepository = Provide[Container.submission_repo]):
+    student_code = unquote(request.args.get("code"))
+    test_case_input = unquote(request.args.get("input"))
+    language = str(request.args.get("language"))
+
+
+    BASE_URL ="https://piston.tabot.sh/api/v2/execute"
+
+    results = {}
+    files = []
+    files.append({ "name": "CodeSnippit", "content": student_code })
+    results["language"] = language
+    results["version"] = "*"
+    results["files"] = files
+    results["stdin"] = test_case_input + "\n"
+
+    try:
+        response = requests.post(BASE_URL, data=json.dumps(results), headers={ "Content-Type": "application/json" })
+        snippit_output = ""
+        if(response.ok):
+            output_obj = response.json()
+            for key, value in output_obj.items():
+                if key == 'run':
+                    syntax_error = value.get('stderr', '')
+                    if syntax_error != '':
+                        snippit_output = syntax_error.split(",")[1]
+                    else:
+                        snippit_output = value.get('stdout', '')
+            print(output_obj, flush=True)
+    except Exception as e:
+        print("Error: ", e, flush=True)
+        snippit_output = "Error: " + str(e)
+    try:
+        submission_repo.log_code_snippet(current_user.Id, student_code, language, snippit_output, language)
+    except Exception as e:
+        print("Unable to log code snippet", e, flush=True)
+    return make_response(snippit_output, HTTPStatus.OK)
+
+
+
+@submission_api.route('/GetCharges', methods=['GET'])
+@jwt_required()
+@inject
+def GetCharges(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    class_id = int(request.args.get("class_id"))
+    projectId = project_repo.get_current_project_by_class(class_id).Id
+    base_charge, reward_charge = submission_repo.get_charges(current_user.Id, class_id, projectId)
+    
+    hours_until_recharge = 0
+    minutes_until_recharge = 0
+    seconds_until_recharge = 0
+    if base_charge != 3:
+        time_until_recharge = submission_repo.get_time_until_recharge(current_user.Id, class_id, projectId)
+        # Convert time_until_recharge to hours, minutes, and seconds
+        hours_until_recharge, remainder = divmod(time_until_recharge.total_seconds(), 3600)
+        minutes_until_recharge, seconds_until_recharge = divmod(remainder, 60)
+
+    return make_response(json.dumps({"baseCharge": base_charge, "rewardCharge": reward_charge, "HoursUntilRecharge": str(hours_until_recharge), "MinutesUntilRecharge": str(minutes_until_recharge), "SecondsUntilRecharge": str(seconds_until_recharge)}) , HTTPStatus.OK)
+    
+
+@submission_api.route('/ConsumeCharge', methods=['GET'])
+@jwt_required()
+@inject
+def ConsumeCharge(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    try:
+        class_id = int(request.args.get("class_id"))
+        projectId = project_repo.get_current_project_by_class(class_id).Id
+        submission_repo.consume_reward_charge(current_user.Id, class_id, projectId)
+    except Exception as e:   
+        print("Error: ", e, flush=True)
+        return make_response("Error: " + str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
+    return make_response("Charge Consumed", HTTPStatus.OK)
+
+@submission_api.route('/submitChat', methods=['GET'])
+@jwt_required()
+@inject
+def submitChat(submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo]):
+    try:
+        project_id = int(request.args.get("project_id"))
+        class_Name = project_repo.get_className_by_projectId(project_id)
+        class_Id = project_repo.get_class_id_by_name(class_Name)
+        language = str(request.args.get("language"))
+        student_code = unquote(request.args.get("code"))
+        message = str(request.args.get("message"))
+        #TODO: Response to
+        #response_to = int(request.args.get("response_to"))
+        response_to = 0
+        project_repo.submit_student_chat(current_user.Id, class_Id, project_id, message, student_code, language, response_to)
+    except Exception as e:   
+        print("Error: ", e, flush=True)
+        return make_response("Error: " + str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
+    return make_response("Charge Consumed", HTTPStatus.OK)
