@@ -23,6 +23,7 @@ def all_submissions(projectid: int, userId: int, submission_repository: Submissi
         if user.Id in bucket:
             files.append(bucket[user.Id].CodeFilepath)
 
+    #Gets the user Email to email Moss results to.
     email=user_repository.get_user_email(userId)
 
     thread = threading.Thread(target=moss_submissions, args=(files, email), daemon=True)

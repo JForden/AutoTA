@@ -310,9 +310,14 @@ class PylintLinkService(LinkService):
             "W1404": BASE_URL + "string/W1404",
             "E0001":"https://realpython.com/invalid-syntax-python/"}    
         json_i = json.loads(output)
+        new_json_i = []
+        remove = ["C0116", "C0114", "R1732", "C0301", "C0303", "C0304"]
         for error in json_i:
-            if error['message-id'] in link:
-                error["reflink"] = link[error['message-id']]
-            else:
-                error["reflink"] = ""
+            if error["message-id"] not in remove:
+                if error['message-id'] in link:
+                    error["reflink"] = link[error['message-id']]
+                    new_json_i.append(error)
+                else:
+                    error["reflink"] = ""
+        json_i = new_json_i
         return json.dumps(json_i)

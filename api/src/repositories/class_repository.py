@@ -1,6 +1,6 @@
 from typing import Dict, List
 from src.repositories.database import db
-from .models import ClassAssignments, Classes, Labs, LectureSections
+from .models import ClassAssignments, Classes, Labs, LectureSections, Users
 from sqlalchemy import desc, and_
 
 from ..models.LabJson import LabJson
@@ -14,6 +14,10 @@ class ClassRepository():
         class_id = Classes.query.filter(Classes.Name==class_name).first().Id
         
         return class_id
+    def get_class_name_withId(self, class_id):
+        class_name = Classes.query.filter(Classes.Id==class_id).first().Name
+        return class_name
+
     def get_lecture_id_withName(self,lectureName):
         # changed LectureSections.Name to Id
         lecture_id = LectureSections.query.filter(LectureSections.Id==lectureName).first().Id
@@ -27,14 +31,6 @@ class ClassRepository():
         classes = Classes.query.order_by(desc(Classes.Name)).all()
         return classes
     
-    def get_assigned_courses(self, user_id):
-        classes = Classes.query.all()
-        classDict = {}
-        for c in classes:
-            if str(user_id) in c.Tid:
-                classDict[c.Id] = c.Name
-        return classDict
-    
     def create_assignments(self, class_id: int, lab_id:int, user_id: int, lecture_id: int):
         """[Creates a new entry in the ClassAssignments table]"""
         class_assignment = ClassAssignments(ClassId=class_id,LabId=lab_id,UserId=user_id,LectureId=lecture_id)
@@ -42,12 +38,13 @@ class ClassRepository():
         db.session.commit()
 
         
-    def get_student_class_by_id(self, user_id: int) -> Dict[int, str]:
+    def get_assigned_student_classes(self, user_id: int) -> [Classes]:
         classList= ClassAssignments.query.filter(ClassAssignments.UserId==user_id).all()
-        classDict = {}
+        classes = []
         for item in classList:
-            classDict[item.ClassId] = Classes.query.filter(Classes.Id==item.ClassId).first().Name
-        return classDict
+            class_item = Classes.query.filter(Classes.Id==item.ClassId).first()
+            classes.append(class_item)
+        return classes
 
 
     def get_labs(self) -> Dict[int, List[LabJson]]:
@@ -90,5 +87,19 @@ class ClassRepository():
         db.session.add(class_assignment)
         db.session.commit()
         return "ok"
+    def get_studentcount(self, class_id: int) -> int:
+        """
+        Retrieves the count of students assigned to a specific class.
+
+        :param class_id: The unique identifier of the class.
+        :return: The count of students assigned to the class.
+        """
+        # Query the ClassAssignments table where the ClassId matches the provided class_id
+        # The count() function is used to get the number of records that match the filter
+        total = db.session.query(ClassAssignments).join(Users, ClassAssignments.UserId == Users.Id).filter(
+            and_(ClassAssignments.ClassId == class_id, Users.Role != 1)
+        ).count()
+        return total
+    
 
 

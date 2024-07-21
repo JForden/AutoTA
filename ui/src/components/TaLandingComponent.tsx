@@ -71,7 +71,6 @@ class TaComponent extends Component<{}, OfficeHoursState> {
 
 
     handleComplete = (id: number) => (e: any) => {
-        console.log("In handle complete");
         axios.get(process.env.REACT_APP_BASE_API_URL + `/submissions/dismissOHQuestion?question_id=${id}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 
@@ -146,7 +145,10 @@ class TaComponent extends Component<{}, OfficeHoursState> {
 
     render() {
         return (
-            <Table celled>
+            <Table celled style={{ 
+                borderRadius: '10px', 
+                boxShadow: '0 10px 20px rgba(0, 0, 0, 0.4)' // Kept only the darkest shadow
+                }}>
             <Table.Header>
             <Table.Row>
                 <Table.HeaderCell>Question Queue</Table.HeaderCell>

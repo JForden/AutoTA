@@ -1,4 +1,5 @@
 from src.repositories.config_repository import ConfigRepository
+from src.services.class_service import ClassService
 from src.services.link_service import PylintLinkService
 from src.repositories.user_repository import UserRepository
 from src.services.authentication_service import PAMAuthenticationService
@@ -38,4 +39,8 @@ class Container(containers.DeclarativeContainer):
 
     link_service = providers.Factory(
         PylintLinkService
+    )
+    
+    class_service = providers.Factory(
+        ClassService
     )

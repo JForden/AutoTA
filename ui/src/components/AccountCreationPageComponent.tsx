@@ -12,10 +12,6 @@ class AdminComponent extends Component  {
 
     handleSubmit = () => {
         const { email, password, checkpassword } = this.state
-    
-        console.log(email);
-        console.log(checkpassword);
-        console.log(password);
         this.setState({ submittedName: password, submittedEmail: email })
       }
 

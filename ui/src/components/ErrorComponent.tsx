@@ -19,11 +19,6 @@ class ErrorBoundary extends Component<PropsWithChildren, ErrorMessageState> {
     }
   
     componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-        console.log("error: " + error);
-        console.log("errorInfo: " + JSON.stringify(errorInfo));
-        console.log("componentStack: " + errorInfo.componentStack);
-
-
         axios.post(process.env.REACT_APP_BASE_API_URL + `/error/log`, { location: window.location.href, error_stack: JSON.stringify(errorInfo) }, {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}` 

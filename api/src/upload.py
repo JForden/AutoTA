@@ -1,5 +1,4 @@
 import shutil
-import sys
 from flask.json import jsonify
 from src.repositories.config_repository import ConfigRepository
 import json
@@ -8,7 +7,6 @@ import subprocess
 import os.path
 from typing import List
 import zipfile
-import stat
 from subprocess import Popen
 
 from flask_jwt_extended import jwt_required
@@ -71,6 +69,22 @@ def python_error_count(filepath):
             else:
                 error_count = error_count + 1
         return error_count
+    
+def LintErrorLogger(filepath, language):
+    if language == "python":
+        """A function that saves all the Linting errors into a dictionary"""
+        with open(filepath+".out.lint", "r") as file:
+            parsed_json = json.load(file)
+            error_dict = {}
+            for line in parsed_json:
+                message = line["symbol"]
+                if message in error_dict:
+                    error_dict[message] += 1
+                else:
+                    error_dict[message] = 1
+            return error_dict
+    else:
+        return {}
 
 def output_pass_or_fail(filepath):
     """[a function that looks at all results from a students test run]
@@ -88,20 +102,33 @@ def output_pass_or_fail(filepath):
     return True
 
 def level_counter(filepath):
+    """
+    This function takes a filepath as input and returns the number of passed levels and total tests for each suite in the file.
+    
+    Args:
+    - filepath (str): The path of the file to be parsed.
+    
+    Returns:
+    - passed_levels (dict): A dictionary containing the number of passed tests for each suite.
+    - total_tests (dict): A dictionary containing the total number of tests for each suite.
+    """
     parser = Parser()
     passed_levels={}
     total_tests={}
     for test in parser.parse_file(filepath):
         if test.category == "test":
-            if test.yaml_block["suite"] in total_tests:
-                total_tests[test.yaml_block["suite"]]=total_tests[test.yaml_block["suite"]]+1
-            else:
-                total_tests[test.yaml_block["suite"]]=1
-            if test.ok:
-                if test.yaml_block["suite"] in passed_levels:
-                    passed_levels[test.yaml_block["suite"]]=passed_levels[test.yaml_block["suite"]]+1
+            if test.yaml_block is not None and test.yaml_block["suite"] == None:
+                continue
+            if test.yaml_block is not None and test.yaml_block["suite"] in total_tests:
+                if test.yaml_block["suite"] in total_tests:
+                    total_tests[test.yaml_block["suite"]]=total_tests[test.yaml_block["suite"]]+1
                 else:
-                    passed_levels[test.yaml_block["suite"]]=1
+                    total_tests[test.yaml_block["suite"]]=1
+                if test.ok:
+                    if test.yaml_block["suite"] in passed_levels:
+                        passed_levels[test.yaml_block["suite"]]=passed_levels[test.yaml_block["suite"]]+1
+                    else:
+                        passed_levels[test.yaml_block["suite"]]=1
     
     return passed_levels, total_tests
 
@@ -109,28 +136,63 @@ def level_counter(filepath):
 def score_finder(project_repository: ProjectRepository, passed_levels,total_tests,project_id) -> str:
 
     levels=project_repository.get_levels(project_id)
-    print(levels)
     score_total=0
     for item in levels:
         #individual_score=levels[item]/total_tests[item]
         individual_score=0
         if item in passed_levels:
-            score_total=score_total+(individual_score*passed_levels[item])
-
-    
+            score_total=score_total+(individual_score*passed_levels[item])    
     return score_total
+
+def test_case_result_finder(filepath):
+    results = {'Passed': [], 'Failed': []}
+    current_test = {'name': None, 'level': None}
+
+    with open(filepath, "r") as file:
+        for line in file:
+            line = line.strip()
+            if line.startswith('not ok'):
+                current_test = {'name': None, 'level': None}
+                is_passing = False
+            elif line.startswith('ok'):
+                current_test = {'name': None, 'level': None}
+                is_passing = True
+            elif line.startswith('name:'):
+                current_test['name'] = line.split('\'')[1]
+            elif line.startswith('suite:'):
+                current_test['level'] = line.split('\'')[1]
+            elif line.startswith('...') and current_test['name']:
+                if is_passing:
+                    results['Passed'].append({current_test['name']: current_test['level']})
+                else:
+                    results['Failed'].append({current_test['name']: current_test['level']})
+
+    return results
 
 
 def parse_tap_file_for_levels(file_path: str, levels: List[Levels]) -> str:
+    """
+    Parses a TAP file and returns the level(s) that were passed or failed.
+
+    Args:
+        file_path (str): The path to the TAP file to parse.
+        levels (List[Levels]): A list of levels to check for pass/fail.
+
+    Returns:
+        str: The highest level a student reaches (max 3)
+    """
     parser = Parser()
     failed_levels=[]
     passed_levels=[]
     for test in parser.parse_file(file_path):
         if test.category == "test":
-            if test.ok:
+            if test.ok and test.yaml_block is not None and test.yaml_block["suite"] is not None:
                 passed_levels.append(test.yaml_block["suite"])
             else:
-                failed_levels.append(test.yaml_block["suite"])
+                if test.yaml_block is not None and test.yaml_block["suite"] is not None:
+                    failed_levels.append(test.yaml_block["suite"])
+                else:
+                    print("No suite", flush=True)
     failed_levels.sort()
     passed_levels.sort()
 
@@ -138,6 +200,17 @@ def parse_tap_file_for_levels(file_path: str, levels: List[Levels]) -> str:
 
 
 def find_level(pass_levels: List[str], failed_levels: List[str], levels: List[Levels]) -> str:
+    """
+    Finds the level of a submission based on the passed and failed tests.
+
+    Args:
+        pass_levels (List[str]): A list of levels that passed the tests.
+        failed_levels (List[str]): A list of levels that failed the tests.
+        levels (List[Levels]): A list of all the levels.
+
+    Returns:
+        str: The name of the max level a student has reached.
+    """
     # If no tests are failing, return the highest level.  Assumes levels are sorted by order
     if len(failed_levels) == 0:
         return levels[-1].Name
@@ -151,6 +224,15 @@ def find_level(pass_levels: List[str], failed_levels: List[str], levels: List[Le
 
 
 def pylint_score_finder(error_count):
+    """
+    Calculates a pylint score based on the number of errors found in the code.
+
+    Args:
+        error_count (int): The number of errors found in the code.
+
+    Returns:
+        int: The pylint score calculated based on the number of errors found.
+    """
     if error_count <= 10 and error_count > 7:
         return 25
     if error_count <= 7 and error_count > 5:
@@ -194,121 +276,6 @@ def find_line_by_char(c_file: str, target_char_count: int) -> int:
     return -1
 
 
-def parse_clang_tidy_output(yaml_file: str, c_file: str):
-    warnings = []
-    with open(yaml_file, "r") as file:
-        lines = file.readlines()
-
-
-    data = {' '.join(line.replace("'", '').split()[1:]): [find_line_by_char(c_file, int(''.join(lines[idx + 2].split()[1]))), int(''.join(lines[idx + 2].split()[1])), lines[1].split()[1].replace("'", ''), lines[idx - 2].split()[-1]] for idx, line in enumerate(lines) if line.split()[0] == "Message:"}
-    for msg, line_num in data.items():
-        warning = {
-            'column': line_num[1],
-            'endColumn': None,
-            'endLine': None,
-            'line': line_num[0],
-            'message': msg,
-            'message-id': line_num[3],
-            'module': None,
-            'obj': "",
-            'path': line_num[2],
-            'reflink': None,
-            'symbol': None,
-            'type': 'convention' # assuming all warnings are of type convention
-        }
-        warnings.append(warning)
-    return json.dumps(warnings, ensure_ascii=False, default=str)
-
-
-@upload_api.route('/CLUpload', methods=['POST'])
-@inject
-def CL_file_upload(user_repository: UserRepository =Provide[Container.user_repo],submission_repo: SubmissionRepository = Provide[Container.submission_repo], project_repo: ProjectRepository = Provide[Container.project_repo], config_repo: ConfigRepository = Provide[Container.config_repo],config_repos: ConfigRepository = Provide[Container.config_repo],class_repo: ClassRepository = Provide[Container.class_repo]):
-    #This is what our submission call looks line on the backend, thus to make a submission we need all these fields 
-    
-    #submission = Submissions(OutputFilepath=output, CodeFilepath=codepath, PylintFilepath=pylintpath, Time=time, User=user_id, Project=project_id,IsPassing=status,NumberOfPylintErrors=errorcount,SubmissionLevel=level,Points=score)
-    #submission_repo.create_submission(current_user.Id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score)
-    
-    tap_file = request.files['Output_file']                   # tap_path
-    student_file = request.files['Student_file']                 # path
-    student_username = request.form['username']
-    student_class = request.form['course']
-
-    if tap_file == None or student_file == None or student_username == None or student_class == None:
-        return make_response('Error', HTTPStatus.BAD_REQUEST)
-
-    #We need to identify where to save output_file and student_file
-
-    project = project_repo.get_current_project_by_class(class_repo.get_class_id(student_class))
-
-    if student_file:
-        path = os.path.join("/ta-bot",project.Name+"-out")
-        print("Path: ", path, flush=True)
-        outputpath = path
-        language = project.Language.lower()
-        path = os.path.join(path, f"{student_username}{ext[language][0]}")
-        student_file.save(path)
-        print("Saved file at :", path)
-    
-    if tap_file:
-        tap_path = os.path.join("/ta-bot",project.Name+"-out")
-        outputpath=tap_path
-        tap_path = os.path.join(tap_path, f"{student_username}.out")
-        tap_file.save(tap_path)
-
-    #linting
-    lint_file = open(outputpath+"/"+student_username+".out.lint", "w")
-    data=""
-    if project.Language == "python":
-        lint_file = open(outputpath+"/"+student_username+".out.lint", "w")
-        data = subprocess.run(["pylint", path, "--output-format=json"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if project.Language == "java":
-        checkstyle_jar = "../ta-bot/checkstyle-10.9.2-all.jar"
-        config_file = "../ta-bot/google_checks.xml"
-        lint_file = open(outputpath+"/"+student_username+".out.lint", "w")
-        data = subprocess.run(["java", "-jar", checkstyle_jar, "-c", config_file, path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if project.Language == "c":
-        lint_file = open(outputpath + "/" + student_username + ".out.lint", "w")
-        data = subprocess.run(["clang-tidy", "--checks=llvm-*", f"--export-fixes={outputpath + '/' + student_username}.yaml", path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    '''
-    SOME USEFUL CHECKS FOR --checks= 
-    
-    modernize-*: Modernize code to use modern C++ features and idioms.
-    bugprone-*: Detect potential bugs or dangerous coding patterns.
-    performance-*: Identify performance-related issues and suggest improvements.
-    readability-*: Improve code readability and clarity.
-    cppcoreguidelines-*: Enforce guidelines from the C++ Core Guidelines.
-    clang-analyzer-*: Enable static analysis checks provided by Clang.
-    google-*: Enforce coding style guidelines from Google.
-    misc-*: Miscellaneous checks for various aspects of code improvement.
-    cert-*: Detect security vulnerabilities based on CERT coding standards.
-    hicpp-*: Checks based on the High Integrity C++ Coding Standard.
-    llvm-*: Checks based on LLVM's coding style and conventions.
-    '''
-
-    #output = data.stdout.decode("utf-8")
-    output = parse_clang_tidy_output(outputpath + '/' + student_username + '.yaml', path)
-    lint_file.write(output)
-    lint_file.close()
-
-    user_id = user_repository.getUserByName(student_username).Id # user_id
-    dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S")  # dt_string = date_time
-    status = output_pass_or_fail(tap_path)
-    submission_level = "Level 3"
-    error_count = 0
-    total_submission_score = 100
-
-    # THIS IS WHAT CREATES THE STUDENT_NAME.OUT.LINT FILE LOCATION AS SEEN IN SQL 
-    # we can change it to just the directory, and filter out all the .out.lint files in submission.py /lint_output
-    
-    submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+student_username+".out.lint", dt_string, project.Id, status, error_count, submission_level,total_submission_score)
-
-    # fake pylint (sql) path -- output path       
-
-
-    
-    return jsonify({'message': 'Upload successful'})
-
-
 @upload_api.route('/', methods=['POST'])
 @jwt_required()
 @inject
@@ -346,7 +313,6 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
     #Check to see if student is able to upload or still on timeout
     if(current_user.Role != ADMIN_ROLE):
         class_id = request.form['class_id']
-        #TODO: Static 5 minute timeout
 
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -364,7 +330,14 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         }
         return make_response(message, HTTPStatus.BAD_REQUEST)
     filedata=file.read()
+    classname = class_repo.get_class_name_withId(class_id)
+    submission_path = "/ta-bot/" + project.solutionpath.split("/")[3].split(".")[0] + "-out"
+    print(project.solutionpath.split("/")[3], flush=True)
+    print(submission_path, flush=True)
+
+
     if file and allowed_file(file.filename):
+        zipfile_bool = False  #Horrible, redesign this TODO
         language = file.filename.rsplit('.', 1)[1].lower()
 
         # Step 1: Run TA-Bot to generate grading folder
@@ -372,20 +345,32 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         #check to see if file is a zip file, if so extract the files
         if file.filename.endswith(".zip"):
             with zipfile.ZipFile(file, 'r') as zip_ref:
-                path = os.path.join("/ta-bot", project.Name + "-out")
-                extract_dir = os.path.join(path) 
-                if os.path.isdir(extract_dir):
-                    shutil.rmtree(extract_dir)
-                os.mkdir(extract_dir)
-                zip_ref.extractall(extract_dir)
-                outputpath=path
-                path=extract_dir                
+                zipfile_bool = True
+                outputpath = os.path.join(submission_path)
+                path = os.path.join(submission_path, f"{username}") 
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
+                os.mkdir(path)
+                if project.Language.lower() == "python":
+                    message = {
+                        'message': 'Python projects do not support zip files!'
+                    }
+                    return make_response(message, HTTPStatus.INTERNAL_SERVER_ERROR)
+                if project.Language.lower() == "java":
+                    for file_info in zip_ref.infolist():
+                        if file_info.filename.endswith('.java'):
+                            with zip_ref.open(file_info) as f:
+                                file_content = f.read()
+                            save_path = os.path.join(path, os.path.basename(file_info.filename))
+                            with open(save_path, 'wb') as f:
+                                f.write(file_content)           
         else:
             file.seek(0)
-            path = os.path.join("/ta-bot",project.Name+"-out")
+            path = os.path.join(submission_path)
             outputpath = path
             language = project.Language.lower()
             path = os.path.join(path, f"{username}{ext[language][0]}") 
+            print(path, flush=True)
             file.save(path)
 
         # Step 2: Run grade.sh
@@ -403,9 +388,13 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
         
         # Step 3: Save submission in submission table
         now = datetime.now()
+        if zipfile_bool:
+            outputpath = path = os.path.join(submission_path, f"{username}") 
+
         tap_path = outputpath+"/"+username+".out"
         dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
         status=output_pass_or_fail(tap_path)
+        TestCaseResults=test_case_result_finder(tap_path)
         if project.Language == "python":
             error_count=python_error_count(outputpath+"/"+username)
         else:
@@ -422,9 +411,12 @@ def file_upload(user_repository: UserRepository =Provide[Container.user_repo],su
             pylint_score = 40
         total_submission_score = student_submission_score+pylint_score
 
-        visible = submission_repo.check_timeout(user_id, project.Id)[0]
-        submissionId = submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score, visible)
+        Linting_results=LintErrorLogger(outputpath+"/"+username, project.Language)
+
+        submissionId = submission_repo.create_submission(user_id, tap_path, path, outputpath+"/"+username+".out.lint", dt_string, project.Id,status, error_count, submission_level,total_submission_score, 0, TestCaseResults, Linting_results)
         
+        submission_repo.consume_charge(user_id, class_id,  project.Id, submissionId)
+
         # Step 4 assign point totals for the submission 
         current_level = submission_repo.get_current_level(project.Id,user_id)
         if current_level != "":

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import os
+import random
 import shutil
 import subprocess
 from typing import Optional, Dict
@@ -7,7 +8,7 @@ from typing import Optional, Dict
 from flask import send_file
 
 from sqlalchemy.sql.expression import asc
-from .models import Projects, Levels, StudentGrades, StudentProgress, Submissions, Testcases, Classes
+from .models import ChatLogs, Projects, Levels, StudentGrades, StudentProgress, Submissions, Testcases, Classes
 from src.repositories.database import db
 from sqlalchemy import desc, and_
 from datetime import datetime
@@ -19,6 +20,7 @@ import json
 
 class ProjectRepository():
 
+    #TODO: Remove
     def get_current_project(self) -> Optional[Projects]:
         """[Identifies the current project based on the start and end date]
         Returns:
@@ -29,20 +31,25 @@ class ProjectRepository():
         return project
 
     def get_current_project_by_class(self, class_id: int) -> Optional[Projects]:
-        """[Identifies the current project based on the start and end date]
+        """Identifies the current project based on the start and end date.
+
+        Args:
+            class_id (int): The ID of the class.
+
         Returns:
-            Project: [this should be the currently assigned project object]
+            Optional[Projects]: The currently assigned project object.
         """
         now = datetime.now()
         project = Projects.query.filter(Projects.ClassId==class_id,Projects.End >= now, Projects.Start < now).first()
         #Start and end time format: 2023-05-31 14:33:00
         return project
 
+    #TODO: Remove
     def get_all_projects(self) -> Projects:
-        """[a method to get all the projects from the mySQL database]
+        """Get all projects from the mySQL database and return a project object sorted by end date.
 
         Returns:
-            Projects: [a project object ]
+            Projects: A project object sorted by end date.
         """
         project = Projects.query.order_by(asc(Projects.End)).all()
         return project
@@ -60,10 +67,28 @@ class ProjectRepository():
 
 
     def get_projects_by_class_id(self,class_id: int) -> int:
-        temp = Projects.query.filter(Projects.ClassId==class_id)
-        return temp
+        """
+        Returns a list of projects associated with a given class ID.
+
+        Args:
+        class_id (int): The ID of the class to retrieve projects for.
+
+        Returns:
+        A list of project objects associated with the given class ID.
+        """
+        class_projects = Projects.query.filter(Projects.ClassId==class_id)
+        return class_projects
     
     def get_levels(self, project_id: int) -> Dict[str, int]:
+        """
+        Returns a dictionary of level names and their corresponding points for a given project.
+
+        Args:
+            project_id (int): The ID of the project to retrieve levels for.
+
+        Returns:
+            Dict[str, int]: A dictionary where the keys are level names and the values are the corresponding points.
+        """
         levels = Levels.query.filter(Levels.ProjectId == project_id).all()
         level_score = {}
         for level in levels:
@@ -80,14 +105,20 @@ class ProjectRepository():
         project = Projects(Name = name, Start = start, End = end, Language = language,ClassId=class_id,solutionpath=file_path, AsnDescriptionPath = description_path)
         db.session.add(project)
         db.session.commit()
+        return project.Id
     def get_project(self, project_id:int) -> Projects:
         project_data = Projects.query.filter(Projects.Id == project_id).first()
         project ={}
         now=project_data.Start
-        start_string = now.strftime("%Y-%m-%d %H:%M:%S")
+        start_string = now.strftime("%Y-%m-%dT%H:%M:%S")
         now = project_data.End
-        end_string = now.strftime("%Y-%m-%d %H:%M:%S")
-        project[project_data.Id] = [str(project_data.Name),str(start_string),str(end_string), str(project_data.Language)]
+        end_string = now.strftime("%Y-%m-%dT%H:%M:%S")
+        project_solutionFile = project_data.solutionpath
+        #Strip just the file name from the path
+        project_solutionFile = project_solutionFile.split("/")[-1]
+        project_descriptionfile = project_data.AsnDescriptionPath
+        project_descriptionfile = project_descriptionfile.split("/")[-1]
+        project[project_data.Id] = [str(project_data.Name),str(start_string),str(end_string), str(project_data.Language), str(project_solutionFile), str(project_descriptionfile)]
         return project
 
     def edit_project(self, name: str, start: datetime, end: datetime, language:str, project_id:int, path:str, description_path:str):
@@ -111,13 +142,15 @@ class ProjectRepository():
             testcase_data.append(test.input)
             testcase_data.append(test.Output)
             testcase_data.append(test.IsHidden)
+            if test.additionalfilepath != "":
+                testcase_data.append(test.additionalfilepath)
+            else:
+                testcase_data.append("")
             testcase_info[test.Id] = testcase_data
         return testcase_info
     
     def add_or_update_testcase(self, project_id:int, testcase_id:int, level_name:str, name:str, description:str, input_data:str, output:str, is_hidden:bool, additional_file_path:str):
-        
         project = Projects.query.filter(Projects.Id == project_id).first()
-        language = project.Language
         filepath = project.solutionpath
         #TODO: see if we can get away from stdout
         result = subprocess.run(["python","../ta-bot/tabot.py", "ADMIN", str(-1), project.Language, input_data, filepath, additional_file_path], stdout=subprocess.PIPE, text=True)
@@ -137,7 +170,7 @@ class ProjectRepository():
             testcase.LevelId = level_id
             testcase.Name = name
             testcase.Description = description
-            testcase.Input = input_data
+            testcase.input = input_data
             testcase.Output = output
             testcase.IsHidden = is_hidden
             if additional_file_path != "":
@@ -209,6 +242,7 @@ class ProjectRepository():
         project = Projects.query.filter(Projects.Id == project_id).first()
         class_obj = Classes.query.filter(Classes.Id ==project.ClassId).first()
         return class_obj.Name
+    #TODO: Move this call to class repository
     def get_class_id_by_name(self, class_name):
         class_id = Classes.query.filter(Classes.Name==class_name).first().Id
         return class_id
@@ -227,7 +261,6 @@ class ProjectRepository():
     def get_student_grade(self, project_id, user_id):
         student_progress = StudentGrades.query.filter(and_(StudentGrades.Sid==user_id, StudentGrades.Pid==project_id)).first()
         if student_progress is None:
-            print("No grade found", flush=True)
             return 0
         return student_progress.Grade
     def set_student_grade(self, project_id, user_id, grade):
@@ -240,6 +273,37 @@ class ProjectRepository():
         db.session.add(studentGrade)
         db.session.commit()
         return
+    def submit_student_chat(self, user_id, class_id, project_id, user_message, user_code, language, response_to):
+        dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        #Get User UserPseudonym
+        UserPseudonym = ChatLogs.query.filter(ChatLogs.UserId==user_id).first().UserPseudonym
+        new_flag = True
+        if UserPseudonym is None:
+            while new_flag:
+                adjectives = ['Agile', 'Brave', 'Calm', 'Diligent', 'Eager', 'Fierce', 'Gentle', 'Heroic', 'Inventive', 'Jovial', 'Keen', 'Lively', 'Mighty', 'Noble', 'Optimistic', 'Proud', 'Quick', 'Resilient', 'Strong', 'Tenacious', 'Unique', 'Vibrant', 'Wise', 'Xenial', 'Youthful', 'Zealous']
+                nouns = ['Lion', 'Eagle', 'Tiger', 'Leopard', 'Elephant', 'Bear', 'Fox', 'Wolf', 'Hawk', 'Shark', 'Dolphin', 'Cheetah', 'Panther', 'Falcon', 'Gazelle', 'Hippopotamus', 'Iguana', 'Jaguar', 'Kangaroo', 'Lemur', 'Mongoose', 'Narwhal', 'Octopus', 'Penguin', 'Quail', 'Raccoon', 'Squirrel', 'Tortoise', 'Urchin', 'Vulture', 'Walrus', 'Xerus', 'Yak', 'Zebra']
+                colors = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange', 'Pink', 'Brown', 'Black', 'White', 'Gray', 'Crimson', 'Cyan', 'Magenta', 'Lime', 'Maroon', 'Navy', 'Olive', 'Teal', 'Violet', 'Indigo', 'Gold', 'Silver', 'Bronze', 'Ruby', 'Emerald', 'Sapphire', 'Amethyst', 'Quartz', 'Onyx', 'Jade', 'Pearl', 'Topaz', 'Opal', 'Turquoise', 'Amber', 'Coral', 'Garnet', 'Jasper', 'Malachite', 'Peridot', 'Tourmaline', 'Zircon']
+                UserPseudonym = random.choice(colors) + random.choice(adjectives) + random.choice(nouns)
+                unique = ChatLogs.query.filter(ChatLogs.UserPseudonym==UserPseudonym).first()
+                if unique is None:
+                    new_flag = False
+        
+        chat = ChatLogs(UserId=user_id, 
+                        ClassId=class_id,
+                        project_id=project_id, 
+                        ResponseTo=response_to,
+                        UserPseudonym=UserPseudonym,
+                        UserImage="",
+                        Response=user_message, 
+                        Code=user_code, 
+                        Language=language, 
+                        TimeSubmitted=dt_string,
+                        MessageFlag=0,
+                        AcceptedFlag=0,
+                        Likes=0)
+        db.session.add(chat)
+        db.session.commit()
+        return "ok"
 
 
         

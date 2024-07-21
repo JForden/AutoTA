@@ -15,8 +15,10 @@ from src.api_utils import get_value_or_empty
 from datetime import datetime
 from dependency_injector.wiring import inject, Provide
 from container import Container
+from src.constants import ADMIN_ROLE
 
 auth_api = Blueprint('auth_api', __name__)
+
 
 # Register a callback function that takes whatever object is passed in as the
 # identity when creating JWTs and converts it to a JSON serializable format.
@@ -146,7 +148,7 @@ def create_user(auth_service: PAMAuthenticationService = Provide[Container.auth_
 
 
 
-
+#TODO: Remove? Called in NewUserModal...but why?
 @auth_api.route('/create_newclass', methods=['POST'])
 @jwt_required()
 @inject
@@ -157,12 +159,12 @@ def add_class(auth_service: PAMAuthenticationService = Provide[Container.auth_se
     lecture_name = get_value_or_empty(input_json, 'lectureid')
     class_id = class_repo.get_class_id(class_name)
     lab_id = class_repo.get_lab_id_withName(lab_name)
-    lecture_Id = class_repo.get_lecture_id_withName
+    lecture_Id = class_repo.get_lecture_id_withName(lecture_name)
     user_id = current_user.Id
 
     user = user_repo.get_user_by_id(user_id)    
     #Create ClassAssignment
-    class_repo.add_class_assignment(class_id, int(lab_id), int(user.Id), int(lecture_id))
+    class_repo.add_class_assignment(class_id, int(lab_id), int(user.Id), int(lecture_Id))
 
     access_token = create_access_token(identity=user)
 
@@ -172,6 +174,5 @@ def add_class(auth_service: PAMAuthenticationService = Provide[Container.auth_se
         'role': 0
     }
     return make_response(message, HTTPStatus.OK)
-
 
 

@@ -1,0 +1,727 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-7.4.3, pluggy-1.3.0
+rootdir: /home/agebhard/Documents/repos/AutoTA/api
+plugins: mock-3.12.0
+collected 32 items
+
+tests/test_auth_unit.py ....FF.F                                         [ 25%]
+tests/test_class.py ..                                                   [ 31%]
+tests/test_upload.py FFFF.....                                           [ 59%]
+tests/repository/test_class_repository.py FFFF                           [ 71%]
+tests/repository/test_user_repository.py FFFFFFFFF                       [100%]
+
+=================================== FAILURES ===================================
+___________________ test_auth_create_no_username_or_password ___________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915bcdd2d0>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915bcdd9c0>
+
+    def test_auth_create_no_username_or_password(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+            m = mocker.MagicMock()
+            m.get_json.return_value = {}
+            mocker.patch("src.auth.request", m)
+            auth_service_mock = Mock()
+            user_repository_mock = Mock()
+            auth_service_mock.login.return_value = False
+    
+            test_container = testcontext.app.container
+            with test_container.auth_service.override(auth_service_mock), test_container.user_repo.override(user_repository_mock):
+                rv = create_user()
+    
+            # Assert
+>           assert rv.status_code == HTTPStatus.FORBIDDEN
+E           assert 406 == <HTTPStatus.FORBIDDEN: 403>
+E            +  where 406 = <Response 34 bytes [406 NOT ACCEPTABLE]>.status_code
+E            +  and   <HTTPStatus.FORBIDDEN: 403> = HTTPStatus.FORBIDDEN
+
+tests/test_auth_unit.py:126: AssertionError
+____________________ test_auth_create_missing_required_data ____________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915e241540>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915e2c6d10>
+
+    def test_auth_create_missing_required_data(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+            m = mocker.MagicMock()
+            m.get_json.return_value = { 'username': 'alex', 'password': 'alex' }
+            mocker.patch("src.auth.request", m)
+            auth_service_mock = Mock()
+            user_repository_mock = Mock()
+            auth_service_mock.login.return_value = True
+            user_repository_mock.doesUserExist.return_value = False
+            test_container = testcontext.app.container
+    
+            with test_container.auth_service.override(auth_service_mock), test_container.user_repo.override(user_repository_mock):
+                rv = create_user()
+    
+            # Assert
+            assert rv.status_code == HTTPStatus.NOT_ACCEPTABLE
+            assert rv.is_json
+            data = json.loads(rv.data.decode("utf-8"))
+>           assert data["message"] == "Missing required data"
+E           AssertionError: assert 'Missing requ... are required' == 'Missing required data'
+E             - Missing required data
+E             + Missing required data.  All fields are required
+
+tests/test_auth_unit.py:151: AssertionError
+____________________________ test_auth_create_basic ____________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915bbea380>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915bbeaa70>
+
+    def test_auth_create_basic(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+            m = mocker.MagicMock()
+            m.get_json.return_value = { 'username': 'alex', 'password': 'alex', 'fname': 'Alex', 'lname': 'Gebhard', 'id': '000000000', 'email': 'example@example.com', 'class_id': '1010', 'lab_id': '401' }
+            mocker.patch("src.auth.request", m)
+            auth_service_mock = Mock()
+            user_repository_mock = Mock()
+            class_repository_mock = Mock()
+            auth_service_mock.login.return_value = True
+            user_repository_mock.doesUserExist.return_value = False
+            user_repository_mock.getUserByName.return_value = Users(Id = 1)
+            class_repository_mock.create_assignments.return_value = 0
+    
+            test_container = testcontext.app.container
+            with test_container.auth_service.override(auth_service_mock), test_container.user_repo.override(user_repository_mock), test_container.class_repo.override(class_repository_mock):
+                rv = create_user()
+    
+            # Assert
+            print(rv.data)
+>           assert rv.status_code == HTTPStatus.OK
+E           assert 406 == <HTTPStatus.OK: 200>
+E            +  where 406 = <Response 62 bytes [406 NOT ACCEPTABLE]>.status_code
+E            +  and   <HTTPStatus.OK: 200> = HTTPStatus.OK
+
+tests/test_auth_unit.py:196: AssertionError
+----------------------------- Captured stdout call -----------------------------
+b'{"message":"Missing required data.  All fields are required"}\n'
+_______________________ test_allowed_file_python_allowed _______________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915bc18e20>
+
+    def test_allowed_file_python_allowed(testcontext):
+        # Act
+        with testcontext.app.app_context():
+>           rv = upload.allowed_file('test.PY', ['py'])
+E           TypeError: allowed_file() takes 1 positional argument but 2 were given
+
+tests/test_upload.py:12: TypeError
+________________________ test_allowed_file_not_in_list _________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915b99d060>
+
+    def test_allowed_file_not_in_list(testcontext):
+        # Act
+        with testcontext.app.app_context():
+>           rv = upload.allowed_file('test.py', ['zip'])
+E           TypeError: allowed_file() takes 1 positional argument but 2 were given
+
+tests/test_upload.py:21: TypeError
+________________ test_allowed_file_in_string_but_not_extension _________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915baf45e0>
+
+    def test_allowed_file_in_string_but_not_extension(testcontext):
+        # Act
+        with testcontext.app.app_context():
+>           rv = upload.allowed_file('test.zip.py', ['zip'])
+E           TypeError: allowed_file() takes 1 positional argument but 2 were given
+
+tests/test_upload.py:30: TypeError
+________________________ test_allowed_file_only_string _________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915ba82620>
+
+    def test_allowed_file_only_string(testcontext):
+        # Act
+        with testcontext.app.app_context():
+>           rv = upload.allowed_file('zip', ['zip'])
+E           TypeError: allowed_file() takes 1 positional argument but 2 were given
+
+tests/test_upload.py:39: TypeError
+____________________________ test_get_labs_no_labs _____________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915bc6e140>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915bc6ebc0>
+
+    def test_get_labs_no_labs(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_class_repository.py:11: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+________________________________ test_get_labs _________________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915b9be0b0>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915b9bc040>
+
+    def test_get_labs(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_class_repository.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+______________________ test_get_labs_no_lecture_sections _______________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915e23b3a0>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915e238b20>
+
+    def test_get_labs_no_lecture_sections(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_class_repository.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+__________________________ test_get_lecture_sections ___________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915ba716c0>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915ba73fa0>
+
+    def test_get_lecture_sections(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_class_repository.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+_________________________ test_doesUserExist_not_exist _________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915b9bfe80>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915c040760>
+
+    def test_doesUserExist_not_exist(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_user_repository.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+___________________________ test_doesUserExist_exist ___________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915bbb10f0>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915bbb1870>
+
+    def test_doesUserExist_exist(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_user_repository.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+______________________________ test_getUserByName ______________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915ba04a60>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915ba051e0>
+
+    def test_getUserByName(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_user_repository.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+_______________________________ test_create_user _______________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915b8783d0>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915b878b50>
+
+    def test_create_user(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_user_repository.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+______________________________ test_get_all_users ______________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915b8d4fd0>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915b8d4880>
+
+    def test_get_all_users(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_user_repository.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+____________________________ test_send_attempt_data ____________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915bae8a90>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915bae81f0>
+
+    def test_send_attempt_data(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_user_repository.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+_____________________________ test_can_user_login ______________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915e23bdc0>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915c287280>
+
+    def test_can_user_login(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_user_repository.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+__________________________ test_clear_failed_attempts __________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915bcef1f0>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915bcedab0>
+
+    def test_clear_failed_attempts(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_user_repository.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+____________________________ test_lock_user_account ____________________________
+
+testcontext = <tests.conftest.TestContext object at 0x7f915b99d8d0>
+mocker = <pytest_mock.plugin.MockerFixture object at 0x7f915ba82e00>
+
+    def test_lock_user_account(testcontext, mocker: MockerFixture):
+        # Act
+        with testcontext.app.app_context():
+>           db.init_app(testcontext.app)
+
+tests/repository/test_user_repository.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <SQLAlchemy>, app = <Flask 'app'>
+
+    def init_app(self, app: Flask) -> None:
+        """Initialize a Flask application for use with this extension instance. This
+        must be called before accessing the database engine or session with the app.
+    
+        This sets default configuration values, then configures the extension on the
+        application and creates the engines for each bind key. Therefore, this must be
+        called after the application has been configured. Changes to application config
+        after this call will not be reflected.
+    
+        The following keys from ``app.config`` are used:
+    
+        - :data:`.SQLALCHEMY_DATABASE_URI`
+        - :data:`.SQLALCHEMY_ENGINE_OPTIONS`
+        - :data:`.SQLALCHEMY_ECHO`
+        - :data:`.SQLALCHEMY_BINDS`
+        - :data:`.SQLALCHEMY_RECORD_QUERIES`
+        - :data:`.SQLALCHEMY_TRACK_MODIFICATIONS`
+    
+        :param app: The Flask application to initialize.
+        """
+        if "sqlalchemy" in app.extensions:
+>           raise RuntimeError(
+                "A 'SQLAlchemy' instance has already been registered on this Flask app."
+                " Import and use that instance instead."
+            )
+E           RuntimeError: A 'SQLAlchemy' instance has already been registered on this Flask app. Import and use that instance instead.
+
+../../../../.local/share/virtualenvs/api-QOukDuqR/lib/python3.10/site-packages/flask_sqlalchemy/extension.py:312: RuntimeError
+=========================== short test summary info ============================
+FAILED tests/test_auth_unit.py::test_auth_create_no_username_or_password - as...
+FAILED tests/test_auth_unit.py::test_auth_create_missing_required_data - Asse...
+FAILED tests/test_auth_unit.py::test_auth_create_basic - assert 406 == <HTTPS...
+FAILED tests/test_upload.py::test_allowed_file_python_allowed - TypeError: al...
+FAILED tests/test_upload.py::test_allowed_file_not_in_list - TypeError: allow...
+FAILED tests/test_upload.py::test_allowed_file_in_string_but_not_extension - ...
+FAILED tests/test_upload.py::test_allowed_file_only_string - TypeError: allow...
+FAILED tests/repository/test_class_repository.py::test_get_labs_no_labs - Run...
+FAILED tests/repository/test_class_repository.py::test_get_labs - RuntimeErro...
+FAILED tests/repository/test_class_repository.py::test_get_labs_no_lecture_sections
+FAILED tests/repository/test_class_repository.py::test_get_lecture_sections
+FAILED tests/repository/test_user_repository.py::test_doesUserExist_not_exist
+FAILED tests/repository/test_user_repository.py::test_doesUserExist_exist - R...
+FAILED tests/repository/test_user_repository.py::test_getUserByName - Runtime...
+FAILED tests/repository/test_user_repository.py::test_create_user - RuntimeEr...
+FAILED tests/repository/test_user_repository.py::test_get_all_users - Runtime...
+FAILED tests/repository/test_user_repository.py::test_send_attempt_data - Run...
+FAILED tests/repository/test_user_repository.py::test_can_user_login - Runtim...
+FAILED tests/repository/test_user_repository.py::test_clear_failed_attempts
+FAILED tests/repository/test_user_repository.py::test_lock_user_account - Run...
+======================== 20 failed, 12 passed in 1.48s =========================

@@ -55,6 +55,8 @@ class Submissions(db.Model):
     Points = Column(Integer)
     StudentProgress=relationship('StudentProgress')
     visible = Column(Integer)
+    TestCaseResults=Column(String)
+    LintingResults=Column(String)
 
 class LoginAttempts(db.Model):
     __tablename__ = "LoginAttempts"
@@ -159,3 +161,51 @@ class StudentGrades(db.Model):
     Sid = Column(Integer, ForeignKey('Users.Id'), primary_key=True)
     Pid = Column(Integer, ForeignKey('Projects.Id'), primary_key=True)
     Grade = Column(Integer)
+class StudentSuggestions(db.Model):
+    __tablename__ = "StudentSuggestions"
+    idStudentSuggestions = Column(Integer, primary_key=True, autoincrement=True)
+    UserId = Column(Integer)
+    StudentSuggestionscol = Column(String)
+    TimeSubmitted = Column(DateTime)
+class SnippetRuns(db.Model):
+    __tablename__ = "SnippetRuns"
+    idSnippetRuns = Column(Integer, primary_key=True, autoincrement=True)
+    UserId = Column(Integer)
+    Code = Column(String)
+    Language = Column(String)
+    TestCaseInput = Column(String)
+    Result = Column(DateTime)
+    TimeSubmitted = Column(DateTime)
+class ChatLogs(db.Model):
+    __tablename__ = "ChatLogs"
+    idChatLogs = Column(Integer, primary_key=True, autoincrement=True)
+    UserId = Column(Integer)
+    ClassId = Column(Integer)
+    ResponseTo = Column(Integer)
+    UserPseudonym = Column(String)
+    UserImage = Column(String)
+    Response = Column(String)
+    Code = Column(String)
+    Language = Column(String)
+    TimeSubmitted = Column(DateTime)
+    MessageFlag = Column(Integer)
+    AcceptedFlag = Column(Integer)
+    Likes=Column(Integer)
+class SubmissionCharges(db.Model):
+    __tablename__ = "SubmissionCharges"
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    UserId = Column(Integer)
+    ClassId = Column(Integer)
+    BaseCharge = Column(Integer)
+    RewardCharge = Column(Integer)
+class SubmissionChargeRedeptions(db.Model):
+    __tablename__ = "SubmissionChargeRedeptions"
+    Id = Column(Integer, primary_key=True, autoincrement=True)
+    UserId = Column(Integer)
+    ClassId = Column(Integer)
+    projectId = Column(Integer)
+    Type = Column(String)
+    ClaimedTime = Column(DateTime)
+    RedeemedTime = Column(DateTime)
+    SubmissionId = Column(Integer)
+    Recouped = Column(Integer)
