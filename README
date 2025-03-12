@@ -1,134 +1,27 @@
 Welcome to TA-Bot!
 
-Welcome to **TA-Bot**! This repository contains everything you need to set up and run the TA-Bot development environment. Stay tuned for updates as we continue to enhance this documentation.
+Sorry about the brevity of this ReadMe for now, but there will be more to come in the future. In the meantime, you can check out the current state of TA-Bot at http://tabot.sh.
 
-Check out the current state of TA-Bot at: [http://tabot.sh](http://tabot.sh).
+:warning: Known Issue: There is currently a bug that prevents yarn from working in our Docker container.
 
----
+:bulb: Workaround for Windows Users: To run the TA-Bot Docker development environment on Windows, you will need to install WSL2 (which is required for Docker) and a Linux environment of your choice (e.g. Ubuntu). Follow the steps at https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-10#1-overview to set this up. Then, follow the steps below to run TA-Bot.
 
-## :warning: Known Issues
+:rocket: Steps to Running the TA-Bot Docker Development Environment:
 
-- **Yarn in Docker**: A bug currently prevents Yarn from functioning in our Docker container.
-
----
-
-## :bulb: Workaround for Windows Users
-
-To run the TA-Bot Docker development environment on Windows, you will need to:
-
-1. Install **WSL2** (required for Docker).
-2. Install a Linux distribution (e.g., Ubuntu).
-
-Follow [this guide](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-10#1-overview) to set up WSL2 and Ubuntu. Then, proceed with the steps below to run TA-Bot.
-
----
-
-## :rocket: Steps to Running the TA-Bot Docker Development Environment
-
-Clone the Repository
-
-```bash
-git clone <repository-url>
-cd <repository-directory>
-
-The Active Branch is multi-filechanges
-
----
-
-2. In the main directory run "git submodule update --init --recursive"
-
---- 
-
-3.  Download and install Docker runner.
-
-Mac and Linux follow similar steps: 
-
-### Mac
-
-execute
-1.  `brew install docker` - Installs Docker CLI tools
-2. `brew install --cask docker` - Installs Docker VM Damien
-
-
-often, this won't include the `docker compose` command, so a few additional steps may be required. 
-
-run `docker compose version`, if you get a response skip the following steps. 
-
-1.  Make a docker config directory
-    - `mkdir -p ~/.docker `
-2. Create a docker config file
-    - `vim ~/.docker/config.json`
-    - Place the following snippet into the file:
-```{
-  "cliPluginsExtraDirs": [
-    "/opt/homebrew/lib/docker/cli-plugins"
-  ]
-}
-```
-3. You can verify this worked via `docker compose version`
-
-
-Launch Docker via applications, or via cli via: 
-`open /Applications/Docker.app`
-
-
-### WSL - ubuntu Linux
-
-Install Docker Desktop in Windows, enable wsl connection via resources -> wsl connections -> enable integration with ubuntu
- - Note: similar steps for any linux distro
-
-Install docker in WSL client
-https://dev.to/bartr/install-docker-on-windows-subsystem-for-linux-v2-ubuntu-5dl7
-
----
-
-
-## 3.  Install the correct version of Node using nvm
-- Node can be installed via
-  - Mac: `brew install node`
-  - Linux: TODO
-
-- Nvm Can be installed via:
-  - Mac: `brew install nvm`
-    - Follow the install steps output by the cli
-
-
-### Mac M Chips:
-Node 14 requires a special command to run on ARM Mac machines:
-
-`NVM_NODEJS_ORG_MIRROR=https://nodejs.raccoon-tw.dev/release nvm install v14.21.3`
-
-If you are not on mac, run:
-  - `nvm install 14`
-
-
-`npm install --legacy-peer-deps`
-
-### Linux:
-
-sudo apt install nodejs
-
-https://github.com/nvm-sh/nvm
-
-##4. Install Yarn
-
-curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-sudo apt update && sudo apt install yarn -y
-
-
-
-## 4.  Run `yarn install` from ui directory
-## 5.  In the main directory, run `docker compose up`
-
-
+1. Clone the repository.
+2. Navigate to the /ui directory.
+3. Run yarn install.
+4. Download and install Docker.
+Note for WSL Users: If you are using WSL, follow the instructions at https://medium.com/geekculture/run-docker-in-windows-10-11-wsl-without-docker-desktop-a2a7eb90556d to install Docker in your WSL environment.
 Note for WSL Users: To enable port forwarding from the WSL environment to your localhost, follow the instructions at https://dev.to/vishnumohanrk/wsl-port-forwarding-2e22
 Note: Make sure to edit the shell script to include 3000
 
 
-5. Run docker compose up from the main directory.
+5. Run `docker compose up` from the main directory.
 
 The Development environment should now be up on localhost:3000
+
+
 
 
 Thanks,

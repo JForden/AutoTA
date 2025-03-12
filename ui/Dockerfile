@@ -1,5 +1,7 @@
-# Use Node.js 14 base image
-FROM node:14
+FROM node:20.11.1
+
+# Set the NODE_OPTIONS environment variable to enable legacy OpenSSL support
+ENV NODE_OPTIONS=--openssl-legacy-provider
 
 # Set environment variable to handle file system polling
 ENV CHOKIDAR_USEPOLLING=true

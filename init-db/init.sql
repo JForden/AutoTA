@@ -1,4 +1,4 @@
--- MySQL dump 10.13  Distrib 9.1.0, for macos15.1 (arm64)
+-- MySQL dump 10.13  Distrib 8.0.19, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: autota
 -- ------------------------------------------------------
@@ -211,10 +211,10 @@ CREATE TABLE `LoginAttempts` (
   `IPAddress` varchar(39) NOT NULL,
   `Username` varchar(45) NOT NULL,
   PRIMARY KEY (`Id`),
-  KEY `fk_LoginAttempts_1_idx` (`Username`),
-  CONSTRAINT `fk_LoginAttempts` FOREIGN KEY (`Username`) REFERENCES `Users` (`Username`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  KEY `fk_LoginAttempts_1_idx` (`Username`)
 ) ENGINE=InnoDB AUTO_INCREMENT=95 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
 
 --
 -- Table structure for table `Projects`
@@ -405,7 +405,7 @@ CREATE TABLE `SubmissionCharges` (
   `BaseCharge` int DEFAULT NULL,
   `RewardCharge` int DEFAULT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -521,4 +521,4 @@ CREATE TABLE `Users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-01-07 21:47:13
+-- Dump completed on 2025-03-11 13:13:47
