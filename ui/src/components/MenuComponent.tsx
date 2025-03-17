@@ -7,6 +7,7 @@ import axios from 'axios';
 
 interface MenuComponentProps {
     showUpload: boolean,
+    showChat?: boolean,
     showHelp: boolean,
     showCreate: boolean,
     showLast: boolean,
@@ -117,6 +118,22 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                             } else {
                                 return (
                                     <Menu.Item><a href="/class/1/codeHelp">Code Help</a></Menu.Item>
+                                );
+                            }
+                        })()}
+                    </div>
+                    <div>
+                        {(() => {
+                            if (!this.props.showChat) {
+                                return (<></>);
+                            } else {
+                                const args = window.location.href;
+                                const regex = /\/class\/(\d+)\/upload/;
+                                const match = args.match(regex);
+                                const extractedValue = match ? match[1] : null;
+                                const path = "/class/" + extractedValue + "/chat";
+                                return (
+                                    <Menu.Item><a href={path}>Discussion Board</a></Menu.Item>
                                 );
                             }
                         })()}
