@@ -222,7 +222,7 @@ const UploadPage = () => {
             <Helmet>
                 <title>Upload | TA-Bot</title>
             </Helmet>
-            <MenuComponent showAdminUpload={false} showUpload={false} showHelp={false} showCreate={false} showLast={true} showReviewButton={false} showChat={true}></MenuComponent>
+            <MenuComponent showAdminUpload={false} showUpload={false} showHelp={false} showCreate={false} showLast={true} showReviewButton={false} showForum={true}></MenuComponent>
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
                 <Grid.Column width={4}>
                     <Form loading={isLoading} size='large' onSubmit={handleSubmit} disabled={true}>

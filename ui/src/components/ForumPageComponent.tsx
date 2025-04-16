@@ -7,7 +7,7 @@ interface ChatProps {
     class_id?: string;
 }
 
-const ChatPageComponent = () => {
+const ForumPageComponent = () => {
     const [ClassName, setClassName] = useState<String>("");
 
     // Get the class ID from state params:
@@ -36,4 +36,4 @@ const ChatPageComponent = () => {
     )
 }
 
-export default ChatPageComponent
+export default ForumPageComponent

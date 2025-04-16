@@ -7,7 +7,8 @@ import axios from 'axios';
 
 interface MenuComponentProps {
     showUpload: boolean,
-    showChat?: boolean,
+    showForum?: boolean,
+    showAdminForum?: boolean,
     showHelp: boolean,
     showCreate: boolean,
     showLast: boolean,
@@ -33,7 +34,7 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                 'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
             }
         })
-            .then(res => {
+            .then(function (res) {
                 var role = parseInt(res.data);
                 if (role === 0) {
                     window.location.replace("/class/classes");
@@ -42,6 +43,21 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                     window.location.replace("/admin/classes");
                 }
             })
+    }
+
+    isAdmin() {
+        let promise = axios.get(process.env.REACT_APP_BASE_API_URL + `/auth/get-role`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+            }
+        }).then(res => {
+            var role = parseInt(res.data);
+            if (role === 1) {
+                return true;
+            }
+            return false;
+        });
+        return promise;
     }
 
     render() {
@@ -124,14 +140,30 @@ class MenuComponent extends Component<MenuComponentProps, {}> {
                     </div>
                     <div>
                         {(() => {
-                            if (!this.props.showChat) {
+                            if (!this.props.showForum) {
                                 return (<></>);
                             } else {
                                 const args = window.location.href;
                                 const regex = /\/class\/(\d+)\/upload/;
                                 const match = args.match(regex);
                                 const extractedValue = match ? match[1] : null;
-                                const path = "/class/" + extractedValue + "/chat";
+                                const path = "/class/" + extractedValue + "/forum";
+                                return (
+                                    <Menu.Item><a href={path}>Discussion Board</a></Menu.Item>
+                                );
+                            }
+                        })()}
+                    </div>
+                    <div>
+                        {(() => {
+                            if (!this.props.showAdminForum) {
+                                return (<></>);
+                            } else {
+                                const args = window.location.href;
+                                let regex = /\/projects\/(\d+)/;
+                                const match = args.match(regex);
+                                const extractedValue = match ? match[1] : null;
+                                const path = "/class/" + extractedValue + "/forum";
                                 return (
                                     <Menu.Item><a href={path}>Discussion Board</a></Menu.Item>
                                 );
