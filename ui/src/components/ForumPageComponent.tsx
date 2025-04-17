@@ -39,17 +39,17 @@ const ForumPageComponent = () => {
     })
 
     const title = `Class ${ClassName} Discussion Board`;
-    //TODO: Add description input as well as thread input
+    //TODO: Add existing threads below with search & sort options
     return (
         <main style={{ margin: "5%" }}>
             <div>
                 <h1>{title}</h1>
             </div>
-            <div style={{ margin: "5%" }}>
+            <div style={{ margin: "2%" }} className="ui raised segment">
                 <h2 className="center">Create a Thread</h2>
                 <form className="ui form" onSubmit={handleSubmit}>
                     <div className="formInputContainer">
-                        <label htmlFor="thread">Thread Title</label>
+                        <label htmlFor="thread">Question / Thread Title</label>
                         <Input
                             fluid
                             type="text"
@@ -60,6 +60,7 @@ const ForumPageComponent = () => {
                             required
                             value={thread}
                             onChange={(e) => setThread(e.target.value)}
+                            style={{ marginBottom: "1%" }}
                         />
                         <label htmlFor="body">Additional Details</label>
                         <textarea
@@ -69,8 +70,11 @@ const ForumPageComponent = () => {
                             onChange={(e) => setThreadBody(e.target.value)}
                         />
                     </div>
-                    <button className="ui button">Create Thread</button>
+                    <button className="ui button" type="submit" style={{ marginTop: "1%" }}>Create Thread</button>
                 </form>
+            </div>
+            <div style={{ margin: "2%" }}>
+                <h2>Open Threads</h2>
             </div>
         </main>
     )
