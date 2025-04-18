@@ -15,9 +15,89 @@ const ForumPageComponent = () => {
 
     // handleSubmit creates a new thread on form submission, then resets the thread.
     const handleSubmit = (e: { preventDefault: () => void; }) => {
+        // TO DELETE:
         e.preventDefault();
         console.log({ thread });
         console.log({ threadBody });
+
+        // POST EXAMPLE:
+        /*
+        axios.post(process.env.REACT_APP_BASE_API_URL + `/submissions/submit_suggestion`,
+            {
+                "suggestion": suggestions
+            },
+            {
+                headers:
+                {
+                    'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+                }
+            }
+        ).then(res => {
+            alert("Thank you for your constructive feedback, if you have any other suggestions please feel free to submit them.");
+        }, (error) => {
+            alert("There was an error submitting your feedback. Please try again later.");
+        })
+            */
+
+        // FILE POST EXAMPLE:
+        /*
+        if (file !== null) {
+            setIsErrorMessageHidden(true);
+            setIsLoading(true);
+            // Create an object of formData
+            const formData = new FormData();
+
+            // Update the formData object
+            formData.append(
+                "file",
+                file,
+                file.name
+            );
+
+            formData.append("class_id", cid.toString());
+
+            // Request made to the backend api
+            // Send formData object
+            axios.post(process.env.REACT_APP_BASE_API_URL + `/upload/`, formData, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+                }
+            })
+                .then(res => {
+                    window.location.href = "code";
+                })
+                .catch(err => {
+                    setError_Message(err.response.data.message);
+                    setIsErrorMessageHidden(false);
+                    setIsLoading(false);
+                })
+        }
+                */
+
+
+        /*TODO:
+        - Add Forum API paths in app.py
+        - Add Forum structure to models.py
+        - Create forum_repository.py for forum posts & replies
+        - Create forum.py module under src folder to put in injected forum API calls the frontend will use
+        */
+        axios.post(process.env.REACT_APP_BASE_API_URL + '/forum/post',
+            {
+                "title": thread,
+                "body": threadBody,
+            },
+            {
+                headers:
+                {
+                    'Authorization': `Bearer ${localStorage.getItem("AUTOTA_AUTH_TOKEN")}`
+                }
+            }
+        ).then(res => {
+            alert("Thank you for submitting your question! Click the new thread to view replies.");
+        }, (error) => {
+            alert("There was an error submitting your feedback. Please try again later.");
+        })
+
         setThread("");
         setThreadBody("");
     };
