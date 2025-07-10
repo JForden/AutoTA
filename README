@@ -1,31 +1,55 @@
 Welcome to TA-Bot!
 
-Sorry about the brevity of this ReadMe for now, but there will be more to come in the future. In the meantime, you can check out the current state of TA-Bot at http://tabot.sh.
+# TA-Bot
 
-:warning: Known Issue: There is currently a bug that prevents yarn from working in our Docker container.
+Welcome to TA-Bot! An automated teaching assistant system for grading and managing programming assignments.
 
-:bulb: Workaround for Windows Users: To run the TA-Bot Docker development environment on Windows, you will need to install WSL2 (which is required for Docker) and a Linux environment of your choice (e.g. Ubuntu). Follow the steps at https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-10#1-overview to set this up. Then, follow the steps below to run TA-Bot.
+## 🚀 Quick Start
 
-:rocket: Steps to Running the TA-Bot Docker Development Environment:
+### Prerequisites
+- Docker and Docker Compose
+- Git
 
-1. Clone the repository.
-2. Navigate to the /ui directory.
-3. Run yarn install.
-4. Download and install Docker.
-Note for WSL Users: If you are using WSL, follow the instructions at https://medium.com/geekculture/run-docker-in-windows-10-11-wsl-without-docker-desktop-a2a7eb90556d to install Docker in your WSL environment.
-Note for WSL Users: To enable port forwarding from the WSL environment to your localhost, follow the instructions at https://dev.to/vishnumohanrk/wsl-port-forwarding-2e22
-Note: Make sure to edit the shell script to include 3000
+### Local Development Setup
 
-5. cd into the ta-bot directory, run: "git submodule update --init --recursive"
-6. Run `docker compose up` from the main directory.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd AutoTA
+   ```
 
-The Development environment should now be up on localhost:3000
+2. **Download required files**
+   - Download from: https://drive.google.com/file/d/1iLNmAzYi2RVBmUYSXuVM47ulPWa8freb/view?usp=sharing
+   - Extract then move the ta-bot directory into the top level folder
 
+3. **Start the application**
+   ```bash
+   docker compose up
+   ```
 
+4. **Database Setup**
+   - The local database will be automatically generated
+   - **Manual setup required**: Classes, lectures, and labs need to be manually added
+   
+   **Example class configuration:**
+   ```
+   Classes table:
+   - ID: 1
+   - Name: 1010
+   - TID: 124
+   
+   Note: For multiple teachers, use comma-separated values (e.g., TID: 124,657)
+   TODO: Fix this to use proper relational structure
+   ```
 
+5. Once a class is created you can sign in. Authentication is managed via authenticaion_services.py and is disabled for local development. 
+6. Accounts can be promoted to an admin via the role column(increment to 1), then added to a class via step 4 above
 
 Thanks,
-TA-Bot Team
+
+You can contact the developer of TA-Bot via: jforden@carrollu.edu
+
+
 
 Adding a language to the running piston env:
 cli/index.js ppman install java --piston-url "http://127.0.0.1:9000"0.1:9000"
